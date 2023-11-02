@@ -58,30 +58,50 @@ def querrySession() -> Response | list[Any]:
         dateplaceholder = datetime.date(2014, 1, 1)
         date = dateplaceholder.replace(*map(int, value.split("-")))
         # sntx to be changed to match -> Python 3.11
+        # Maybe should use LUT for operations
         match op:
             case "eq":
-                return [
-                    product
-                    for product in catalogData["Data"]
-                    if date
-                    == datetime.date(*map(int, product[field].split("T")[0].split("-")))
-                ]
+                # map inside map, to be reviewed?
+                respBody = map(
+                    json.dumps,
+                    [
+                        product
+                        for product in catalogData["Data"]
+                        if date
+                        == datetime.date(
+                            *map(int, product[field].split("T")[0].split("-"))
+                        )
+                    ],
+                )
             case "gt":
-                return [
-                    product
-                    for product in catalogData["Data"]
-                    if date
-                    < datetime.date(*map(int, product[field].split("T")[0].split("-")))
-                ]
+                respBody = map(
+                    json.dumps,
+                    [
+                        product
+                        for product in catalogData["Data"]
+                        if date
+                        < datetime.date(
+                            *map(int, product[field].split("T")[0].split("-"))
+                        )
+                    ],
+                )
             case "lt":
-                return [
-                    product
-                    for product in catalogData["Data"]
-                    if date
-                    > datetime.date(*map(int, product[field].split("T")[0].split("-")))
-                ]
+                respBody = map(
+                    json.dumps,
+                    [
+                        product
+                        for product in catalogData["Data"]
+                        if date
+                        > datetime.date(
+                            *map(int, product[field].split("T")[0].split("-"))
+                        )
+                    ],
+                )
             case _:
                 return Response(status="404")
+        return (
+            Response(status=200, response=respBody) if respBody else Response(status=40)
+        )
     else:
         querry_result = [
             product for product in catalogData["Data"] if value in product[field]
@@ -105,30 +125,56 @@ def querryFiles() -> Response | list[Any]:
         return Response(status="400 Bad Request")
 
     catalogData = json.loads(open("Catalogue/FileResponse.json").read())
-
-    op, value = request.args["filter"].split("(")
-    filterBy, filterValue = re.search("('.*?', '.*?')", value).group(0).replace("'", "").split(", ")  # type: ignore
-    if filterBy == "Name":
+    if "Name" in request.args["filter"]:
+        op, value = request.args["filter"].split("(")
+        filterBy, filterValue = re.search("('.*?', '.*?')", value).group(0).replace("'", "").split(", ")  # type: ignore
         match op:
             case "contains":
-                return [
-                    product
-                    for product in catalogData["Data"]
-                    if filterValue in product[filterBy]
-                ]
+                respBody = map(
+                    json.dumps,
+                    [
+                        product
+                        for product in catalogData["Data"]
+                        if filterValue in product[filterBy]
+                    ],
+                )
             case "startswith":
-                return [
-                    product
-                    for product in catalogData["Data"]
-                    if product[filterBy].startswith(filterValue)
-                ]
+                respBody = map(
+                    json.dumps,
+                    [
+                        product
+                        for product in catalogData["Data"]
+                        if product[filterBy].startswith(filterValue)
+                    ],
+                )
             case "endswith":
-                return [
-                    product
-                    for product in catalogData["Data"]
-                    if product[filterBy].endswith(filterValue)
-                ]
-    return Response(status=200)
+                respBody = map(
+                    json.dumps,
+                    [
+                        product
+                        for product in catalogData["Data"]
+                        if product[filterBy].endswith(filterValue)
+                    ],
+                )
+        return (
+            Response(status=200, response=respBody)
+            if respBody
+            else Response(status=404)
+        )
+    else:  # SessionId / Orbit
+        field, op, value = request.args["filter"].split(" ")
+        # only op = eq at the moment
+        # import pdb
+        # pdb.set_trace()
+        matching = map(
+            json.dumps,
+            [product for product in catalogData["Data"] if value == product[field]],
+        )
+        return (
+            Response(response=matching, status=200)
+            if matching
+            else Response(status=404)
+        )
 
 
 # 3.5
@@ -161,18 +207,22 @@ def qualityInfo(Id) -> Response | list[Any]:
     if "expand" in request.args:
         if request.args["expand"] == "qualityInfo":
             catalogData = json.loads(open("Catalogue/FileResponse.json").read())
-            return [
-                QIData
-                for QIData in catalogData["Data"]
-                if Id.replace("'", "") == QIData["Id"]
-            ]
+            QIData = map(
+                json.dumps,
+                [
+                    QIData
+                    for QIData in catalogData["Data"]
+                    if Id.replace("'", "") == QIData["Id"]
+                ],
+            )
+            return Response(status=200, response=QIData)
     return Response(status="405 Request denied, need qualityInfo")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1: # script
+    if len(sys.argv) > 1:  # script
         host, port = sys.argv[1:]
         app.run(debug=True, host=host, port=int(port))
-    
-    app.run(debug=True) # local
-    #app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
+
+    app.run(debug=True)  # local
+    # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
