@@ -15,7 +15,7 @@
 		{
 			"Id": "some_id_2",
 			"Name": "S1A.raw",
-			"SessionID": "some_session_id",
+			"SessionID": "some_session_id2",
 			"Channel": 1,
 			"BlockNumber": 1,
 			"FinalBlock": true,
@@ -27,7 +27,7 @@
 		{
 			"Id": "some_id_3",
 			"Name": "S2L1C.raw",
-			"SessionID": "some_session_id",
+			"SessionID": "some_session_id3",
 			"Channel": 1,
 			"BlockNumber": 1,
 			"FinalBlock": true,

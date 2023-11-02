@@ -5,6 +5,7 @@ import json
 import datetime
 from typing import Any
 import re
+import sys
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -135,6 +136,7 @@ def querryFiles() -> Response | list[Any]:
 # v1.0.0 takes id from route GET and filters FPJ (json outputs of file querry) in order to download a file
 # Is possible / how to download multiple files
 @app.route("/Files(<Id>)", methods=["GET"])
+# @auth.login_required # Not yet
 def downloadFile(Id) -> Response:
     catalogData = json.loads(open("Catalogue/FileResponse.json").read())
 
@@ -168,5 +170,9 @@ def qualityInfo(Id) -> Response | list[Any]:
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
-    # app.run(debug=True, host="0.0.0.0", port=8443)
+    if len(sys.argv) > 1: # script
+        host, port = sys.argv[1:]
+        app.run(debug=True, host=host, port=int(port))
+    
+    app.run(debug=True) # local
+    #app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN

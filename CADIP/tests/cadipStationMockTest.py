@@ -85,8 +85,8 @@ def test_querryQualityInfo():
         # to be changed after deploy / pipeline
         (
             (
-                "/Users/ovidiu/work/RS/RSMocks/CADIP/S3Mock/",
-                "/Users/ovidiu/work/RS/RSMocks/CADIP/S3MockTest/",
+                "S3Mock/",
+                "S3MockTest/",
                 "S1A.raw",
                 "S1A_test.raw",
             )
