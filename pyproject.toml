@@ -1,0 +1,17 @@
+[project]
+name = "rs-python"
+authors = []
+dynamic = ["version"]
+
+requires-python = ">=3.11"
+
+dependencies = [
+    "Flask == 2.3.0",
+    "Flask-HTTPAuth == 4.8.0",
+    "Flask-Bcrypt == 1.0.1",
+    ]
+
+[project.optional-dependencies]
+tests = [
+    "pytest == 7.4.3"
+    ]

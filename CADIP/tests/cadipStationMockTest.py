@@ -4,6 +4,7 @@ import pytest
 import os
 import filecmp
 
+WEBSERVER = "http://127.0.0.1:5000/"
 
 # python3.11 -m pytest cadipStationMockTest.py -vv
 @pytest.mark.unit
@@ -16,9 +17,9 @@ import filecmp
 def testAuth(correct_login, incorrect_login):
     # test credentials on get methods with auth required.
     assert (
-        requests.get("http://127.0.0.1:5000/", auth=incorrect_login).status_code == 401
+        requests.get(WEBSERVER, auth=incorrect_login).status_code == 401
     )
-    assert requests.get("http://127.0.0.1:5000/", auth=correct_login).status_code == 200
+    assert requests.get(WEBSERVER, auth=correct_login).status_code == 200
 
 
 @pytest.mark.unit
@@ -52,22 +53,22 @@ def testAuth(correct_login, incorrect_login):
 )
 def testQuerrySessions(sessionResponse20230216):
     # Response containing more than 1 result, since there are more products matching
-    data = requests.get("http://127.0.0.1:5000/Sessions?filter=PublicationDate gt 2019")
+    apiRoute = "Sessions?filter=PublicationDate gt 2019"
+    data = requests.get(WEBSERVER + apiRoute)
     assert len(json.loads(data.text)) > 1
     # Response containing exactly one item, since explicit date is mentioned.
-    data = requests.get(
-        "http://127.0.0.1:5000/Sessions?filter=PublicationDate eq 2023-02-16"
-    )
+    apiRoute = "Sessions?filter=PublicationDate eq 2023-02-16"
+    data = requests.get(WEBSERVER + apiRoute)
 
     assert len(json.loads(data.text)) == 1
     # Check response content with test-defined one.
-    data = requests.get(
-        "http://127.0.0.1:5000/Sessions?filter=PublicationDate eq 2023-02-16"
-    )
+    apiRoute = "Sessions?filter=PublicationDate eq 2023-02-16"
+    data = requests.get(WEBSERVER + apiRoute)
     assert json.loads(data.text) == sessionResponse20230216
 
     # Empty json response since there are no products older than 1999.
-    data = requests.get("http://127.0.0.1:5000/Sessions?filter=PublicationDate lt 1999")
+    apiRoute = "Sessions?filter=PublicationDate lt 1999"
+    data = requests.get(WEBSERVER + apiRoute)
     assert not len(json.loads(data.text))
 
 
@@ -104,10 +105,12 @@ def testDownloadFile(original_path, download_path, original_file, download_file)
     if not os.path.exists(os.path.join(original_path, original_file)):
         assert False
     # Test download for an inexistent file (404 expected)
-    data = requests.get("http://127.0.0.1:5000/Files(some_inexistent_ID)")
+    apiRoute = "Files(some_inexistent_ID)"
+    data = requests.get(WEBSERVER + apiRoute)
     assert data.status_code == 404
     # Test existing file
-    data = requests.get("http://127.0.0.1:5000/Files(some_id_2)")
+    apiRoute = "Files(some_id_2)"
+    data = requests.get(WEBSERVER + apiRoute)
     assert data.status_code == 200
     # Dump response to file (python-request limitation, server is automatically downloading file in accepted brows)
     with open(os.path.join(download_path, download_file), "wb+") as df:
