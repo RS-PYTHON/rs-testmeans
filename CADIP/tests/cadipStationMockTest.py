@@ -1,10 +1,12 @@
-import requests
-import json
-import pytest
-import os
 import filecmp
+import json
+import os
+
+import pytest
+import requests
 
 WEBSERVER = "http://127.0.0.1:5000/"
+
 
 # python3.11 -m pytest cadipStationMockTest.py -vv
 @pytest.mark.unit
@@ -16,9 +18,7 @@ WEBSERVER = "http://127.0.0.1:5000/"
 )
 def testAuth(correct_login, incorrect_login):
     # test credentials on get methods with auth required.
-    assert (
-        requests.get(WEBSERVER, auth=incorrect_login).status_code == 401
-    )
+    assert requests.get(WEBSERVER, auth=incorrect_login).status_code == 401
     assert requests.get(WEBSERVER, auth=correct_login).status_code == 200
 
 
@@ -47,7 +47,7 @@ def testAuth(correct_login, incorrect_login):
                 "Satellite": "S3A",
                 "SessionID": "S3OLCI1",
                 "StationUnitId": "00",
-            }
+            },
         ],
     ],
 )

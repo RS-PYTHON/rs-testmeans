@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request, send_file, Response
-from flask_httpauth import HTTPBasicAuth
-from flask_bcrypt import Bcrypt
-import json
 import datetime
-from typing import Any
+import json
 import re
 import sys
+from typing import Any
+
+from flask import Flask, Response, render_template, request, send_file
+from flask_bcrypt import Bcrypt
+from flask_httpauth import HTTPBasicAuth
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -31,7 +32,7 @@ def hello():
 @app.route("/Sessions", methods=["GET"])
 # @auth.login_required # Not yet
 def querrySession() -> Response | list[Any]:
-    # Filter from SPJ.json, additional output options to be added: orderby, top, skip, count.
+    # Additional output options to be added: orderby, top, skip, count.
     # Aditional operators to be added, and, or, not, in
     # Request with publicationDate gt / lt are not implemented yet
     if not request.args:
@@ -43,7 +44,7 @@ def querrySession() -> Response | list[Any]:
         [
             querry_text == request.args["filter"].split(" ")[0]
             for querry_text in ["Satellite", "DownlinkOrbit", "PublicationDate"]
-        ]
+        ],
     ):
         return Response(status="400 Bad Request")
 
@@ -52,7 +53,7 @@ def querrySession() -> Response | list[Any]:
     # Normalize request (lower case / remove ')
     value = value.replace("'", "")
 
-    # return results or the 200OK code is returned with an empty response body (PSD)
+    # return results or the 200OK code is returned with an empty response (PSD)
     if field == "PublicationDate":
         # year-month-day
         dateplaceholder = datetime.date(2014, 1, 1)
@@ -67,10 +68,7 @@ def querrySession() -> Response | list[Any]:
                     [
                         product
                         for product in catalogData["Data"]
-                        if date
-                        == datetime.date(
-                            *map(int, product[field].split("T")[0].split("-"))
-                        )
+                        if date == datetime.date(*map(int, product[field].split("T")[0].split("-")))
                     ],
                 )
             case "gt":
@@ -79,10 +77,7 @@ def querrySession() -> Response | list[Any]:
                     [
                         product
                         for product in catalogData["Data"]
-                        if date
-                        < datetime.date(
-                            *map(int, product[field].split("T")[0].split("-"))
-                        )
+                        if date < datetime.date(*map(int, product[field].split("T")[0].split("-")))
                     ],
                 )
             case "lt":
@@ -91,21 +86,14 @@ def querrySession() -> Response | list[Any]:
                     [
                         product
                         for product in catalogData["Data"]
-                        if date
-                        > datetime.date(
-                            *map(int, product[field].split("T")[0].split("-"))
-                        )
+                        if date > datetime.date(*map(int, product[field].split("T")[0].split("-")))
                     ],
                 )
             case _:
                 return Response(status="404")
-        return (
-            Response(status=200, response=respBody) if respBody else Response(status=40)
-        )
+        return Response(status=200, response=respBody) if respBody else Response(status=40)
     else:
-        querry_result = [
-            product for product in catalogData["Data"] if value in product[field]
-        ]
+        querry_result = [product for product in catalogData["Data"] if value in product[field]]
         return querry_result if querry_result else Response(status="200 OK")
 
 
@@ -120,7 +108,7 @@ def querryFiles() -> Response | list[Any]:
         [
             querry_text in request.args["filter"].split(" ")[0]
             for querry_text in ["Id", "Orbit", "Name", "PublicationDate"]
-        ]
+        ],
     ):
         return Response(status="400 Bad Request")
 
@@ -132,35 +120,19 @@ def querryFiles() -> Response | list[Any]:
             case "contains":
                 respBody = map(
                     json.dumps,
-                    [
-                        product
-                        for product in catalogData["Data"]
-                        if filterValue in product[filterBy]
-                    ],
+                    [product for product in catalogData["Data"] if filterValue in product[filterBy]],
                 )
             case "startswith":
                 respBody = map(
                     json.dumps,
-                    [
-                        product
-                        for product in catalogData["Data"]
-                        if product[filterBy].startswith(filterValue)
-                    ],
+                    [product for product in catalogData["Data"] if product[filterBy].startswith(filterValue)],
                 )
             case "endswith":
                 respBody = map(
                     json.dumps,
-                    [
-                        product
-                        for product in catalogData["Data"]
-                        if product[filterBy].endswith(filterValue)
-                    ],
+                    [product for product in catalogData["Data"] if product[filterBy].endswith(filterValue)],
                 )
-        return (
-            Response(status=200, response=respBody)
-            if respBody
-            else Response(status=404)
-        )
+        return Response(status=200, response=respBody) if respBody else Response(status=404)
     else:  # SessionId / Orbit
         field, op, value = request.args["filter"].split(" ")
         # only op = eq at the moment
@@ -170,11 +142,7 @@ def querryFiles() -> Response | list[Any]:
             json.dumps,
             [product for product in catalogData["Data"] if value == product[field]],
         )
-        return (
-            Response(response=matching, status=200)
-            if matching
-            else Response(status=404)
-        )
+        return Response(response=matching, status=200) if matching else Response(status=404)
 
 
 # 3.5
@@ -186,17 +154,9 @@ def querryFiles() -> Response | list[Any]:
 def downloadFile(Id) -> Response:
     catalogData = json.loads(open("Catalogue/FileResponse.json").read())
 
-    files = [
-        product
-        for product in catalogData["Data"]
-        if Id.replace("'", "") == product["Id"]
-    ]
+    files = [product for product in catalogData["Data"] if Id.replace("'", "") == product["Id"]]
     if files:
-        return (
-            send_file("S3Mock/" + files[0]["Name"])
-            if len(files) == 1
-            else Response(status="200 not implemented")
-        )
+        return send_file("S3Mock/" + files[0]["Name"]) if len(files) == 1 else Response(status="200 not implemented")
     else:
         return Response(status=404)
 
@@ -209,11 +169,7 @@ def qualityInfo(Id) -> Response | list[Any]:
             catalogData = json.loads(open("Catalogue/FileResponse.json").read())
             QIData = map(
                 json.dumps,
-                [
-                    QIData
-                    for QIData in catalogData["Data"]
-                    if Id.replace("'", "") == QIData["Id"]
-                ],
+                [QIData for QIData in catalogData["Data"] if Id.replace("'", "") == QIData["Id"]],
             )
             return Response(status=200, response=QIData)
     return Response(status="405 Request denied, need qualityInfo")

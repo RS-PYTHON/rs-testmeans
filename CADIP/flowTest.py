@@ -1,12 +1,11 @@
-import requests
 import json
+
+import requests
 
 
 def realUsageTest():
     print("Querrying CADIP for products made public on 2019-02-16", end="\n\n\n")
-    data = requests.get(
-        "http://127.0.0.1:5000/Sessions?filter=PublicationDate eq 2019-02-16"
-    )
+    data = requests.get("http://127.0.0.1:5000/Sessions?filter=PublicationDate eq 2019-02-16")
     if data.content:
         print(f"CADIP response: {data.content}", end="\n\n\n")
     else:
