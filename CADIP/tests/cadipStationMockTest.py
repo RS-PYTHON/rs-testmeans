@@ -3,7 +3,7 @@ import json
 import os
 
 import pytest
-import requests
+import requests  # type: ignore
 
 WEBSERVER = "http://127.0.0.1:5000/"
 
@@ -16,7 +16,7 @@ WEBSERVER = "http://127.0.0.1:5000/"
         (("test", "test"), ("notTest", "notTest")),
     ],
 )
-def testAuth(correct_login, incorrect_login):
+def testAuth(correct_login: str, incorrect_login: str):
     # test credentials on get methods with auth required.
     assert requests.get(WEBSERVER, auth=incorrect_login).status_code == 401
     assert requests.get(WEBSERVER, auth=correct_login).status_code == 200

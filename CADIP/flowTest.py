@@ -1,6 +1,6 @@
 import json
 
-import requests
+import requests  # type: ignore
 
 
 def realUsageTest():
