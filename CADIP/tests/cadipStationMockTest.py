@@ -20,6 +20,8 @@ def testAuth(correct_login: str, incorrect_login: str):
     # test credentials on get methods with auth required.
     assert requests.get(WEBSERVER, auth=incorrect_login).status_code == 401
     assert requests.get(WEBSERVER, auth=correct_login).status_code == 200
+    # test a broken endpoint route
+    assert requests.get(WEBSERVER + "incorrectRoute/").status_code == 404
 
 
 @pytest.mark.unit

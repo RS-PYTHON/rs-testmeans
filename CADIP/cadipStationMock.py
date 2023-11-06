@@ -12,11 +12,10 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 
-users = json.loads(open("auth.json").read())
-
 
 @auth.verify_password
 def verify_password(username, password) -> bool:
+    users = json.loads(open("auth.json").read())
     if username in users.keys():
         return bcrypt.check_password_hash(users.get(username), password)
     return False
@@ -48,10 +47,9 @@ def querrySession() -> Response | list[Any]:
     ):
         return Response(status="400 Bad Request")
 
-    field, op, value = request.args["filter"].split(" ")
-    catalogData = json.loads(open("Catalogue/SPJ.json").read())
     # Normalize request (lower case / remove ')
-    value = value.replace("'", "")
+    field, op, value = map(lambda norm: norm.replace("'", ""), request.args["filter"].split(" "))
+    catalogData = json.loads(open("Catalogue/SPJ.json").read())
 
     # return results or the 200OK code is returned with an empty response (PSD)
     if field == "PublicationDate":
@@ -91,7 +89,7 @@ def querrySession() -> Response | list[Any]:
                 )
             case _:
                 return Response(status="404")
-        return Response(status=200, response=respBody) if respBody else Response(status=40)
+        return Response(status=200, response=respBody) if respBody else Response(status=404)
     else:
         querry_result = [product for product in catalogData["Data"] if value in product[field]]
         return querry_result if querry_result else Response(status="200 OK")
@@ -155,10 +153,13 @@ def downloadFile(Id) -> Response:
     catalogData = json.loads(open("Catalogue/FileResponse.json").read())
 
     files = [product for product in catalogData["Data"] if Id.replace("'", "") == product["Id"]]
-    if files:
-        return send_file("S3Mock/" + files[0]["Name"]) if len(files) == 1 else Response(status="200 not implemented")
-    else:
-        return Response(status=404)
+    return (
+        send_file("S3Mock/" + files[0]["Name"]) if len(files) == 1 else Response(status="404 None/Multiple files found")
+    )
+    # if files:
+    #    return send_file("S3Mock/" + files[0]["Name"]) if len(files) == 1 else Response(status="200 not implemented")
+    # else:
+    #    return Response(status=404)
 
 
 # 3.6
