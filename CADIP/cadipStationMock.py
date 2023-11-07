@@ -13,6 +13,11 @@ bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 
 
+def batchResponseOdataV4(respBody: map) -> Any:
+    unpacked = list(respBody)
+    return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else unpacked
+
+
 @auth.verify_password
 def verify_password(username, password) -> bool:
     users = json.loads(open("auth.json").read())
@@ -89,7 +94,7 @@ def querrySession() -> Response | list[Any]:
                 )
             case _:
                 return Response(status="404")
-        return Response(status=200, response=respBody) if respBody else Response(status=404)
+        return Response(status=200, response=batchResponseOdataV4(respBody)) if respBody else Response(status=404)
     else:
         querry_result = [product for product in catalogData["Data"] if value in product[field]]
         return querry_result if querry_result else Response(status="200 OK")
@@ -130,12 +135,47 @@ def querryFiles() -> Response | list[Any]:
                     json.dumps,
                     [product for product in catalogData["Data"] if product[filterBy].endswith(filterValue)],
                 )
-        return Response(status=200, response=respBody) if respBody else Response(status=404)
+        return Response(status=200, response=batchResponseOdataV4(respBody)) if respBody else Response(status=404)
+    elif "PublicationDate" in request.args["$filter"]:
+        field, op, value = request.args["$filter"].split(" ")
+        dateplaceholder = datetime.date(2014, 1, 1)
+        date = dateplaceholder.replace(*map(int, value.split("-")))
+        match op:
+            case "eq":
+                # map inside map, to be reviewed?
+                respBody = map(
+                    json.dumps,
+                    [
+                        product
+                        for product in catalogData["Data"]
+                        if date == datetime.date(*map(int, product[field].split("T")[0].split("-")))
+                    ],
+                )
+            case "gt":
+                respBody = map(
+                    json.dumps,
+                    [
+                        product
+                        for product in catalogData["Data"]
+                        if date < datetime.date(*map(int, product[field].split("T")[0].split("-")))
+                    ],
+                )
+            case "lt":
+                respBody = map(
+                    json.dumps,
+                    [
+                        product
+                        for product in catalogData["Data"]
+                        if date > datetime.date(*map(int, product[field].split("T")[0].split("-")))
+                    ],
+                )
+        return Response(status=200, response=batchResponseOdataV4(respBody)) if respBody else Response(status=404)
     else:  # SessionId / Orbit
         field, op, value = request.args["$filter"].split(" ")
         # only op = eq at the moment
         # import pdb
         # pdb.set_trace()
+        # Same logic with placeholders as in sessions to be implemented here
         matching = map(
             json.dumps,
             [product for product in catalogData["Data"] if value == product[field]],
@@ -167,7 +207,7 @@ def downloadFile(Id) -> Response:
 def qualityInfo(Id) -> Response | list[Any]:
     if "expand" in request.args:
         if request.args["expand"] == "qualityInfo":
-            catalogData = json.loads(open("Catalogue/FileResponse.json").read())
+            catalogData = json.loads(open("Catalogue/QualityInfoResponse.json").read())
             QIData = map(
                 json.dumps,
                 [QIData for QIData in catalogData["Data"] if Id.replace("'", "") == QIData["Id"]],

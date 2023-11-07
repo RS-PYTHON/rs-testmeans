@@ -59,6 +59,9 @@ def testQuerrySessions(sessionResponse20230216):
     # Response containing exactly one item, since explicit date is mentioned.
     apiRoute = "Sessions?$filter=PublicationDate eq 2023-02-16"
     data = requests.get(WEBSERVER + apiRoute)
+    import pdb
+
+    pdb.set_trace()
     assert isinstance(json.loads(data.text), dict)
     # Check response content with test-defined one.
     apiRoute = "Sessions?$filter=PublicationDate eq 2023-02-16"
