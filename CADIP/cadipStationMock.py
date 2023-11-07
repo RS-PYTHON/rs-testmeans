@@ -147,7 +147,7 @@ def querryFiles() -> Response | list[Any]:
 # Not sure if download should be requested only with ID or with a json request?
 # v1.0.0 takes id from route GET and filters FPJ (json outputs of file querry) in order to download a file
 # Is possible / how to download multiple files
-@app.route("/Files(<Id>)", methods=["GET"])
+@app.route("/Files(<Id>)/$value", methods=["GET"])
 # @auth.login_required # Not yet
 def downloadFile(Id) -> Response:
     catalogData = json.loads(open("Catalogue/FileResponse.json").read())

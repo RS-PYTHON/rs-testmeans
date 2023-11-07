@@ -104,11 +104,11 @@ def testDownloadFile(original_path, download_path, original_file, download_file)
     if not os.path.exists(os.path.join(original_path, original_file)):
         assert False
     # Test download for an inexistent file (404 expected)
-    apiRoute = "Files(some_inexistent_ID)"
+    apiRoute = "Files(some_inexistent_ID)/$value"
     data = requests.get(WEBSERVER + apiRoute)
     assert data.status_code == 404
     # Test existing file
-    apiRoute = "Files(some_id_2)"
+    apiRoute = "Files(some_id_2)/$value"
     data = requests.get(WEBSERVER + apiRoute)
     assert data.status_code == 200
     # Dump response to file (python-request limitation, server is automatically downloading file in accepted brows)
