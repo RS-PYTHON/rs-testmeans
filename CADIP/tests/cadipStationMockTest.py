@@ -53,20 +53,20 @@ def testAuth(correct_login: str, incorrect_login: str):
 )
 def testQuerrySessions(sessionResponse20230216):
     # Response containing more than 1 result, since there are more products matching
-    apiRoute = "Sessions?filter=PublicationDate gt 2019"
+    apiRoute = "Sessions?$filter=PublicationDate gt 2019"
     data = requests.get(WEBSERVER + apiRoute)
     assert len(data.text) > 1
     # Response containing exactly one item, since explicit date is mentioned.
-    apiRoute = "Sessions?filter=PublicationDate eq 2023-02-16"
+    apiRoute = "Sessions?$filter=PublicationDate eq 2023-02-16"
     data = requests.get(WEBSERVER + apiRoute)
     assert isinstance(json.loads(data.text), dict)
     # Check response content with test-defined one.
-    apiRoute = "Sessions?filter=PublicationDate eq 2023-02-16"
+    apiRoute = "Sessions?$filter=PublicationDate eq 2023-02-16"
     data = requests.get(WEBSERVER + apiRoute)
     assert json.loads(data.text).keys() == sessionResponse20230216.keys()
     assert json.loads(data.text) == sessionResponse20230216
     # Empty json response since there are no products older than 1999.
-    apiRoute = "Sessions?filter=PublicationDate lt 1999"
+    apiRoute = "Sessions?$filter=PublicationDate lt 1999"
     data = requests.get(WEBSERVER + apiRoute)
     assert not len(data.text)
 

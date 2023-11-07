@@ -41,14 +41,14 @@ def querrySession() -> Response | list[Any]:
     # Check requested values, filter type can only be json keys
     if not any(
         [
-            querry_text == request.args["filter"].split(" ")[0]
+            querry_text == request.args["$filter"].split(" ")[0]
             for querry_text in ["Satellite", "DownlinkOrbit", "PublicationDate"]
         ],
     ):
         return Response(status="400 Bad Request")
 
     # Normalize request (lower case / remove ')
-    field, op, value = map(lambda norm: norm.replace("'", ""), request.args["filter"].split(" "))
+    field, op, value = map(lambda norm: norm.replace("'", ""), request.args["$filter"].split(" "))
     catalogData = json.loads(open("Catalogue/SPJ.json").read())
 
     # return results or the 200OK code is returned with an empty response (PSD)
@@ -104,15 +104,15 @@ def querryFiles() -> Response | list[Any]:
 
     if not any(
         [
-            querry_text in request.args["filter"].split(" ")[0]
+            querry_text in request.args["$filter"].split(" ")[0]
             for querry_text in ["Id", "Orbit", "Name", "PublicationDate"]
         ],
     ):
         return Response(status="400 Bad Request")
 
     catalogData = json.loads(open("Catalogue/FileResponse.json").read())
-    if "Name" in request.args["filter"]:
-        op, value = request.args["filter"].split("(")
+    if "Name" in request.args["$filter"]:
+        op, value = request.args["$filter"].split("(")
         filterBy, filterValue = re.search("('.*?', '.*?')", value).group(0).replace("'", "").split(", ")  # type: ignore
         match op:
             case "contains":
@@ -132,7 +132,7 @@ def querryFiles() -> Response | list[Any]:
                 )
         return Response(status=200, response=respBody) if respBody else Response(status=404)
     else:  # SessionId / Orbit
-        field, op, value = request.args["filter"].split(" ")
+        field, op, value = request.args["$filter"].split(" ")
         # only op = eq at the moment
         # import pdb
         # pdb.set_trace()
