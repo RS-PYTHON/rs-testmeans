@@ -62,22 +62,17 @@ def querry_session() -> Response | list[Any]:
     # return results or the 200OK code is returned with an empty response (PSD)
     if field == "PublicationDate":
         # year-month-day
-        dateplaceholder = datetime.date(2014, 1, 1)
-        date = dateplaceholder.replace(*map(int, value.split("-")))
-        # sntx to be changed to match -> Python 3.11
+        date_placeholder = datetime.datetime(2014, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
+        date = date_placeholder.replace(*map(int, value.split("-")))  # type: ignore
         # Maybe should use LUT for operations
         match op:
             case "eq":
-                # map inside map, to be reviewed?
                 resp_body = map(
                     json.dumps,
                     [
                         product
                         for product in catalog_data["Data"]
-                        if date
-                        == datetime.date(
-                            *map(int, product[field].split("T")[0].split("-")),
-                        )
+                        if date == datetime.datetime.fromisoformat(product[field])
                     ],
                 )
             case "gt":
@@ -86,10 +81,7 @@ def querry_session() -> Response | list[Any]:
                     [
                         product
                         for product in catalog_data["Data"]
-                        if date
-                        < datetime.date(
-                            *map(int, product[field].split("T")[0].split("-")),
-                        )
+                        if date < datetime.datetime.fromisoformat(product[field])
                     ],
                 )
             case "lt":
@@ -98,10 +90,7 @@ def querry_session() -> Response | list[Any]:
                     [
                         product
                         for product in catalog_data["Data"]
-                        if date
-                        > datetime.date(
-                            *map(int, product[field].split("T")[0].split("-")),
-                        )
+                        if date > datetime.datetime.fromisoformat(product[field])
                     ],
                 )
             case _:
@@ -152,8 +141,8 @@ def querryFiles() -> Response | list[Any]:
         return Response(status=200, response=batch_response_odata_V4(resp_body)) if resp_body else Response(status=404)
     elif "PublicationDate" in request.args["$filter"]:
         field, op, value = request.args["$filter"].split(" ")
-        dateplaceholder = datetime.date(2014, 1, 1)
-        date = dateplaceholder.replace(*map(int, value.split("-")))
+        date_placeholder = datetime.datetime(2014, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
+        date = date_placeholder.replace(*map(int, value.split("-")))  # type: ignore
         match op:
             case "eq":
                 # map inside map, to be reviewed?
@@ -162,10 +151,7 @@ def querryFiles() -> Response | list[Any]:
                     [
                         product
                         for product in catalog_data["Data"]
-                        if date
-                        == datetime.date(
-                            *map(int, product[field].split("T")[0].split("-")),
-                        )
+                        if date == datetime.datetime.fromisoformat(product[field])
                     ],
                 )
             case "gt":
@@ -174,10 +160,7 @@ def querryFiles() -> Response | list[Any]:
                     [
                         product
                         for product in catalog_data["Data"]
-                        if date
-                        < datetime.date(
-                            *map(int, product[field].split("T")[0].split("-")),
-                        )
+                        if date < datetime.datetime.fromisoformat(product[field])
                     ],
                 )
             case "lt":
@@ -186,19 +169,12 @@ def querryFiles() -> Response | list[Any]:
                     [
                         product
                         for product in catalog_data["Data"]
-                        if date
-                        > datetime.date(
-                            *map(int, product[field].split("T")[0].split("-")),
-                        )
+                        if date > datetime.datetime.fromisoformat(product[field])
                     ],
                 )
         return Response(status=200, response=batch_response_odata_V4(resp_body)) if resp_body else Response(status=404)
     else:  # SessionId / Orbit
         field, op, value = request.args["$filter"].split(" ")
-        # only op = eq at the moment
-        # import pdb
-        # pdb.set_trace()
-        # Same logic with placeholders as in sessions to be implemented here
         matching = map(
             json.dumps,
             [product for product in catalog_data["Data"] if value == product[field]],
