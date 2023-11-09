@@ -13,7 +13,7 @@ bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 
 
-def batchResponseOdataV4(respBody: map) -> Any:
+def batch_response_odata_V4(respBody: map) -> Any:
     unpacked = list(respBody)
     return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else unpacked
 
@@ -35,7 +35,7 @@ def hello():
 # 3.3 (PSD)
 @app.route("/Sessions", methods=["GET"])
 # @auth.login_required # Not yet
-def querrySession() -> Response | list[Any]:
+def querry_session() -> Response | list[Any]:
     # Additional output options to be added: orderby, top, skip, count.
     # Aditional operators to be added, and, or, not, in
     # Request with publicationDate gt / lt are not implemented yet
@@ -53,8 +53,11 @@ def querrySession() -> Response | list[Any]:
         return Response(status="400 Bad Request")
 
     # Normalize request (lower case / remove ')
-    field, op, value = map(lambda norm: norm.replace("'", ""), request.args["$filter"].split(" "))
-    catalogData = json.loads(open("Catalogue/SPJ.json").read())
+    field, op, value = map(
+        lambda norm: norm.replace("'", ""),
+        request.args["$filter"].split(" "),
+    )
+    catalog_data = json.loads(open("Catalogue/SPJ.json").read())
 
     # return results or the 200OK code is returned with an empty response (PSD)
     if field == "PublicationDate":
@@ -66,37 +69,46 @@ def querrySession() -> Response | list[Any]:
         match op:
             case "eq":
                 # map inside map, to be reviewed?
-                respBody = map(
+                resp_body = map(
                     json.dumps,
                     [
                         product
-                        for product in catalogData["Data"]
-                        if date == datetime.date(*map(int, product[field].split("T")[0].split("-")))
+                        for product in catalog_data["Data"]
+                        if date
+                        == datetime.date(
+                            *map(int, product[field].split("T")[0].split("-")),
+                        )
                     ],
                 )
             case "gt":
-                respBody = map(
+                resp_body = map(
                     json.dumps,
                     [
                         product
-                        for product in catalogData["Data"]
-                        if date < datetime.date(*map(int, product[field].split("T")[0].split("-")))
+                        for product in catalog_data["Data"]
+                        if date
+                        < datetime.date(
+                            *map(int, product[field].split("T")[0].split("-")),
+                        )
                     ],
                 )
             case "lt":
-                respBody = map(
+                resp_body = map(
                     json.dumps,
                     [
                         product
-                        for product in catalogData["Data"]
-                        if date > datetime.date(*map(int, product[field].split("T")[0].split("-")))
+                        for product in catalog_data["Data"]
+                        if date
+                        > datetime.date(
+                            *map(int, product[field].split("T")[0].split("-")),
+                        )
                     ],
                 )
             case _:
                 return Response(status="404")
-        return Response(status=200, response=batchResponseOdataV4(respBody)) if respBody else Response(status=404)
+        return Response(status=200, response=batch_response_odata_V4(resp_body)) if resp_body else Response(status=404)
     else:
-        querry_result = [product for product in catalogData["Data"] if value in product[field]]
+        querry_result = [product for product in catalog_data["Data"] if value in product[field]]
         return querry_result if querry_result else Response(status="200 OK")
 
 
@@ -115,27 +127,29 @@ def querryFiles() -> Response | list[Any]:
     ):
         return Response(status="400 Bad Request")
 
-    catalogData = json.loads(open("Catalogue/FileResponse.json").read())
+    catalog_data = json.loads(open("Catalogue/FileResponse.json").read())
     if "Name" in request.args["$filter"]:
         op, value = request.args["$filter"].split("(")
-        filterBy, filterValue = re.search("('.*?', '.*?')", value).group(0).replace("'", "").split(", ")  # type: ignore
+        filter_by, filter_value = (
+            re.search("('.*?', '.*?')", value).group(0).replace("'", "").split(", ")  # type: ignore
+        )
         match op:
             case "contains":
-                respBody = map(
+                resp_body = map(
                     json.dumps,
-                    [product for product in catalogData["Data"] if filterValue in product[filterBy]],
+                    [product for product in catalog_data["Data"] if filter_value in product[filter_by]],
                 )
             case "startswith":
-                respBody = map(
+                resp_body = map(
                     json.dumps,
-                    [product for product in catalogData["Data"] if product[filterBy].startswith(filterValue)],
+                    [product for product in catalog_data["Data"] if product[filter_by].startswith(filter_value)],
                 )
             case "endswith":
-                respBody = map(
+                resp_body = map(
                     json.dumps,
-                    [product for product in catalogData["Data"] if product[filterBy].endswith(filterValue)],
+                    [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)],
                 )
-        return Response(status=200, response=batchResponseOdataV4(respBody)) if respBody else Response(status=404)
+        return Response(status=200, response=batch_response_odata_V4(resp_body)) if resp_body else Response(status=404)
     elif "PublicationDate" in request.args["$filter"]:
         field, op, value = request.args["$filter"].split(" ")
         dateplaceholder = datetime.date(2014, 1, 1)
@@ -143,33 +157,42 @@ def querryFiles() -> Response | list[Any]:
         match op:
             case "eq":
                 # map inside map, to be reviewed?
-                respBody = map(
+                resp_body = map(
                     json.dumps,
                     [
                         product
-                        for product in catalogData["Data"]
-                        if date == datetime.date(*map(int, product[field].split("T")[0].split("-")))
+                        for product in catalog_data["Data"]
+                        if date
+                        == datetime.date(
+                            *map(int, product[field].split("T")[0].split("-")),
+                        )
                     ],
                 )
             case "gt":
-                respBody = map(
+                resp_body = map(
                     json.dumps,
                     [
                         product
-                        for product in catalogData["Data"]
-                        if date < datetime.date(*map(int, product[field].split("T")[0].split("-")))
+                        for product in catalog_data["Data"]
+                        if date
+                        < datetime.date(
+                            *map(int, product[field].split("T")[0].split("-")),
+                        )
                     ],
                 )
             case "lt":
-                respBody = map(
+                resp_body = map(
                     json.dumps,
                     [
                         product
-                        for product in catalogData["Data"]
-                        if date > datetime.date(*map(int, product[field].split("T")[0].split("-")))
+                        for product in catalog_data["Data"]
+                        if date
+                        > datetime.date(
+                            *map(int, product[field].split("T")[0].split("-")),
+                        )
                     ],
                 )
-        return Response(status=200, response=batchResponseOdataV4(respBody)) if respBody else Response(status=404)
+        return Response(status=200, response=batch_response_odata_V4(resp_body)) if resp_body else Response(status=404)
     else:  # SessionId / Orbit
         field, op, value = request.args["$filter"].split(" ")
         # only op = eq at the moment
@@ -178,7 +201,7 @@ def querryFiles() -> Response | list[Any]:
         # Same logic with placeholders as in sessions to be implemented here
         matching = map(
             json.dumps,
-            [product for product in catalogData["Data"] if value == product[field]],
+            [product for product in catalog_data["Data"] if value == product[field]],
         )
         return Response(response=matching, status=200) if matching else Response(status=404)
 
@@ -190,9 +213,9 @@ def querryFiles() -> Response | list[Any]:
 @app.route("/Files(<Id>)/$value", methods=["GET"])
 # @auth.login_required # Not yet
 def downloadFile(Id) -> Response:
-    catalogData = json.loads(open("Catalogue/FileResponse.json").read())
+    catalog_data = json.loads(open("Catalogue/FileResponse.json").read())
 
-    files = [product for product in catalogData["Data"] if Id.replace("'", "") == product["Id"]]
+    files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
     return (
         send_file("S3Mock/" + files[0]["Name"]) if len(files) == 1 else Response(status="404 None/Multiple files found")
     )
@@ -207,13 +230,22 @@ def downloadFile(Id) -> Response:
 def qualityInfo(Id) -> Response | list[Any]:
     if "expand" in request.args:
         if request.args["expand"] == "qualityInfo":
-            catalogData = json.loads(open("Catalogue/QualityInfoResponse.json").read())
+            catalog_data = json.loads(open("Catalogue/QualityInfoResponse.json").read())
             QIData = map(
                 json.dumps,
-                [QIData for QIData in catalogData["Data"] if Id.replace("'", "") == QIData["Id"]],
+                [QIData for QIData in catalog_data["Data"] if Id.replace("'", "") == QIData["Id"]],
             )
             return Response(status=200, response=QIData)
     return Response(status="405 Request denied, need qualityInfo")
+
+
+@app.route("/Files(<Id>)/$value", methods=["GET"])
+def downloadS3(Id) -> Response:
+    # create map from fileresponse.json
+    # create file with S3 paths
+    # call s3_files_to_be_downloaded => list
+    # call files_download
+    pass
 
 
 if __name__ == "__main__":
