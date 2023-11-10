@@ -20,13 +20,16 @@ def batch_response_odata_V4(respBody: map) -> Any:
 
 @auth.verify_password
 def verify_password(username, password) -> bool:
-    users = json.loads(open("auth.json").read())
+    users = json.loads(open("src/CADIP/auth.json").read())
     if username in users.keys():
         return bcrypt.check_password_hash(users.get(username), password)
     return False
 
 
-@app.route("/")
+@app.route(
+    "/",
+    methods=["GET", "POST"],
+)
 @auth.login_required
 def hello():
     return render_template("home.html")
@@ -57,7 +60,7 @@ def querry_session() -> Response | list[Any]:
         lambda norm: norm.replace("'", ""),
         request.args["$filter"].split(" "),
     )
-    catalog_data = json.loads(open("Catalogue/SPJ.json").read())
+    catalog_data = json.loads(open("src/CADIP/Catalogue/SPJ.json").read())
 
     # return results or the 200OK code is returned with an empty response (PSD)
     if field == "PublicationDate":
@@ -116,7 +119,7 @@ def querryFiles() -> Response | list[Any]:
     ):
         return Response(status="400 Bad Request")
 
-    catalog_data = json.loads(open("Catalogue/FileResponse.json").read())
+    catalog_data = json.loads(open("src/CADIP/Catalogue/FileResponse.json").read())
     if "Name" in request.args["$filter"]:
         op, value = request.args["$filter"].split("(")
         filter_by, filter_value = (
@@ -189,7 +192,7 @@ def querryFiles() -> Response | list[Any]:
 @app.route("/Files(<Id>)/$value", methods=["GET"])
 # @auth.login_required # Not yet
 def downloadFile(Id) -> Response:
-    catalog_data = json.loads(open("Catalogue/FileResponse.json").read())
+    catalog_data = json.loads(open("src/CADIP/Catalogue/FileResponse.json").read())
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
     return (
@@ -206,7 +209,7 @@ def downloadFile(Id) -> Response:
 def qualityInfo(Id) -> Response | list[Any]:
     if "expand" in request.args:
         if request.args["expand"] == "qualityInfo":
-            catalog_data = json.loads(open("Catalogue/QualityInfoResponse.json").read())
+            catalog_data = json.loads(open("src/CADIP/Catalogue/QualityInfoResponse.json").read())
             QIData = map(
                 json.dumps,
                 [QIData for QIData in catalog_data["Data"] if Id.replace("'", "") == QIData["Id"]],
@@ -222,6 +225,11 @@ def downloadS3(Id) -> Response:
     # call s3_files_to_be_downloaded => list
     # call files_download
     pass
+
+
+def create_app():
+    # Used to pass instance to conftest
+    return app
 
 
 if __name__ == "__main__":
