@@ -2,6 +2,7 @@ import datetime
 import json
 import re
 import sys
+from functools import wraps
 from typing import Any
 
 from flask import Flask, Response, render_template, request, send_file
@@ -18,10 +19,57 @@ UNAUTHORIZED = 401
 NOT_FOUND = 404
 
 
-def batch_response_odata_v4(resp_body: map) -> Any:
+def additional_options(func):
     """Docstring to be added."""
-    unpacked = list(resp_body)
-    return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else unpacked
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        accepted_display_options = ["$orderBy", "$top", "$skip", "$count"]
+        response = func(*args, **kwargs)
+        display_headers = response.headers
+        if any(header in accepted_display_options for header in display_headers.keys()):
+            match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
+                case "$orderBy":
+                    field, ordering_type = display_headers["$orderBy"].split(" ")
+                    json_data = json.loads(response.data)
+                    if "responses" in json_data:
+                        if ordering_type == "desc":
+                            json_data.update(
+                                {"responses": [sorted(json_data["responses"], key=lambda x: x[field], reverse=True)]},
+                            )
+                        else:
+                            json_data.update({"responses": [sorted(json_data["responses"], key=lambda x: x[field])]})
+                    return json_data
+                case "$top":
+                    top_value = int(display_headers["$top"])
+                    json_data = json.loads(response.data)
+                    return (
+                        batch_response_odata_v4(json_data["responses"][:top_value])
+                        if "responses" in json_data
+                        else json_data
+                    )
+                case "$skip":
+                    skip_value = int(display_headers["$skip"])
+                    json_data = json.loads(response.data)
+                    return (
+                        batch_response_odata_v4(json_data["responses"][skip_value:])
+                        if "responses" in json_data
+                        else json_data
+                    )
+                case "$count":
+                    json_data = json.loads(response.data)
+                    if "responses" in json_data:
+                        return Response(status=OK, response=str(len(json_data["responses"])))
+                    return Response(status=OK, response=str(len(json_data)))
+        return response
+
+    return wrapper
+
+
+def batch_response_odata_v4(resp_body: list | map) -> Any:
+    """Docstring to be added."""
+    unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
+    return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
 
 
 @auth.verify_password
@@ -33,10 +81,7 @@ def verify_password(username, password) -> bool:
     return False
 
 
-@app.route(
-    "/",
-    methods=["GET", "POST"],
-)
+@app.route("/", methods=["GET", "POST"])
 @auth.login_required
 def hello():
     """Docstring to be added."""
@@ -46,6 +91,7 @@ def hello():
 # 3.3 (PSD)
 @app.route("/Sessions", methods=["GET"])
 @auth.login_required
+@additional_options
 def querry_session() -> Response | list[Any]:
     """Docstring to be added."""
     # Additional output options to be added: orderby, top, skip, count.
@@ -79,42 +125,37 @@ def querry_session() -> Response | list[Any]:
         # Maybe should use LUT for operations
         match op:
             case "eq":
-                resp_body = map(
-                    json.dumps,
-                    [
-                        product
-                        for product in catalog_data["Data"]
-                        if date == datetime.datetime.fromisoformat(product[field])
-                    ],
-                )
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if date == datetime.datetime.fromisoformat(product[field])
+                ]
             case "gt":
-                resp_body = map(
-                    json.dumps,
-                    [
-                        product
-                        for product in catalog_data["Data"]
-                        if date < datetime.datetime.fromisoformat(product[field])
-                    ],
-                )
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if date < datetime.datetime.fromisoformat(product[field])
+                ]
             case "lt":
-                resp_body = map(
-                    json.dumps,
-                    [
-                        product
-                        for product in catalog_data["Data"]
-                        if date > datetime.datetime.fromisoformat(product[field])
-                    ],
-                )
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if date > datetime.datetime.fromisoformat(product[field])
+                ]
             case _:
                 return Response(status=NOT_FOUND)
         return (
-            Response(status=OK, response=batch_response_odata_v4(resp_body))
+            Response(status=OK, response=batch_response_odata_v4(resp_body), headers=request.args)
             if resp_body
             else Response(status=NOT_FOUND)
         )
     else:
         querry_result = [product for product in catalog_data["Data"] if value in product[field]]
-        return querry_result if querry_result else Response(status=OK)
+        return (
+            Response(status=OK, response=batch_response_odata_v4(querry_result), headers=request.args)
+            if querry_result
+            else Response(status=OK)
+        )
 
 
 # 3.4
