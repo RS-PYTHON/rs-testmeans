@@ -12,14 +12,21 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 
+OK = 200
+BAD_REQUEST = 400
+UNAUTHORIZED = 401
+NOT_FOUND = 404
 
-def batch_response_odata_V4(respBody: map) -> Any:
-    unpacked = list(respBody)
+
+def batch_response_odata_v4(resp_body: map) -> Any:
+    """Docstring to be added."""
+    unpacked = list(resp_body)
     return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else unpacked
 
 
 @auth.verify_password
 def verify_password(username, password) -> bool:
+    """Docstring to be added."""
     users = json.loads(open("src/CADIP/auth.json").read())
     if username in users.keys():
         return bcrypt.check_password_hash(users.get(username), password)
@@ -32,6 +39,7 @@ def verify_password(username, password) -> bool:
 )
 @auth.login_required
 def hello():
+    """Docstring to be added."""
     return render_template("home.html")
 
 
@@ -39,11 +47,12 @@ def hello():
 @app.route("/Sessions", methods=["GET"])
 # @auth.login_required # Not yet
 def querry_session() -> Response | list[Any]:
+    """Docstring to be added."""
     # Additional output options to be added: orderby, top, skip, count.
     # Aditional operators to be added, and, or, not, in
     # Request with publicationDate gt / lt are not implemented yet
     if not request.args:
-        return Response(status="400 Bad Request")
+        return Response(status=BAD_REQUEST)
         # return Response('Bad Request', Response.status_code(400), None)
 
     # Check requested values, filter type can only be json keys
@@ -53,7 +62,7 @@ def querry_session() -> Response | list[Any]:
             for querry_text in ["Satellite", "DownlinkOrbit", "PublicationDate"]
         ],
     ):
-        return Response(status="400 Bad Request")
+        return Response(status=BAD_REQUEST)
 
     # Normalize request (lower case / remove ')
     field, op, value = map(
@@ -97,19 +106,24 @@ def querry_session() -> Response | list[Any]:
                     ],
                 )
             case _:
-                return Response(status="404")
-        return Response(status=200, response=batch_response_odata_V4(resp_body)) if resp_body else Response(status=404)
+                return Response(status=NOT_FOUND)
+        return (
+            Response(status=OK, response=batch_response_odata_v4(resp_body))
+            if resp_body
+            else Response(status=NOT_FOUND)
+        )
     else:
         querry_result = [product for product in catalog_data["Data"] if value in product[field]]
-        return querry_result if querry_result else Response(status="200 OK")
+        return querry_result if querry_result else Response(status=OK)
 
 
 # 3.4
 @app.route("/Files", methods=["GET"])
 # @auth.login_required # Not yet
-def querryFiles() -> Response | list[Any]:
+def querry_files() -> Response | list[Any]:
+    """Docstring to be added."""
     if not request.args:
-        return Response(status="400 Bad Request")
+        return Response(status=BAD_REQUEST)
 
     if not any(
         [
@@ -117,7 +131,7 @@ def querryFiles() -> Response | list[Any]:
             for querry_text in ["Id", "Orbit", "Name", "PublicationDate"]
         ],
     ):
-        return Response(status="400 Bad Request")
+        return Response(status=BAD_REQUEST)
 
     catalog_data = json.loads(open("src/CADIP/Catalogue/FileResponse.json").read())
     if "Name" in request.args["$filter"]:
@@ -141,7 +155,11 @@ def querryFiles() -> Response | list[Any]:
                     json.dumps,
                     [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)],
                 )
-        return Response(status=200, response=batch_response_odata_V4(resp_body)) if resp_body else Response(status=404)
+        return (
+            Response(status=OK, response=batch_response_odata_v4(resp_body))
+            if resp_body
+            else Response(status=NOT_FOUND)
+        )
     elif "PublicationDate" in request.args["$filter"]:
         field, op, value = request.args["$filter"].split(" ")
         date_placeholder = datetime.datetime(2014, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
@@ -175,14 +193,18 @@ def querryFiles() -> Response | list[Any]:
                         if date > datetime.datetime.fromisoformat(product[field])
                     ],
                 )
-        return Response(status=200, response=batch_response_odata_V4(resp_body)) if resp_body else Response(status=404)
+        return (
+            Response(status=OK, response=batch_response_odata_v4(resp_body))
+            if resp_body
+            else Response(status=NOT_FOUND)
+        )
     else:  # SessionId / Orbit
         field, op, value = request.args["$filter"].split(" ")
         matching = map(
             json.dumps,
             [product for product in catalog_data["Data"] if value == product[field]],
         )
-        return Response(response=matching, status=200) if matching else Response(status=404)
+        return Response(response=matching, status=OK) if matching else Response(status=NOT_FOUND)
 
 
 # 3.5
@@ -191,7 +213,8 @@ def querryFiles() -> Response | list[Any]:
 # Is possible / how to download multiple files
 @app.route("/Files(<Id>)/$value", methods=["GET"])
 # @auth.login_required # Not yet
-def downloadFile(Id) -> Response:
+def download_file(Id) -> Response:  # noqa: N803
+    """Docstring to be added."""
     catalog_data = json.loads(open("src/CADIP/Catalogue/FileResponse.json").read())
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
@@ -206,20 +229,22 @@ def downloadFile(Id) -> Response:
 
 # 3.6
 @app.route("/Sessions(<Id>)", methods=["GET"])
-def qualityInfo(Id) -> Response | list[Any]:
+def quality_info(Id) -> Response | list[Any]:  # noqa: N803
+    """Docstring to be added."""
     if "expand" in request.args:
         if request.args["expand"] == "qualityInfo":
             catalog_data = json.loads(open("src/CADIP/Catalogue/QualityInfoResponse.json").read())
-            QIData = map(
+            QIData = map(  # noqa: N806
                 json.dumps,
                 [QIData for QIData in catalog_data["Data"] if Id.replace("'", "") == QIData["Id"]],
             )
-            return Response(status=200, response=QIData)
+            return Response(status=OK, response=QIData)
     return Response(status="405 Request denied, need qualityInfo")
 
 
 @app.route("/Files(<Id>)/$value", methods=["GET"])
-def downloadS3(Id) -> Response:
+def download_s3(Id) -> Response:  # noqa: N803
+    """Docstring to be added."""
     # create map from fileresponse.json
     # create file with S3 paths
     # call s3_files_to_be_downloaded => list
@@ -228,6 +253,7 @@ def downloadS3(Id) -> Response:
 
 
 def create_app():
+    """Docstring to be added."""
     # Used to pass instance to conftest
     return app
 
