@@ -45,7 +45,7 @@ def hello():
 
 # 3.3 (PSD)
 @app.route("/Sessions", methods=["GET"])
-# @auth.login_required # Not yet
+@auth.login_required
 def querry_session() -> Response | list[Any]:
     """Docstring to be added."""
     # Additional output options to be added: orderby, top, skip, count.
@@ -119,7 +119,7 @@ def querry_session() -> Response | list[Any]:
 
 # 3.4
 @app.route("/Files", methods=["GET"])
-# @auth.login_required # Not yet
+@auth.login_required
 def querry_files() -> Response | list[Any]:
     """Docstring to be added."""
     if not request.args:
@@ -212,7 +212,7 @@ def querry_files() -> Response | list[Any]:
 # v1.0.0 takes id from route GET and filters FPJ (json outputs of file querry) in order to download a file
 # Is possible / how to download multiple files
 @app.route("/Files(<Id>)/$value", methods=["GET"])
-# @auth.login_required # Not yet
+@auth.login_required
 def download_file(Id) -> Response:  # noqa: N803
     """Docstring to be added."""
     catalog_data = json.loads(open("src/CADIP/Catalogue/FileResponse.json").read())
