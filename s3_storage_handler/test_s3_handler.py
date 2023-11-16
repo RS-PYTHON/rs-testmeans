@@ -1,19 +1,16 @@
+import os
+import sys
 import argparse
-
 # import glob
 # import json
 import logging
-import os
 import signal
-import sys
 import time
 
 from prefect import flow, get_run_logger
 from prefect_dask.task_runners import DaskTaskRunner
-
-import s3_storage_handler
-
-sys.path.insert(0, os.path.join(os.path.dirname(sys.path[0]), "../", "rs-server"))
+sys.path.insert(0, os.path.join(os.path.dirname(sys.path[0]), "../", "rs-server/src/"))
+import s3_storage_handler # noqa
 
 
 def os_sig_handler(signalNumber, frame):
@@ -54,11 +51,14 @@ def s3_handler(action, list_with_files, bucket, prefix, max_runners=10):
     logger.info("lists_per_tasks = {}".format(lists_per_tasks))
     idx = 0
     for list_per_task in lists_per_tasks:
+        if list_per_task[0] is None:
+            continue
         if action == "download":
-            s3_storage_handler.prefect_download_file_from_s3.submit(list_per_task, bucket, prefix, idx)
+            s3_storage_handler.prefect_get_keys_from_s3.submit(list_per_task, bucket, prefix, idx)
         elif action == "upload":
-            s3_storage_handler.prefect_upload_file_to_s3.submit(list_per_task, bucket, prefix, idx)
+            s3_storage_handler.prefect_put_files_to_s3.submit(list_per_task, bucket, prefix, idx)
         else:
+            logger.error("The action has to be download / upload. Instead is {}".format(action))
             sys.exit(-1)
         idx += 1
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     consoleHandler = logging.StreamHandler(sys.stdout)
     consoleHandler.setLevel(logging.DEBUG)
     consoleHandler.setFormatter(logFormatter)
-    log_filename = log_folder + "upload_files_" + time.strftime("%Y%m%d_%H%M%S") + ".log"
+    log_filename = log_folder + "s3_handler_" + time.strftime("%Y%m%d_%H%M%S") + ".log"
     fileHandler = logging.FileHandler(log_filename)
     fileHandler.setLevel(logging.DEBUG)
     fileHandler.setFormatter(logFormatter)
@@ -79,14 +79,9 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
     logger.handlers = []
     logger.propagate = False
-    """
+
     logger.addHandler(consoleHandler)
-    logger.debug("TEST-debug")
-    logger.info("TEST-info")
-    logger.warning("TEST-warning")
-    logger.error("TEST-error")
-    sys.exit(-1)
-    """
+
     logger.addHandler(fileHandler)
 
     signal.signal(signal.SIGINT, os_sig_handler)
@@ -137,7 +132,7 @@ The structure of the file: each line is either a full path to a local file / dir
 
     args = parser.parse_args()
     secrets = {
-        "s3endpoint": "https://oss.eu-west-0.prod-cloud-ocb.orange-business.com",
+        "s3endpoint": None,
         "accesskey": None,
         "secretkey": None,
     }
@@ -150,22 +145,30 @@ The structure of the file: each line is either a full path to a local file / dir
     os.environ["S3_SECRET_ACCESS_KEY"] = secrets["secretkey"] if secrets["secretkey"] is not None else ""
     os.environ["S3_REGION"] = "sbg"
 
+    list_with_files = []
+    with open(args.files, "r") as files:
+        lines = files.readlines()
+        for line in lines:
+            list_with_files.append(line.strip())
+
     if args.action == "d":
         list_with_files = s3_storage_handler.files_to_be_downloaded(  # type: ignore
             args.bucket,
-            args.files,
-            args.prefix,
+            list_with_files,
             logger,
         )
         action = "download"
     elif args.action == "u":
-        list_with_files = s3_storage_handler.files_to_be_uploaded(args.prefix, args.files, logger)  # type: ignore
+        list_with_files = s3_storage_handler.files_to_be_uploaded(list_with_files, logger)  # type: ignore
         action = "upload"
     else:
-        # impossible but for code sake
-        logger.error("Action may be eith d or u")
+        # impossible, but for the code sake
+        logger.error("Action may be 'd' or 'u'")
         sys.exit(-1)
 
-    s3_handler(action, list_with_files, args.bucket, args.prefix, args.max_tasks)
+    if len(list_with_files) > 0:
+        s3_handler(action, list_with_files, args.bucket, args.prefix, args.max_tasks)
+    else:
+        logger.info("No file has been found for {}".format("downloading" if args.action == "d" else "uploading"))
 
     logger.info("EXIT !")
