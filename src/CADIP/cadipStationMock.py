@@ -27,37 +27,42 @@ def additional_options(func):
         accepted_display_options = ["$orderBy", "$top", "$skip", "$count"]
         response = func(*args, **kwargs)
         display_headers = response.headers
+
+        def parse_response_data():
+            try:
+                return json.loads(response.data)
+            except json.JSONDecodeError:
+                return None
+
+        def sort_responses_by_field(json_data, field, reverse=False):
+            if "responses" in json_data:
+                return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
+            return json_data
+
         if any(header in accepted_display_options for header in display_headers.keys()):
             match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
                 case "$orderBy":
                     field, ordering_type = display_headers["$orderBy"].split(" ")
-                    json_data = json.loads(response.data)
-                    if "responses" in json_data:
-                        if ordering_type == "desc":
-                            json_data.update(
-                                {"responses": [sorted(json_data["responses"], key=lambda x: x[field], reverse=True)]},
-                            )
-                        else:
-                            json_data.update({"responses": [sorted(json_data["responses"], key=lambda x: x[field])]})
-                    return json_data
+                    json_data = parse_response_data()
+                    return sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
                 case "$top":
                     top_value = int(display_headers["$top"])
-                    json_data = json.loads(response.data)
+                    json_data = parse_response_data()
                     return (
                         batch_response_odata_v4(json_data["responses"][:top_value])
                         if "responses" in json_data
                         else json_data
                     )
                 case "$skip":
-                    skip_value = int(display_headers["$skip"])
-                    json_data = json.loads(response.data)
+                    skip_value = int(display_headers.get("$skip", 0))
+                    json_data = parse_response_data()
                     return (
                         batch_response_odata_v4(json_data["responses"][skip_value:])
                         if "responses" in json_data
                         else json_data
                     )
                 case "$count":
-                    json_data = json.loads(response.data)
+                    json_data = parse_response_data()
                     if "responses" in json_data:
                         return Response(status=OK, response=str(len(json_data["responses"])))
                     return Response(status=OK, response=str(len(json_data)))
