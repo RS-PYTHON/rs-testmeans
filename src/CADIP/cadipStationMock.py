@@ -1,3 +1,5 @@
+"""Docstring to be added."""
+import asyncio
 import datetime
 import json
 import re
@@ -8,6 +10,7 @@ from typing import Any
 from flask import Flask, Response, render_template, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
+from prefect import flow
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -288,14 +291,55 @@ def quality_info(Id) -> Response | list[Any]:  # noqa: N803
     return Response(status="405 Request denied, need qualityInfo")
 
 
-@app.route("/Files(<Id>)/$value", methods=["GET"])
-def download_s3(Id) -> Response:  # noqa: N803
+@app.route("/Files(<Id>)/$S3OS", methods=["GET"])
+# @auth.login_required # Not yet
+def s3_download_file(Id) -> Response:  # noqa: N803 # can't be lowercase, must mach endpoint & ICD
     """Docstring to be added."""
-    # create map from fileresponse.json
-    # create file with S3 paths
-    # call s3_files_to_be_downloaded => list
-    # call files_download
-    pass
+    catalog_data = json.loads(open("src/CADIP/Catalogue/S3FileResp.json").read())
+    bucket = "rs-addon-input"
+    path = "S3Download"
+
+    import sys
+
+    sys.path.insert(1, "../rs-server/src")
+
+    import logging
+
+    logger = logging.getLogger()
+
+    from s3_storage_handler import (
+        files_to_be_downloaded,
+        get_secrets,
+        prefect_get_keys_from_s3,
+    )
+
+    s3_file_path = [resp["S3Path"] for resp in catalog_data["Data"] if Id == resp["Id"]]
+    secrets = {
+        "s3endpoint": "https://oss.eu-west-0.prod-cloud-ocb.orange-business.com",
+        "accesskey": None,
+        "secretkey": None,
+    }
+    if not get_secrets(secrets, "/home/opadeanu/.s3cfg"):
+        logger.error("Could not get the secrets")
+        return
+    import os
+
+    os.environ["S3_ENDPOINT"] = secrets["s3endpoint"] if secrets["s3endpoint"] is not None else ""
+    os.environ["S3_ACCESS_KEY_ID"] = secrets["accesskey"] if secrets["accesskey"] is not None else ""
+    os.environ["S3_SECRET_ACCESS_KEY"] = secrets["secretkey"] if secrets["secretkey"] is not None else ""
+    os.environ["S3_REGION"] = "sbg"
+
+    list_per_task = files_to_be_downloaded(bucket, s3_file_path, logger)
+
+    @flow
+    async def download_s3():
+        task1 = asyncio.create_task(prefect_get_keys_from_s3(list_per_task, bucket, path, 1))
+        await task1
+
+    asyncio.run(download_s3())
+    return send_file(os.path.join(os.path.abspath(path), s3_file_path[0].split("/")[-1]))
+    # os.remove(os.path.join(path, s3_file_path[0].split('/')[-1]))
+    # return '200'
 
 
 def create_app():
