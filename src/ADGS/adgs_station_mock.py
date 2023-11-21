@@ -121,7 +121,7 @@ def download_file(Id) -> Response:  # noqa: N803
 @auth.login_required
 def download_file_s3(Id) -> Response:  # noqa: N803
     """Docstring to be added."""
-    catalog_data = json.loads(open("src/ADGS/Catalog/GETFileResponse.json").read())
+    catalog_data = json.loads(open("src/ADGS/Catalog/GETS3FileResponse.json").read())
     bucket = "rs-addon-input"
     path = "S3Download"
 
