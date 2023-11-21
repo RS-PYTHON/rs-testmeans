@@ -1,27 +1,33 @@
-import os
-import sys
+"""Docstring to be added."""
+
 import argparse
+import logging
+import os
+
 # import glob
 import shutil
-import logging
 import signal
+import sys
 import time
 
 from prefect import flow, get_run_logger
 from prefect_dask.task_runners import DaskTaskRunner
-sys.path.insert(0, os.path.join(os.path.dirname(sys.path[0]), "../", "rs-server/src/"))
-import s3_storage_handler # noqa
+
+sys.path.insert(0, os.path.join(os.path.dirname(sys.path[0]), "../../", "rs-server/src/"))
+from ingestion.ingest_cadip_data import execute  # noqa
+import s3_storage_handler  # noqa
 
 
-def os_sig_handler(signalNumber, frame):
-    print("Received the signal {}".format(signalNumber))
+def os_sig_handler(signal_number, frame):
+    """Docstring to be added."""
+    print("Received the signal {}".format(signal_number))
 
-    if (
-        signalNumber == signal.SIGTERM
-        or signalNumber == signal.SIGINT
-        or signalNumber == signal.SIGQUIT
-        or signalNumber == signal.SIGABRT
-    ):
+    if signal_number in {
+        signal.SIGTERM,
+        signal_number == signal.SIGINT,
+        signal_number == signal.SIGQUIT,
+        signal_number == signal.SIGABRT,
+    }:
         print(
             "Interruption caught ! The node will be probably terminated. \
 SIGTERM will be sent to all running processes and exit",
@@ -33,6 +39,7 @@ SIGTERM will be sent to all running processes and exit",
 
 @flow(task_runner=DaskTaskRunner())
 def s3_handler(action, list_with_files, bucket, prefix, max_runners=10):
+    """Docstring to be added."""
     # get the Prefect logger
     logger = get_run_logger()
 
@@ -63,9 +70,11 @@ def s3_handler(action, list_with_files, bucket, prefix, max_runners=10):
         idx += 1
 
 
+@flow(task_runner=DaskTaskRunner())
 def module_ard_pre_processor(bucket, max_runners):
-
+    """Docstring to be added."""
     # TODO execute client for CADIP mockup server
+    execute("ingestionParameters.json")
 
     # TODO simulate the execution
 
@@ -78,8 +87,9 @@ def module_ard_pre_processor(bucket, max_runners):
     return "s3://{}/{}".format(bucket, s3_prefix)
 
 
+@flow(task_runner=DaskTaskRunner())
 def module_classification_processor(bucket, ard_data_prefix, aux_data_prefix, max_runners):
-
+    """Docstring to be added."""
     # TODO execute client for ADGS mockup server
 
     # download ard data (intermediary results) and auxiliary results.
@@ -89,7 +99,8 @@ def module_classification_processor(bucket, ard_data_prefix, aux_data_prefix, ma
         [
             ard_data_prefix,
             aux_data_prefix,
-        ], logger,
+        ],
+        logger,
     )  # type: ignore
     if len(list_with_files) == 0:
         return False
@@ -112,7 +123,7 @@ def module_classification_processor(bucket, ard_data_prefix, aux_data_prefix, ma
     return "s3://{}/{}".format(bucket, s3_prefix)
 
 
-'''
+"""
 #@flow(task_runner=DaskTaskRunner())
 def demo_flow(bucket, max_runners=10):
     # get the Prefect logger
@@ -149,28 +160,29 @@ def demo_flow(bucket, max_runners=10):
             logger.error("The action has to be download / upload. Instead is {}".format(action))
             sys.exit(-1)
         idx += 1
-'''
+"""
 
 if __name__ == "__main__":
+    """Docstring to be added."""
     log_folder = "./demo/"
     os.makedirs(log_folder, exist_ok=True)
-    logFormatter = logging.Formatter("[%(asctime)-20s] [%(name)-10s] [%(levelname)-6s] %(message)s")
-    consoleHandler = logging.StreamHandler(sys.stdout)
-    consoleHandler.setLevel(logging.DEBUG)
-    consoleHandler.setFormatter(logFormatter)
+    log_formatter = logging.Formatter("[%(asctime)-20s] [%(name)-10s] [%(levelname)-6s] %(message)s")
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.DEBUG)
+    console_handler.setFormatter(log_formatter)
     log_filename = log_folder + "s3_handler_" + time.strftime("%Y%m%d_%H%M%S") + ".log"
-    fileHandler = logging.FileHandler(log_filename)
-    fileHandler.setLevel(logging.DEBUG)
-    fileHandler.setFormatter(logFormatter)
+    file_handler = logging.FileHandler(log_filename)
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(log_formatter)
 
     logger = logging.getLogger("upload_files")
     logger.setLevel(logging.DEBUG)
     logger.handlers = []
     logger.propagate = False
 
-    logger.addHandler(consoleHandler)
+    logger.addHandler(console_handler)
 
-    logger.addHandler(fileHandler)
+    logger.addHandler(file_handler)
 
     signal.signal(signal.SIGINT, os_sig_handler)
     signal.signal(signal.SIGQUIT, os_sig_handler)
@@ -215,8 +227,7 @@ if __name__ == "__main__":
     ard_location = module_ard_pre_processor(args.bucket, args.max_tasks)
     bucket, _, key = s3_storage_handler.get_s3_data(ard_location)  # type: ignore
     logger.debug(
-        "ard_location {} | get_s3_data = {}".
-        format(
+        "ard_location {} | get_s3_data = {}".format(
             ard_location,
             s3_storage_handler.get_s3_data(ard_location),  # type: ignore
         ),
