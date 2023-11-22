@@ -12,9 +12,11 @@ import time
 
 from prefect import flow, get_run_logger
 from prefect_dask.task_runners import DaskTaskRunner
+from tqdm import tqdm
 
 sys.path.insert(0, os.path.join(os.path.dirname(sys.path[0]), "../../", "rs-server/src/"))
-from ingestion.ingest_cadip_data import execute  # noqa
+from ingestion.ingest_cadip_data import execute_cadip_ingestion  # noqa
+from ingestion.ingest_adgs_data import execute_adgs_ingestion  # noqa
 import s3_storage_handler  # noqa
 
 
@@ -74,9 +76,12 @@ def s3_handler(action, list_with_files, bucket, prefix, max_runners=10):
 def module_ard_pre_processor(bucket, max_runners):
     """Docstring to be added."""
     # TODO execute client for CADIP mockup server
-    execute("ingestionParameters.json")
+    execute_cadip_ingestion("ingestionParameters.json")
 
     # TODO simulate the execution
+    logger.info("\n\n\nSIMULATING  PRE-PROCESSING  ")
+    for i in tqdm(range(10)):
+        time.sleep(1)
 
     list_with_files = s3_storage_handler.files_to_be_uploaded(["ard_data"], logger)  # type: ignore
     if len(list_with_files) == 0:
@@ -91,6 +96,7 @@ def module_ard_pre_processor(bucket, max_runners):
 def module_classification_processor(bucket, ard_data_prefix, aux_data_prefix, max_runners):
     """Docstring to be added."""
     # TODO execute client for ADGS mockup server
+    execute_adgs_ingestion("ingestionParameters.json")
 
     # download ard data (intermediary results) and auxiliary results.
     # For the demo sake, will presume that all of the files are in the same bucket
@@ -108,6 +114,9 @@ def module_classification_processor(bucket, ard_data_prefix, aux_data_prefix, ma
     s3_handler("download", list_with_files, bucket, local_prefix, max_runners)
 
     # TODO simulate the execution
+    logger.info("SIMUL CLASSIFICATION")
+    for i in tqdm(range(5)):
+        time.sleep(1)
 
     # TODO ! delete temp data !!!!!!
 
