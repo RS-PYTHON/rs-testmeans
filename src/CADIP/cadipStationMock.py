@@ -110,7 +110,7 @@ def hello():
 @app.route("/Sessions", methods=["GET"])
 @auth.login_required
 @additional_options
-def querry_session() -> Response | list[Any]:
+def query_session() -> Response | list[Any]:
     """Docstring to be added."""
     # Additional output options to be added: orderby, top, skip, count.
     # Aditional operators to be added, and, or, not, in
@@ -122,8 +122,8 @@ def querry_session() -> Response | list[Any]:
     # Check requested values, filter type can only be json keys
     if not any(
         [
-            querry_text == request.args["$filter"].split(" ")[0]
-            for querry_text in ["Satellite", "DownlinkOrbit", "PublicationDate"]
+            query_text == request.args["$filter"].split(" ")[0]
+            for query_text in ["Satellite", "DownlinkOrbit", "PublicationDate"]
         ],
     ):
         return Response(status=BAD_REQUEST)
@@ -168,10 +168,10 @@ def querry_session() -> Response | list[Any]:
             else Response(status=NOT_FOUND)
         )
     else:
-        querry_result = [product for product in catalog_data["Data"] if value in product[field]]
+        query_result = [product for product in catalog_data["Data"] if value in product[field]]
         return (
-            Response(status=OK, response=batch_response_odata_v4(querry_result), headers=request.args)
-            if querry_result
+            Response(status=OK, response=batch_response_odata_v4(query_result), headers=request.args)
+            if query_result
             else Response(status=OK)
         )
 
@@ -179,15 +179,15 @@ def querry_session() -> Response | list[Any]:
 # 3.4
 @app.route("/Files", methods=["GET"])
 @auth.login_required
-def querry_files() -> Response | list[Any]:
+def query_files() -> Response | list[Any]:
     """Docstring to be added."""
     if not request.args:
         return Response(status=BAD_REQUEST)
 
     if not any(
         [
-            querry_text in request.args["$filter"].split(" ")[0]
-            for querry_text in ["Id", "Orbit", "Name", "PublicationDate"]
+            query_text in request.args["$filter"].split(" ")[0]
+            for query_text in ["Id", "Orbit", "Name", "PublicationDate"]
         ],
     ):
         return Response(status=BAD_REQUEST)
@@ -268,7 +268,7 @@ def querry_files() -> Response | list[Any]:
 
 # 3.5
 # Not sure if download should be requested only with ID or with a json request?
-# v1.0.0 takes id from route GET and filters FPJ (json outputs of file querry) in order to download a file
+# v1.0.0 takes id from route GET and filters FPJ (json outputs of file query) in order to download a file
 # Is possible / how to download multiple files
 @app.route("/Files(<Id>)/$value", methods=["GET"])
 @auth.login_required
@@ -326,7 +326,7 @@ def s3_download_file(Id) -> Response:  # noqa: N803 # can't be lowercase, must m
     # return '200'
 
 
-def create_app():
+def create_cadip_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
     return app
