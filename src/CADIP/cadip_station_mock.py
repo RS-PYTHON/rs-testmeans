@@ -119,7 +119,6 @@ def query_session() -> Response | list[Any]:
     if not request.args:
         return Response(status=BAD_REQUEST)
         # return Response('Bad Request', Response.status_code(400), None)
-
     # Check requested values, filter type can only be json keys
     if not any(
         [
@@ -128,14 +127,55 @@ def query_session() -> Response | list[Any]:
         ],
     ):
         return Response(status=BAD_REQUEST)
+    # Proceed to procces request
+    catalog_data = json.loads(open("src/CADIP/Catalogue/SPJ.json").read())
+    accepted_operators = [" and ", " or ", " in ", " not "]
+    if any(header in request.args["$filter"] for header in accepted_operators):
+        pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
+        groups = re.search(pattern, request.args["$filter"])
+        first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)  # type: ignore
+        first_response = process_session_request(first_request, request.args, catalog_data)
+        second_response = process_session_request(second_request, request.args, catalog_data)
 
+        match operator:
+            case "and":  # intersection
+                first_response = json.loads(first_response.data).get("responses", first_response.data)
+                second_response = json.loads(second_response.data).get("responses", second_response.data)
+                fresp_set = {d.get("Id") for d in first_response}
+                sresp_set = {d.get("Id") for d in second_response}
+                common_response = fresp_set.intersection(sresp_set)
+                common_elements = [d for d in first_response if d.get("Id") in common_response]
+                return Response(status=OK, response=batch_response_odata_v4(common_elements))
+            case "or":  # union
+                import pdb
+
+                pdb.set_trace()
+                first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
+                second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
+                if not isinstance(first_response, list):
+                    first_response = [first_response]
+                if not isinstance(second_response, list):
+                    second_response = [second_response]
+                fresp_set = {d.get("Id") for d in first_response}
+                sresp_set = {d.get("Id") for d in second_response}
+                union_set = fresp_set.union(sresp_set)
+                union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+                return Response(status=OK, response=batch_response_odata_v4(union_elements))
+            case "in":  # not in icd yet
+                pass
+            case "not":  # not in icd yet
+                pass
+
+    return process_session_request(request.args["$filter"], request.args, catalog_data)
+
+
+def process_session_request(request, headers, catalog_data):
+    """Docstring to be added."""
     # Normalize request (lower case / remove ')
     field, op, value = map(
         lambda norm: norm.replace("'", ""),
-        request.args["$filter"].split(" "),
+        request.split(" "),
     )
-    catalog_data = json.loads(open("src/CADIP/Catalogue/SPJ.json").read())
-
     # return results or the 200OK code is returned with an empty response (PSD)
     if field == "PublicationDate":
         # year-month-day
@@ -164,14 +204,14 @@ def query_session() -> Response | list[Any]:
             case _:
                 return Response(status=NOT_FOUND)
         return (
-            Response(status=OK, response=batch_response_odata_v4(resp_body), headers=request.args)
+            Response(status=OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
             else Response(status=NOT_FOUND)
         )
     else:
         query_result = [product for product in catalog_data["Data"] if value in product[field]]
         return (
-            Response(status=OK, response=batch_response_odata_v4(query_result), headers=request.args)
+            Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
             if query_result
             else Response(status=OK)
         )
@@ -343,20 +383,20 @@ if __name__ == "__main__":
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
 
     args = parser.parse_args()
+    if args.secret_file:
+        secrets = {
+            "s3endpoint": "https://oss.eu-west-0.prod-cloud-ocb.orange-business.com",
+            "accesskey": None,
+            "secretkey": None,
+        }
+        if not get_secrets(secrets, args.secret_file):
+            print("Could not get the secrets")
+            sys.exit(-1)
 
-    secrets = {
-        "s3endpoint": "https://oss.eu-west-0.prod-cloud-ocb.orange-business.com",
-        "accesskey": None,
-        "secretkey": None,
-    }
-    if not get_secrets(secrets, args.secret_file):
-        print("Could not get the secrets")
-        sys.exit(-1)
-
-    os.environ["S3_ENDPOINT"] = secrets["s3endpoint"] if secrets["s3endpoint"] is not None else ""
-    os.environ["S3_ACCESS_KEY_ID"] = secrets["accesskey"] if secrets["accesskey"] is not None else ""
-    os.environ["S3_SECRET_ACCESS_KEY"] = secrets["secretkey"] if secrets["secretkey"] is not None else ""
-    os.environ["S3_REGION"] = "sbg"
+        os.environ["S3_ENDPOINT"] = secrets["s3endpoint"] if secrets["s3endpoint"] is not None else ""
+        os.environ["S3_ACCESS_KEY_ID"] = secrets["accesskey"] if secrets["accesskey"] is not None else ""
+        os.environ["S3_SECRET_ACCESS_KEY"] = secrets["secretkey"] if secrets["secretkey"] is not None else ""
+        os.environ["S3_REGION"] = "sbg"
 
     app.run(debug=True, host=args.host, port=args.port)  # local
     # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN

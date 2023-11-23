@@ -104,6 +104,14 @@ def test_query_sessions(cadip_client, session_response20230216, login):
     # Test with Downlink - neg - status 200 and invalid content
     assert cadip_client.get("Sessions?$filter=DownlinkOrbit eq INCORRECT", headers=auth_header).status_code == OK
     assert not cadip_client.get("Sessions?$filter=DownlinkOrbit eq INCORRECT", headers=auth_header).get_data()
+    # Test with aditional filtering operator <<AND>>
+    query = "Sessions?$filter=PublicationDate gt 2020-2-11 and PublicationDate lt 2020-2-20"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    assert len(cadip_client.get(query, headers=auth_header).get_data())
+    # Test with aditional filtering operator <<OR>>
+    query = "Sessions?$filter=PublicationDate gt 2020-2-11 or Satellite eq S1A"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    assert len(cadip_client.get(query, headers=auth_header).get_data())
 
 
 def test_query_files():
