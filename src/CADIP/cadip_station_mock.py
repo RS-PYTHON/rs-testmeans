@@ -131,33 +131,31 @@ def query_session() -> Response | list[Any]:
     catalog_data = json.loads(open("src/CADIP/Catalogue/SPJ.json").read())
     accepted_operators = [" and ", " or ", " in ", " not "]
     if any(header in request.args["$filter"] for header in accepted_operators):
+        # If request match the pattern (field, op, value OPERATOR field, op, value)
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
         groups = re.search(pattern, request.args["$filter"])
         first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)  # type: ignore
+        # split and processes the requests
         first_response = process_session_request(first_request, request.args, catalog_data)
         second_response = process_session_request(second_request, request.args, catalog_data)
-
+        # Load response data to a json dict
+        first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
+        second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
+        # Normalize responses, must be a list, even with one element, for iterator
+        # Maybe use functools here, tbu
+        if not isinstance(first_response, list):
+            first_response = [first_response]
+        if not isinstance(second_response, list):
+            second_response = [second_response]
+        # Convert to a set, elements unique by ID
+        fresp_set = {d.get("Id") for d in first_response}
+        sresp_set = {d.get("Id") for d in second_response}
         match operator:
             case "and":  # intersection
-                first_response = json.loads(first_response.data).get("responses", first_response.data)
-                second_response = json.loads(second_response.data).get("responses", second_response.data)
-                fresp_set = {d.get("Id") for d in first_response}
-                sresp_set = {d.get("Id") for d in second_response}
                 common_response = fresp_set.intersection(sresp_set)
                 common_elements = [d for d in first_response if d.get("Id") in common_response]
                 return Response(status=OK, response=batch_response_odata_v4(common_elements))
             case "or":  # union
-                import pdb
-
-                pdb.set_trace()
-                first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
-                second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
-                if not isinstance(first_response, list):
-                    first_response = [first_response]
-                if not isinstance(second_response, list):
-                    second_response = [second_response]
-                fresp_set = {d.get("Id") for d in first_response}
-                sresp_set = {d.get("Id") for d in second_response}
                 union_set = fresp_set.union(sresp_set)
                 union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
                 return Response(status=OK, response=batch_response_odata_v4(union_elements))
