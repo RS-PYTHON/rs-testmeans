@@ -36,6 +36,8 @@ NOT_FOUND = 404
 def additional_options(func):
     """Docstring to be added."""
 
+    # This method is a wrapper that check if endpoints have some display options activated.
+    # Endpoint function is called inside wrapper and output is sorted or sliced according to request arguments.
     @wraps(func)
     def wrapper(*args, **kwargs):
         accepted_display_options = ["$orderBy", "$top", "$skip", "$count"]
@@ -134,7 +136,8 @@ def query_session() -> Response | list[Any]:
         # If request match the pattern (field, op, value OPERATOR field, op, value)
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
         groups = re.search(pattern, request.args["$filter"])
-        first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)  # type: ignore
+        if groups:
+            first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
         # split and processes the requests
         first_response = process_session_request(first_request, request.args, catalog_data)
         second_response = process_session_request(second_request, request.args, catalog_data)
@@ -167,7 +170,7 @@ def query_session() -> Response | list[Any]:
     return process_session_request(request.args["$filter"], request.args, catalog_data)
 
 
-def process_session_request(request, headers, catalog_data):
+def process_session_request(request: str, headers: dict, catalog_data: dict) -> Response:
     """Docstring to be added."""
     # Normalize request (lower case / remove ')
     field, op, value = map(
@@ -200,14 +203,18 @@ def process_session_request(request, headers, catalog_data):
                     if date > datetime.datetime.fromisoformat(product[field])
                 ]
             case _:
+                # If the operation is not recognized, return a 404 NOT FOUND response
                 return Response(status=NOT_FOUND)
+        # Return the response with the processed results or a 404 NOT FOUND if no results are found
         return (
             Response(status=OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
             else Response(status=NOT_FOUND)
         )
     else:
+        # For fields other than "PublicationDate", perform a substring match on the specified value
         query_result = [product for product in catalog_data["Data"] if value in product[field]]
+        # Return the response with the processed results or a 200 OK response if no results are found
         return (
             Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
             if query_result
@@ -234,9 +241,9 @@ def query_files() -> Response | list[Any]:
     catalog_data = json.loads(open("src/CADIP/Catalogue/FileResponse.json").read())
     if "Name" in request.args["$filter"]:
         op, value = request.args["$filter"].split("(")
-        filter_by, filter_value = (
-            re.search("('.*?', '.*?')", value).group(0).replace("'", "").split(", ")  # type: ignore
-        )
+        regex = re.search("('.*?', '.*?')", value)
+        if regex:
+            filter_by, filter_value = regex.group(0).replace("'", "").split(", ")
         match op:
             case "contains":
                 resp_body = map(
