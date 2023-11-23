@@ -55,13 +55,13 @@ def hello():
 
 
 @app.route("/Products", methods=["GET"])
-def querry_products():
+def query_products():
     """Docstring to be added."""
     if not request.args:
         return Response(status=BAD_REQUEST)
 
     if not any(
-        [querry_text in request.args["$filter"].split(" ")[0] for querry_text in ["Name", "PublicationDate"]],
+        [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate"]],
     ):
         return Response(status=BAD_REQUEST)
 
@@ -125,7 +125,7 @@ def querry_products():
 @auth.login_required
 def download_file(Id) -> Response:  # noqa: N803
     """Docstring to be added."""
-    catalog_data = json.loads(open("src/ADGS/Catalog/GETS3FileResponse.json").read())
+    catalog_data = json.loads(open("src/ADGS/Catalog/GETFileResponse.json").read())
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
     return (
@@ -158,7 +158,7 @@ def download_file_s3(Id) -> Response:  # noqa: N803
     return send_file(os.path.join(os.path.abspath(path), s3_file_path[0].split("/")[-1]))
 
 
-def create_app():
+def create_adgs_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
     return app
@@ -169,8 +169,9 @@ if __name__ == "__main__":
         description="Starts the ADGS server mockup ",
     )
 
-    parser.add_argument("-s", "--secret-file", type=str, required=True, help="File with the secrets")
+    parser.add_argument("-s", "--secret-file", type=str, required=False, help="File with the secrets")
     parser.add_argument("-p", "--port", type=int, required=False, default=5001, help="Port to use")
+    parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
 
     args = parser.parse_args()
 
