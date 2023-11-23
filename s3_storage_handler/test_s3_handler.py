@@ -1,16 +1,18 @@
-import os
-import sys
 import argparse
+
 # import glob
 # import json
 import logging
+import os
 import signal
+import sys
 import time
 
 from prefect import flow, get_run_logger
 from prefect_dask.task_runners import DaskTaskRunner
+
 sys.path.insert(0, os.path.join(os.path.dirname(sys.path[0]), "../", "rs-server/src/"))
-import s3_storage_handler # noqa
+import s3_storage_handler  # noqa
 
 
 def os_sig_handler(signalNumber, frame):

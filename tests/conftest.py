@@ -12,6 +12,7 @@ def cadip_client():
     with app.test_client() as client:
         yield client
 
+
 @pytest.fixture
 def adgs_client():
     """Docstring to be added."""

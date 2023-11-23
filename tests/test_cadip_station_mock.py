@@ -31,7 +31,9 @@ def test_basic_auth(cadip_client, correct_login: str, incorrect_login: str):
     correct_login = base64.b64encode(str.encode(correct_login)).decode("utf-8")
     incorrect_login = base64.b64encode(str.encode(incorrect_login)).decode("utf-8")
     assert cadip_client.get("/", headers={"Authorization": "Basic {}".format(correct_login)}).status_code == OK
-    assert cadip_client.get("/", headers={"Authorization": "Basic {}".format(incorrect_login)}).status_code == UNAUTHORIZED
+    assert (
+        cadip_client.get("/", headers={"Authorization": "Basic {}".format(incorrect_login)}).status_code == UNAUTHORIZED
+    )
     # test a broken endpoint route
     assert cadip_client.get("incorrectRoute/").status_code == NOT_FOUND
 
@@ -115,23 +117,21 @@ def test_query_quality_info():
 
 
 @pytest.mark.parametrize(
-    "original_path, download_path, original_file, download_file, login",
+    "local_path, download_path, login",
     [
         # to be changed after deploy / pipeline
         (
-            (
-                "tests/data/",
-                "tests/S3MockTest/",
-                "S1A.raw",
-                "S1A_test.raw",
-                ("test:test"),
-            )
+            ("tests/data/", "S1A.raw"),
+            ("tests/S3MockTest/", "S1A_test.raw"),
+            ("test:test"),
         ),
     ],
 )
-def test_download_file(cadip_client, original_path, download_path, original_file, download_file, login):
+def test_download_file(cadip_client, local_path, download_path, login):
     """Docstring to be added."""
     # Remove artifacts if any
+    original_path, original_file = local_path
+    download_path, download_file = download_path
     login = base64.b64encode(str.encode(login)).decode("utf-8")
     auth_header = {"Authorization": f"Basic {login}"}
     if os.path.exists(os.path.join(download_path, download_file)):
