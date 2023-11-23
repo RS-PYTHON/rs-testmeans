@@ -2,7 +2,7 @@
 import pytest
 
 from src.ADGS.adgs_station_mock import create_adgs_app
-from src.CADIP.cadipStationMock import create_cadip_app
+from src.CADIP.cadip_station_mock import create_cadip_app
 
 
 @pytest.fixture

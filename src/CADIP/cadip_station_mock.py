@@ -4,6 +4,7 @@ import asyncio
 import datetime
 import json
 import logging
+import os
 import re
 import sys
 from functools import wraps
@@ -333,16 +334,11 @@ def create_cadip_app():
 
 
 if __name__ == "__main__":
-    """TODO: re-implement
-    if len(sys.argv) > 1:  # script
-        host, port = sys.argv[1:]
-        app.run(debug=True, host=host, port=int(port))
-    """
     parser = argparse.ArgumentParser(
         description="Starts the CADIP server mockup ",
     )
 
-    parser.add_argument("-s", "--secret-file", type=str, required=True, help="File with the secrets")
+    parser.add_argument("-s", "--secret-file", type=str, required=False, help="File with the secrets")
     parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
 
@@ -356,7 +352,6 @@ if __name__ == "__main__":
     if not get_secrets(secrets, args.secret_file):
         print("Could not get the secrets")
         sys.exit(-1)
-    import os
 
     os.environ["S3_ENDPOINT"] = secrets["s3endpoint"] if secrets["s3endpoint"] is not None else ""
     os.environ["S3_ACCESS_KEY_ID"] = secrets["accesskey"] if secrets["accesskey"] is not None else ""

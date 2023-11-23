@@ -169,8 +169,9 @@ if __name__ == "__main__":
         description="Starts the ADGS server mockup ",
     )
 
-    parser.add_argument("-s", "--secret-file", type=str, required=True, help="File with the secrets")
+    parser.add_argument("-s", "--secret-file", type=str, required=False, help="File with the secrets")
     parser.add_argument("-p", "--port", type=int, required=False, default=5001, help="Port to use")
+    parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
 
     args = parser.parse_args()
 
