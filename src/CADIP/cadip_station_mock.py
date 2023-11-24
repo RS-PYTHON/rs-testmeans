@@ -5,12 +5,13 @@ import datetime
 import json
 import logging
 import os
+import pathlib
 import re
 import sys
 from functools import wraps
 from typing import Any
 
-from flask import Flask, Response, render_template, request, send_file
+from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from prefect import flow
@@ -96,7 +97,8 @@ def batch_response_odata_v4(resp_body: list | map) -> Any:
 @auth.verify_password
 def verify_password(username, password) -> bool:
     """Docstring to be added."""
-    users = json.loads(open("src/CADIP/auth.json").read())
+    auth_path = app.config["configuration_path"] / "auth.json"
+    users = json.loads(open(auth_path).read())
     if username in users.keys():
         return bcrypt.check_password_hash(users.get(username), password)
     return False
@@ -106,7 +108,8 @@ def verify_password(username, password) -> bool:
 @auth.login_required
 def hello():
     """Docstring to be added."""
-    return render_template("home.html")
+    # Used only for auth, if reached here, return OK.
+    return Response(status=OK)
 
 
 # 3.3 (PSD)
@@ -130,7 +133,8 @@ def query_session() -> Response | list[Any]:
     ):
         return Response(status=BAD_REQUEST)
     # Proceed to procces request
-    catalog_data = json.loads(open("src/CADIP/Catalogue/SPJ.json").read())
+    catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
+    catalog_data = json.loads(open(catalog_path).read())
     accepted_operators = [" and ", " or ", " in ", " not "]
     if any(header in request.args["$filter"] for header in accepted_operators):
         # If request match the pattern (field, op, value OPERATOR field, op, value)
@@ -237,8 +241,8 @@ def query_files() -> Response | list[Any]:
         ],
     ):
         return Response(status=BAD_REQUEST)
-
-    catalog_data = json.loads(open("src/CADIP/Catalogue/FileResponse.json").read())
+    catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
+    catalog_data = json.loads(open(catalog_path).read())
     if "Name" in request.args["$filter"]:
         op, value = request.args["$filter"].split("(")
         regex = re.search("('.*?', '.*?')", value)
@@ -320,11 +324,14 @@ def query_files() -> Response | list[Any]:
 @auth.login_required
 def download_file(Id) -> Response:  # noqa: N803
     """Docstring to be added."""
-    catalog_data = json.loads(open("src/CADIP/Catalogue/FileResponse.json").read())
+    catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
+    catalog_data = json.loads(open(catalog_path).read())
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
     return (
-        send_file("S3Mock/" + files[0]["Name"]) if len(files) == 1 else Response(status="404 None/Multiple files found")
+        send_file("config/S3Mock/" + files[0]["Name"])
+        if len(files) == 1
+        else Response(status="404 None/Multiple files found")
     )
     # if files:
     #    return send_file("S3Mock/" + files[0]["Name"]) if len(files) == 1 else Response(status="200 not implemented")
@@ -338,7 +345,8 @@ def quality_info(Id) -> Response | list[Any]:  # noqa: N803
     """Docstring to be added."""
     if "expand" in request.args:
         if request.args["expand"] == "qualityInfo":
-            catalog_data = json.loads(open("src/CADIP/Catalogue/QualityInfoResponse.json").read())
+            catalog_path = app.config["configuration_path"] / "Catalogue/QualityInfoResponse.json"
+            catalog_data = json.loads(open(catalog_path).read())
             QIData = map(  # noqa: N806
                 json.dumps,
                 [QIData for QIData in catalog_data["Data"] if Id.replace("'", "") == QIData["Id"]],
@@ -351,7 +359,8 @@ def quality_info(Id) -> Response | list[Any]:  # noqa: N803
 # @auth.login_required # Not yet
 def s3_download_file(Id) -> Response:  # noqa: N803 # can't be lowercase, must mach endpoint & ICD
     """Docstring to be added."""
-    catalog_data = json.loads(open("src/CADIP/Catalogue/S3FileResp.json").read())
+    catalog_path = app.config["configuration_path"] / "Catalogue/S3FileResp.json"
+    catalog_data = json.loads(open(catalog_path).read())
     bucket = "rs-addon-input"
     path = "S3Download"
 
@@ -375,19 +384,20 @@ def s3_download_file(Id) -> Response:  # noqa: N803 # can't be lowercase, must m
 def create_cadip_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
+    app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
     return app
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Starts the CADIP server mockup ",
-    )
+    parser = argparse.ArgumentParser(description="Starts the CADIP server mockup ")
 
     parser.add_argument("-s", "--secret-file", type=str, required=False, help="File with the secrets")
     parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
+    parser.add_argument("-c", "--config", type=str, required=False, default="config")
 
     args = parser.parse_args()
+    configuration_path = pathlib.Path(__file__).parent.resolve() / str(args.config)
     if args.secret_file:
         secrets = {
             "s3endpoint": "https://oss.eu-west-0.prod-cloud-ocb.orange-business.com",
@@ -403,5 +413,6 @@ if __name__ == "__main__":
         os.environ["S3_SECRET_ACCESS_KEY"] = secrets["secretkey"] if secrets["secretkey"] is not None else ""
         os.environ["S3_REGION"] = "sbg"
 
+    app.config["configuration_path"] = configuration_path
     app.run(debug=True, host=args.host, port=args.port)  # local
     # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
