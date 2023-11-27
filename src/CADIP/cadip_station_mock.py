@@ -149,11 +149,8 @@ def query_session() -> Response | list[Any]:
         first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
         second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
         # Normalize responses, must be a list, even with one element, for iterator
-        # Maybe use functools here, tbu
-        if not isinstance(first_response, list):
-            first_response = [first_response]
-        if not isinstance(second_response, list):
-            second_response = [second_response]
+        first_response = first_response if isinstance(first_response, list) else [first_response]
+        second_response = second_response if isinstance(second_response, list) else [second_response]
         # Convert to a set, elements unique by ID
         fresp_set = {d.get("Id") for d in first_response}
         sresp_set = {d.get("Id") for d in second_response}
@@ -186,7 +183,6 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
         # year-month-day
         date_placeholder = datetime.datetime(2014, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
         date = date_placeholder.replace(*map(int, value.split("-")))  # type: ignore
-        # Maybe should use LUT for operations
         match op:
             case "eq":
                 resp_body = [
@@ -317,7 +313,6 @@ def query_files() -> Response | list[Any]:
 
 
 # 3.5
-# Not sure if download should be requested only with ID or with a json request?
 # v1.0.0 takes id from route GET and filters FPJ (json outputs of file query) in order to download a file
 # Is possible / how to download multiple files
 @app.route("/Files(<Id>)/$value", methods=["GET"])
