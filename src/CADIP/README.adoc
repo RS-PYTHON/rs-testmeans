@@ -1,0 +1,25 @@
+= CADIP mockup
+
+== Description
+
+This image may be used to start a container that simulates a CADIP server. There are 3 files hardcoded which
+are to be sent in the search list and to be downloaded.
+
+== Building
+
+The docker image may be built with:
+
+```bash
+docker build --no-cache --progress=plain -t cadip-server-mockup .
+```
+
+== CLI Docker
+
+The entrypoint of this  docker image is the cadip server mockup, which starts automatically and listens on port 5000. You can use the docker image to run a container as described in this simple example:
+
+```bash
+sudo docker run -ti --rm -p 5000:5000/tcp -p 5000:5000/udp cadip-server-mockup:<version>
+```
+
+where <version> may be void if the latest will be used.
+After you start the container, you will be able to connect a client to it and request the list of files that can be downloaded.
