@@ -20,10 +20,8 @@ RUN apt-get update -y \
     && add-apt-repository ppa:deadsnakes/ppa -y \
     && apt-get update -y
 
-
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --fix-missing --no-install-recommends \
     python3.11 python3.11-distutils
-
 
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
 
