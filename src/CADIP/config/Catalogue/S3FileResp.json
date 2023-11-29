@@ -7,37 +7,47 @@
 			"Channel": 1,
 			"BlockNumber": 1,
 			"FinalBlock": true,
-			"PublicationDate": "2019-02-16T12:00:00.000Z",
-			"EvictionDate": "2019-02-23T12:00:00.000Z",
-			"Size": "2048",
-			"Retransfer": false,
-            "S3Path": "rs-python-dwn/dwn_subdir1/DCS_04_S1A_20231020064619050845_ch1_DSDB_00001.raw"
+			"PublicationDate": "2023-11-26T17:01:39.528Z",
+			"EvictionDate": "2023-12-03T17:01:00Z",
+			"Size": "36",
+			"Retransfer": false
 		},
 		{
 			"Id": "some_id_2",
-			"Name": "T42SWD_20231008T060731_B01.jp2",
+			"Name": "DCS_04_S1A_20231121072204051312_ch1_DSDB_00060.raw",
 			"SessionID": "some_session_id2",
 			"Channel": 1,
-			"BlockNumber": 1,
+			"BlockNumber": 60,
 			"FinalBlock": true,
-			"PublicationDate": "2021-02-16T12:00:00.000Z",
-			"EvictionDate": "2021-02-23T12:00:00.000Z",
-			"Size": "4096",
-			"Retransfer": false,
-            "S3Path": "/rs-python-dwn/S2A_MSIL1C_20231008T060731_N0509_R134_T42SWD_20231008T064444.SAFE/GRANULE/L1C_T42SWD_A043317_20231008T060952/IMG_DATA/T42SWD_20231008T060731_B01.jp2"
+			"PublicationDate": "2023-11-26T17:01:39.528Z",
+			"EvictionDate": "2023-12-03T17:01:00Z",
+			"Size": "22",
+			"Retransfer": false
+
 		},
 		{
 			"Id": "some_id_3",
-			"Name": "T42SWD_20231008T060731_TCI.jp2",
+			"Name": "DCS_04_S1A_20231121072204051312_ch2_DSDB_00046.raw",
 			"SessionID": "some_session_id3",
-			"Channel": 1,
-			"BlockNumber": 1,
+			"Channel": 2,
+			"BlockNumber": 46,
+			"FinalBlock": false,
+			"PublicationDate": "2023-11-26T15:20:21.433Z",
+			"EvictionDate": "2023-12-03T15:20:00Z",
+			"Size": "12",
+			"Retransfer": false
+		},
+		{
+			"Id": "some_id_4",
+			"Name": "DCS_04_S1A_20231121072204051312_ch2_DSDB_00060.raw",
+			"SessionID": "some_session_id4",
+			"Channel": 2,
+			"BlockNumber": 60,
 			"FinalBlock": true,
-			"PublicationDate": "2023-02-16T12:00:00.000Z",
-			"EvictionDate": "2023-02-23T12:00:00.000Z",
-			"Size": "1024",
-			"Retransfer": false,
-            "S3Path": "rs-python-dwn/S2A_MSIL1C_20231008T060731_N0509_R134_T42SWD_20231008T064444.SAFE/GRANULE/L1C_T42SWD_A043317_20231008T060952/IMG_DATA/T42SWD_20231008T060731_TCI.jp2"
+			"PublicationDate": "2023-11-26T15:25:19.327Z",
+			"EvictionDate": "2023-12-03T15:25:00Z",
+			"Size": "28",
+			"Retransfer": false
 		}
 	]
 }

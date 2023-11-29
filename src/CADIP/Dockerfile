@@ -36,4 +36,4 @@ RUN python3.11 -m pip install --no-cache-dir poetry
 SHELL ["/bin/bash", "-c"]
 RUN poetry install --no-root
 
-ENTRYPOINT [ "poetry", "run", "python3.11", "/opt/cadip/cadip_station_mock.py", "-H 0.0.0.0" ]
+ENTRYPOINT [ "poetry", "run", "python3.11", "/opt/cadip/cadip_station_mock.py", "-H", "0.0.0.0" ]

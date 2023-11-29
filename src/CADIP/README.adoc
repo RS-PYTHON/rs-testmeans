@@ -1,4 +1,4 @@
-= CADIP mockup
+= CADIP server mockup docker image
 
 == Description
 
