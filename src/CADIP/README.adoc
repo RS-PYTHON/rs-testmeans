@@ -15,7 +15,7 @@ DCS_04_S1A_20231121072204051312_ch2_DSDB_00060.raw (final block chunk)
 The docker image may be built with:
 
 ```bash
-docker build --no-cache --progress=plain -t cadip-server-mockup .
+docker build --no-cache --progress=plain -t cadip-server-mockup:<version> .
 ```
 
 == CLI Docker
@@ -23,7 +23,7 @@ docker build --no-cache --progress=plain -t cadip-server-mockup .
 The entrypoint of this  docker image is the cadip server mockup, which starts automatically and listens on port 5000. You can use the docker image to run a container as described in this simple example:
 
 ```bash
-sudo docker run -ti --rm -p 5000:5000/tcp -p 5000:5000/udp cadip-server-mockup:<version>
+docker run -ti --rm -p 5000:5000/tcp -p 5000:5000/udp cadip-server-mockup:<version>
 ```
 
 where <version> may be void if the latest will be used.
