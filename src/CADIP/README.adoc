@@ -2,8 +2,13 @@
 
 == Description
 
-This image may be used to start a container that simulates a CADIP server. There are 3 files hardcoded which
-are to be sent in the search list and to be downloaded.
+This image may be used to start a container that simulates a CADIP server. There are 4 hardcoded files which
+are to be sent in the search list and to be downloaded. These files simulate the real name of some chunk raw files from
+channels 1 and 2 of S1. Two of them simulate also the final block chunk. +
+DCS_04_S1A_20231020064619050845_ch1_DSDB_00001.raw +
+DCS_04_S1A_20231121072204051312_ch1_DSDB_00060.raw (final block chunk) +
+DCS_04_S1A_20231121072204051312_ch2_DSDB_00046.raw +
+DCS_04_S1A_20231121072204051312_ch2_DSDB_00060.raw (final block chunk)
 
 == Building
 

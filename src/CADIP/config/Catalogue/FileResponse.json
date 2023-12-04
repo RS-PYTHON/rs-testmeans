@@ -6,7 +6,7 @@
 			"SessionID": "some_session_id",
 			"Channel": 1,
 			"BlockNumber": 1,
-			"FinalBlock": true,
+			"FinalBlock": false,
 			"PublicationDate": "2023-11-26T17:01:39.528Z",
 			"EvictionDate": "2023-12-03T17:01:00Z",
 			"Size": "36",
