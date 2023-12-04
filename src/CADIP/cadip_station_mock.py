@@ -347,12 +347,26 @@ def create_cadip_app():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Starts the CADIP server mockup ")
 
+    default_config_path = pathlib.Path(__file__).parent.resolve() / "config"
     parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
-    parser.add_argument("-c", "--config", type=str, required=False, default="config")
+    parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
 
     args = parser.parse_args()
-    configuration_path = pathlib.Path(__file__).parent.resolve() / str(args.config)
+    configuration_path = pathlib.Path(args.config)
+    # configuration_path.iterdir() / signature in str(x)
+    if default_config_path is not configuration_path:
+        # define config folder mandatory structure
+        config_signature = [
+            "auth.json",
+            "Catalogue/FileResponse.json",
+            "Catalogue/QualityInfoResponse.json",
+            "Catalogue/SPJ.json",
+        ]
+        if not all((configuration_path / file_name).exists() for file_name in config_signature):
+            # use default config if given structure doesn't match
+            configuration_path = default_config_path
+            print("Using default config")
     app.config["configuration_path"] = configuration_path
     app.run(debug=True, host=args.host, port=args.port)  # local
     # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
