@@ -168,8 +168,7 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
     # return results or the 200OK code is returned with an empty response (PSD)
     if field == "PublicationDate":
         # year-month-day
-        date_placeholder = datetime.datetime(2014, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
-        date = date_placeholder.replace(*map(int, value.split("-")))  # type: ignore
+        date = datetime.datetime.fromisoformat(value)
         match op:
             case "eq":
                 resp_body = [
@@ -235,8 +234,8 @@ def query_files() -> Response | list[Any]:
         if groups:
             first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
         # split and processes the requests
-        first_response = process_session_request(first_request, request.args, catalog_data)
-        second_response = process_session_request(second_request, request.args, catalog_data)
+        first_response = process_files_request(first_request.replace('"', ""), catalog_data)
+        second_response = process_files_request(second_request.replace('"', ""), catalog_data)
         # Load response data to a json dict
         first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
         second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
@@ -282,8 +281,7 @@ def process_files_request(request, catalog_data):
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
-        date_placeholder = datetime.datetime(2014, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
-        date = date_placeholder.replace(*map(int, value.split("-")))  # type: ignore
+        date = datetime.datetime.fromisoformat(value)
         match op:
             case "eq":
                 # map inside map, to be reviewed?
