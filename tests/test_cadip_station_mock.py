@@ -78,17 +78,17 @@ def test_query_sessions(cadip_client, session_response20230216, login):
     # test with an incorrect filter
     assert cadip_client.get("Sessions?$filter=Incorrect_filter", headers=auth_header).status_code == BAD_REQUEST
     # Response containing more than 1 result, since there are more products matching
-    response = cadip_client.get("Sessions?$filter=PublicationDate gt 2019", headers=auth_header)
+    response = cadip_client.get("Sessions?$filter=PublicationDate gt 2019-01-01T12:00:00.000Z", headers=auth_header)
     assert len(json.loads(response.text)["responses"]) > 1
     # Response containing exactly one item, since explicit date is mentioned.
-    response = cadip_client.get("Sessions?$filter=PublicationDate eq 2023-02-16", headers=auth_header)
+    response = cadip_client.get("Sessions?$filter=PublicationDate eq 2023-02-16T12:00:00.000Z", headers=auth_header)
     assert isinstance(json.loads(response.text), dict)
     # Check response content with test-defined one.
-    response = cadip_client.get("Sessions?$filter=PublicationDate eq 2023-02-16", headers=auth_header)
+    response = cadip_client.get("Sessions?$filter=PublicationDate eq 2023-02-16T12:00:00.000Z", headers=auth_header)
     assert json.loads(response.text).keys() == session_response20230216.keys()
     assert json.loads(response.text) == session_response20230216
     # Empty json response since there are no products older than 1999.
-    response = cadip_client.get("Sessions?$filter=PublicationDate lt 1999", headers=auth_header)
+    response = cadip_client.get("Sessions?$filter=PublicationDate lt 1999-01-01T12:00:00.000Z", headers=auth_header)
     assert not response.text
     # Test with sattelite - pos
     # Test status code - 200 OK, test that reponse exists and it's not empty
@@ -105,18 +105,52 @@ def test_query_sessions(cadip_client, session_response20230216, login):
     assert cadip_client.get("Sessions?$filter=DownlinkOrbit eq INCORRECT", headers=auth_header).status_code == OK
     assert not cadip_client.get("Sessions?$filter=DownlinkOrbit eq INCORRECT", headers=auth_header).get_data()
     # Test with aditional filtering operator <<AND>>
-    query = "Sessions?$filter=PublicationDate gt 2020-2-11 and PublicationDate lt 2020-2-20"
+    query = (
+        "Sessions?$filter=PublicationDate gt 2020-02-11T12:00:00.000Z and PublicationDate lt 2020-02-20T12:00:00.000Z"
+    )
     assert cadip_client.get(query, headers=auth_header).status_code == OK
     assert len(cadip_client.get(query, headers=auth_header).get_data())
     # Test with aditional filtering operator <<OR>>
-    query = "Sessions?$filter=PublicationDate gt 2020-2-11 or Satellite eq S1A"
+    query = "Sessions?$filter=PublicationDate gt 2020-02-11T12:00:00.000Z or Satellite eq S1A"
     assert cadip_client.get(query, headers=auth_header).status_code == OK
     assert len(cadip_client.get(query, headers=auth_header).get_data())
 
 
-def test_query_files():
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "login",
+    [
+        ("test:test"),
+    ],
+)
+def test_query_files(cadip_client, login):
     """Docstring to be added."""
-    pass
+    login = base64.b64encode(str.encode(login)).decode("utf-8")
+    auth_header = {"Authorization": f"Basic {login}"}
+    # test without args
+    assert cadip_client.get("Files", headers=auth_header).status_code == BAD_REQUEST
+    # test with an incorrect filter
+    assert cadip_client.get("Files?$filter=Incorrect_filter", headers=auth_header).status_code == BAD_REQUEST
+    # Response containing more than 1 result, since there are more products matching
+    response = cadip_client.get("Files?$filter=PublicationDate gt 2019-01-01T12:00:00.000Z", headers=auth_header)
+    assert len(json.loads(response.text)["responses"]) > 1
+    # Response containing exactly one item, since explicit date is mentioned.
+    response = cadip_client.get("Files?$filter=Id eq 2b17b57d-fff4-4645-b539-91f305c27c69", headers=auth_header)
+    assert isinstance(json.loads(response.text), dict)
+    response = cadip_client.get("Files?$filter=PublicationDate lt 1999-01-01T12:00:00.000Z", headers=auth_header)
+    assert not response.text
+    # Test with aditional filtering operator <<AND>>
+    query = "Files?$filter=PublicationDate gt 2019-02-11T12:00:00.000Z and PublicationDate lt 2019-02-20T12:00:00.000Z"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    assert len(cadip_client.get(query, headers=auth_header).get_data())
+    # Test with name contains
+    query = "Files?$filter=contains(Name, 'DCS_01_S1A')"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    assert len(cadip_client.get(query, headers=auth_header).get_data())
+    # Test with name startwith
+    query = "Files?$filter=startswith(Name, 'DCS')"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    assert len(cadip_client.get(query, headers=auth_header).get_data())
 
 
 def test_query_quality_info():

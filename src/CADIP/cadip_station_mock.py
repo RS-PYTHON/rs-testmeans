@@ -168,8 +168,7 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
     # return results or the 200OK code is returned with an empty response (PSD)
     if field == "PublicationDate":
         # year-month-day
-        date_placeholder = datetime.datetime(2014, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
-        date = date_placeholder.replace(*map(int, value.split("-")))  # type: ignore
+        date = datetime.datetime.fromisoformat(value)
         match op:
             case "eq":
                 resp_body = [
@@ -226,72 +225,90 @@ def query_files() -> Response | list[Any]:
         return Response(status=BAD_REQUEST)
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
-    if "Name" in request.args["$filter"]:
-        op, value = request.args["$filter"].split("(")
-        regex = re.search("('.*?', '.*?')", value)
+
+    accepted_operators = [" and ", " or ", " in ", " not "]
+    if any(header in request.args["$filter"] for header in accepted_operators):
+        pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
+        groups = re.search(pattern, request.args["$filter"])
+
+        if groups:
+            first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
+        # split and processes the requests
+        first_response = process_files_request(first_request.replace('"', ""), catalog_data)
+        second_response = process_files_request(second_request.replace('"', ""), catalog_data)
+        # Load response data to a json dict
+        first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
+        second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
+        # Normalize responses, must be a list, even with one element, for iterator
+        first_response = first_response if isinstance(first_response, list) else [first_response]
+        second_response = second_response if isinstance(second_response, list) else [second_response]
+        # Convert to a set, elements unique by ID
+        fresp_set = {d.get("Id") for d in first_response}
+        sresp_set = {d.get("Id") for d in second_response}
+        match operator:
+            case "and":  # intersection
+                common_response = fresp_set.intersection(sresp_set)
+                common_elements = [d for d in first_response if d.get("Id") in common_response]
+                return Response(status=OK, response=batch_response_odata_v4(common_elements))
+            case "or":  # union
+                union_set = fresp_set.union(sresp_set)
+                union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+                return Response(status=OK, response=batch_response_odata_v4(union_elements))
+
+    return process_files_request(request.args["$filter"], catalog_data)
+
+
+def process_files_request(request, catalog_data):
+    """Docstring to be added."""
+    if "Name" in request:
+        op, value = request.split("(")
+        regex = re.search(r"(\w+)\((\w+), \'([\w_]+)\'\)", request)
         if regex:
-            filter_by, filter_value = regex.group(0).replace("'", "").split(", ")
+            op = regex.group(1)
+            filter_by = regex.group(2)
+            filter_value = regex.group(3).replace("'", "")
         match op:
             case "contains":
-                resp_body = map(
-                    json.dumps,
-                    [product for product in catalog_data["Data"] if filter_value in product[filter_by]],
-                )
+                resp_body = [product for product in catalog_data["Data"] if filter_value in product[filter_by]]
             case "startswith":
-                resp_body = map(
-                    json.dumps,
-                    [product for product in catalog_data["Data"] if product[filter_by].startswith(filter_value)],
-                )
+                resp_body = [product for product in catalog_data["Data"] if product[filter_by].startswith(filter_value)]
             case "endswith":
-                resp_body = map(
-                    json.dumps,
-                    [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)],
-                )
+                resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)]
         return (
             Response(status=OK, response=batch_response_odata_v4(resp_body))
             if resp_body
             else Response(status=NOT_FOUND)
         )
-    elif "PublicationDate" in request.args["$filter"]:
-        field, op, value = request.args["$filter"].split(" ")
-        date_placeholder = datetime.datetime(2014, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
-        date = date_placeholder.replace(*map(int, value.split("-")))  # type: ignore
+    elif "PublicationDate" in request:
+        field, op, value = request.split(" ")
+        date = datetime.datetime.fromisoformat(value)
         match op:
             case "eq":
                 # map inside map, to be reviewed?
-                resp_body = map(
-                    json.dumps,
-                    [
-                        product
-                        for product in catalog_data["Data"]
-                        if date == datetime.datetime.fromisoformat(product[field])
-                    ],
-                )
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if date == datetime.datetime.fromisoformat(product[field])
+                ]
             case "gt":
-                resp_body = map(
-                    json.dumps,
-                    [
-                        product
-                        for product in catalog_data["Data"]
-                        if date < datetime.datetime.fromisoformat(product[field])
-                    ],
-                )
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if date < datetime.datetime.fromisoformat(product[field])
+                ]
             case "lt":
-                resp_body = map(
-                    json.dumps,
-                    [
-                        product
-                        for product in catalog_data["Data"]
-                        if date > datetime.datetime.fromisoformat(product[field])
-                    ],
-                )
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if date > datetime.datetime.fromisoformat(product[field])
+                ]
         return (
             Response(status=OK, response=batch_response_odata_v4(resp_body))
             if resp_body
             else Response(status=NOT_FOUND)
         )
     else:  # SessionId / Orbit
-        field, op, value = request.args["$filter"].split(" ")
+        field, op, value = request.split(" ")
         matching = map(
             json.dumps,
             [product for product in catalog_data["Data"] if value == product[field]],
