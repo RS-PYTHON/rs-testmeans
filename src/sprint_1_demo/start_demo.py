@@ -79,6 +79,7 @@ def module_ard_pre_processor(bucket, max_runners):
     execute_cadip_ingestion("ingestionParameters.json")
 
     # TODO simulate the execution
+    """
     logger.info("\n\n\nSIMULATING  PRE-PROCESSING  ")
     for i in tqdm(range(10)):
         time.sleep(1)
@@ -90,6 +91,8 @@ def module_ard_pre_processor(bucket, max_runners):
     s3_prefix = "ard-data-{}".format(time.strftime("%Y%m%d_%H%M%S"))
     s3_handler("upload", list_with_files, bucket, s3_prefix, max_runners)
     return "s3://{}/{}".format(bucket, s3_prefix)
+    """
+    return ""
 
 
 @flow(task_runner=DaskTaskRunner())
@@ -242,6 +245,6 @@ if __name__ == "__main__":
         ),
     )
 
-    module_classification_processor(bucket, key, "aux_data", args.max_tasks)
+    # module_classification_processor(bucket, key, "aux_data", args.max_tasks)
 
     logger.info("EXIT !")
