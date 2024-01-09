@@ -1,14 +1,26 @@
 """Docstring to be added."""
+import argparse
 import asyncio
 import datetime
 import json
+import logging
+import os
 import re
+import sys
 from typing import Any
 
 from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from prefect import flow
+
+sys.path.insert(1, "../rs-server/src")
+
+from s3_storage_handler import (  # type: ignore # noqa
+    files_to_be_downloaded,  # type: ignore # noqa
+    get_secrets,  # type: ignore # noqa
+    prefect_get_keys_from_s3,  # type: ignore # noqa
+)
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -60,16 +72,13 @@ def hello():
 
 
 @app.route("/Products", methods=["GET"])
-def querry_products():
+def query_products():
     """Docstring to be added."""
     if not request.args:
         return Response(status=BAD_REQUEST)
 
     if not any(
-        [
-            querry_text in request.args["$filter"].split(" ")[0]
-            for querry_text in ["Name", "PublicationDate", "ContentDate"]
-        ],
+        [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate"]],
     ):
         return Response(status=BAD_REQUEST)
 
@@ -161,7 +170,7 @@ def querry_products():
 @auth.login_required
 def download_file(Id) -> Response:  # noqa: N803
     """Docstring to be added."""
-    catalog_data = json.loads(open("src/ADGS/Catalog/GETS3FileResponse.json").read())
+    catalog_data = json.loads(open("src/ADGS/Catalog/GETFileResponse.json").read())
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
     return (
@@ -179,35 +188,9 @@ def download_file_s3(Id) -> Response:  # noqa: N803
     bucket = "rs-addon-input"
     path = "S3Download"
 
-    import sys
-
-    sys.path.insert(1, "../rs-server/src")
-
-    import logging
-
     logger = logging.getLogger()
 
-    from s3_storage_handler import (
-        files_to_be_downloaded,
-        get_secrets,
-        prefect_get_keys_from_s3,
-    )
-
     s3_file_path = [resp["S3Path"] for resp in catalog_data["Data"] if Id == resp["Id"]]
-    secrets = {
-        "s3endpoint": "https://oss.eu-west-0.prod-cloud-ocb.orange-business.com",
-        "accesskey": None,
-        "secretkey": None,
-    }
-    if not get_secrets(secrets, "/home/opadeanu/.s3cfg"):
-        logger.error("Could not get the secrets")
-        return
-    import os
-
-    os.environ["S3_ENDPOINT"] = secrets["s3endpoint"] if secrets["s3endpoint"] is not None else ""
-    os.environ["S3_ACCESS_KEY_ID"] = secrets["accesskey"] if secrets["accesskey"] is not None else ""
-    os.environ["S3_SECRET_ACCESS_KEY"] = secrets["secretkey"] if secrets["secretkey"] is not None else ""
-    os.environ["S3_REGION"] = "sbg"
 
     list_per_task = files_to_be_downloaded(bucket, s3_file_path, logger)
 
@@ -220,11 +203,36 @@ def download_file_s3(Id) -> Response:  # noqa: N803
     return send_file(os.path.join(os.path.abspath(path), s3_file_path[0].split("/")[-1]))
 
 
-def create_app():
+def create_adgs_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
     return app
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port="5001")  # local
+    parser = argparse.ArgumentParser(
+        description="Starts the ADGS server mockup ",
+    )
+
+    parser.add_argument("-s", "--secret-file", type=str, required=False, help="File with the secrets")
+    parser.add_argument("-p", "--port", type=int, required=False, default=5001, help="Port to use")
+    parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
+
+    args = parser.parse_args()
+
+    secrets = {
+        "s3endpoint": "https://oss.eu-west-0.prod-cloud-ocb.orange-business.com",
+        "accesskey": None,
+        "secretkey": None,
+    }
+
+    if not get_secrets(secrets, args.secret_file):
+        print("Could not get the secrets")
+        sys.exit(-1)
+
+    os.environ["S3_ENDPOINT"] = secrets["s3endpoint"] if secrets["s3endpoint"] is not None else ""
+    os.environ["S3_ACCESS_KEY_ID"] = secrets["accesskey"] if secrets["accesskey"] is not None else ""
+    os.environ["S3_SECRET_ACCESS_KEY"] = secrets["secretkey"] if secrets["secretkey"] is not None else ""
+    os.environ["S3_REGION"] = "sbg"
+
+    app.run(debug=True, port=args.port)  # local
