@@ -1,10 +1,8 @@
 """Docstring to be added."""
 import argparse
-import asyncio
 import datetime
 import json
-import logging
-import os
+import pathlib
 import re
 import sys
 from typing import Any
@@ -12,15 +10,8 @@ from typing import Any
 from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
-from prefect import flow
 
 sys.path.insert(1, "../rs-server/src")
-
-from s3_storage_handler import (  # type: ignore # noqa
-    files_to_be_downloaded,  # type: ignore # noqa
-    get_secrets,  # type: ignore # noqa
-    prefect_get_keys_from_s3,  # type: ignore # noqa
-)
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -72,6 +63,7 @@ def hello():
 
 
 @app.route("/Products", methods=["GET"])
+@auth.login_required
 def query_products():
     """Docstring to be added."""
     if not request.args:
@@ -82,7 +74,8 @@ def query_products():
     ):
         return Response(status=BAD_REQUEST)
 
-    catalog_data = json.loads(open("src/ADGS/Catalog/GETFileResponse.json").read())
+    catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
+    catalog_data = json.loads(open(catalog_path).read())
     if "Name" in request.args["$filter"]:
         pattern = r"(\w+)\((\w+), \'?(\w+)\'?\)"
         op = re.search(pattern, request.args["$filter"]).group(1)
@@ -168,44 +161,23 @@ def query_products():
 
 @app.route("/Products(<Id>)/$value", methods=["GET"])
 @auth.login_required
-def download_file(Id) -> Response:  # noqa: N803
+def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     """Docstring to be added."""
-    catalog_data = json.loads(open("src/ADGS/Catalog/GETFileResponse.json").read())
+    catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
+    catalog_data = json.loads(open(catalog_path).read())
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
     return (
-        send_file("Storage/" + files[0]["Name"])
+        send_file("config/Storage/" + files[0]["Name"])
         if len(files) == 1
         else Response(status="404 None/Multiple files found")
     )
 
 
-@app.route("/Products(<Id>)/$S3OS", methods=["GET"])
-@auth.login_required
-def download_file_s3(Id) -> Response:  # noqa: N803
-    """Docstring to be added."""
-    catalog_data = json.loads(open("src/ADGS/Catalog/GETS3FileResponse.json").read())
-    bucket = "rs-addon-input"
-    path = "S3Download"
-
-    logger = logging.getLogger()
-
-    s3_file_path = [resp["S3Path"] for resp in catalog_data["Data"] if Id == resp["Id"]]
-
-    list_per_task = files_to_be_downloaded(bucket, s3_file_path, logger)
-
-    @flow
-    async def download_s3():
-        task1 = asyncio.create_task(prefect_get_keys_from_s3(list_per_task, bucket, path, 1))
-        await task1
-
-    asyncio.run(download_s3())
-    return send_file(os.path.join(os.path.abspath(path), s3_file_path[0].split("/")[-1]))
-
-
 def create_adgs_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
+    app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
     return app
 
 
@@ -214,25 +186,21 @@ if __name__ == "__main__":
         description="Starts the ADGS server mockup ",
     )
 
-    parser.add_argument("-s", "--secret-file", type=str, required=False, help="File with the secrets")
+    default_config_path = pathlib.Path(__file__).parent.resolve() / "config"
     parser.add_argument("-p", "--port", type=int, required=False, default=5001, help="Port to use")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
+    parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
 
     args = parser.parse_args()
+    configuration_path = pathlib.Path(args.config)
 
-    secrets = {
-        "s3endpoint": "https://oss.eu-west-0.prod-cloud-ocb.orange-business.com",
-        "accesskey": None,
-        "secretkey": None,
-    }
-
-    if not get_secrets(secrets, args.secret_file):
-        print("Could not get the secrets")
-        sys.exit(-1)
-
-    os.environ["S3_ENDPOINT"] = secrets["s3endpoint"] if secrets["s3endpoint"] is not None else ""
-    os.environ["S3_ACCESS_KEY_ID"] = secrets["accesskey"] if secrets["accesskey"] is not None else ""
-    os.environ["S3_SECRET_ACCESS_KEY"] = secrets["secretkey"] if secrets["secretkey"] is not None else ""
-    os.environ["S3_REGION"] = "sbg"
-
-    app.run(debug=True, port=args.port)  # local
+    if default_config_path is not configuration_path:
+        # define config folder mandatory structure
+        config_signature = ["auth.json", "Catalogue/GETFileResponse.json"]
+        if not all((configuration_path / file_name).exists() for file_name in config_signature):
+            # use default config if given structure doesn't match
+            configuration_path = default_config_path
+            print("Using default config")
+    app.config["configuration_path"] = configuration_path
+    app.run(debug=True, host=args.host, port=args.port)  # local
+    # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
