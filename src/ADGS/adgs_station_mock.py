@@ -4,14 +4,11 @@ import datetime
 import json
 import pathlib
 import re
-import sys
 from typing import Any
 
 from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
-
-sys.path.insert(1, "../rs-server/src")
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -21,6 +18,8 @@ OK = 200
 BAD_REQUEST = 400
 UNAUTHORIZED = 401
 NOT_FOUND = 404
+
+aditional_operators = [" and ", " or ", " in ", " not "]
 
 
 def prepare_response_odata_v4(resp_body: list | map) -> Any:
@@ -63,25 +62,15 @@ def hello():
     return Response(status=OK)
 
 
-@app.route("/Products", methods=["GET"])
-@auth.login_required
-def query_products():
+def process_products_request(request):
     """Docstring to be added."""
-    if not request.args:
-        return Response(status=BAD_REQUEST)
-
-    if not any(
-        [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate"]],
-    ):
-        return Response(status=BAD_REQUEST)
-
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
-    if "Name" in request.args["$filter"]:
+    if "Name" in request:
         pattern = r"(\w+)\((\w+), \'?(\w+)\'?\)"
-        op = re.search(pattern, request.args["$filter"]).group(1)
-        filter_by = re.search(pattern, request.args["$filter"]).group(2)
-        filter_value = re.search(pattern, request.args["$filter"]).group(3)
+        op = re.search(pattern, request).group(1)
+        filter_by = re.search(pattern, request).group(2)
+        filter_value = re.search(pattern, request).group(3)
         match op:
             case "contains":
                 resp_body = [product for product in catalog_data["Data"] if filter_value in product[filter_by]]
@@ -94,13 +83,12 @@ def query_products():
             if resp_body
             else Response(status=NOT_FOUND)
         )
-    elif "PublicationDate" in request.args["$filter"]:
-        field, op, value = request.args["$filter"].split(" ")
-        date_placeholder = datetime.datetime(2014, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
-        date = date_placeholder.replace(*map(int, value.split("-")))  # type: ignore
+    elif "PublicationDate" in request:
+        field, op, value = request.split(" ")
+        # year-month-day
+        date = datetime.datetime.fromisoformat(value)
         match op:
             case "eq":
-                # map inside map, to be reviewed?
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
@@ -118,6 +106,9 @@ def query_products():
                     for product in catalog_data["Data"]
                     if date > datetime.datetime.fromisoformat(product[field])
                 ]
+            case _:
+                # If the operation is not recognized, return a 404 NOT FOUND response
+                return Response(status=NOT_FOUND)
         return (
             Response(status=OK, response=prepare_response_odata_v4(resp_body))
             if resp_body
@@ -158,6 +149,46 @@ def query_products():
         pass  # WIP
     else:
         return Response(status=BAD_REQUEST)
+
+
+@app.route("/Products", methods=["GET"])
+@auth.login_required
+def query_products():
+    """Docstring to be added."""
+    if not request.args:
+        return Response(status=BAD_REQUEST)
+    if not any(
+        [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate"]],
+    ):
+        return Response(status=BAD_REQUEST)
+    if any(header in request.args["$filter"] for header in aditional_operators):
+        pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
+        groups = re.search(pattern, request.args["$filter"])
+        if groups:
+            first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
+            # split and processes the requests
+            first_response = process_products_request(first_request)
+            second_response = process_products_request(second_request)
+            # Load response data to a json dict
+            first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
+            second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
+            # Normalize responses, must be a list, even with one element, for iterator
+            first_response = first_response if isinstance(first_response, list) else [first_response]
+            second_response = second_response if isinstance(second_response, list) else [second_response]
+            # Convert to a set, elements unique by ID
+            fresp_set = {d.get("Id") for d in first_response}
+            sresp_set = {d.get("Id") for d in second_response}
+            match operator:
+                case "and":  # intersection
+                    common_response = fresp_set.intersection(sresp_set)
+                    common_elements = [d for d in first_response if d.get("Id") in common_response]
+                    return Response(status=OK, response=prepare_response_odata_v4(common_elements))
+                case "or":  # union
+                    union_set = fresp_set.union(sresp_set)
+                    union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+                    return Response(status=OK, response=prepare_response_odata_v4(union_elements))
+
+    return process_products_request(request.args["$filter"])
 
 
 @app.route("/Products(<Id>)/$value", methods=["GET"])

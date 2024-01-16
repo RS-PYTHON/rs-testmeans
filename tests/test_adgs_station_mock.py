@@ -68,13 +68,13 @@ def test_query_products(adgs_client, products_response, login):
     # test with an incorrect filter
     assert adgs_client.get("Products?$filter=Incorrect_filter", headers=auth_header).status_code == BAD_REQUEST
     # Response containing more than 1 result, since there are more products matching
-    response = adgs_client.get("Products?$filter=PublicationDate gt 2019", headers=auth_header)
+    response = adgs_client.get("Products?$filter=PublicationDate gt 2019-01-01T00:00:00.000Z", headers=auth_header)
     assert len(json.loads(response.text)["responses"]) > 1
     # Response containing exactly one item, since explicit date is mentioned.
-    response = adgs_client.get("Products?$filter=PublicationDate eq 2023-02-16", headers=auth_header)
+    response = adgs_client.get("Products?$filter=PublicationDate eq 2023-02-16T12:00:00.000Z", headers=auth_header)
     assert isinstance(json.loads(response.text), dict)
     # Check response content with test-defined one.
-    response = adgs_client.get("Products?$filter=PublicationDate eq 2019-02-16", headers=auth_header)
+    response = adgs_client.get("Products?$filter=PublicationDate eq 2019-02-16T12:00:00.000Z", headers=auth_header)
     assert json.loads(response.text).keys() == products_response.keys()
     assert json.loads(response.text) == products_response
     # Name contains.
@@ -96,8 +96,17 @@ def test_query_products(adgs_client, products_response, login):
     assert json.loads(response.text).keys() == products_response.keys()
     assert json.loads(response.text) == products_response
     # Empty json response since there are no products older than 1999.
-    response = adgs_client.get("Products?$filter=PublicationDate lt 1999", headers=auth_header)
+    response = adgs_client.get("Products?$filter=PublicationDate lt 1999-05-15T00:00:00.000Z", headers=auth_header)
     assert not response.text
+    # Test with AND operator
+    q1 = "PublicationDate gt 2018-05-15T00:00:00.000Z"
+    q2 = "PublicationDate lt 2023-05-15T00:00:00.000Z"
+    endpoint = f"Products?$filter={q1} and {q2}"
+    response = adgs_client.get(
+        endpoint,
+        headers=auth_header,
+    )
+    assert json.loads(response.text).keys()
 
 
 @pytest.mark.parametrize(
