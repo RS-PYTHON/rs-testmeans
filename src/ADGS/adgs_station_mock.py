@@ -167,8 +167,8 @@ def query_products():
         if groups:
             first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
             # split and processes the requests
-            first_response = process_products_request(first_request)
-            second_response = process_products_request(second_request)
+            first_response = process_products_request(first_request.replace('"', ""))
+            second_response = process_products_request(second_request.replace('"', ""))
             # Load response data to a json dict
             first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
             second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
@@ -188,7 +188,7 @@ def query_products():
                     union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
                     return Response(status=OK, response=prepare_response_odata_v4(union_elements))
 
-    return process_products_request(request.args["$filter"])
+    return process_products_request(str(request.args["$filter"]))
 
 
 @app.route("/Products(<Id>)/$value", methods=["GET"])
