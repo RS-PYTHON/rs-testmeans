@@ -1,0 +1,20 @@
+name: Publish Docker images for rs-testmeans
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+
+jobs:
+
+  services-cadip-img:
+    runs-on: ubuntu-latest
+    name: Test
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: publish-docker
+        run: echo test
