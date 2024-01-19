@@ -1,0 +1,29 @@
+name: Publish Docker images
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+
+jobs:
+
+  services-cadip-img:
+    runs-on: ubuntu-latest
+    name: "'services/cadip' Docker image"
+    permissions: write-all
+    outputs:
+      docker_image: ${{ steps.publish-docker.outputs.docker_image}}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: publish-docker
+        uses: ./.github/actions/publish-docker
+        with:
+          dockerfile: ./src/CADIP/Dockerfile
+          build_context_path: ./src/CADIP
+          image_suffix: _cadip-station-mock
+          version_name: latest # don't know if we want to keep a version history
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
