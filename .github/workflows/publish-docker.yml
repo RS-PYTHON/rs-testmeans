@@ -9,6 +9,24 @@ env:
 
 jobs:
 
+  services-adgs-img:
+    runs-on: ubuntu-latest
+    name: "'services/adgs' Docker image"
+    permissions: write-all
+    outputs:
+      docker_image: ${{ steps.publish-docker.outputs.docker_image}}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: publish-docker
+        uses: ./.github/actions/publish-docker
+        with:
+          dockerfile: ./src/ADGS/Dockerfile
+          build_context_path: ./src/ADGS
+          image_suffix: _adgs-station-mock
+          version_name: latest # don't know if we want to keep a version history
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
   services-cadip-img:
     runs-on: ubuntu-latest
     name: "'services/cadip' Docker image"

@@ -16,4 +16,4 @@ RUN poetry install --no-root
 # Clean everything
 RUN rm -rf /tmp/whl /root/.cache/pip /var/cache/apt/archives /var/lib/apt/lists/*
 
-ENTRYPOINT [ "poetry", "run", "python3.11", "/opt/cadip/adgs_station_mock.py", "-H", "0.0.0.0" ]
+ENTRYPOINT [ "poetry", "run", "python3.11", "/opt/adgs/adgs_station_mock.py", "-H", "0.0.0.0" ]

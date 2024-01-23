@@ -76,7 +76,6 @@ runs:
 
     # Tag docker image tag as 'latest' and push it into the registry.
     # TODO: maybe only do it for git tags, not for manual builds ?
-    # and verify that the old 'latest' tag is overwritten.
     - name: Push Docker 'latest' tag
       if: always()
       run: | # use sed to replace the last :<tag> by :latest
