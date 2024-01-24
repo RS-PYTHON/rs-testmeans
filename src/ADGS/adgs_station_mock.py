@@ -219,7 +219,7 @@ if __name__ == "__main__":
     )
 
     default_config_path = pathlib.Path(__file__).parent.resolve() / "config"
-    parser.add_argument("-p", "--port", type=int, required=False, default=5001, help="Port to use")
+    parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
     parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
 
