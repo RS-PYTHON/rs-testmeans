@@ -144,13 +144,26 @@ def test_query_files(cadip_client, login):
     assert cadip_client.get(query, headers=auth_header).status_code == OK
     assert len(cadip_client.get(query, headers=auth_header).get_data())
     # Test with name contains
-    query = "Files?$filter=contains(Name, 'DCS_01_S1A')"
+    query = "Files?$filter=contains(Name, 'DCS_04_S1A')"
     assert cadip_client.get(query, headers=auth_header).status_code == OK
     assert len(cadip_client.get(query, headers=auth_header).get_data())
     # Test with name startwith
     query = "Files?$filter=startswith(Name, 'DCS')"
     assert cadip_client.get(query, headers=auth_header).status_code == OK
     assert len(cadip_client.get(query, headers=auth_header).get_data())
+    # Test top pagination element, this query should return 10 elements, top should display only first 3.
+    top_pagination_nr = "3"
+    query = f'Files?$top={top_pagination_nr}&$filter="PublicationDate%20gt%202014-01-01T12:00:00.000Z%20and%20PublicationDate%20lt%202023-12-30T12:00:00.000Z'
+    data = cadip_client.get(query, headers=auth_header)
+    assert len(json.loads(data.text)) == int(top_pagination_nr)
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+
+    # Test skip pagination element, this query should return 10 elements, skip should display only 3.
+    skip_pagination_nr = "7"
+    query = f'Files?$skip={skip_pagination_nr}&$filter="PublicationDate%20gt%202014-01-01T12:00:00.000Z%20and%20PublicationDate%20lt%202023-12-30T12:00:00.000Z'
+    data = cadip_client.get(query, headers=auth_header)
+    assert len(json.loads(data.text)) == 10 - int(skip_pagination_nr)
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
 
 
 def test_query_quality_info():
