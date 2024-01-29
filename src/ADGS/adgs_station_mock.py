@@ -260,11 +260,19 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     catalog_data = json.loads(open(catalog_path).read())
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
-    return (
-        send_file("config/Storage/" + files[0]["Name"])
-        if len(files) == 1
-        else Response(status="404 None/Multiple files found")
-    )
+    if len(files) != 1:
+        return Response(status="404 None/Multiple files found")
+    # Send bytes of gzip files in order to avoid auto-decompress feature from application/gzip headers
+    if any(gzip_extension in files[0]["Name"] for gzip_extension in ['.TGZ', '.gz', '.zip', '.tar']):
+        import io
+        fpath = app.config["configuration_path"] / "Storage" / files[0]['Name']
+        send_args = io.BytesIO(open(fpath, 'rb').read())
+        return send_file(send_args, download_name = files[0]['Name'], as_attachment=True)
+    else:
+        # Nominal case.
+        send_args = f'config/Storage/{files[0]["Name"]}'
+        return send_file(send_args)
+
 
 
 def create_adgs_app():
