@@ -4,6 +4,7 @@ import datetime
 import json
 import pathlib
 import re
+from functools import wraps
 from typing import Any
 
 from flask import Flask, Response, request, send_file
@@ -20,6 +21,60 @@ UNAUTHORIZED = 401
 NOT_FOUND = 404
 
 aditional_operators = [" and ", " or ", " in ", " not "]
+
+
+def additional_options(func):
+    """Docstring to be added."""
+
+    # This method is a wrapper that check if endpoints have some display options activated.
+    # Endpoint function is called inside wrapper and output is sorted or sliced according to request arguments.
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        accepted_display_options = ["$orderBy", "$top", "$skip", "$count"]
+        response = func(*args, **kwargs)
+        display_headers = response.headers
+
+        def parse_response_data():
+            try:
+                return json.loads(response.data)
+            except json.JSONDecodeError:
+                return None
+
+        def sort_responses_by_field(json_data, field, reverse=False):
+            if "responses" in json_data:
+                return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
+            return json_data
+
+        if any(header in accepted_display_options for header in display_headers.keys()):
+            match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
+                case "$orderBy":
+                    field, ordering_type = display_headers["$orderBy"].split(" ")
+                    json_data = parse_response_data()
+                    return sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
+                case "$top":
+                    top_value = int(display_headers["$top"])
+                    json_data = parse_response_data()
+                    return (
+                        prepare_response_odata_v4(json_data["responses"][:top_value])
+                        if "responses" in json_data
+                        else json_data[:top_value]
+                    )
+                case "$skip":
+                    skip_value = int(display_headers.get("$skip", 0))
+                    json_data = parse_response_data()
+                    return (
+                        prepare_response_odata_v4(json_data["responses"][skip_value:])
+                        if "responses" in json_data
+                        else json_data[skip_value:]
+                    )
+                case "$count":
+                    json_data = parse_response_data()
+                    if "responses" in json_data:
+                        return Response(status=OK, response=str(len(json_data["responses"])))
+                    return Response(status=OK, response=str(len(json_data)))
+        return response
+
+    return wrapper
 
 
 def prepare_response_odata_v4(resp_body: list | map) -> Any:
@@ -62,7 +117,7 @@ def hello():
     return Response(status=OK)
 
 
-def process_products_request(request):
+def process_products_request(request, headers):
     """Docstring to be added."""
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
@@ -79,7 +134,7 @@ def process_products_request(request):
             case "endswith":
                 resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)]
         return (
-            Response(status=OK, response=prepare_response_odata_v4(resp_body))
+            Response(status=OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
             else Response(status=NOT_FOUND)
         )
@@ -110,7 +165,7 @@ def process_products_request(request):
                 # If the operation is not recognized, return a 404 NOT FOUND response
                 return Response(status=NOT_FOUND)
         return (
-            Response(status=OK, response=prepare_response_odata_v4(resp_body))
+            Response(status=OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
             else Response(status=NOT_FOUND)
         )
@@ -141,7 +196,7 @@ def process_products_request(request):
                     )
                 ]
         return (
-            Response(status=OK, response=prepare_response_odata_v4(resp_body))
+            Response(status=OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
             else Response(status=NOT_FOUND)
         )
@@ -153,6 +208,7 @@ def process_products_request(request):
 
 @app.route("/Products", methods=["GET"])
 @auth.login_required
+@additional_options
 def query_products():
     """Docstring to be added."""
     if not request.args:
@@ -161,14 +217,15 @@ def query_products():
         [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate"]],
     ):
         return Response(status=BAD_REQUEST)
+
     if any(header in request.args["$filter"] for header in aditional_operators):
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
         groups = re.search(pattern, request.args["$filter"])
         if groups:
             first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
             # split and processes the requests
-            first_response = process_products_request(first_request.replace('"', ""))
-            second_response = process_products_request(second_request.replace('"', ""))
+            first_response = process_products_request(first_request.replace('"', ""), request.args)
+            second_response = process_products_request(second_request.replace('"', ""), request.args)
             # Load response data to a json dict
             first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
             second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
@@ -182,13 +239,17 @@ def query_products():
                 case "and":  # intersection
                     common_response = fresp_set.intersection(sresp_set)
                     common_elements = [d for d in first_response if d.get("Id") in common_response]
-                    return Response(status=OK, response=prepare_response_odata_v4(common_elements))
+                    return Response(
+                        status=OK,
+                        response=prepare_response_odata_v4(common_elements),
+                        headers=request.args,
+                    )
                 case "or":  # union
                     union_set = fresp_set.union(sresp_set)
                     union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-                    return Response(status=OK, response=prepare_response_odata_v4(union_elements))
+                    return Response(status=OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
 
-    return process_products_request(str(request.args["$filter"]))
+    return process_products_request(str(request.args["$filter"]), request.args)
 
 
 @app.route("/Products(<Id>)/$value", methods=["GET"])

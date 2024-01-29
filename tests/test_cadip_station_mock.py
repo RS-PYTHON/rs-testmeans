@@ -151,9 +151,15 @@ def test_query_files(cadip_client, login):
     query = "Files?$filter=startswith(Name, 'DCS')"
     assert cadip_client.get(query, headers=auth_header).status_code == OK
     assert len(cadip_client.get(query, headers=auth_header).get_data())
-    # Test top pagination element, this query should return 10 elements, top should display only first 3.
+    # Test top pagination element, this query should return 10 elements, top should display only first 3. top&filter
     top_pagination_nr = "3"
     query = f'Files?$top={top_pagination_nr}&$filter="PublicationDate%20gt%202014-01-01T12:00:00.000Z%20and%20PublicationDate%20lt%202023-12-30T12:00:00.000Z'
+    data = cadip_client.get(query, headers=auth_header)
+    assert len(json.loads(data.text)) == int(top_pagination_nr)
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    # Test top pagination element, this query should return 10 elements, top should display only first 3. filter&top
+    top_pagination_nr = "3"
+    query = f'Files?$filter="PublicationDate%20gt%202014-01-01T12:00:00.000Z%20and%20PublicationDate%20lt%202023-12-30T12:00:00.000Z&$top={top_pagination_nr}'
     data = cadip_client.get(query, headers=auth_header)
     assert len(json.loads(data.text)) == int(top_pagination_nr)
     assert cadip_client.get(query, headers=auth_header).status_code == OK
