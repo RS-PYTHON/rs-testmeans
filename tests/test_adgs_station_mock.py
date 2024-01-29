@@ -107,6 +107,22 @@ def test_query_products(adgs_client, products_response, login):
         headers=auth_header,
     )
     assert json.loads(response.text).keys()
+    top_pagination = "3"
+    # filter&top
+    endpoint = f'Products?$filter="PublicationDate gt 2014-01-01T12:00:00.000Z and PublicationDate lt 2023-12-30T12:00:00.000Z&$top={top_pagination}'
+    response = adgs_client.get(
+        endpoint,
+        headers=auth_header,
+    )
+    print(response)
+    assert len(json.loads(response.text)["responses"]) == int(top_pagination)
+    # top&filter
+    endpoint = f'Products?$top={top_pagination}&$filter="PublicationDate gt 2014-01-01T12:00:00.000Z and PublicationDate lt 2023-12-30T12:00:00.000Z'
+    response = adgs_client.get(
+        endpoint,
+        headers=auth_header,
+    )
+    assert len(json.loads(response.text)["responses"]) == int(top_pagination)
 
 
 @pytest.mark.parametrize(

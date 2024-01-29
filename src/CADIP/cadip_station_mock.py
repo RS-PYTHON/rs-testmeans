@@ -55,7 +55,7 @@ def additional_options(func):
                     return (
                         batch_response_odata_v4(json_data["responses"][:top_value])
                         if "responses" in json_data
-                        else json_data
+                        else json_data[:top_value]
                     )
                 case "$skip":
                     skip_value = int(display_headers.get("$skip", 0))
@@ -63,7 +63,7 @@ def additional_options(func):
                     return (
                         batch_response_odata_v4(json_data["responses"][skip_value:])
                         if "responses" in json_data
-                        else json_data
+                        else json_data[skip_value:]
                     )
                 case "$count":
                     json_data = parse_response_data()
@@ -105,9 +105,6 @@ def hello():
 @additional_options
 def query_session() -> Response | list[Any]:
     """Docstring to be added."""
-    # Additional output options to be added: orderby, top, skip, count.
-    # Aditional operators to be added, and, or, not, in
-    # Request with publicationDate gt / lt are not implemented yet
     if not request.args:
         return Response(status=BAD_REQUEST)
         # return Response('Bad Request', Response.status_code(400), None)
@@ -211,6 +208,7 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
 # 3.4
 @app.route("/Files", methods=["GET"])
 @auth.login_required
+@additional_options
 def query_files() -> Response | list[Any]:
     """Docstring to be added."""
     if not request.args:
@@ -234,31 +232,39 @@ def query_files() -> Response | list[Any]:
         if groups:
             first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
         # split and processes the requests
-        first_response = process_files_request(first_request.replace('"', ""), catalog_data)
-        second_response = process_files_request(second_request.replace('"', ""), catalog_data)
+        first_response = process_files_request(first_request.replace('"', ""), request.args, catalog_data)
+        second_response = process_files_request(second_request.replace('"', ""), request.args, catalog_data)
         # Load response data to a json dict
-        first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
-        second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
+        try:
+            first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
+        except json.JSONDecodeError:
+            first_response = []
+        try:
+            second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
+        except json.JSONDecodeError:
+            second_response = []
         # Normalize responses, must be a list, even with one element, for iterator
         first_response = first_response if isinstance(first_response, list) else [first_response]
         second_response = second_response if isinstance(second_response, list) else [second_response]
         # Convert to a set, elements unique by ID
-        fresp_set = {d.get("Id") for d in first_response}
-        sresp_set = {d.get("Id") for d in second_response}
+        fresp_set = {d.get("Id", None) for d in first_response}
+        sresp_set = {d.get("Id", None) for d in second_response}
         match operator:
             case "and":  # intersection
                 common_response = fresp_set.intersection(sresp_set)
                 common_elements = [d for d in first_response if d.get("Id") in common_response]
-                return Response(status=OK, response=batch_response_odata_v4(common_elements))
+                # wrap if empty
+                common_elements = [common_elements] if not common_elements else common_elements
+                return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args)
             case "or":  # union
                 union_set = fresp_set.union(sresp_set)
                 union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-                return Response(status=OK, response=batch_response_odata_v4(union_elements))
+                return Response(status=OK, response=batch_response_odata_v4(union_elements), headers=request.args)
 
-    return process_files_request(request.args["$filter"], catalog_data)
+    return process_files_request(request.args["$filter"], request.args, catalog_data)
 
 
-def process_files_request(request, catalog_data):
+def process_files_request(request, headers, catalog_data):
     """Docstring to be added."""
     if "Name" in request:
         op, value = request.split("(")
@@ -275,7 +281,7 @@ def process_files_request(request, catalog_data):
             case "endswith":
                 resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)]
         return (
-            Response(status=OK, response=batch_response_odata_v4(resp_body))
+            Response(status=OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
             else Response(status=NOT_FOUND)
         )
@@ -303,7 +309,7 @@ def process_files_request(request, catalog_data):
                     if date > datetime.datetime.fromisoformat(product[field])
                 ]
         return (
-            Response(status=OK, response=batch_response_odata_v4(resp_body))
+            Response(status=OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
             else Response(status=NOT_FOUND)
         )
