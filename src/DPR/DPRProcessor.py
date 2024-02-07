@@ -1,13 +1,14 @@
 """Docstring."""
 import argparse
+import os
 import json
 import pathlib
 import zipfile
 from datetime import datetime
-
+import s3_handler
 import requests
 import yaml
-
+import shutil
 
 class DPRProcessor:
     """This is DPR Processor mockup."""
@@ -37,6 +38,7 @@ class DPRProcessor:
             self.update_zattrs(product_path)
             self.upload_to_s3(product_path)
             self.update_catalog(self.read_attrs(product_path))
+            self.remove_product(product_path)
 
     @staticmethod
     def download(url, path: str):
@@ -85,9 +87,22 @@ class DPRProcessor:
             with open(zattrs, "w") as f:
                 json.dump(attrs, f)
 
-    def upload_to_s3(self, path):
+    def upload_to_s3(self, path: pathlib.Path):
         """To be added. Should update products to a given s3 storage."""
-        pass
+        handler = s3_handler.S3StorageHandler(
+            os.environ["S3_ACCESSKEY"],
+            os.environ["S3_SECRETKEY"],
+            os.environ["S3_ENDPOINT"],
+            os.environ["S3_REGION"],  # "sbg",
+        )
+
+        bucket_path = "s3://test-data/zarr/dpr_processor_output/".split("/")
+        s3_config = s3_handler.PutFilesToS3Config(
+            [str(path.absolute().resolve())],
+            bucket_path[2],
+            "/".join(bucket_path[3:]),
+        )
+        handler.put_files_to_s3(s3_config)
 
     def update_catalog(self, attrs):
         """To be added. Should update catalog with zattrs contents."""
@@ -96,6 +111,13 @@ class DPRProcessor:
     def check_inputs(self):
         """To be added. Should check if all inputs are correct / available."""
         pass
+
+    def remove_product(self, path: pathlib.Path):
+        """Used to remove a product from disk after upload to bucket."""
+        if path.is_file():
+            path.unlink()
+        else:  
+            shutil.rmtree(path)
 
 
 if __name__ == "__main__":
