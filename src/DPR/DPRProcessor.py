@@ -113,15 +113,15 @@ class DPRProcessor:
     def threaded_upload_to_s3(self):
         thread_array = list()
         for idx, (_, product_path) in enumerate(self.list_of_downloads):
-            thread_array.append(Thread(target=DPRProcessor.upload_to_s3, args=product_path))
+            thread_array.append(Thread(target=DPRProcessor.upload_to_s3, args=(product_path,)))
             thread_array[idx].start()
 
         for dwn_thread in thread_array:
             dwn_thread.join()
 
-    def update_catalog(self, attrs):
+    def update_catalog(self):
         """To be added. Should update catalog with zattrs contents."""
-        for product in self.list_of_downloads:
+        for _, product in self.list_of_downloads:
             attrs = self.read_attrs(product)
 
     @staticmethod
