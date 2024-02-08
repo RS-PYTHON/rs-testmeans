@@ -10,8 +10,9 @@ from datetime import datetime
 from threading import Thread
 
 import requests
-import s3_handler
 import yaml
+
+from s3_handler import PutFilesToS3Config, S3StorageHandler
 
 
 class DPRProcessor:
@@ -29,21 +30,27 @@ class DPRProcessor:
     def __init__(self, payload_file):
         """Read payload file and store data."""
         self.list_of_downloads = []
-        with open(payload_file) as payload:
-            self.payload_data = yaml.safe_load(payload)
+        if pathlib.Path(payload_file).is_file():
+            with open(payload_file) as payload:
+                self.payload_data = yaml.safe_load(payload)
+        else:
+            try:
+                self.payload_data = yaml.safe_load(payload_file)
+            except yaml.YAMLError:
+                raise ValueError("Bad payload")
+        if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
+            raise ValueError("Bad inputs")
 
     def run(self):
         """Function that simulates the processing of the DPR payload."""
         self.payload_to_url()
-        if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
-            return
-
         for url, product_path in self.list_of_downloads:
             DPRProcessor.download(url, product_path)
             self.update_zattrs(product_path)
 
         self.threaded_upload_to_s3()
         self.update_catalog()
+        self.remove_local_products()
 
     @staticmethod
     def download(url, path: str):
@@ -56,8 +63,13 @@ class DPRProcessor:
 
     def payload_to_url(self):
         """Use json to map product_type to s3 public download url."""
-        payload_parameters = self.payload_data["workflow"][0]["parameters"]
-        outputs_dir = self.payload_data["I/O"]["output_products"][0]["path"]
+        if "workflow" not in self.payload_data.keys():
+            raise ValueError("Invalid payload")
+        if "parameters" not in self.payload_data["workflow"][0].keys():
+            raise ValueError("Invalid payload")
+
+        payload_parameters = self.payload_data["workflow"][0].get("parameters", None)
+        outputs_dir = self.payload_data["I/O"]["output_products"][0].get("path", None)
         for product in payload_parameters["product_types"]:
             if product in self.mapped_data.keys():
                 url = self.mapped_data[product]
@@ -95,7 +107,7 @@ class DPRProcessor:
     @staticmethod
     def upload_to_s3(path: pathlib.Path):
         """To be added. Should update products to a given s3 storage."""
-        handler = s3_handler.S3StorageHandler(
+        handler = S3StorageHandler(
             os.environ["S3_ACCESSKEY"],
             os.environ["S3_SECRETKEY"],
             os.environ["S3_ENDPOINT"],
@@ -103,7 +115,7 @@ class DPRProcessor:
         )
 
         bucket_path = "s3://test-data/zarr/dpr_processor_output/".split("/")
-        s3_config = s3_handler.PutFilesToS3Config(
+        s3_config = PutFilesToS3Config(
             [str(path.absolute().resolve())],
             bucket_path[2],
             "/".join(bucket_path[3:]),
@@ -133,12 +145,13 @@ class DPRProcessor:
                 chunk_matches = re.findall(chunk_regex, input_file_name["path"].split("/")[-1])
                 return chunk_matches and input_file_name["store_type"] in ["zarr", "netcdf", "cog"]
 
-    def remove_product(self, path: pathlib.Path):
+    def remove_local_products(self):
         """Used to remove a product from disk after upload to bucket."""
-        if path.is_file():
-            path.unlink()
-        else:
-            shutil.rmtree(path)
+        for _, path in self.list_of_downloads:
+            if path.is_file():
+                path.unlink()
+            else:
+                shutil.rmtree(path)
 
 
 if __name__ == "__main__":
