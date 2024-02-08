@@ -1,14 +1,18 @@
 """Docstring."""
 import argparse
-import os
 import json
+import os
 import pathlib
+import re
+import shutil
 import zipfile
 from datetime import datetime
-import s3_handler
+from threading import Thread
+
 import requests
+import s3_handler
 import yaml
-import shutil
+
 
 class DPRProcessor:
     """This is DPR Processor mockup."""
@@ -31,14 +35,15 @@ class DPRProcessor:
     def run(self):
         """Function that simulates the processing of the DPR payload."""
         self.payload_to_url()
-        self.check_inputs()
+        if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
+            return
 
         for url, product_path in self.list_of_downloads:
             DPRProcessor.download(url, product_path)
             self.update_zattrs(product_path)
-            self.upload_to_s3(product_path)
-            self.update_catalog(self.read_attrs(product_path))
-            self.remove_product(product_path)
+
+        self.threaded_upload_to_s3()
+        self.update_catalog()
 
     @staticmethod
     def download(url, path: str):
@@ -87,7 +92,8 @@ class DPRProcessor:
             with open(zattrs, "w") as f:
                 json.dump(attrs, f)
 
-    def upload_to_s3(self, path: pathlib.Path):
+    @staticmethod
+    def upload_to_s3(path: pathlib.Path):
         """To be added. Should update products to a given s3 storage."""
         handler = s3_handler.S3StorageHandler(
             os.environ["S3_ACCESSKEY"],
@@ -104,19 +110,34 @@ class DPRProcessor:
         )
         handler.put_files_to_s3(s3_config)
 
+    def threaded_upload_to_s3(self):
+        thread_array = list()
+        for idx, (_, product_path) in enumerate(self.list_of_downloads):
+            thread_array.append(Thread(target=DPRProcessor.upload_to_s3, args=product_path))
+            thread_array[idx].start()
+
+        for dwn_thread in thread_array:
+            dwn_thread.join()
+
     def update_catalog(self, attrs):
         """To be added. Should update catalog with zattrs contents."""
-        pass
+        for product in self.list_of_downloads:
+            attrs = self.read_attrs(product)
 
-    def check_inputs(self):
+    @staticmethod
+    def check_inputs(inputs: list) -> bool:
         """To be added. Should check if all inputs are correct / available."""
-        pass
+        for input_file_name in inputs:
+            if "CADU" in input_file_name["id"]:
+                chunk_regex = r"^DCS_[\dA-Za-z]{2}_[\dA-Za-z]{3}_[\dA-Za-z]{20}_ch\d_DSDB_\d{5}\.raw$"
+                chunk_matches = re.findall(chunk_regex, input_file_name["path"].split("/")[-1])
+                return chunk_matches and input_file_name["store_type"] in ["zarr", "netcdf", "cog"]
 
     def remove_product(self, path: pathlib.Path):
         """Used to remove a product from disk after upload to bucket."""
         if path.is_file():
             path.unlink()
-        else:  
+        else:
             shutil.rmtree(path)
 
 
