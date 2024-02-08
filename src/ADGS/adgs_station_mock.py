@@ -227,8 +227,23 @@ def query_products():
             first_response = process_products_request(first_request.replace('"', ""), request.args)
             second_response = process_products_request(second_request.replace('"', ""), request.args)
             # Load response data to a json dict
-            first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
-            second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
+            try:
+                # Decode
+                first_response_data = json.loads(first_response.data)
+                # Get responses if any, else default json
+                first_response = first_response_data.get("responses", json.loads(first_response.data))
+            except json.decoder.JSONDecodeError:
+                # Empty dict if error while unwrapping
+                first_response = [{}]
+            try:
+                # Decode
+                second_response_data = json.loads(second_response.data)
+                # Get responses if any, else default json
+                second_response = second_response_data.get("responses", json.loads(second_response.data))
+            except json.decoder.JSONDecodeError:
+                # Empty dict if error while unwrapping
+                second_response = [{}]
+            
             # Normalize responses, must be a list, even with one element, for iterator
             first_response = first_response if isinstance(first_response, list) else [first_response]
             second_response = second_response if isinstance(second_response, list) else [second_response]
@@ -239,11 +254,13 @@ def query_products():
                 case "and":  # intersection
                     common_response = fresp_set.intersection(sresp_set)
                     common_elements = [d for d in first_response if d.get("Id") in common_response]
-                    return Response(
-                        status=OK,
-                        response=prepare_response_odata_v4(common_elements),
-                        headers=request.args,
-                    )
+                    if common_elements:
+                        return Response(
+                            status=OK,
+                            response=prepare_response_odata_v4(common_elements),
+                            headers=request.args,
+                        )
+                    return Response(status=OK, response = json.dumps({}))
                 case "or":  # union
                     union_set = fresp_set.union(sresp_set)
                     union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
@@ -263,16 +280,16 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     if len(files) != 1:
         return Response(status="404 None/Multiple files found")
     # Send bytes of gzip files in order to avoid auto-decompress feature from application/gzip headers
-    if any(gzip_extension in files[0]["Name"] for gzip_extension in ['.TGZ', '.gz', '.zip', '.tar']):
+    if any(gzip_extension in files[0]["Name"] for gzip_extension in [".TGZ", ".gz", ".zip", ".tar"]):
         import io
-        fpath = app.config["configuration_path"] / "Storage" / files[0]['Name']
-        send_args = io.BytesIO(open(fpath, 'rb').read())
-        return send_file(send_args, download_name = files[0]['Name'], as_attachment=True)
+
+        fpath = app.config["configuration_path"] / "Storage" / files[0]["Name"]
+        send_args = io.BytesIO(open(fpath, "rb").read())
+        return send_file(send_args, download_name=files[0]["Name"], as_attachment=True)
     else:
         # Nominal case.
         send_args = f'config/Storage/{files[0]["Name"]}'
         return send_file(send_args)
-
 
 
 def create_adgs_app():

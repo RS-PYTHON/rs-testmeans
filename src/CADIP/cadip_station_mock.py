@@ -255,7 +255,9 @@ def query_files() -> Response | list[Any]:
                 common_elements = [d for d in first_response if d.get("Id") in common_response]
                 # wrap if empty
                 common_elements = [common_elements] if not common_elements else common_elements
-                return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+                if common_elements:
+                    return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+                return Response(status=OK, response=json.dumps({}))
             case "or":  # union
                 union_set = fresp_set.union(sresp_set)
                 union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
