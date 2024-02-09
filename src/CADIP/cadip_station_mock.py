@@ -19,7 +19,6 @@ OK = 200
 BAD_REQUEST = 400
 UNAUTHORIZED = 401
 NOT_FOUND = 404
-NO_CONTENT = 204
 
 def additional_options(func):
     """Docstring to be added."""
@@ -255,7 +254,7 @@ def query_files() -> Response | list[Any]:
                 common_elements = [d for d in first_response if d.get("Id") in common_response]
                 if common_elements:
                     return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args)
-                return Response(status=NO_CONTENT, response=json.dumps([]))
+                return Response(status=OK, response=json.dumps([]))
             case "or":  # union
                 union_set = fresp_set.union(sresp_set)
                 union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
