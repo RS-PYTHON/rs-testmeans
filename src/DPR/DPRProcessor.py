@@ -11,7 +11,6 @@ from threading import Thread
 
 import requests
 import yaml
-
 from s3_handler import PutFilesToS3Config, S3StorageHandler
 
 
@@ -70,11 +69,11 @@ class DPRProcessor:
 
         payload_parameters = self.payload_data["workflow"][0].get("parameters", None)
         outputs_dir = self.payload_data["I/O"]["output_products"][0].get("path", None)
-        for product in payload_parameters["product_types"]:
-            if product in self.mapped_data.keys():
-                url = self.mapped_data[product]
-                output_path = pathlib.Path(outputs_dir) / url.split("/")[-1]
-                self.list_of_downloads.append((url, output_path))
+
+        for ptype in filter(lambda x: x in self.mapped_data.keys(), payload_parameters["product_types"]):
+            url = self.mapped_data[ptype]
+            output_path = pathlib.Path(outputs_dir) / url.split("/")[-1]
+            self.list_of_downloads.append((url, output_path))
 
     @staticmethod
     def read_attrs(path: pathlib.Path):
@@ -123,13 +122,11 @@ class DPRProcessor:
         handler.put_files_to_s3(s3_config)
 
     def threaded_upload_to_s3(self):
-        thread_array = list()
-        for idx, (_, product_path) in enumerate(self.list_of_downloads):
-            thread_array.append(Thread(target=DPRProcessor.upload_to_s3, args=(product_path,)))
-            thread_array[idx].start()
-
-        for dwn_thread in thread_array:
-            dwn_thread.join()
+        thread_array = [
+            Thread(target=DPRProcessor.upload_to_s3, args=(product_path,)) for _, product_path in self.list_of_downloads
+        ]
+        map(Thread.start, thread_array)
+        map(Thread.join, thread_array)
 
     def update_catalog(self):
         """To be added. Should update catalog with zattrs contents."""
@@ -139,11 +136,10 @@ class DPRProcessor:
     @staticmethod
     def check_inputs(inputs: list) -> bool:
         """To be added. Should check if all inputs are correct / available."""
-        for input_file_name in inputs:
-            if "CADU" in input_file_name["id"]:
-                chunk_regex = r"^DCS_[\dA-Za-z]{2}_[\dA-Za-z]{3}_[\dA-Za-z]{20}_ch\d_DSDB_\d{5}\.raw$"
-                chunk_matches = re.findall(chunk_regex, input_file_name["path"].split("/")[-1])
-                return chunk_matches and input_file_name["store_type"] in ["zarr", "netcdf", "cog"]
+        for input_file_name in filter(lambda x: "CADU" in x["id"], inputs):
+            chunk_regex = r"^DCS_[\dA-Za-z]{2}_[\dA-Za-z]{3}_[\dA-Za-z]{20}_ch\d_DSDB_\d{5}\.raw$"
+            chunk_matches = re.findall(chunk_regex, input_file_name["path"].split("/")[-1])
+            return chunk_matches and input_file_name["store_type"] in ["zarr", "netcdf", "cog"]
 
     def remove_local_products(self):
         """Used to remove a product from disk after upload to bucket."""
