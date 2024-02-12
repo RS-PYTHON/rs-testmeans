@@ -42,7 +42,7 @@ class DPRProcessor:
         if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
             raise ValueError("Bad inputs")
 
-    def run(self) -> list:
+    def run(self, *args, **kwargs) -> list:
         """Function that simulates the processing of the DPR payload."""
         self.payload_to_url()
         for url, product_path in self.list_of_downloads:
@@ -51,7 +51,8 @@ class DPRProcessor:
 
         self.threaded_upload_to_s3()
         self.prepare_catalog_data()
-        self.remove_local_products()
+        if kwargs.get("delete", True):
+            self.remove_local_products()
         return self.meta_attrs
 
     @staticmethod
@@ -105,7 +106,7 @@ class DPRProcessor:
             data["other_metadata"]["history"] = self.DEFAULT_PROCESSING_STAMP
             with open(zattrs, "w") as f:
                 json.dump(data, f)
-        DPRProcessor.update_product_name(path, DPRProcessor.crc_stamp(data))
+        self.update_product_name(path, DPRProcessor.crc_stamp(data))
 
     @staticmethod
     def upload_to_s3(path: pathlib.Path):
@@ -116,7 +117,6 @@ class DPRProcessor:
             os.environ["S3_ENDPOINT"],
             os.environ["S3_REGION"],  # "sbg",
         )
-
         bucket_path = "s3://test-data/zarr/dpr_processor_output/".split("/")
         s3_config = PutFilesToS3Config(
             [str(path.absolute().resolve())],
@@ -129,8 +129,14 @@ class DPRProcessor:
         thread_array = [
             Thread(target=DPRProcessor.upload_to_s3, args=(product_path,)) for _, product_path in self.list_of_downloads
         ]
-        map(Thread.start, thread_array)
-        map(Thread.join, thread_array)
+        for thrd in thread_array:
+            thrd.start()
+
+        for thrd in thread_array:
+            thrd.join()
+
+        # map(Thread.start, thread_array)
+        # map(Thread.join, thread_array)
 
     def prepare_catalog_data(self):
         """To be added. Should update catalog with zattrs contents."""
@@ -159,8 +165,7 @@ class DPRProcessor:
         crc_func = crcmod.predefined.mkCrcFun("xmodem")
         return str(hex((crc_func(json.dumps(attrs).encode("utf-8")) & 0xFFF))).replace("0x", "").upper()
 
-    @staticmethod
-    def update_product_name(path: pathlib.Path, crc: str):
+    def update_product_name(self, path: pathlib.Path, crc: str):
         """Used to update product VVV name with crc. as per CPM-PSD:
         MMSSSCCC_YYYYMMDDTHHMMSS_UUUU_PRRR_XVVV[_Z*]
         Where:
@@ -187,6 +192,11 @@ class DPRProcessor:
             old_crc = path.name.split("_")[-1]
             new_product_name = path.name.replace(old_crc, crc) + path.suffix
         new_product_path = str(path).replace(path.name, new_product_name)
+
+        self.list_of_downloads = list(
+            map(lambda x: (x[0], pathlib.Path(new_product_path)) if x[1] == path else x, self.list_of_downloads),
+        )
+
         # rename on disk
         path.rename(new_product_path)
 
@@ -202,7 +212,15 @@ if __name__ == "__main__":
         default=default_payload_file,
         help="Path to EOPF triggering yaml payload.",
     )
+    parser.add_argument(
+        "-d",
+        "--delete",
+        type=bool,
+        required=False,
+        default=True,
+        help="Delete temporary processed files",
+    )
 
     args = parser.parse_args()
     dpr = DPRProcessor(args.payload)
-    dpr.run()
+    dpr.run(delete=args.delete)
