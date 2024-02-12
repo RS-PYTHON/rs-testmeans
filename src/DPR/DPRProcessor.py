@@ -9,6 +9,7 @@ import zipfile
 from datetime import datetime
 from threading import Thread
 
+import crcmod
 import requests
 import yaml
 from s3_handler import PutFilesToS3Config, S3StorageHandler
@@ -46,7 +47,7 @@ class DPRProcessor:
         self.payload_to_url()
         for url, product_path in self.list_of_downloads:
             DPRProcessor.download(url, product_path)
-            self.update_zattrs(product_path)
+            self.update_product(product_path)
 
         self.threaded_upload_to_s3()
         self.prepare_catalog_data()
@@ -86,8 +87,9 @@ class DPRProcessor:
         with open(path + "/.zattrs") as attrs:
             return json.loads(attrs.read())
 
-    def update_zattrs(self, path: pathlib.Path):
-        """Update zarr attributes with specific processing stamp."""
+    def update_product(self, path: pathlib.Path):
+        """Update zarr attributes and product_name with specific processing stamp."""
+        data = dict()
         if ".zip" in path.absolute().as_posix():
             # IF zipped zarr, update attrs without extracting
             with zipfile.ZipFile(path, "a") as zf:
@@ -96,14 +98,14 @@ class DPRProcessor:
                     data = json.loads(f.read())
                 data["other_metadata"]["history"] = self.DEFAULT_PROCESSING_STAMP
                 zf.writestr(zattrs, json.dumps(data))
-
         else:
             # Else just read / update / write
             zattrs: pathlib.Path = path / ".zattrs"
-            attrs = json.load(open(zattrs))
-            attrs["other_metadata"]["history"] = self.DEFAULT_PROCESSING_STAMP
+            data = json.load(open(zattrs))
+            data["other_metadata"]["history"] = self.DEFAULT_PROCESSING_STAMP
             with open(zattrs, "w") as f:
-                json.dump(attrs, f)
+                json.dump(data, f)
+        DPRProcessor.update_product_name(path, DPRProcessor.crc_stamp(data))
 
     @staticmethod
     def upload_to_s3(path: pathlib.Path):
@@ -150,6 +152,43 @@ class DPRProcessor:
                 path.unlink()
             else:
                 shutil.rmtree(path)
+
+    @staticmethod
+    def crc_stamp(attrs: dict):
+        """Function used to compute CRC of zarr attributes."""
+        crc_func = crcmod.predefined.mkCrcFun("xmodem")
+        return str(hex((crc_func(json.dumps(attrs).encode("utf-8")) & 0xFFF))).replace("0x", "").upper()
+
+    @staticmethod
+    def update_product_name(path: pathlib.Path, crc: str):
+        """Used to update product VVV name with crc. as per CPM-PSD:
+        MMSSSCCC_YYYYMMDDTHHMMSS_UUUU_PRRR_XVVV[_Z*]
+        Where:
+            MMSSSCCC 8 characters product type
+            YYYYMMDDTHHMMSS acquisition start time (time of first instrumental measurement without milli and
+                microseconds) in ISO 8601 format
+            UUUU acquisition duration in seconds, 0000..9999
+            P platform, A, B,
+            RRR relative orbit number or pass/track number for MWR&SRAL, 000..999
+            X auxiliary data consolidation level, T (forecasT) or S (analysiS), (S and T are used instead of A and
+            F to distinguish them from the hexadecimal number and from the platform identifier); note that this field
+                is based on the eopf:timeline metadata, which should be NRT, STC or NTC; so NRT gives T, NTC
+                gives S and STC gives ‘_’.
+            VVV quasi-unique hexadecimal number (0..9,A..F), like a CRC checksum (to avoid overwriting files in
+                case of reprocessing action)
+            Z* type-specific name extension
+        """
+        if ".zip" in path.absolute().as_posix():
+            stem_suffix = "." + path.stem.split(".")[-1]
+            old_crc = path.stem.split("_")[-1].replace(stem_suffix, "")
+            new_product_name = path.name.replace(old_crc, crc)
+        else:
+            # update old crc by keeping extension
+            old_crc = path.name.split("_")[-1]
+            new_product_name = path.name.replace(old_crc, crc) + path.suffix
+        new_product_path = str(path).replace(path.name, new_product_name)
+        # rename on disk
+        path.rename(new_product_path)
 
 
 if __name__ == "__main__":

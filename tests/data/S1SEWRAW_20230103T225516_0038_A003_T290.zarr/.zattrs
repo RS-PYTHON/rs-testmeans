@@ -1,0 +1,129 @@
+{
+    "assets": [],
+    "bbox": [
+        -67.0145,
+        -6.039,
+        -71.1401,
+        -3.1566
+    ],
+    "geometry": {
+        "coordinates": [
+            [
+                [
+                    -67.0145,
+                    -5.49
+                ],
+                [
+                    -67.5347,
+                    -3.1566
+                ],
+                [
+                    -71.1401,
+                    -3.6937
+                ],
+                [
+                    -70.6324,
+                    -6.039
+                ],
+                [
+                    -67.0145,
+                    -5.49
+                ]
+            ]
+        ],
+        "type": "Polygon"
+    },
+    "id": "SAR Slice L0 product",
+    "links": [
+        {
+            "href": "./.zattrs.json",
+            "rel": "self",
+            "type": "application/json"
+        }
+    ],
+    "other_metadata": {
+        "application_process_identifer": 65,
+        "cal_compression_type": "",
+        "cal_isp_present": "",
+        "consolidation": "",
+        "data_take_start_time": "null",
+        "echo_compression_type": "",
+        "event_control_code": 32,
+        "first_burst_cycle_number": "null",
+        "header_flag": true,
+        "hh_receive_channel_id": 1,
+        "history": [
+            {
+                "output": "",
+                "processingTime": "2023-01-04T06:28:55.822610",
+                "processor": null,
+                "type": "L0"
+            }
+        ],
+        "hv_receive_channel_id": 0,
+        "instrument_configuration_id": 7,
+        "noise_compression_type": "",
+        "noise_isp_present": "",
+        "packet_category": 12,
+        "packet_type": false,
+        "packet_version": 0,
+        "product_type": "S1SEWRAW",
+        "sequence_flag": 3,
+        "slice_number": "null",
+        "slice_overlap_in_seconds": "null",
+        "slice_product_flag": "",
+        "start_datetime_anx": "",
+        "stop_datetime_anx": "",
+        "synchronisation_marker": 892270675,
+        "test_mode": 0,
+        "theoretical_length_of_slice_in_seconds": "null",
+        "total_number_of_slices": "null",
+        "vh_receive_channel_id": "null",
+        "vv_receive_channel_id": "null"
+    },
+    "properties": {
+        "created": "2023-01-04T06:28:55.822610",
+        "datetime": "null",
+        "end_datetime": "2023-01-03T22:55:54.826591Z",
+        "eopf:data_take_id": 187511232,
+        "eopf:instrument_mode": "EW",
+        "eopf:timeline": "NRT",
+        "eopf:type": "S1SWVRAW",
+        "instrument": "Synthetic Aperture Radar",
+        "mission": "Sentinel-1",
+        "platform": "SENTINEL-1A",
+        "processing:facility": "S1A-PS",
+        "processing:level": "L0",
+        "processing:software": "Sentinel-1 SAR Space Packet Protocol Data Unit S1-IF-ASD-PL-0007",
+        "providers": [
+            {
+                "name": "S1 Production Service-SERCO",
+                "roles": [
+                    "processor"
+                ]
+            },
+            {
+                "name": "ESA",
+                "roles": [
+                    "producer"
+                ]
+            }
+        ],
+        "sat:absolute_orbit": 46625,
+        "sat:anx_datetime": "2023-01-03T21:18:15.934698Z",
+        "sat:orbit_state": "ASCENDING",
+        "sat:platform_international_designator": "2014-016A",
+        "sat:relative_orbit": 3,
+        "start_datetime": "2023-01-03T22:55:16.042320Z"
+    },
+    "stac_extensions": [
+        "https://stac-extensions.github.io/eopf/v1.0.0/schema.json",
+        "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
+        "https://stac-extensions.github.io/sat/v1.0.0/schema.json",
+        "https://stac-extensions.github.io/view/v1.0.0/schema.json",
+        "https://stac-extensions.github.io/scientific/v1.0.0/schema.json",
+        "https://stac-extensions.github.io/processing/v1.1.0/schema.json"
+    ],
+    "stac_version": "1.0.0",
+    "type": "Feature"
+}

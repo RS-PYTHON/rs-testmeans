@@ -17,6 +17,7 @@ botocore = "1.31.83"
 boto3 = "1.28.81"
 requests = "2.31.0"
 pyyaml = "6.0.1"
+crcmod = "^1.7"
 
 [build-system]
 requires = ["poetry-core"]

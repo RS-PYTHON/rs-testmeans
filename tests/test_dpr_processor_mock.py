@@ -1,3 +1,5 @@
+import pathlib
+
 import pytest
 import yaml
 
@@ -64,3 +66,26 @@ def test_list_of_downloadableable_products():
     dpr_processor = DPRProcessor(yaml.dump(data))
     dpr_processor.payload_to_url()
     assert dpr_processor.list_of_downloads
+
+
+@pytest.mark.unit()
+@pytest.mark.parametrize(
+    "input_data_path, expected_new_product_name",
+    [
+        (
+            "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
+            "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr",
+        ),
+        (
+            "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr.zip",
+            "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr.zip",
+        )
+    ],
+)
+def test_dpr_product_rename(mocker, input_data_path, expected_new_product_name):
+    # Don't actually rename on disk, just mock it.
+    mock_rename = mocker.patch("pathlib.Path.rename", return_value=None, autospec=True)
+    DPRProcessor.update_product_name(pathlib.Path(input_data_path), "TEST_CRC")
+    mock_rename.assert_called_once()
+    # Check that pathlib.Path.rename is called with the right parameters
+    mock_rename.assert_called_with(pathlib.PosixPath(input_data_path), expected_new_product_name)
