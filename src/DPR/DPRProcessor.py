@@ -29,6 +29,7 @@ class DPRProcessor:
     def __init__(self, payload_file):
         """Read payload file and store data."""
         self.list_of_downloads = []
+        self.meta_attrs = []
         if pathlib.Path(payload_file).is_file():
             with open(payload_file) as payload:
                 self.payload_data = yaml.safe_load(payload)
@@ -40,7 +41,7 @@ class DPRProcessor:
         if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
             raise ValueError("Bad inputs")
 
-    def run(self):
+    def run(self) -> list:
         """Function that simulates the processing of the DPR payload."""
         self.payload_to_url()
         for url, product_path in self.list_of_downloads:
@@ -48,8 +49,9 @@ class DPRProcessor:
             self.update_zattrs(product_path)
 
         self.threaded_upload_to_s3()
-        self.update_catalog()
+        self.prepare_catalog_data()
         self.remove_local_products()
+        return self.meta_attrs
 
     @staticmethod
     def download(url, path: str):
@@ -128,18 +130,18 @@ class DPRProcessor:
         map(Thread.start, thread_array)
         map(Thread.join, thread_array)
 
-    def update_catalog(self):
+    def prepare_catalog_data(self):
         """To be added. Should update catalog with zattrs contents."""
-        for _, product in self.list_of_downloads:
-            attrs = self.read_attrs(product)
+        self.meta_attrs = [self.read_attrs(product) for _, product in self.list_of_downloads]
 
     @staticmethod
     def check_inputs(inputs: list) -> bool:
-        """To be added. Should check if all inputs are correct / available."""
+        """Should check if all inputs are correct / available."""
         for input_file_name in filter(lambda x: "CADU" in x["id"], inputs):
             chunk_regex = r"^DCS_[\dA-Za-z]{2}_[\dA-Za-z]{3}_[\dA-Za-z]{20}_ch\d_DSDB_\d{5}\.raw$"
             chunk_matches = re.findall(chunk_regex, input_file_name["path"].split("/")[-1])
             return chunk_matches and input_file_name["store_type"] in ["zarr", "netcdf", "cog"]
+        # add logic for AUX fns
 
     def remove_local_products(self):
         """Used to remove a product from disk after upload to bucket."""
