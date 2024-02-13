@@ -1,0 +1,24 @@
+[project]
+name = "rs-python"
+authors = []
+dynamic = ["version"]
+
+requires-python = ">=3.11"
+
+[tool.poetry]
+name = "dpr-processor-mockup"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+botocore = "1.31.83"
+boto3 = "1.28.81"
+requests = "2.31.0"
+pyyaml = "6.0.1"
+crcmod = "^1.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

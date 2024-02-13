@@ -1,0 +1,51 @@
+general_configuration:
+  logging:
+    level: DEBUG
+  triggering__validate_run: true
+  triggering__use_default_filename: true
+  triggering__use_basic_logging: true
+  triggering__load_default_logging: false
+breakpoints:
+workflow:
+- step: 1
+  active: true
+  module: rs.dpr.mockup # string corresponding to the python path of the module
+  processing_unit: DprMockupProcessor # EOProcessingUnit class name
+  name: DprMockupProcessor # identifier for the processing unit
+  inputs:
+    in1: CADU1
+    in2: CADU2 # One CADU{N} entry by CADU chunk we want to pass as input. In this example we consider 2 chunks
+    in3: AUX1
+    in4: AUX2 # One AUX{N} entry by ADGS file we want to pass as input. In this example we consider 2 aux files
+  outputs:
+    out: outputs
+  parameters:
+    product_types: # List of EOPF product types we want to generate. In this example we simulate S1L0 processor that generates 4 products
+      - S1SEWRAW
+I/O:
+  inputs_products:
+  - id: CADU1
+    path: chunk/S1/S1A_20231121072204051312/DCS_04_S1A_20231121072204051312_ch1_DSDB_00023.raw
+    store_type: zarr
+    store_params: {}
+  - id: CADU2
+    path: chunk/S1/S1A_20231121072204051312/DCS_04_S1A_20231121072204051312_ch1_DSDB_00022.raw
+    store_type: zarr
+    store_params: {}
+  - id: AUX1
+    path: AUX/S1/S1A_OPER_AMV_ERRMAT_MPC__20201124T040009_V20000101T000000_20201123T131345.EOF.zip
+    store_type: zarr
+    store_params: {}
+  - id: AUX2
+    path: AUX/S1/S1A_AUX_PP2_V20190228T092500_G20220228T120000.SAFE.zip
+    store_type: zarr
+    store_params: {}
+  output_products:
+  - id: outputs
+    path: src/DPR/data/ # output folder or S3 bucket
+    type: folder
+    store_type: zarr
+    store_params: {}
+dask_context: {}
+logging: {}
+config: {}
