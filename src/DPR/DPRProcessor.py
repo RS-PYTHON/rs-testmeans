@@ -82,16 +82,13 @@ class DPRProcessor:
     @staticmethod
     def read_attrs(path: pathlib.Path):
         """Read zarr attributes from zip or folder."""
-        if ".zip" in path.absolute().as_posix():
-            archive = zipfile.ZipFile(path, "r")
-            return json.loads(archive.read(".zattrs"))
-        with open(path + "/.zattrs") as attrs:
-            return json.loads(attrs.read())
+        data = zipfile.ZipFile(path, "r").read(".zattrs") if path.suffix == '.zip' else open(path / ".zattrs").read()
+        return json.loads(data)
 
     def update_product(self, path: pathlib.Path):
         """Update zarr attributes and product_name with specific processing stamp."""
         data = dict()
-        if ".zip" in path.absolute().as_posix():
+        if path.suffix == ".zip":
             # IF zipped zarr, update attrs without extracting
             with zipfile.ZipFile(path, "a") as zf:
                 zattrs = zf.getinfo(".zattrs")
@@ -129,14 +126,9 @@ class DPRProcessor:
         thread_array = [
             Thread(target=DPRProcessor.upload_to_s3, args=(product_path,)) for _, product_path in self.list_of_downloads
         ]
-        for thrd in thread_array:
-            thrd.start()
 
-        for thrd in thread_array:
-            thrd.join()
-
-        # map(Thread.start, thread_array)
-        # map(Thread.join, thread_array)
+        list(map(Thread.start, thread_array))
+        list(map(Thread.join, thread_array))
 
     def prepare_catalog_data(self):
         """To be added. Should update catalog with zattrs contents."""
@@ -163,7 +155,7 @@ class DPRProcessor:
     def crc_stamp(attrs: dict):
         """Function used to compute CRC of zarr attributes."""
         crc_func = crcmod.predefined.mkCrcFun("xmodem")
-        return str(hex((crc_func(json.dumps(attrs).encode("utf-8")) & 0xFFF))).replace("0x", "").upper()
+        return format(crc_func(json.dumps(attrs).encode("utf-8")) & 0xFFF, 'x').upper()
 
     def update_product_name(self, path: pathlib.Path, crc: str):
         """Used to update product VVV name with crc. as per CPM-PSD:
