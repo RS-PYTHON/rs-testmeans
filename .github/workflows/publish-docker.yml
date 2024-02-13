@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     name: "'services/adgs' Docker image"
     permissions: write-all
-    needs: 
+    needs:
       - pre-actions
     outputs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     name: "'services/cadip' Docker image"
     permissions: write-all
-    needs: 
+    needs:
       - pre-actions
     outputs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
@@ -63,3 +63,22 @@ jobs:
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
+  services-DPRProcessor-img:
+    runs-on: ubuntu-latest
+    name: "'DPR Processor Mockup' Docker image"
+    permissions: write-all
+    needs:
+      - pre-actions
+    outputs:
+      docker_image: ${{ steps.publish-docker.outputs.docker_image}}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: publish-docker
+        uses: ./.github/actions/publish-docker
+        with:
+          dockerfile: ./src/DPR/Dockerfile
+          build_context_path: ./src/DPR
+          image_suffix: _dpr-processor-mock
+          version_name: ${{ needs.pre-actions.outputs.sha_short }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
