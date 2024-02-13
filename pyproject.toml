@@ -58,6 +58,8 @@ mypy = "^1.6.1"
 pre-commit = "^3.5.0"
 prefect = "^2.14.5"
 tqdm = "^4.66.1"
+moto = "^5.0.1"
+flask-cors = "^4.0.0"
 
 [tool.poetry.group.dev]
 optional = true

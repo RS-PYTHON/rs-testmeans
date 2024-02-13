@@ -12,7 +12,7 @@ from threading import Thread
 import crcmod
 import requests
 import yaml
-from s3_handler import PutFilesToS3Config, S3StorageHandler
+from src.DPR.s3_handler import PutFilesToS3Config, S3StorageHandler
 
 
 class DPRProcessor:
