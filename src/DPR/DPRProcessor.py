@@ -175,7 +175,8 @@ class DPRProcessor:
                 case of reprocessing action)
             Z* type-specific name extension
         """
-        if ".zip" in path.absolute().as_posix():
+        if path.suffix == ".zip":
+            # Handle double suffix files, *_CRC.zarr.zip
             stem_suffix = "." + path.stem.split(".")[-1]
             old_crc = path.stem.split("_")[-1].replace(stem_suffix, "")
             new_product_name = path.name.replace(old_crc, crc)
