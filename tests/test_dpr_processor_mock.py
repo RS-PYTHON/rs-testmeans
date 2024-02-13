@@ -185,9 +185,9 @@ def test_s1_l2_ocn_process(product_type, s3_outputpath):
     """
     # Start moto s3 server
     export_aws_credentials()
-    server = ThreadedMotoServer()
+    server = ThreadedMotoServer(port=5555)
     server.start()
-    s3_client = boto3.client("s3", endpoint_url="http://127.0.0.1:5000")
+    s3_client = boto3.client("s3", endpoint_url="http://127.0.0.1:5555")
     s3_client.create_bucket(Bucket="test-data")
 
     # Run processor and recover metadata
