@@ -14,4 +14,4 @@ RUN poetry install --no-root
 # Clean everything
 RUN rm -rf /tmp/whl /root/.cache/pip /var/cache/apt/archives /var/lib/apt/lists/*
 
-#ENTRYPOINT [ "poetry", "run", "python3.11", "/opt/DPR/DPRProcessor.py", "-p", "/opt/DPR/payload.yaml"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
