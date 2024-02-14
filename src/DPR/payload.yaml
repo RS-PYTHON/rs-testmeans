@@ -21,7 +21,7 @@ workflow:
     out: outputs
   parameters:
     product_types: # List of EOPF product types we want to generate. In this example we simulate S1L0 processor that generates 4 products
-      - S1SEWRAW
+      - S1SSMOCN
 I/O:
   inputs_products:
   - id: CADU1

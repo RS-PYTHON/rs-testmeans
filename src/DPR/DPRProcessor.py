@@ -8,11 +8,13 @@ import shutil
 import zipfile
 from datetime import datetime
 from threading import Thread
-
+import logging
 import crcmod
 import requests
 import yaml
 from src.DPR.s3_handler import PutFilesToS3Config, S3StorageHandler
+
+logger = logging.getLogger(__name__)
 
 
 class DPRProcessor:
@@ -29,6 +31,7 @@ class DPRProcessor:
 
     def __init__(self, payload_file):
         """Read payload file and store data."""
+        logger.info("DPR processor mockup initialising:")
         self.list_of_downloads = []
         self.meta_attrs = []
         if pathlib.Path(payload_file).is_file():
@@ -39,27 +42,35 @@ class DPRProcessor:
                 self.payload_data = yaml.safe_load(payload_file)
             except yaml.YAMLError:
                 raise ValueError("Bad payload")
+        logger.info("Succesfuly loaded payload file")
         if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
+            logger.error("Bad payload file")
             raise ValueError("Bad inputs")
 
     def run(self, *args, **kwargs) -> list:
         """Function that simulates the processing of the DPR payload."""
+        logger.info("DPR processor mockup running:")
         self.payload_to_url()
         for url, product_path in self.list_of_downloads:
+            logger.info("Downloading from %s", url)
             DPRProcessor.download(url, product_path)
+            logger.info("Updating product %s", product_path)
             self.update_product(product_path)
 
-        self.threaded_upload_to_s3()
-        self.prepare_catalog_data()
-        if kwargs.get("delete", True):
-            self.remove_local_products()
-        return self.meta_attrs
+        # self.threaded_upload_to_s3()
+        # self.prepare_catalog_data()
+        # if kwargs.get("delete", True):
+        #     self.remove_local_products()
+        # return self.meta_attrs
 
     @staticmethod
     def download(url, path: str):
         """Download url and save to path."""
         if not pathlib.Path(path).exists():
             pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
+        else:
+            # Don't download if file already exists
+            return
         data = requests.get(url, stream=True)
         with open(path, "wb") as writter:
             writter.write(data.content)
@@ -123,6 +134,7 @@ class DPRProcessor:
         handler.put_files_to_s3(s3_config)
 
     def threaded_upload_to_s3(self):
+        logger.info("Uploading products to S3")
         thread_array = [
             Thread(target=DPRProcessor.upload_to_s3, args=(product_path,)) for _, product_path in self.list_of_downloads
         ]
