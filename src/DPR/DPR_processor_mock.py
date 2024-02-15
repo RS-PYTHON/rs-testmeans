@@ -1,19 +1,20 @@
 """Docstring."""
 import argparse
 import json
+import logging
 import os
 import pathlib
 import re
 import shutil
+import sys
 import zipfile
 from datetime import datetime
 from threading import Thread
-import logging
+
 import crcmod
 import requests
 import yaml
 from s3_handler import PutFilesToS3Config, S3StorageHandler
-import sys
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -32,7 +33,7 @@ class DPRProcessor:
         self.meta_attrs = []
         if isinstance(payload_file, pathlib.Path) and payload_file.is_file():
             with open(payload_file) as payload:
-                logger.info("Triggering payload loaded from file, %", payload_file.absolute())
+                logger.info("Triggering payload loaded from file, %s", payload_file.absolute())
                 self.payload_data = yaml.safe_load(payload)
         else:
             try:
@@ -74,7 +75,7 @@ class DPRProcessor:
         data = requests.get(url, stream=True)
         with open(path, "wb") as writter:
             writter.write(data.content)
-        logger.info("Successfully downloaded at %", path)
+        logger.info("Successfully downloaded at %s", path)
 
     def payload_to_url(self):
         """Use json to map product_type to s3 public download url."""
@@ -97,7 +98,7 @@ class DPRProcessor:
     @staticmethod
     def read_attrs(path: pathlib.Path):
         """Read zarr attributes from zip or folder."""
-        data = zipfile.ZipFile(path, "r").read(".zattrs") if path.suffix == '.zip' else open(path / ".zattrs").read()
+        data = zipfile.ZipFile(path, "r").read(".zattrs") if path.suffix == ".zip" else open(path / ".zattrs").read()
         return json.loads(data)
 
     def update_product(self, path: pathlib.Path):
@@ -128,7 +129,7 @@ class DPRProcessor:
             with open(zattrs, "w") as f:
                 json.dump(data, f)
         logger.info("Processing stamp added: %s", default_processing_stamp)
-        logger.info("Computed CRC for % is %", path, DPRProcessor.crc_stamp(data))
+        logger.info("Computed CRC for %s is %s", path, DPRProcessor.crc_stamp(data))
         self.update_product_name(path, DPRProcessor.crc_stamp(data))
 
     def upload_to_s3(self, path: pathlib.Path):
@@ -182,7 +183,7 @@ class DPRProcessor:
     def crc_stamp(attrs: dict):
         """Function used to compute CRC of zarr attributes."""
         crc_func = crcmod.predefined.mkCrcFun("xmodem")
-        return format(crc_func(json.dumps(attrs).encode("utf-8")) & 0xFFF, 'x').upper()
+        return format(crc_func(json.dumps(attrs).encode("utf-8")) & 0xFFF, "x").upper()
 
     def update_product_name(self, path: pathlib.Path, crc: str):
         """Used to update product VVV name with crc. as per CPM-PSD:
@@ -218,7 +219,7 @@ class DPRProcessor:
         )
 
         # rename on disk
-        logger.info("% renamed to % on disk", path.name, new_product_name)
+        logger.info("%s renamed to %s on disk", path.name, new_product_name)
         path.rename(new_product_path)
 
 
