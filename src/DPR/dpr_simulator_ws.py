@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from src.DPR.DPRProcessor import DPRProcessor
+from .DPRProcessor import DPRProcessor
 from fastapi.responses import JSONResponse
 from fastapi import status
 import yaml
