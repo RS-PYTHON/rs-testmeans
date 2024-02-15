@@ -1,8 +1,8 @@
 FROM python:3.11-slim-bookworm
 LABEL description="This docker allow to run a DPR Processor mockup."
 
-WORKDIR /opt/DPR
-COPY ./. /opt/DPR/
+WORKDIR /src/DPR
+COPY ./. /src/DPR/
 
 RUN python3.11 -m pip install --upgrade pip
 # Install poetry
@@ -14,4 +14,4 @@ RUN poetry install --no-root
 # Clean everything
 RUN rm -rf /tmp/whl /root/.cache/pip /var/cache/apt/archives /var/lib/apt/lists/*
 
-ENTRYPOINT [ "poetry", "run", "python3.11", "/opt/DPR/dpr_simulator_ws.py", "-H", "0.0.0.0" ]
+ENTRYPOINT [ "poetry", "run", "python3.11", "dpr_simulator_ws.py"]

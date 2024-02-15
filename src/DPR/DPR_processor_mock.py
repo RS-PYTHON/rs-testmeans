@@ -12,7 +12,7 @@ import logging
 import crcmod
 import requests
 import yaml
-from src.DPR.s3_handler import PutFilesToS3Config, S3StorageHandler
+from s3_handler import PutFilesToS3Config, S3StorageHandler
 
 logger = logging.getLogger(__name__)
 

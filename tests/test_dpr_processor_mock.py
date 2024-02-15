@@ -8,7 +8,7 @@ import pytest
 import yaml
 from moto.server import ThreadedMotoServer
 
-from src.DPR.DPRProcessor import DPRProcessor
+from src.DPR.DPR_processor_mock import DPRProcessor
 
 from .conftest import export_aws_credentials
 

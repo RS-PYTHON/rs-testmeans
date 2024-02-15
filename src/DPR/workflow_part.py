@@ -1,6 +1,6 @@
 import pathlib
 
-from DPRProcessor import DPRProcessor
+from DPR_processor_mock import DPRProcessor
 
 
 def prepare_yaml() -> pathlib.Path | str:
