@@ -18,6 +18,7 @@ import sys
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
+
 class DPRProcessor:
     """This is DPR Processor mockup."""
 
@@ -117,8 +118,7 @@ class DPRProcessor:
                 json.dump(data, f)
         self.update_product_name(path, DPRProcessor.crc_stamp(data))
 
-    @staticmethod
-    def upload_to_s3(path: pathlib.Path):
+    def upload_to_s3(self, path: pathlib.Path):
         """To be added. Should update products to a given s3 storage."""
         handler = S3StorageHandler(
             os.environ["S3_ACCESSKEY"],
@@ -126,7 +126,7 @@ class DPRProcessor:
             os.environ["S3_ENDPOINT"],
             os.environ["S3_REGION"],  # "sbg",
         )
-        bucket_path = "s3://test-data/zarr/dpr_processor_output/".split("/")
+        bucket_path = self.payload_data["I/O"]["output_products"][0]["path"].split("/")
         s3_config = PutFilesToS3Config(
             [str(path.absolute().resolve())],
             bucket_path[2],
@@ -137,7 +137,7 @@ class DPRProcessor:
     def threaded_upload_to_s3(self):
         logger.info("Uploading products to S3")
         thread_array = [
-            Thread(target=DPRProcessor.upload_to_s3, args=(product_path,)) for _, product_path in self.list_of_downloads
+            Thread(target=self.upload_to_s3, args=(product_path,)) for _, product_path in self.list_of_downloads
         ]
 
         list(map(Thread.start, thread_array))

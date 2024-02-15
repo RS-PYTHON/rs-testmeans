@@ -42,10 +42,10 @@ I/O:
     store_params: {}
   output_products:
   - id: outputs
-    path: src/DPR/data/ # output folder or S3 bucket
+    path: s3://test-data/zarr/dpr_processor_output/ # output folder or S3 bucket
     type: folder
     store_type: zarr
-    store_params: {}
+    store_params: {} #Credentials will be here
 dask_context: {}
 logging: {}
 config: {}
