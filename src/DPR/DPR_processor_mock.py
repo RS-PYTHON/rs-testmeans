@@ -23,12 +23,6 @@ class DPRProcessor:
 
     mapper = pathlib.Path(__file__).resolve().parent / "product_to_zarr_url.json"
     mapped_data = json.load(open(mapper))
-    DEFAULT_PROCESSING_STAMP = {
-        "output": "",
-        "processingTime": str(datetime.now()),
-        "processor": "RSPY_DprMockupProcessor",
-        "type": "L0",
-    }
 
     def __init__(self, payload_file: pathlib.Path | str):
         """Read payload file and store data."""
@@ -97,6 +91,12 @@ class DPRProcessor:
         return json.loads(data)
 
     def update_product(self, path: pathlib.Path):
+        default_processing_stamp = {
+            "output": "",
+            "processingTime": str(datetime.now()),
+            "processor": "RSPY_DprMockupProcessor",
+            "type": "L0",
+        }
         """Update zarr attributes and product_name with specific processing stamp."""
         data = dict()
         if path.suffix == ".zip":
@@ -105,14 +105,14 @@ class DPRProcessor:
                 zattrs = zf.getinfo(".zattrs")
                 with zf.open(zattrs) as f:
                     data = json.loads(f.read())
-                data["other_metadata"]["history"] = self.DEFAULT_PROCESSING_STAMP
+                data["other_metadata"]["history"] = default_processing_stamp
                 self.meta_attrs.append(data)
                 zf.writestr(zattrs, json.dumps(data))
         else:
             # Else just read / update / write
             zattrs: pathlib.Path = path / ".zattrs"
             data = json.load(open(zattrs))
-            data["other_metadata"]["history"] = self.DEFAULT_PROCESSING_STAMP
+            data["other_metadata"]["history"] = default_processing_stamp
             with open(zattrs, "w") as f:
                 json.dump(data, f)
         self.update_product_name(path, DPRProcessor.crc_stamp(data))
