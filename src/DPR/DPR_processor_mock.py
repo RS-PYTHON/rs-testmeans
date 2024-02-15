@@ -13,9 +13,10 @@ import crcmod
 import requests
 import yaml
 from s3_handler import PutFilesToS3Config, S3StorageHandler
+import sys
 
 logger = logging.getLogger(__name__)
-
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 class DPRProcessor:
     """This is DPR Processor mockup."""
@@ -57,11 +58,10 @@ class DPRProcessor:
             logger.info("Updating product %s", product_path)
             self.update_product(product_path)
 
-        # self.threaded_upload_to_s3()
-        # self.prepare_catalog_data()
-        # if kwargs.get("delete", True):
-        #     self.remove_local_products()
-        # return self.meta_attrs
+        self.threaded_upload_to_s3()
+        if kwargs.get("delete", True):
+            self.remove_local_products()
+        return self.meta_attrs
 
     @staticmethod
     def download(url, path: str):
@@ -106,6 +106,7 @@ class DPRProcessor:
                 with zf.open(zattrs) as f:
                     data = json.loads(f.read())
                 data["other_metadata"]["history"] = self.DEFAULT_PROCESSING_STAMP
+                self.meta_attrs.append(data)
                 zf.writestr(zattrs, json.dumps(data))
         else:
             # Else just read / update / write
