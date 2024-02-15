@@ -27,18 +27,21 @@ class DPRProcessor:
 
     def __init__(self, payload_file: pathlib.Path | str):
         """Read payload file and store data."""
-        logger.info("DPR processor mockup initialising:")
+        logger.info("DPR processor mockup initialising")
         self.list_of_downloads = []
         self.meta_attrs = []
         if isinstance(payload_file, pathlib.Path) and payload_file.is_file():
             with open(payload_file) as payload:
+                logger.info("Triggering payload loaded from file, %", payload_file.absolute())
                 self.payload_data = yaml.safe_load(payload)
         else:
             try:
                 self.payload_data = yaml.safe_load(payload_file)
+                logger.info("Triggering string yaml-like loaded into processor.")
             except yaml.YAMLError:
+                logger.error("Payload configuration cannot be loaded.")
                 raise ValueError("Bad payload")
-        logger.info("Succesfuly loaded payload file")
+        logger.info("Successfully loaded payload file")
         if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
             logger.error("Bad payload file")
             raise ValueError("Bad inputs")
@@ -55,6 +58,7 @@ class DPRProcessor:
 
         self.threaded_upload_to_s3()
         if kwargs.get("delete", True):
+            logger.info("Removing local downloaded products.")
             self.remove_local_products()
         return self.meta_attrs
 
@@ -62,6 +66,7 @@ class DPRProcessor:
     def download(url, path: str):
         """Download url and save to path."""
         if not pathlib.Path(path).exists():
+            logger.info("Path doesn't exist, creating ...")
             pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
         else:
             # Don't download if file already exists
@@ -69,12 +74,15 @@ class DPRProcessor:
         data = requests.get(url, stream=True)
         with open(path, "wb") as writter:
             writter.write(data.content)
+        logger.info("Successfully downloaded at %", path)
 
     def payload_to_url(self):
         """Use json to map product_type to s3 public download url."""
         if "workflow" not in self.payload_data.keys():
+            logger.error("Payload configuration is missing workflow.")
             raise ValueError("Invalid payload")
         if "parameters" not in self.payload_data["workflow"][0].keys():
+            logger.error("Payload configuration is missing workflow parameters.")
             raise ValueError("Invalid payload")
 
         payload_parameters = self.payload_data["workflow"][0].get("parameters", None)
@@ -83,6 +91,7 @@ class DPRProcessor:
         for ptype in filter(lambda x: x in self.mapped_data.keys(), payload_parameters["product_types"]):
             url = self.mapped_data[ptype]
             output_path = pathlib.Path(outputs_dir) / url.split("/")[-1]
+            logger.info("Mapped url %s with path %s", url, output_path)
             self.list_of_downloads.append((url, output_path))
 
     @staticmethod
@@ -101,6 +110,7 @@ class DPRProcessor:
         """Update zarr attributes and product_name with specific processing stamp."""
         data = dict()
         if path.suffix == ".zip":
+            logger.info("Updating .zattrs from a zip file.")
             # IF zipped zarr, update attrs without extracting
             with zipfile.ZipFile(path, "a") as zf:
                 zattrs = zf.getinfo(".zattrs")
@@ -111,11 +121,14 @@ class DPRProcessor:
                 zf.writestr(zattrs, json.dumps(data))
         else:
             # Else just read / update / write
+            logger.info("Updating .zattrs from disk.")
             zattrs: pathlib.Path = path / ".zattrs"
             data = json.load(open(zattrs))
             data["other_metadata"]["history"] = default_processing_stamp
             with open(zattrs, "w") as f:
                 json.dump(data, f)
+        logger.info("Processing stamp added: %s", default_processing_stamp)
+        logger.info("Computed CRC for % is %", path, DPRProcessor.crc_stamp(data))
         self.update_product_name(path, DPRProcessor.crc_stamp(data))
 
     def upload_to_s3(self, path: pathlib.Path):
@@ -127,6 +140,7 @@ class DPRProcessor:
             os.environ["S3_REGION"],  # "sbg",
         )
         bucket_path = self.payload_data["I/O"]["output_products"][0]["path"].split("/")
+        logger.info("Bucked path where files will be uploaded %s", bucket_path)
         s3_config = PutFilesToS3Config(
             [str(path.absolute().resolve())],
             bucket_path[2],
@@ -204,6 +218,7 @@ class DPRProcessor:
         )
 
         # rename on disk
+        logger.info("% renamed to % on disk", path.name, new_product_name)
         path.rename(new_product_path)
 
 
