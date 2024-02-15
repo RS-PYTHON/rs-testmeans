@@ -14,4 +14,4 @@ RUN poetry install --no-root
 # Clean everything
 RUN rm -rf /tmp/whl /root/.cache/pip /var/cache/apt/archives /var/lib/apt/lists/*
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT [ "poetry", "run", "python3.11", "/opt/DPR/dpr_simulator_ws.py", "-H", "0.0.0.0" ]

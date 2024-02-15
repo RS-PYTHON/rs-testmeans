@@ -59,6 +59,8 @@ pre-commit = "^3.5.0"
 tqdm = "^4.66.1"
 moto = "^5.0.1"
 flask-cors = "^4.0.0"
+fastapi = "^0.109.2"
+uvicorn = "^0.27.1"
 
 [tool.poetry.group.dev]
 optional = true

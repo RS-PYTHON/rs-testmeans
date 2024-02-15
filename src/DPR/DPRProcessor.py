@@ -29,12 +29,12 @@ class DPRProcessor:
         "type": "L0",
     }
 
-    def __init__(self, payload_file):
+    def __init__(self, payload_file: pathlib.Path | str):
         """Read payload file and store data."""
         logger.info("DPR processor mockup initialising:")
         self.list_of_downloads = []
         self.meta_attrs = []
-        if pathlib.Path(payload_file).is_file():
+        if isinstance(payload_file, pathlib.Path) and payload_file.is_file():
             with open(payload_file) as payload:
                 self.payload_data = yaml.safe_load(payload)
         else:
@@ -47,7 +47,7 @@ class DPRProcessor:
             logger.error("Bad payload file")
             raise ValueError("Bad inputs")
 
-    def run(self, *args, **kwargs) -> list:
+    async def run(self, *args, **kwargs) -> list:
         """Function that simulates the processing of the DPR payload."""
         logger.info("DPR processor mockup running:")
         self.payload_to_url()
