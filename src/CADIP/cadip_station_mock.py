@@ -54,7 +54,7 @@ def additional_options(func):
                     return (
                         batch_response_odata_v4(json_data["responses"][:top_value])
                         if "responses" in json_data
-                        else json_data[:top_value]
+                        else json_data # No need for slicing since there is only one response.
                     )
                 case "$skip":
                     skip_value = int(display_headers.get("$skip", 0))
@@ -62,7 +62,7 @@ def additional_options(func):
                     return (
                         batch_response_odata_v4(json_data["responses"][skip_value:])
                         if "responses" in json_data
-                        else json_data[skip_value:]
+                        else json_data # No need for slicing since there is only one response.
                     )
                 case "$count":
                     json_data = parse_response_data()
