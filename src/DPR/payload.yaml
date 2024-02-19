@@ -42,7 +42,7 @@ I/O:
     store_params: {}
   output_products:
   - id: outputs
-    path: s3://test-data/zarr/dpr_processor_output/ # output folder or S3 bucket
+    path: src/DPR/data # output folder or S3 bucket
     type: folder
     store_type: zarr
     store_params: {} #Credentials will be here

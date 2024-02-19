@@ -15,6 +15,7 @@ import crcmod
 import requests
 import yaml
 from s3_handler import PutFilesToS3Config, S3StorageHandler
+import asyncio
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -31,7 +32,7 @@ class DPRProcessor:
         logger.info("DPR processor mockup initialising")
         self.list_of_downloads = []
         self.meta_attrs = []
-        if isinstance(payload_file, pathlib.Path) and payload_file.is_file():
+        if isinstance(payload_file, pathlib.Path) and payload_file.absolute().is_file():
             with open(payload_file) as payload:
                 logger.info("Triggering payload loaded from file, %s", payload_file.absolute())
                 self.payload_data = yaml.safe_load(payload)
@@ -88,12 +89,12 @@ class DPRProcessor:
 
         payload_parameters = self.payload_data["workflow"][0].get("parameters", None)
         outputs_dir = self.payload_data["I/O"]["output_products"][0].get("path", None)
-
         for ptype in filter(lambda x: x in self.mapped_data.keys(), payload_parameters["product_types"]):
-            url = self.mapped_data[ptype]
-            output_path = pathlib.Path(outputs_dir) / url.split("/")[-1]
-            logger.info("Mapped url %s with path %s", url, output_path)
-            self.list_of_downloads.append((url, output_path))
+            for store_type in self.mapped_data[ptype]:
+                url = self.mapped_data[ptype][store_type]
+                output_path = pathlib.Path(outputs_dir) / url.split("/")[-1]
+                logger.info("Mapped url %s with path %s", url, output_path)
+                self.list_of_downloads.append((url, output_path))
 
     @staticmethod
     def read_attrs(path: pathlib.Path):
@@ -110,6 +111,8 @@ class DPRProcessor:
         }
         """Update zarr attributes and product_name with specific processing stamp."""
         data = dict()
+        # disable this for now, as it would require to extract the zip.
+        """
         if path.suffix == ".zip":
             logger.info("Updating .zattrs from a zip file.")
             # IF zipped zarr, update attrs without extracting
@@ -128,6 +131,7 @@ class DPRProcessor:
             data["other_metadata"]["history"] = default_processing_stamp
             with open(zattrs, "w") as f:
                 json.dump(data, f)
+        """
         logger.info("Processing stamp added: %s", default_processing_stamp)
         logger.info("Computed CRC for %s is %s", path, DPRProcessor.crc_stamp(data))
         self.update_product_name(path, DPRProcessor.crc_stamp(data))
@@ -244,5 +248,5 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    dpr = DPRProcessor(args.payload)
-    dpr.run(delete=args.delete)
+    dpr = DPRProcessor(pathlib.Path(args.payload))
+    asyncio.run(dpr.run(delete=args.delete))

@@ -1,21 +1,63 @@
 {
-  "S1SEWRAW": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SEWRAW_20230103T225516_0038_A003_T950.zarr.zip",
-  "S1SIWGRH": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWGRH_20220831T021758_0029_A093__69.zarr.zip",
-  "S1SIWOCN": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWOCN_20220412T054447_0024_S139_T717.zarr.zip",
-  "S1SIWRAW": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWRAW_20220406T130116_0032_A056_T754.zarr.zip",
-  "S1SIWSLC": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWSLC_20220615T162409_0026_A029_T162.zarr.zip",
-  "S1SSMOCN": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SSMOCN_20220708T000110_0019_S004__430.zarr.zip",
-  "S1SSMRAW": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SSMRAW_20230103T171935_0030_A175_T158.zarr.zip",
-  "S1SWVRAW": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SWVRAW_20230320T144903_1905_A057_T803.zarr.zip",
-  "S2MSIL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL0__20221223T220352_0043_B086_T105.zarr.zip",
-  "S2MSIL1C": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL1C_20220721T085559_0000_B007_T191.zarr.zip",
-  "S2MSIL2A": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL2A_20220614T081611_0000_A121_T559.zarr.zip",
-  "S3ALTL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3ALTL0__20221101T092457_3029_A307__483.zarr.zip",
-  "S3MWRL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3MWRL0__20221101T092439_6037_A307_T522.zarr.zip",
-  "S3OLCL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3MWRL0__20221101T092439_6037_A307_T522.zarr.zip",
-  "S3OLCEFR": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCEFR_20220116T092821_0180_A036_S418.zarr.zip",
-  "S3OLCLFR": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCLFR_20220513T003546_0180_A159_T221.zarr.zip",
-  "S3SLSL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSL0__20210807T232352_0299_A044_T317.zarr.zip",
-  "S3SLSRBT": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSRBT_20230824T091057_0180_B150_T124.zarr.zip",
-  "S3SLSLST": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSLST_20230822T052122_0180_B119_T853.zarr.zip"
+    "S1SEWRAW": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SEWRAW_20230103T225516_0038_A003_T950.zarr.zip"
+    },
+    "S1SIWGRH": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWGRH_20220831T021758_0029_A093__69.zarr.zip",
+        "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWGRH_20220831T021758_0029_A093__670.cog.zip"
+    },
+    "S1SIWOCN": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWOCN_20220412T054447_0024_S139_T717.zarr.zip",
+        "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWOCN_20220412T054447_0024_S139_T420.cog.zip",
+        "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWOCN_20220412T054447_0024_S139_T902.nc"
+    },
+    "S1SIWRAW": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWRAW_20220406T130116_0032_A056_T754.zarr.zip"
+    },
+    "S1SIWSLC": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWSLC_20220615T162409_0026_A029_T162.zarr.zip",
+        "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWSLC_20220615T162409_0026_A029_T810.cog.zip"
+    },
+    "S1SSMOCN": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SSMOCN_20220708T000110_0019_S004__430.zarr.zip",
+        "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SSMOCN_20220708T000110_0019_S004__69.cog.zip",
+        "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SSMOCN_20220708T000110_0019_S004__732.nc"
+    },
+    "S1SSMRAW": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SSMRAW_20230103T171935_0030_A175_T158.zarr.zip",
+    "S1SWVRAW": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SWVRAW_20230320T144903_1905_A057_T803.zarr.zip",
+    "S2MSIL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL0__20221223T220352_0043_B086_T105.zarr.zip",
+    "S2MSIL1C": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL1C_20220721T085559_0000_B007_T191.zarr.zip",
+        "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL1C_20220315T094029_0000_B036_T301.cog.zip",
+        "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL1C_20220315T094029_0000_B036_T523.nc"
+    },
+    "S2MSIL2A": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL2A_20220614T081611_0000_A121_T559.zarr.zip",
+        "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL2A_20220614T081611_0000_A121_T215.cog.zip",
+        "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL2A_20220614T081611_0000_A121_T415.nc"
+    },
+    "S3ALTL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3ALTL0__20221101T092457_3029_A307__483.zarr.zip",
+    "S3MWRL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3MWRL0__20221101T092439_6037_A307_T522.zarr.zip",
+    "S3OLCL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3MWRL0__20221101T092439_6037_A307_T522.zarr.zip",
+    "S3OLCEFR": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCEFR_20220116T092821_0180_A036_S418.zarr.zip",
+        "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCEFR_20220116T092821_0180_A036_S352.cog.zip",
+        "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCEFR_20220116T092821_0180_A036_S640.nc"
+    },
+    "S3OLCLFR": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCLFR_20220513T003546_0180_A159_T221.zarr.zip",
+        "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCLFR_20220513T003546_0180_A159_T394.cog.zip",
+        "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCLFR_20220513T003546_0180_A159_T874.nc"
+    },
+    "S3SLSL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSL0__20210807T232352_0299_A044_T317.zarr.zip",
+    "S3SLSRBT": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSRBT_20230824T091057_0180_B150_T124.zarr.zip",
+        "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSRBT_20230824T091057_0180_B150_T986.cog.zip",
+        "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSRBT_20230824T091057_0180_B150_T700.nc"
+    },
+    "S3SLSLST": {
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSLST_20230822T052122_0180_B119_T853.zarr.zip",
+        "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSLST_20230822T052122_0180_B119_T475.cog.zip",
+        "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSLST_20230822T052122_0180_B119_T975.nc"
+    }
 }
