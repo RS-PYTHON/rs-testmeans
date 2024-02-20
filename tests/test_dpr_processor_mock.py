@@ -7,7 +7,7 @@ import boto3
 import pytest
 import yaml
 from moto.server import ThreadedMotoServer
-
+import asyncio
 from src.DPR.DPR_processor_mock import DPRProcessor
 
 from .conftest import export_aws_credentials
@@ -34,7 +34,7 @@ def test_invalid_payload_file():  # noqa: D103
     # Test fail on workflow descriptor
     with pytest.raises(ValueError):
         dpr_processor = DPRProcessor(yaml.dump(data))
-        dpr_processor.run()
+        asyncio.run(dpr_processor.run())
     yamlstr = """
     workflow:
     - step: 1
@@ -49,7 +49,7 @@ def test_invalid_payload_file():  # noqa: D103
     # Test fail on workflow missing parameters descriptors
     with pytest.raises(ValueError):
         dpr_processor = DPRProcessor(yaml.dump(data))
-        dpr_processor.run()
+        asyncio.run(dpr_processor.run())
 
 
 def test_list_of_downloadableable_products():
@@ -80,12 +80,12 @@ def test_list_of_downloadableable_products():
     "input_data_path, expected_new_product_name",
     [
         (
-            "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
-            "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr",
+                "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
+                "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr",
         ),
         (
-            "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr.zip",
-            "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr.zip",
+                "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr.zip",
+                "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr.zip",
         ),
     ],
 )
@@ -119,8 +119,8 @@ def test_dpr_product_rename(mocker, input_data_path, expected_new_product_name):
     "input_data_path, expected_processing_stamp",
     [
         (
-            "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
-            "RSPY_DprMockupProcessor",
+                "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
+                "RSPY_DprMockupProcessor",
         ),
     ],
 )
@@ -141,7 +141,7 @@ def test_dpr_attrs_update(mocker, input_data_path, expected_processing_stamp):
         - S1SEWRAW
     """
     initial_data = json.load(open(pathlib.Path(input_data_path) / ".zattrs"))
-    mocker.patch("src.DPR.DPRProcessor.DPRProcessor.update_product_name", return_value=None, autospec=True)
+    mocker.patch("src.DPR.DPR_processor_mock.DPRProcessor.update_product_name", return_value=None, autospec=True)
 
     dpr = DPRProcessor(yaml.dump(yaml.safe_load(yamlstr)))
     dpr.update_product(pathlib.Path(input_data_path))
@@ -162,8 +162,10 @@ def test_dpr_attrs_update(mocker, input_data_path, expected_processing_stamp):
     "product_type, s3_outputpath",
     [
         (
-            "S1SSMOCN",
-            "zarr/dpr_processor_output/S1SSMOCN_20220708T000110_0019_S004__***.zarr.zip",
+                "S1SSMOCN",
+                ["S1SSMOCN_20220708T000110_0019_S004__***.zarr.zip",
+                 "S1SSMOCN_20220708T000110_0019_S004__***.cog.zip",
+                 "S1SSMOCN_20220708T000110_0019_S004__***.nc"]
         ),
     ],
 )
@@ -176,7 +178,7 @@ def test_s1_l2_ocn_process(product_type, s3_outputpath):
         store_type: zarr
       output_products:
       - id: outputs
-        path: src/DPR/data/ # output folder or S3 bucket
+        path: s3://test-data/ # output folder or S3 bucket
     workflow:
     - step: 1
       parameters:
@@ -191,22 +193,72 @@ def test_s1_l2_ocn_process(product_type, s3_outputpath):
     s3_client.create_bucket(Bucket="test-data")
 
     # Run processor and recover metadata
-    dpr = DPRProcessor(yaml.dump(yaml.safe_load(yamlstr)))
-    attrs = dpr.run(delete=False)
+    async def run_processor():
+        dpr = DPRProcessor(yaml.dump(yaml.safe_load(yamlstr)))
+        attrs = await dpr.run()
+        return attrs
 
+    attrs = asyncio.run(run_processor())
     # Use attrs to compute new product name, since it changes based on datetime
-    stamp = DPRProcessor.crc_stamp(attrs[0])
-    new_product_name = s3_outputpath.replace("***", stamp)
+    stamps = [DPRProcessor.crc_stamp(attr) for attr in attrs]
 
+    # Create new product name replacing *** with newly compute crc stamp.
+    new_product_names = [new_name.replace("***", stamps[idx]) for idx, new_name in enumerate(s3_outputpath)]
     # Check that expected path was created and product was updated into s3.
-    uploaded_s3_file = s3_client.list_objects(Bucket="test-data")["Contents"][0]["Key"]
-    assert uploaded_s3_file
-    assert uploaded_s3_file == new_product_name
+    uploaded_s3_files = [file["Key"] for file in s3_client.list_objects(Bucket="test-data")["Contents"]]
+    assert sorted(uploaded_s3_files) == sorted(new_product_names)
     # Check that temp download dir was not cleared
-    assert len(os.listdir("src/DPR/data")) == 1
     # check that attrs were updated with correct processor name
     assert attrs[0]["other_metadata"]["history"]["processor"] == "RSPY_DprMockupProcessor"
 
     # clear up
-    shutil.rmtree("src/DPR/data")
+    shutil.rmtree("s3://test-data/")
+    server.stop()
+
+
+#  TC-003: Call the mockup with same arguments as previous test. Check that the difference between the outputs of TC-002
+#  and TC-003 concern the datetime fields and the CRC in the product name.
+
+# Test overlapping products in the same s3 folder.
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "product_type, bucket",
+    [
+        ("S1SSMOCN", "test-data-reprocessing-first"),
+        ("S1SSMOCN", "test-data-reprocessing-second")
+    ],
+)
+def test_s1_l2_ocn_reprocessing(product_type, bucket):
+    yamlstr = f"""
+    I/O:
+      inputs_products:
+      - id: CADU1
+        path: DCS_04_S1A_20231121072204051312_ch1_DSDB_00023.raw
+        store_type: zarr
+      output_products:
+      - id: outputs
+        path: s3://{bucket} # output folder or S3 bucket
+    workflow:
+    - step: 1
+      parameters:
+        product_types:
+        - {product_type}
+    """
+
+    async def run_processor():
+        dpr = DPRProcessor(yaml.dump(yaml.safe_load(yamlstr)))
+        attrs = await dpr.run()
+        return attrs
+
+    # Start moto s3 server
+    export_aws_credentials()
+    server = ThreadedMotoServer(port=5555)
+    server.start()
+    s3_client = boto3.client("s3", endpoint_url="http://127.0.0.1:5555")
+    s3_client.create_bucket(Bucket=bucket)
+    for _ in range(5):
+        # Run the test 5 times, to make sure that new products are created each time, and no overlaps occur
+        attrs = asyncio.run(run_processor())
+    # 5 runs with 3 generated files each time
+    assert len([file["Key"] for file in s3_client.list_objects(Bucket=bucket)["Contents"]]) == 5 * 3
     server.stop()

@@ -111,27 +111,36 @@ class DPRProcessor:
         }
         """Update zarr attributes and product_name with specific processing stamp."""
         data = dict()
-        # disable this for now, as it would require to extract the zip.
-        """
         if path.suffix == ".zip":
             logger.info("Updating .zattrs from a zip file.")
             # IF zipped zarr, update attrs without extracting
+
             with zipfile.ZipFile(path, "a") as zf:
-                zattrs = zf.getinfo(".zattrs")
+                try:
+                    zattrs = zf.getinfo(".zattrs")
+                except:
+                    zattrs = zf.getinfo(path.stem + "/attrs.json")
                 with zf.open(zattrs) as f:
                     data = json.loads(f.read())
-                data["other_metadata"]["history"] = default_processing_stamp
-                self.meta_attrs.append(data)
-                zf.writestr(zattrs, json.dumps(data))
+                if 'other_metadata' not in data.keys():
+                    data.update({"other_metadata": {"history": default_processing_stamp}})
+                else:
+                    data["other_metadata"]["history"] = default_processing_stamp
+                # disable this for now, as it would require to extract the zip.
+                # zf.writestr(zattrs, json.dumps(data))
         else:
             # Else just read / update / write
             logger.info("Updating .zattrs from disk.")
             zattrs: pathlib.Path = path / ".zattrs"
-            data = json.load(open(zattrs))
-            data["other_metadata"]["history"] = default_processing_stamp
-            with open(zattrs, "w") as f:
-                json.dump(data, f)
-        """
+            if not zattrs.exists():
+                # Netcdf case
+                data = {"history": default_processing_stamp}
+            else:
+                data = json.load(open(zattrs))
+                data["other_metadata"]["history"] = default_processing_stamp
+                with open(zattrs, "w") as f:
+                   json.dump(data, f)
+        self.meta_attrs.append(data)
         logger.info("Processing stamp added: %s", default_processing_stamp)
         logger.info("Computed CRC for %s is %s", path, DPRProcessor.crc_stamp(data))
         self.update_product_name(path, DPRProcessor.crc_stamp(data))
