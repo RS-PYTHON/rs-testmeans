@@ -111,7 +111,7 @@ def query_session() -> Response | list[Any]:
     # Check requested values, filter type can only be json keys
     if not any(
             [
-                query_text == request.args["$filter"].split(" ")[0]
+                query_text == request.args["$filter"].strip('"').split(" ")[0]
                 for query_text in SPJ_LUT.keys()
             ],
     ):
@@ -183,15 +183,17 @@ def manage_bool_querry(op, value, catalog_data, field, headers):
     )
 
 
-def manage_satellite_query(op, value, catalog_data, field, headers):
+def manage_satellite_sid_query(op, value, catalog_data, field, headers):
     match op:
         case "eq":
-            query_result = [product for product in catalog_data["Data"] if value in product["Satellite"]]
+            query_result = [product for product in catalog_data["Data"] if value == product[field]]
         case "in":
-            satellites = re.sub(r'[()]', '', value).split(', ')
-            query_result = [[product for product in catalog_data["Data"] if product["Satellite"] == sat.strip()] for
-                            sat in satellites]
+            sat_sid_match = re.sub(r'[()]', '', value).split(', ')
+            query_result = [[product for product in catalog_data["Data"] if product[field] == sat_sid.strip()] for
+                            sat_sid in sat_sid_match]
             query_result = query_result[0] + query_result[1]
+    # import pdb
+    # pdb.set_trace()
     return (
         Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
@@ -246,10 +248,10 @@ def manage_datetime_querry(op, value, catalog_data, field, headers):
 
 SPJ_LUT = {
     "Id": manage_str_querry,
-    "SessionID": manage_str_querry,
+    "SessionId": manage_satellite_sid_query,
     "NumChannels": manage_int_querry,
     "PublicationDate": manage_datetime_querry,
-    "Satellite": manage_satellite_query,
+    "Satellite": manage_satellite_sid_query,
     "StationUnitId": manage_str_querry,
     "DownlinkOrbit": manage_int_querry,
     "AcquisitionId": manage_str_querry,
@@ -273,7 +275,7 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
     # Normalize request (lower case / remove ')
     field, op, *value = map(
         lambda norm: norm.replace("'", ""),
-        request.split(" "),
+        request.strip('"').split(" "),
     )
     # field, op, *value = request.split(" ")
     value = " ".join(value)
