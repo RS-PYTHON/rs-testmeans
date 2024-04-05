@@ -126,15 +126,17 @@ def query_session() -> Response | list[Any]:
     if len(split_request := [req.strip() for req in request.args["$filter"].split('and')]) in [2, 3]:
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         if not all(resp.status_code == 200 for resp in responses):
-            return Response(status=NOT_FOUND)
+            return Response(response = json.dumps([]), status=OK)
         try:
             responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
             resp_set = [{d.get("Id") for d in resp} for resp in responses_norm]
             common_response = set.intersection(*resp_set)
             common_elements = [d for d in responses_norm[0] if d.get("Id") in common_response]
+            # 200 OK even if search is empty
             return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
-                status=NOT_FOUND)
+                response = json.dumps([]),
+                status=OK)
         except json.JSONDecodeError:  # if a response is empty, whole querry is empty
             return Response(status=NOT_FOUND)
     elif len(split_request := [req.strip() for req in request.args["$filter"].split('or')]) in [2, 3]:
@@ -191,9 +193,7 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
             sat_sid_match = re.sub(r'[()]', '', value).split(', ')
             query_result = [[product for product in catalog_data["Data"] if product[field] == sat_sid.strip()] for
                             sat_sid in sat_sid_match]
-            query_result = query_result[0] + query_result[1]
-    # import pdb
-    # pdb.set_trace()
+            query_result = [product for sublist in query_result for product in sublist]
     return (
         Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
