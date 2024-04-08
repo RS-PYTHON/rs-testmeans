@@ -61,7 +61,7 @@ def test_basic_auth(cadip_client, correct_login: str, incorrect_login: str):
                 "PublicationDate": "2023-02-16T12:00:00.000Z",
                 "Retransfer": False,
                 "Satellite": "S3A",
-                "SessionID": "S3OLCI1",
+                "SessionId": "S3OLCI1",
                 "StationUnitId": "00",
             },
             ("test:test"),
@@ -117,12 +117,13 @@ def test_query_sessions(cadip_client, session_response20230216, login):
     # Test with 3 valid filters
     query = "Sessions?$filter=Satellite in ('S1A', 'S2B') and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
     assert cadip_client.get(query, headers=auth_header).status_code == OK
-    # Incorrect downlink
+    # Incorrect downlink, status OK but empty result
     query = "Sessions?$filter=DownlinkOrbit eq '53186' and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
-    assert cadip_client.get(query, headers=auth_header).status_code == NOT_FOUND
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    assert not json.loads(cadip_client.get(query, headers=auth_header).text)
     # Test with 2 valid filters and 1 invalid, should raise 404 not found
     query = "Sessions?$filter=Satellite eq 'S3' and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
-    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    assert cadip_client.get(query, headers=auth_header).status_code == NOT_FOUND
     # Test with sattelite in (invalid, valid) and 2 other filters valid
     query = "Sessions?$filter=Satellite in ('S1', invalid) and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
     assert cadip_client.get(query, headers=auth_header).status_code == NOT_FOUND
@@ -130,7 +131,8 @@ def test_query_sessions(cadip_client, session_response20230216, login):
     assert cadip_client.get(query, headers=auth_header).status_code == NOT_FOUND
     # Test with 2 invalid date filters
     query = "Sessions?$filter=Satellite in ('S1', invalid) and PublicationDate gt 2025-03-12T08:00:00.000Z and PublicationDate lt 2030-03-12T12:00:00.000Z"
-    assert cadip_client.get(query, headers=auth_header).status_code == NOT_FOUND
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    assert not json.loads(cadip_client.get(query, headers=auth_header).text)
     query = "Sessions?$filter=AntennaStatusOK eq true"
     assert cadip_client.get(query, headers=auth_header).status_code == OK
     # Test with incorrect filter
@@ -142,6 +144,20 @@ def test_query_sessions(cadip_client, session_response20230216, login):
     assert cadip_client.get(query, headers=auth_header).status_code == OK
     query = "Sessions?$filter=NumChannels lt 0"
     assert cadip_client.get(query, headers=auth_header).status_code == NOT_FOUND
+    # Eodagspecific request tests
+    dag_filter = [
+        '"SessionId%20in%20S1A_20170501121534062343,%20S1A_20240328185208053186"&$top=20',
+        '"SessionId%20in%20S1A_20240328185208053186"&$top=20',
+        "%22SessionId%20in%20S1A_20240328185208053186%20and%20Satellite%20in%20S1A%22&$top=20"
+        "%22SessionId%20in%20S1A_20240328185208053186,%20S1A_20240328185208053186%20and%20Satellite%20in%20S1A,%20S2B%22&$top=20",
+        "%22Satellite%20in%20S1A,%20%20S2B%22&$top=20",
+        "%22Satellite%20in%20S1A%20and%20PublicationDate%20gt%202020-02-16T12:00:00.000Z%20and%20PublicationDate%20lt%202025-02-16T12:00:00.000Z%22&$top=20",
+    ] 
+    for query in dag_filter:
+        endpoint = f"Sessions?$filter={query}"
+        assert cadip_client.get(endpoint, headers=auth_header).status_code == OK
+        assert json.loads(cadip_client.get(endpoint, headers=auth_header).text)
+
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
