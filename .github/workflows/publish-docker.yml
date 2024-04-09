@@ -1,18 +1,74 @@
 name: Publish Docker images
 
+# Run workflow only for ...
 on:
+  pull_request: # pull requests
+    types: [opened, synchronize, reopened]
   push:
     branches:
-      - main
-      - develop
-  workflow_dispatch:
+      - develop # pushes on the 'develop' branch
+    tags:
+      - '**' # new git tags (including hierarchical tags like v1.0/beta)
+  workflow_dispatch: # manual trigger
+    inputs:
+      docker_tag:
+        description: Tag the docker images as e.g. 'latest' or 'feat-rspy123'
+        required: false
 
 env:
   DOCKER_REGISTRY: ghcr.io
 
 jobs:
 
+  # Calculate variables for this workflow
+  set-env:
+    if: github.actor != 'dependabot' # ignore pull requests by github bot
+    runs-on: ubuntu-latest
+    name: "Set environment"
+    outputs:
+      docker_tag: ${{ steps.set-env.outputs.docker_tag }}
+      branch_name: ${{ steps.set-env.outputs.branch_name }}
+    steps:
+      - id: set-env
+        name: "Set environment"
+        run: |
+          set -x
+
+          # Get the current branch name (or source branch for a pull request)
+          if [[ ${{ github.event_name }} == pull_request ]]; then
+            branch_name=${{ github.event.pull_request.head.ref }}
+          else
+            branch_name=${{ github.ref_name }}
+          fi
+
+          # Determine the docker tag to set to new docker images.
+          # For a pull request, use the branch name
+          if [[ ${{ github.event_name }} == pull_request ]]; then
+            docker_tag="$branch_name"
+
+          # For a push on develop or a tag, use the docker tag :latest
+          elif [[ ${{ github.event_name }} == push ]]; then
+            docker_tag=latest
+
+          # For a manual trigger, use the user-defined tag
+          elif [[ ${{ github.event_name }} == workflow_dispatch ]]; then
+            docker_tag=${{ github.event.inputs.docker_tag }}
+
+          else
+            >&2 echo "Unknown trigger"
+            exit 1
+          fi
+
+          # Replace special characters by -
+          docker_tag=$(sed "s/[^a-zA-Z0-9]/-/g" <<< "$docker_tag")
+
+          # Save values
+          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
+          echo "docker_tag=$docker_tag" >> $GITHUB_OUTPUT
+        shell: bash
+
   pre-actions:
+    if: github.actor != 'dependabot'
     runs-on: ubuntu-latest
     name: "pre-actions"
     outputs:
@@ -24,11 +80,11 @@ jobs:
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
   services-adgs-img:
+    if: github.actor != 'dependabot'
     runs-on: ubuntu-latest
     name: "'services/adgs' Docker image"
+    needs: [set-env, pre-actions]
     permissions: write-all
-    needs:
-      - pre-actions
     outputs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
     steps:
@@ -42,13 +98,14 @@ jobs:
           image_suffix: _adgs-station-mock
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
   services-cadip-img:
+    if: github.actor != 'dependabot'
     runs-on: ubuntu-latest
     name: "'services/cadip' Docker image"
+    needs: [set-env, pre-actions]
     permissions: write-all
-    needs:
-      - pre-actions
     outputs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
     steps:
@@ -62,13 +119,14 @@ jobs:
           image_suffix: _cadip-station-mock
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
-  services-DPRProcessor-img:
+  services-dpr-processor-img:
+    if: github.actor != 'dependabot'
     runs-on: ubuntu-latest
     name: "'DPR Processor Mockup' Docker image"
+    needs: [set-env, pre-actions]
     permissions: write-all
-    needs:
-      - pre-actions
     outputs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
     steps:
@@ -82,3 +140,48 @@ jobs:
           image_suffix: _dpr-processor-mock
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          docker_tag: ${{ needs.set-env.outputs.docker_tag }}
+
+  ###########
+  # TESTING #
+  ###########
+
+  # Test rs-demo with the new Docker images
+  test-demo:
+    if: github.actor != 'dependabot'
+    runs-on: ubuntu-latest
+    name: "Test rs-demo"
+    needs: [set-env, services-adgs-img, services-cadip-img, services-dpr-processor-img]
+    steps:
+      - name: Log into Docker registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: test-demos
+        name: "Test rs-demo"
+        run: |
+          set -x
+
+          # Clone the rs-demo repository.
+          # Use the ssh public key from: https://github.com/RS-PYTHON/rs-demo/settings/keys
+          # and the private key from: https://github.com/RS-PYTHON/rs-testmeans/settings/secrets/actions
+          eval "$(ssh-agent -s)"
+          ssh-add - <<< "${{ secrets.RS_DEMO_PRIVATE_SSH_KEY }}"
+          git clone git@github.com:RS-PYTHON/rs-demo.git
+
+          # Try to checkout in rs-demo the same branch name than in rs-server.
+          # If the branch doesn't exist, it's ok, we stay on the default branch.
+          cd rs-demo
+          git checkout ${{ needs.set-env.outputs.branch_name }} || true
+          git status
+
+          # Run the rs-demo local mode using the newly created docker images
+          cd local-mode
+          ./test-docker-tags.sh ${{ needs.set-env.outputs.docker_tag }}
+          docker compose up -d
+          ./run-notebooks.sh
+
+        shell: bash
