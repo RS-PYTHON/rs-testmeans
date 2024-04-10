@@ -48,20 +48,20 @@ def test_basic_auth(cadip_client, correct_login: str, incorrect_login: str):
                 "AntennaId": "SIV",
                 "AntennaStatusOK": True,
                 "DeliveryPushOK": True,
-                "DownlinkOrbit": "62343",
+                "DownlinkOrbit": 62343,
                 "DownlinkStart": "2023-05-01T12:15:34Z",
                 "DownlinkStatusOK": True,
                 "DownlinkStop": "2023-05-01T12:31:57Z",
                 "FrontEndId": "FEP_identifier",
                 "FrontEndStatusOK": True,
                 "Id": "another_session_id",
-                "NumChannels": "1",
+                "NumChannels": 1,
                 "PlannedDataStart": "some_date",
                 "PlannedDataStop": "some_date",
                 "PublicationDate": "2023-02-16T12:00:00.000Z",
                 "Retransfer": False,
                 "Satellite": "S3A",
-                "SessionID": "S3OLCI1",
+                "SessionId": "S3OLCI1",
                 "StationUnitId": "00",
             },
             ("test:test"),
@@ -102,7 +102,7 @@ def test_query_sessions(cadip_client, session_response20230216, login):
     assert cadip_client.get("Sessions?$filter=DownlinkOrbit eq 62343", headers=auth_header).status_code == OK
     assert len(cadip_client.get("Sessions?$filter=DownlinkOrbit eq 62343", headers=auth_header).get_data())
     # Test with Downlink - neg - status 200 and invalid content
-    assert cadip_client.get("Sessions?$filter=DownlinkOrbit eq INCORRECT", headers=auth_header).status_code == OK
+    assert cadip_client.get("Sessions?$filter=DownlinkOrbit eq INCORRECT", headers=auth_header).status_code == BAD_REQUEST
     assert not cadip_client.get("Sessions?$filter=DownlinkOrbit eq INCORRECT", headers=auth_header).get_data()
     # Test with aditional filtering operator <<AND>>
     query = (
@@ -114,6 +114,49 @@ def test_query_sessions(cadip_client, session_response20230216, login):
     query = "Sessions?$filter=PublicationDate gt 2020-02-11T12:00:00.000Z or Satellite eq S1A"
     assert cadip_client.get(query, headers=auth_header).status_code == OK
     assert len(cadip_client.get(query, headers=auth_header).get_data())
+    # Test with 3 valid filters
+    query = "Sessions?$filter=Satellite in ('S1A', 'S2B') and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    # Incorrect downlink, status OK but empty result
+    query = "Sessions?$filter=DownlinkOrbit eq '53186' and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    assert not json.loads(cadip_client.get(query, headers=auth_header).text)
+    # Test with 2 valid filters and 1 invalid, should raise 404 not found
+    query = "Sessions?$filter=Satellite eq 'S3' and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
+    assert cadip_client.get(query, headers=auth_header).status_code == NOT_FOUND
+    # Test with sattelite in (invalid, valid) and 2 other filters valid
+    query = "Sessions?$filter=Satellite in ('S1', invalid) and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
+    assert cadip_client.get(query, headers=auth_header).status_code == NOT_FOUND
+    query = "Sessions?$filter=Satellite in ('invalid', invalid) and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
+    assert cadip_client.get(query, headers=auth_header).status_code == NOT_FOUND
+    # Test with 2 invalid date filters
+    query = "Sessions?$filter=Satellite in ('S1', invalid) and PublicationDate gt 2025-03-12T08:00:00.000Z and PublicationDate lt 2030-03-12T12:00:00.000Z"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    assert not json.loads(cadip_client.get(query, headers=auth_header).text)
+    query = "Sessions?$filter=AntennaStatusOK eq true"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    # Test with incorrect filter
+    query = "Sessions?$filter=IncorrectField eq true"
+    assert cadip_client.get(query, headers=auth_header).status_code == BAD_REQUEST
+    query = "Sessions?$filter=NumChannels eq 1"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    query = "Sessions?$filter=NumChannels gt 1"
+    assert cadip_client.get(query, headers=auth_header).status_code == OK
+    query = "Sessions?$filter=NumChannels lt 0"
+    assert cadip_client.get(query, headers=auth_header).status_code == NOT_FOUND
+    # Eodagspecific request tests
+    dag_filter = [
+        '"SessionId%20in%20S1A_20170501121534062343,%20S1A_20240328185208053186"&$top=20',
+        '"SessionId%20in%20S1A_20240328185208053186"&$top=20',
+        "%22SessionId%20in%20S1A_20240328185208053186%20and%20Satellite%20in%20S1A%22&$top=20"
+        "%22SessionId%20in%20S1A_20240328185208053186,%20S1A_20240328185208053186%20and%20Satellite%20in%20S1A,%20S2B%22&$top=20",
+        "%22Satellite%20in%20S1A,%20%20S2B%22&$top=20",
+        "%22Satellite%20in%20S1A%20and%20PublicationDate%20gt%202020-02-16T12:00:00.000Z%20and%20PublicationDate%20lt%202025-02-16T12:00:00.000Z%22&$top=20",
+    ] 
+    for query in dag_filter:
+        endpoint = f"Sessions?$filter={query}"
+        assert cadip_client.get(endpoint, headers=auth_header).status_code == OK
+        assert json.loads(cadip_client.get(endpoint, headers=auth_header).text)
 
 
 @pytest.mark.unit
@@ -155,20 +198,20 @@ def test_query_files(cadip_client, login):
     top_pagination_nr = "3"
     query = f'Files?$top={top_pagination_nr}&$filter="PublicationDate%20gt%202014-01-01T12:00:00.000Z%20and%20PublicationDate%20lt%202023-12-30T12:00:00.000Z'
     data = cadip_client.get(query, headers=auth_header)
-    assert len(json.loads(data.text)) == int(top_pagination_nr)
+    assert len(json.loads(data.text)['responses']) == int(top_pagination_nr)
     assert cadip_client.get(query, headers=auth_header).status_code == OK
     # Test top pagination element, this query should return 10 elements, top should display only first 3. filter&top
     top_pagination_nr = "3"
     query = f'Files?$filter="PublicationDate%20gt%202014-01-01T12:00:00.000Z%20and%20PublicationDate%20lt%202023-12-30T12:00:00.000Z&$top={top_pagination_nr}'
     data = cadip_client.get(query, headers=auth_header)
-    assert len(json.loads(data.text)) == int(top_pagination_nr)
+    assert len(json.loads(data.text)['responses']) == int(top_pagination_nr)
     assert cadip_client.get(query, headers=auth_header).status_code == OK
 
     # Test skip pagination element, this query should return 10 elements, skip should display only 3.
     skip_pagination_nr = "7"
     query = f'Files?$skip={skip_pagination_nr}&$filter="PublicationDate%20gt%202014-01-01T12:00:00.000Z%20and%20PublicationDate%20lt%202023-12-30T12:00:00.000Z'
     data = cadip_client.get(query, headers=auth_header)
-    assert len(json.loads(data.text)) == 10 - int(skip_pagination_nr)
+    assert len(json.loads(data.text)['responses']) == 10 - int(skip_pagination_nr)
     assert cadip_client.get(query, headers=auth_header).status_code == OK
 
 

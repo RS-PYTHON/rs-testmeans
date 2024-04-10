@@ -20,6 +20,7 @@ BAD_REQUEST = 400
 UNAUTHORIZED = 401
 NOT_FOUND = 404
 
+
 def additional_options(func):
     """Docstring to be added."""
 
@@ -54,7 +55,7 @@ def additional_options(func):
                     return (
                         batch_response_odata_v4(json_data["responses"][:top_value])
                         if "responses" in json_data
-                        else json_data # No need for slicing since there is only one response.
+                        else json_data  # No need for slicing since there is only one response.
                     )
                 case "$skip":
                     skip_value = int(display_headers.get("$skip", 0))
@@ -62,7 +63,7 @@ def additional_options(func):
                     return (
                         batch_response_odata_v4(json_data["responses"][skip_value:])
                         if "responses" in json_data
-                        else json_data # No need for slicing since there is only one response.
+                        else json_data  # No need for slicing since there is only one response.
                     )
                 case "$count":
                     json_data = parse_response_data()
@@ -109,99 +110,177 @@ def query_session() -> Response | list[Any]:
         # return Response('Bad Request', Response.status_code(400), None)
     # Check requested values, filter type can only be json keys
     if not any(
-        [
-            query_text == request.args["$filter"].split(" ")[0]
-            for query_text in ["Satellite", "DownlinkOrbit", "PublicationDate"]
-        ],
+            [
+                query_text == request.args["$filter"].strip('"').split(" ")[0]
+                for query_text in SPJ_LUT.keys()
+            ],
     ):
         return Response(status=BAD_REQUEST)
-    # Proceed to procces request
+    # Proceed to process request
     catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
     catalog_data = json.loads(open(catalog_path).read())
-    accepted_operators = [" and ", " or ", " in ", " not "]
-    if any(header in request.args["$filter"] for header in accepted_operators):
-        # If request match the pattern (field, op, value OPERATOR field, op, value)
-        pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
-        groups = re.search(pattern, request.args["$filter"])
-        if groups:
-            first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
-        # split and processes the requests
-        first_response = process_session_request(first_request, request.args, catalog_data)
-        second_response = process_session_request(second_request, request.args, catalog_data)
-        # Load response data to a json dict
-        first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
-        second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
-        # Normalize responses, must be a list, even with one element, for iterator
-        first_response = first_response if isinstance(first_response, list) else [first_response]
-        second_response = second_response if isinstance(second_response, list) else [second_response]
-        # Convert to a set, elements unique by ID
-        fresp_set = {d.get("Id") for d in first_response}
-        sresp_set = {d.get("Id") for d in second_response}
-        match operator:
-            case "and":  # intersection
-                common_response = fresp_set.intersection(sresp_set)
-                common_elements = [d for d in first_response if d.get("Id") in common_response]
-                return Response(status=OK, response=batch_response_odata_v4(common_elements))
-            case "or":  # union
-                union_set = fresp_set.union(sresp_set)
-                union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-                return Response(status=OK, response=batch_response_odata_v4(union_elements))
-            case "in":  # not in icd yet
-                pass
-            case "not":  # not in icd yet
-                pass
+    # all operators with all possible spacing combinations
+    # accepted_operators = [" and ", " or ", " in ", " not ", "and ", " or ", " in ", " not", "and", "or", "in", "not"]
+    # split_request = [req.strip() for req in request.args["$filter"].split('and')]
+    # Handle multiple "AND" / "OR" operands
+    if len(split_request := [req.strip() for req in request.args["$filter"].split('and')]) in [2, 3]:
+        responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
+        if not all(resp.status_code == 200 for resp in responses):
+            return Response(response = json.dumps([]), status=OK)
+        try:
+            responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
+            responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
+            resp_set = [{d.get("Id") for d in resp} for resp in responses_norm]
+            common_response = set.intersection(*resp_set)
+            common_elements = [d for d in responses_norm[0] if d.get("Id") in common_response]
+            # 200 OK even if search is empty
+            return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
+                response = json.dumps([]),
+                status=OK)
+        except json.JSONDecodeError:  # if a response is empty, whole querry is empty
+            return Response(status=NOT_FOUND)
+    elif len(split_request := [req.strip() for req in request.args["$filter"].split('or')]) in [2, 3]:
+        # add test when a response is empty, and other not.
+        responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
+        responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
+        responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
+        union_set = [{d.get("Id") for d in resp} for resp in responses_norm]
+        union_response = set.union(*union_set)
+        common_elements = [d for d in sum(responses_norm, []) if d.get("Id") in union_response]
+        return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
+                status=NOT_FOUND)
 
     return process_session_request(request.args["$filter"], request.args, catalog_data)
+
+
+def manage_int_querry(op, value, catalog_data, field, headers):
+    try:
+        value = int(value)
+    except ValueError:
+        return Response(status=BAD_REQUEST)
+    query_result = [product for product in catalog_data["Data"] if value == product[field]]
+    return (
+        Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
+        if query_result
+        else Response(status=NOT_FOUND)
+    )
+
+
+def manage_bool_querry(op, value, catalog_data, field, headers):
+    try:
+        value = bool(value)
+    except ValueError:
+        return Response(status=BAD_REQUEST)
+    match op:
+        case "eq":
+            query_result = [product for product in catalog_data["Data"] if value == product[field]]
+        case "lt":
+            query_result = [product for product in catalog_data["Data"] if value < product[field]]
+        case "gt":
+            query_result = [product for product in catalog_data["Data"] if value > product[field]]
+    return (
+        Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
+        if query_result
+        else Response(status=NOT_FOUND)
+    )
+
+
+def manage_satellite_sid_query(op, value, catalog_data, field, headers):
+    match op:
+        case "eq":
+            query_result = [product for product in catalog_data["Data"] if value == product[field]]
+        case "in":
+            sat_sid_match = re.sub(r'[()]', '', value).split(', ')
+            query_result = [[product for product in catalog_data["Data"] if product[field] == sat_sid.strip()] for
+                            sat_sid in sat_sid_match]
+            query_result = [product for sublist in query_result for product in sublist]
+    return (
+        Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
+        if query_result
+        # as per ICD response is OK even if empty
+        else Response(status=OK)
+    )
+
+def manage_str_querry(op, value, catalog_data, field, headers):
+    match op:
+        case "eq":
+            query_result = [product for product in catalog_data["Data"] if value == product[field]]
+        case "in":
+            query_result = [product for product in catalog_data["Data"] if value in product[field]]
+    return (
+        Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
+        if query_result
+        else Response(status=NOT_FOUND)
+    )
+
+
+def manage_datetime_querry(op, value, catalog_data, field, headers):
+    date = datetime.datetime.fromisoformat(value)
+    match op:
+        case "eq":
+            resp_body = [
+                product
+                for product in catalog_data["Data"]
+                if date == datetime.datetime.fromisoformat(product[field])
+            ]
+        case "gt":
+            resp_body = [
+                product
+                for product in catalog_data["Data"]
+                if date < datetime.datetime.fromisoformat(product[field])
+            ]
+        case "lt":
+            resp_body = [
+                product
+                for product in catalog_data["Data"]
+                if date > datetime.datetime.fromisoformat(product[field])
+            ]
+        case _:
+            # If the operation is not recognized, return a 404 NOT FOUND response
+            return Response(status=NOT_FOUND)
+    # Return the response with the processed results or a 404 NOT FOUND if no results are found
+    return (
+        Response(status=OK, response=batch_response_odata_v4(resp_body), headers=headers)
+        if resp_body
+        else Response(status=NOT_FOUND)
+    )
+
+
+SPJ_LUT = {
+    "Id": manage_str_querry,
+    "SessionId": manage_satellite_sid_query,
+    "NumChannels": manage_int_querry,
+    "PublicationDate": manage_datetime_querry,
+    "Satellite": manage_satellite_sid_query,
+    "StationUnitId": manage_str_querry,
+    "DownlinkOrbit": manage_int_querry,
+    "AcquisitionId": manage_str_querry,
+    "AntennaId": manage_str_querry,
+    "FronEndId": manage_str_querry,
+    "Retransfer": manage_bool_querry,
+    "AntennaStatusOK": manage_bool_querry,
+    "FrontEndStatusOK": manage_bool_querry,
+    "PlannedDataStart": manage_datetime_querry,
+    "PlannedDataStop": manage_datetime_querry,
+    "DownlinkStart": manage_datetime_querry,
+    "DownlinkStop": manage_datetime_querry,
+    "DownlinkStatusOK": manage_bool_querry,
+    "DeliveryPushOK": manage_bool_querry,
+    "NumChannels": manage_int_querry,
+}
 
 
 def process_session_request(request: str, headers: dict, catalog_data: dict) -> Response:
     """Docstring to be added."""
     # Normalize request (lower case / remove ')
-    field, op, value = map(
+    field, op, *value = map(
         lambda norm: norm.replace("'", ""),
-        request.split(" "),
+        request.strip('"').split(" "),
     )
+    # field, op, *value = request.split(" ")
+    value = " ".join(value)
     # return results or the 200OK code is returned with an empty response (PSD)
-    if field == "PublicationDate":
-        # year-month-day
-        date = datetime.datetime.fromisoformat(value)
-        match op:
-            case "eq":
-                resp_body = [
-                    product
-                    for product in catalog_data["Data"]
-                    if date == datetime.datetime.fromisoformat(product[field])
-                ]
-            case "gt":
-                resp_body = [
-                    product
-                    for product in catalog_data["Data"]
-                    if date < datetime.datetime.fromisoformat(product[field])
-                ]
-            case "lt":
-                resp_body = [
-                    product
-                    for product in catalog_data["Data"]
-                    if date > datetime.datetime.fromisoformat(product[field])
-                ]
-            case _:
-                # If the operation is not recognized, return a 404 NOT FOUND response
-                return Response(status=NOT_FOUND)
-        # Return the response with the processed results or a 404 NOT FOUND if no results are found
-        return (
-            Response(status=OK, response=batch_response_odata_v4(resp_body), headers=headers)
-            if resp_body
-            else Response(status=NOT_FOUND)
-        )
-    else:
-        # For fields other than "PublicationDate", perform a substring match on the specified value
-        query_result = [product for product in catalog_data["Data"] if value in product[field]]
-        # Return the response with the processed results or a 200 OK response if no results are found
-        return (
-            Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
-            if query_result
-            else Response(status=OK)
-        )
+    return SPJ_LUT[field](op, value, catalog_data, field, headers) if field in SPJ_LUT else Response(status=NOT_FOUND)
 
 
 # 3.4
@@ -214,10 +293,10 @@ def query_files() -> Response | list[Any]:
         return Response(status=BAD_REQUEST)
 
     if not any(
-        [
-            query_text in request.args["$filter"].split(" ")[0]
-            for query_text in ["Id", "Orbit", "Name", "PublicationDate"]
-        ],
+            [
+                query_text in request.args["$filter"].split(" ")[0]
+                for query_text in ["Id", "Orbit", "Name", "PublicationDate"]
+            ],
     ):
         return Response(status=BAD_REQUEST)
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
