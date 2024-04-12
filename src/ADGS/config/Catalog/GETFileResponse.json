@@ -59,6 +59,1827 @@
                 "Start": "2023-02-17T09:00:00.000Z",
                 "End": "2023-02-17T21:00:00.000Z"
             }
+        },
+        {
+            "Id": "99499477-0deb-4b5f-92bd-413e4136ba48",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20210123T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "5142456",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-01-23T00:00:00.000Z",
+            "EvictionDate": "2021-01-30T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "c5936e8aEA54c1e9C5BCEbe7e726a57f",
+                    "ChecksumDate": "2021-01-23T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
+        },
+        {
+            "Id": "0a88d2a2-6e73-41a1-abce-2cdf29dfcf04",
+            "Name": "S1A_OPER_MPL_ORBPRE_20210214T021411_20210221T021411_0001.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "2100565",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-02-14T00:00:00.000Z",
+            "EvictionDate": "2021-02-21T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "144921A67fc7EdE75e4818121fcf4d6C",
+                    "ChecksumDate": "2021-02-14T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-02-21T00:00:00.000Z",
+                "End": "2021-02-21T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "e697510a-1247-4f3d-b39f-21fe05b5cda8",
+            "Name": "S1A_OPER_MPL_ORBSCT_20200829T150704_99999999T999999_0025.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "7757721",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-08-29T00:00:00.000Z",
+            "EvictionDate": "2020-09-05T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "55e4d9aaC63EDd110550AadF569224a4",
+                    "ChecksumDate": "2020-08-29T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-08-29T00:00:00.000Z",
+                "End": "2020-08-29T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "613c3746-67ac-44e7-a86a-9c03c43ab28f",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20230405T110702_V20230405T071044_20230405T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9496648",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-04-05T00:00:00.000Z",
+            "EvictionDate": "2023-04-12T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "145d09a378CfA82C4440FcC41Fad075F",
+                    "ChecksumDate": "2023-04-05T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-04-05T00:00:00.000Z",
+                "End": "2023-04-05T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "035c9267-9308-4c40-bad4-167b3a0622b5",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20231218T110702_V20231218T071044_20231218T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "8946986",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-12-18T00:00:00.000Z",
+            "EvictionDate": "2023-12-25T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "182190ef1BDDd9d3BCf145505bF5B0ff",
+                    "ChecksumDate": "2023-12-18T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-12-18T00:00:00.000Z",
+                "End": "2023-12-18T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "a12d6b98-ce2a-4455-82c0-fdf9df128436",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20201002T062732_V20201002T053140_20201002T120640.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1946349",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-10-02T00:00:00.000Z",
+            "EvictionDate": "2020-10-09T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "D03aDbA42Fb7CCcA89C8a4Ca8af43b86",
+                    "ChecksumDate": "2020-10-02T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-10-02T00:00:00.000Z",
+                "End": "2020-10-02T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "e966ec57-f4ac-4283-a300-badf8fc93cc0",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20230122T062732_V20230122T062732_20230122T062732.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1381807",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-01-22T00:00:00.000Z",
+            "EvictionDate": "2023-01-29T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "77F8d9d6A4EcaA7FD99BecaDAdc7FCC3",
+                    "ChecksumDate": "2023-01-22T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-01-22T00:00:00.000Z",
+                "End": "2023-01-22T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "46981641-fc36-48f1-bbce-2e4e631984ca",
+            "Name": "S1A_AUX_PP2_V20230403T080000_G20230403T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "8477744",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-04-03T00:00:00.000Z",
+            "EvictionDate": "2023-04-10T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "BFB716AbCB5DFbD33Cc40f27C8b40379",
+                    "ChecksumDate": "2023-04-03T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-04-03T00:00:00.000Z",
+                "End": "2023-04-03T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "abb4c8b7-1e1f-4e25-a3dd-1c0d0289e622",
+            "Name": "S1A_AUX_PP2_V20230517T080000_G20230517T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "8633489",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-05-17T00:00:00.000Z",
+            "EvictionDate": "2023-05-24T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "a180dd7bc8CCEeCEbF8673bA017E4A39",
+                    "ChecksumDate": "2023-05-17T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-05-17T00:00:00.000Z",
+                "End": "2023-05-17T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "e060b765-d6c5-4e88-b316-d723dad81bd8",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20200919T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3921684",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-09-19T00:00:00.000Z",
+            "EvictionDate": "2020-09-26T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "f107571B69f1B704f8F0dfaFac625526",
+                    "ChecksumDate": "2020-09-19T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
+        },
+        {
+            "Id": "9ea32f0b-9dfc-4c9b-8623-81f7ea93ac21",
+            "Name": "S1A_OPER_MPL_ORBPRE_20230421T021411_20230428T021411_0001.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9671255",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-04-21T00:00:00.000Z",
+            "EvictionDate": "2023-04-28T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "FB8d888f23b7b1D805F41A38Ec8fDe2d",
+                    "ChecksumDate": "2023-04-21T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-04-28T00:00:00.000Z",
+                "End": "2023-04-28T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "7c2f25ab-66cf-49b0-8c6e-744b64fc626c",
+            "Name": "S1A_OPER_MPL_ORBSCT_20240115T150704_99999999T999999_0025.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3304133",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2024-01-15T00:00:00.000Z",
+            "EvictionDate": "2024-01-22T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "Ec1D6A4BB02Fa9fC8e34f27eFCC35120",
+                    "ChecksumDate": "2024-01-15T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2024-01-15T00:00:00.000Z",
+                "End": "2024-01-15T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "9839aacf-828a-4157-837d-77b63c557ff1",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20240214T110702_V20240214T071044_20240214T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "6026585",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2024-02-14T00:00:00.000Z",
+            "EvictionDate": "2024-02-21T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "d1412BEfc87f3A0B1B89b11cfF00aDe3",
+                    "ChecksumDate": "2024-02-14T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2024-02-14T00:00:00.000Z",
+                "End": "2024-02-14T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "181fb1bf-b962-4341-875d-cb97e4103efa",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20240129T110702_V20240129T071044_20240129T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9766155",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2024-01-29T00:00:00.000Z",
+            "EvictionDate": "2024-02-05T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "cB08AC593aFb0D3596495A73E2AEeceA",
+                    "ChecksumDate": "2024-01-29T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2024-01-29T00:00:00.000Z",
+                "End": "2024-01-29T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "e10bbffd-0134-42f0-8c1e-a5b170cc123f",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20230807T062732_V20230807T053140_20230807T120640.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9176686",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-08-07T00:00:00.000Z",
+            "EvictionDate": "2023-08-14T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "A7C8Efd7faaA7ee3fA5bDd0EB75cE5d0",
+                    "ChecksumDate": "2023-08-07T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-08-07T00:00:00.000Z",
+                "End": "2023-08-07T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "94d7cd2d-475c-4ce7-bae2-d74b6fad11a9",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20230628T062732_V20230628T062732_20230628T062732.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "7489159",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-06-28T00:00:00.000Z",
+            "EvictionDate": "2023-07-05T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "8b2A22ce33f2dcdFeD9FDFac2038BBF2",
+                    "ChecksumDate": "2023-06-28T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-06-28T00:00:00.000Z",
+                "End": "2023-06-28T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "f76782ad-b005-4dc0-a189-f6520b0f6161",
+            "Name": "S1A_AUX_PP2_V20200106T080000_G20200106T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1104066",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-01-06T00:00:00.000Z",
+            "EvictionDate": "2020-01-13T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "75C2dAcc19e2Ef3eB36CFeeDCfCE0c9A",
+                    "ChecksumDate": "2020-01-06T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-01-06T00:00:00.000Z",
+                "End": "2020-01-06T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "bd5975d9-f198-4dc8-a47f-825c57d743b9",
+            "Name": "S1A_AUX_PP2_V20200121T080000_G20200121T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "4968617",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-01-21T00:00:00.000Z",
+            "EvictionDate": "2020-01-28T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "5BeBf0cea76ce8E591ce1Ae474e2505F",
+                    "ChecksumDate": "2020-01-21T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-01-21T00:00:00.000Z",
+                "End": "2020-01-21T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "cdb56d9c-e14c-4aab-96ba-189f71ba9dc7",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20210329T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1573770",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-03-29T00:00:00.000Z",
+            "EvictionDate": "2021-04-05T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "d8DA9d1EdBC8f859d9d2E2D0489a3ec3",
+                    "ChecksumDate": "2021-03-29T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
+        },
+        {
+            "Id": "220e5ad0-5b98-4cae-aca3-b31eef43586b",
+            "Name": "S1A_OPER_MPL_ORBPRE_20220306T021411_20220313T021411_0001.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3588015",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2022-03-06T00:00:00.000Z",
+            "EvictionDate": "2022-03-13T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "d50fcfffcEf52A37ced25Bd0b8982FaD",
+                    "ChecksumDate": "2022-03-06T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2022-03-13T00:00:00.000Z",
+                "End": "2022-03-13T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "492785c1-beee-4ad5-8892-5bc3e7ac65e7",
+            "Name": "S1A_OPER_MPL_ORBSCT_20230710T150704_99999999T999999_0025.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "7586325",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-07-10T00:00:00.000Z",
+            "EvictionDate": "2023-07-17T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "cDF1abBEfFfB6a66fFAfAdebE80F46A4",
+                    "ChecksumDate": "2023-07-10T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-07-10T00:00:00.000Z",
+                "End": "2023-07-10T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "85b425b9-1e00-48dc-8916-9ff95d595d8d",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20200211T110702_V20200211T071044_20200211T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "6306385",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-02-11T00:00:00.000Z",
+            "EvictionDate": "2020-02-18T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "Ba24FBaecC93045fbF16dCea88Fd45F1",
+                    "ChecksumDate": "2020-02-11T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-02-11T00:00:00.000Z",
+                "End": "2020-02-11T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "94993824-ba23-4cd3-8fb4-331e02184860",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20230718T110702_V20230718T071044_20230718T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "2880500",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-07-18T00:00:00.000Z",
+            "EvictionDate": "2023-07-25T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "30b6310bEFd87cCFDe0Bfdf669bE90D9",
+                    "ChecksumDate": "2023-07-18T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-07-18T00:00:00.000Z",
+                "End": "2023-07-18T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "c3888e36-ad25-44f2-b25f-e877fd7fe297",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20230428T062732_V20230428T053140_20230428T120640.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "5235136",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-04-28T00:00:00.000Z",
+            "EvictionDate": "2023-05-05T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "BDdBE62a284c1EbFb3ba1761Be01f749",
+                    "ChecksumDate": "2023-04-28T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-04-28T00:00:00.000Z",
+                "End": "2023-04-28T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "a4f47d17-8db5-4fd5-84cb-cc1fa4d9a9b2",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20230219T062732_V20230219T062732_20230219T062732.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3123404",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-02-19T00:00:00.000Z",
+            "EvictionDate": "2023-02-26T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "cBE7fBA4fbb9edeD92e9afadC3041059",
+                    "ChecksumDate": "2023-02-19T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-02-19T00:00:00.000Z",
+                "End": "2023-02-19T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "4c9433fb-2dc1-482d-b765-5969ec2a7c81",
+            "Name": "S1A_AUX_PP2_V20230704T080000_G20230704T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "7304161",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-07-04T00:00:00.000Z",
+            "EvictionDate": "2023-07-11T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "Fe15b6f119ED5eA8d46e1d059E89EFD9",
+                    "ChecksumDate": "2023-07-04T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-07-04T00:00:00.000Z",
+                "End": "2023-07-04T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "b35844f1-f0f6-444e-8955-321d39ee10f5",
+            "Name": "S1A_AUX_PP2_V20230818T080000_G20230818T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "7419612",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-08-18T00:00:00.000Z",
+            "EvictionDate": "2023-08-25T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "D7ff83A99eAb55f39Dd774B98a4b2067",
+                    "ChecksumDate": "2023-08-18T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-08-18T00:00:00.000Z",
+                "End": "2023-08-18T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "871da425-251e-484d-bfe5-f8d8c273e41f",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20210211T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "8120082",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-02-11T00:00:00.000Z",
+            "EvictionDate": "2021-02-18T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "AeB9eF605fAee39ccA8B8c69cBAEEc38",
+                    "ChecksumDate": "2021-02-11T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
+        },
+        {
+            "Id": "819247a3-27a9-4385-922a-2ed7f6f3e565",
+            "Name": "S1A_OPER_MPL_ORBPRE_20200402T021411_20200409T021411_0001.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "2349940",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-04-02T00:00:00.000Z",
+            "EvictionDate": "2020-04-09T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "B36B816B0E645c8fdAa0f50eCFa7303F",
+                    "ChecksumDate": "2020-04-02T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-04-09T00:00:00.000Z",
+                "End": "2020-04-09T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "889c35dc-5588-4e93-81c2-651e732418e6",
+            "Name": "S1A_OPER_MPL_ORBSCT_20210123T150704_99999999T999999_0025.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "6931697",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-01-23T00:00:00.000Z",
+            "EvictionDate": "2021-01-30T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "1Af4Bfd98ffdecff12d98a034D9AB68F",
+                    "ChecksumDate": "2021-01-23T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-01-23T00:00:00.000Z",
+                "End": "2021-01-23T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "479a2f93-5e46-45c4-a9a3-b61bcdfc46ff",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20201012T110702_V20201012T071044_20201012T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9407640",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-10-12T00:00:00.000Z",
+            "EvictionDate": "2020-10-19T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "0fB887c4eE28BbF20935d5ECBbf4b3Fc",
+                    "ChecksumDate": "2020-10-12T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-10-12T00:00:00.000Z",
+                "End": "2020-10-12T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "14333fa9-9210-4786-9fe4-e933c6d1f054",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20210501T110702_V20210501T071044_20210501T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9689251",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-05-01T00:00:00.000Z",
+            "EvictionDate": "2021-05-08T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "1cb5CbbF8ef1Fc35f2bf904E2DF6f0F9",
+                    "ChecksumDate": "2021-05-01T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-05-01T00:00:00.000Z",
+                "End": "2021-05-01T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "656f835b-a418-4902-b49c-0f65be8c9693",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20200729T062732_V20200729T053140_20200729T120640.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "7371129",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-07-29T00:00:00.000Z",
+            "EvictionDate": "2020-08-05T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "eCBa883efeD27679f74bcA9bCA0D2F36",
+                    "ChecksumDate": "2020-07-29T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-07-29T00:00:00.000Z",
+                "End": "2020-07-29T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "c24d71ce-111e-4a25-86ba-94dfb6d12050",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20230320T062732_V20230320T062732_20230320T062732.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "4148514",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-03-20T00:00:00.000Z",
+            "EvictionDate": "2023-03-27T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "9c120572d4C8eA48dfC7d4c4Eb1aF44A",
+                    "ChecksumDate": "2023-03-20T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-03-20T00:00:00.000Z",
+                "End": "2023-03-20T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "d5e735a7-d7f6-4eb9-a6c1-5c5653933012",
+            "Name": "S1A_AUX_PP2_V20200203T080000_G20200203T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "6458426",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-02-03T00:00:00.000Z",
+            "EvictionDate": "2020-02-10T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "9dcf6C5fAB977800c5DaB1ec686cFBc9",
+                    "ChecksumDate": "2020-02-03T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-02-03T00:00:00.000Z",
+                "End": "2020-02-03T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "5424bf04-f717-43f3-905a-9d760f318216",
+            "Name": "S1A_AUX_PP2_V20200218T080000_G20200218T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1905326",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-02-18T00:00:00.000Z",
+            "EvictionDate": "2020-02-25T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "075b462B2D6262CBc9e8986444dfF266",
+                    "ChecksumDate": "2020-02-18T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-02-18T00:00:00.000Z",
+                "End": "2020-02-18T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "0c59c8d6-6c84-4114-ab85-30d098a48059",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20230103T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3206957",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-01-03T00:00:00.000Z",
+            "EvictionDate": "2023-01-10T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "82Ae86A66FA46fACe55f19dCec1086D8",
+                    "ChecksumDate": "2023-01-03T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
+        },
+        {
+            "Id": "3ec65b1f-00b5-4a5a-991c-3d361a9fe5d1",
+            "Name": "S1A_OPER_MPL_ORBPRE_20200315T021411_20200322T021411_0001.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "7945817",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-03-15T00:00:00.000Z",
+            "EvictionDate": "2020-03-22T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "ef5aaF0d4D3557F7b6a3FdB4F23C6d64",
+                    "ChecksumDate": "2020-03-15T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-03-22T00:00:00.000Z",
+                "End": "2020-03-22T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "8f7bf8cb-042a-44d3-822d-39144794d315",
+            "Name": "S1A_OPER_MPL_ORBSCT_20220426T150704_99999999T999999_0025.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "8332259",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2022-04-26T00:00:00.000Z",
+            "EvictionDate": "2022-05-03T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "0C0c4bF8FEEFafDB0e0A70b878e46A7d",
+                    "ChecksumDate": "2022-04-26T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2022-04-26T00:00:00.000Z",
+                "End": "2022-04-26T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "792f5805-b8ba-4367-b459-3d5f7a484706",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20201116T110702_V20201116T071044_20201116T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "8776207",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-11-16T00:00:00.000Z",
+            "EvictionDate": "2020-11-23T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "ceD6743838673c6DdFDF1343dfC55ACa",
+                    "ChecksumDate": "2020-11-16T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-11-16T00:00:00.000Z",
+                "End": "2020-11-16T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "c1255d51-5b40-495f-9135-30f19394bfe9",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20210705T110702_V20210705T071044_20210705T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1556289",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-07-05T00:00:00.000Z",
+            "EvictionDate": "2021-07-12T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "6F9FA1c6aa8EBad31d86Cda5D1D9102f",
+                    "ChecksumDate": "2021-07-05T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-07-05T00:00:00.000Z",
+                "End": "2021-07-05T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "48e1b668-10fe-4b2c-ba03-217e302e34f6",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20200903T062732_V20200903T053140_20200903T120640.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1182056",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-09-03T00:00:00.000Z",
+            "EvictionDate": "2020-09-10T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "41eD794aB7FE11d762d0F8cDDB950abd",
+                    "ChecksumDate": "2020-09-03T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-09-03T00:00:00.000Z",
+                "End": "2020-09-03T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "4740e597-9049-4e16-87b9-f571cfb601b4",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20230423T062732_V20230423T062732_20230423T062732.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9034860",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-04-23T00:00:00.000Z",
+            "EvictionDate": "2023-04-30T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "8a4f70703F29E3f8Ab32BB7ff6A712CE",
+                    "ChecksumDate": "2023-04-23T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-04-23T00:00:00.000Z",
+                "End": "2023-04-23T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "44b81dc5-cf65-45d0-adb6-1c6ab03213ff",
+            "Name": "S1A_AUX_PP2_V20200806T080000_G20200806T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "8898416",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-08-06T00:00:00.000Z",
+            "EvictionDate": "2020-08-13T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "9c7141ecf21767E59C89841C3cD3a1Ac",
+                    "ChecksumDate": "2020-08-06T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-08-06T00:00:00.000Z",
+                "End": "2020-08-06T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "084e1c3e-a7a8-458f-a2a0-7bd1f22bcbab",
+            "Name": "S1A_AUX_PP2_V20200920T080000_G20200920T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9116568",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-09-20T00:00:00.000Z",
+            "EvictionDate": "2020-09-27T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "a63F24f0eEA50f5be32eFC2d01df4c6c",
+                    "ChecksumDate": "2020-09-20T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-09-20T00:00:00.000Z",
+                "End": "2020-09-20T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "159c945d-d170-41bf-a42f-530eb3157921",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20200127T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9594779",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-01-27T00:00:00.000Z",
+            "EvictionDate": "2020-02-03T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "0bd64BfddaCd437aDBDACe0dD3cc7C14",
+                    "ChecksumDate": "2020-01-27T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
+        },
+        {
+            "Id": "68d69067-51c9-47f6-94ae-2de81c51e906",
+            "Name": "S1A_OPER_MPL_ORBPRE_20210225T021411_20210303T021411_0001.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1424363",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-02-25T00:00:00.000Z",
+            "EvictionDate": "2021-03-04T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "dac212eB4Ae64aA6FD1740E9ccEEA410",
+                    "ChecksumDate": "2021-02-25T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-03-03T00:00:00.000Z",
+                "End": "2021-03-03T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "7fb49bd4-5b39-4c81-9a56-90c6dbd46f8b",
+            "Name": "S1A_OPER_MPL_ORBSCT_20210701T150704_99999999T999999_0025.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "8001273",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-07-01T00:00:00.000Z",
+            "EvictionDate": "2021-07-08T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "b0FaC7ADa1cF2528760cb1d67Ae5e2AA",
+                    "ChecksumDate": "2021-07-01T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-07-01T00:00:00.000Z",
+                "End": "2021-07-01T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "c3dc7243-12df-4df5-b4a7-b6c7f05a57c5",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20201228T110702_V20201228T071044_20201228T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "2730381",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-12-28T00:00:00.000Z",
+            "EvictionDate": "2021-01-04T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "d3F310A4fC714EFF0c048a9CbFAB5399",
+                    "ChecksumDate": "2020-12-28T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-12-28T00:00:00.000Z",
+                "End": "2020-12-28T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "48c1dda7-05a6-48f6-8034-703a002d9ef0",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20210916T110702_V20210916T071044_20210916T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1954759",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-09-16T00:00:00.000Z",
+            "EvictionDate": "2021-09-23T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "8aF1B5fdC0ed1A18c1861A86235ecaAa",
+                    "ChecksumDate": "2021-09-16T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-09-16T00:00:00.000Z",
+                "End": "2021-09-16T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "c8320c28-b674-403e-bb79-26bcc1409b8d",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20200524T062732_V20200524T053140_20200524T120640.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "6956769",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-05-24T00:00:00.000Z",
+            "EvictionDate": "2020-05-31T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "Ee2e0Bde5d8bE0aDBAce227f6dFEec87",
+                    "ChecksumDate": "2020-05-24T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-05-24T00:00:00.000Z",
+                "End": "2020-05-24T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "8c91257d-da4b-420c-9a40-7d7cdc6e5e4d",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20230312T062732_V20230312T062732_20230312T062732.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "6897330",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-03-12T00:00:00.000Z",
+            "EvictionDate": "2023-03-19T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "A4c66aDdc1C0105Dc94C688b23FB525A",
+                    "ChecksumDate": "2023-03-12T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-03-12T00:00:00.000Z",
+                "End": "2023-03-12T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "54c8612b-77eb-49a7-85f2-70baa0fa9e50",
+            "Name": "S1A_AUX_PP2_V20200524T080000_G20200524T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "5426928",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-05-24T00:00:00.000Z",
+            "EvictionDate": "2020-05-31T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "db7EC1EB4eCe93C4334130000B370d04",
+                    "ChecksumDate": "2020-05-24T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-05-24T00:00:00.000Z",
+                "End": "2020-05-24T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "816224e6-9355-4d9c-80e2-f897884bc5a5",
+            "Name": "S1A_AUX_PP2_V20200708T080000_G20200708T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9910731",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-07-08T00:00:00.000Z",
+            "EvictionDate": "2020-07-15T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "4B22C101F4D14b25A6Ec67DD833Ce83c",
+                    "ChecksumDate": "2020-07-08T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-07-08T00:00:00.000Z",
+                "End": "2020-07-08T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "2f072552-c341-4a94-998a-0a665100052e",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20230705T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "6822968",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-07-05T00:00:00.000Z",
+            "EvictionDate": "2023-07-12T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "7464a08c8Bf27CBeAdD7cCC4e50eA941",
+                    "ChecksumDate": "2023-07-05T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
+        },
+        {
+            "Id": "3292bed6-5722-400b-802d-ae16932b1fd7",
+            "Name": "S1A_OPER_MPL_ORBPRE_20201028T021411_20201104T021411_0001.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "7003947",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-10-28T00:00:00.000Z",
+            "EvictionDate": "2020-11-04T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "Da42EFadB08F6Cfd245Aa5bfC401f5d0",
+                    "ChecksumDate": "2020-10-28T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-11-04T00:00:00.000Z",
+                "End": "2020-11-04T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "16dd55c7-69cf-4b3f-adb6-5d2eb59d9e7f",
+            "Name": "S1A_OPER_MPL_ORBSCT_20211115T150704_99999999T999999_0025.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "2284660",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-11-15T00:00:00.000Z",
+            "EvictionDate": "2021-11-22T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "64ea40E5B51dc938e67ADee655280fEe",
+                    "ChecksumDate": "2021-11-15T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-11-15T00:00:00.000Z",
+                "End": "2021-11-15T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "c0c56a9a-9373-4b65-9995-4b8be3142e40",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20200123T110702_V20200123T071044_20200123T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3087520",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-01-23T00:00:00.000Z",
+            "EvictionDate": "2020-01-30T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "aaC1ddEdaEf62A7c9fCd45DccCA9F4De",
+                    "ChecksumDate": "2020-01-23T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-01-23T00:00:00.000Z",
+                "End": "2020-01-23T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "176a2f17-341b-4fc3-a130-a7b2a4d2ca13",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20210911T110702_V20210911T071044_20210911T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1411195",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-09-11T00:00:00.000Z",
+            "EvictionDate": "2021-09-18T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "32f55Fdd18A083eBD0E28E6AeabafDb7",
+                    "ChecksumDate": "2021-09-11T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-09-11T00:00:00.000Z",
+                "End": "2021-09-11T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "f441f867-fb99-46ef-b250-bbcabad3fa17",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20200418T062732_V20200418T053140_20200418T120640.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "5737558",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-04-18T00:00:00.000Z",
+            "EvictionDate": "2020-04-25T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "066beE5A2565Eb3CB633CBCFD6C6aEDF",
+                    "ChecksumDate": "2020-04-18T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-04-18T00:00:00.000Z",
+                "End": "2020-04-18T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "99ac129c-6c4b-4567-a22f-667e5165b529",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20231007T062732_V20231007T062732_20231007T062732.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1827609",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-10-07T00:00:00.000Z",
+            "EvictionDate": "2023-10-14T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "FFd7E0BE5d55afA48BF3fd2383febD2f",
+                    "ChecksumDate": "2023-10-07T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-10-07T00:00:00.000Z",
+                "End": "2023-10-07T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "64fd6380-6a22-44c3-b402-aaa0224c5942",
+            "Name": "S1A_AUX_PP2_V20200509T080000_G20200509T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1305760",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-05-09T00:00:00.000Z",
+            "EvictionDate": "2020-05-16T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "Bc8Ce4Dea6f3FcC2ac1c3f07aba1DdFB",
+                    "ChecksumDate": "2020-05-09T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-05-09T00:00:00.000Z",
+                "End": "2020-05-09T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "747d8ce8-c0ca-4164-8e8b-95f863368e05",
+            "Name": "S1A_AUX_PP2_V20200623T080000_G20200623T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9502061",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-06-23T00:00:00.000Z",
+            "EvictionDate": "2020-06-30T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "D870cfD6A0F31CfC2AAEFF0231a589bb",
+                    "ChecksumDate": "2020-06-23T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-06-23T00:00:00.000Z",
+                "End": "2020-06-23T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "b466537a-d3c0-49bd-a397-989276b8adff",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20220115T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3404733",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2022-01-15T00:00:00.000Z",
+            "EvictionDate": "2022-01-22T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "FaEDb94faDcAE4DDFb6Dc1c5E682DcE7",
+                    "ChecksumDate": "2022-01-15T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
+        },
+        {
+            "Id": "b8c57bed-429e-4f05-8d5e-06ec90360874",
+            "Name": "S1A_OPER_MPL_ORBPRE_20211125T021411_20211202T021411_0001.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3792150",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-11-25T00:00:00.000Z",
+            "EvictionDate": "2021-12-02T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "Ec46AEDfD2afD529b10EeDB24eF33f1A",
+                    "ChecksumDate": "2021-11-25T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-12-02T00:00:00.000Z",
+                "End": "2021-12-02T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "0220d5d5-a517-433e-abab-00e65374ad67",
+            "Name": "S1A_OPER_MPL_ORBSCT_20240514T150704_99999999T999999_0025.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "2182853",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2024-05-14T00:00:00.000Z",
+            "EvictionDate": "2024-05-21T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "4F9C4F2FaD9bB5d3D4EbcFf97b50BCbB",
+                    "ChecksumDate": "2024-05-14T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2024-05-14T00:00:00.000Z",
+                "End": "2024-05-14T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "ea9e8250-56a5-48a4-a698-e0f4fe1a35db",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20210415T110702_V20210415T071044_20210415T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "2024009",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-04-15T00:00:00.000Z",
+            "EvictionDate": "2021-04-22T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "54E6B04AEEcAdf80CC3Ae2fa4cc5d6D9",
+                    "ChecksumDate": "2021-04-15T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-04-15T00:00:00.000Z",
+                "End": "2021-04-15T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "89abd910-71b5-4d00-8a15-cceb79ac1f26",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20240204T110702_V20240204T071044_20240204T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "2599455",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2024-02-04T00:00:00.000Z",
+            "EvictionDate": "2024-02-11T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "2aEd261fFbD0Fdcd3Ffa3EC6d1CfA3B0",
+                    "ChecksumDate": "2024-02-04T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2024-02-04T00:00:00.000Z",
+                "End": "2024-02-04T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "373d476d-6cd7-4525-8b95-1628dcc9724a",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20200822T062732_V20200822T053140_20200822T120640.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "7932920",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-08-22T00:00:00.000Z",
+            "EvictionDate": "2020-08-29T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "d2FDf9AB6DBfEE6575aAF4D96FBB9B8F",
+                    "ChecksumDate": "2020-08-22T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-08-22T00:00:00.000Z",
+                "End": "2020-08-22T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "3bcbf545-401d-420d-bd1f-d91efe6fe942",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20231013T062732_V20231013T062732_20231013T062732.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "8437006",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-10-13T00:00:00.000Z",
+            "EvictionDate": "2023-10-20T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "CE08a4cc52a564D277e2DE7fF26c03Cb",
+                    "ChecksumDate": "2023-10-13T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-10-13T00:00:00.000Z",
+                "End": "2023-10-13T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "8398f0ad-cb74-43f6-8747-6004456b7178",
+            "Name": "S1A_AUX_PP2_V20200516T080000_G20200516T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "4246992",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-05-16T00:00:00.000Z",
+            "EvictionDate": "2020-05-23T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "fBDffefdD5Ee2E9df8C1830c5F2C26Ee",
+                    "ChecksumDate": "2020-05-16T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-05-16T00:00:00.000Z",
+                "End": "2020-05-16T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "9934b4dc-23d2-4dd4-9eb5-0ea889be6232",
+            "Name": "S1A_AUX_PP2_V20200630T080000_G20200630T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "7539646",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-06-30T00:00:00.000Z",
+            "EvictionDate": "2020-07-07T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "D5d1Eb43D656faDd0cCE913DAd4f8a39",
+                    "ChecksumDate": "2020-06-30T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-06-30T00:00:00.000Z",
+                "End": "2020-06-30T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "5ec13642-f4ee-4fad-9ba2-1efd76c20efd",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20210924T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9320998",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-09-24T00:00:00.000Z",
+            "EvictionDate": "2021-10-01T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "5E6aeaCafdb4bec19Bb8C81cEA07356B",
+                    "ChecksumDate": "2021-09-24T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
+        },
+        {
+            "Id": "dec79dfb-8e9e-4e42-853a-5a3736be8d45",
+            "Name": "S1A_OPER_MPL_ORBPRE_20220126T021411_20220202T021411_0001.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "2137306",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2022-01-26T00:00:00.000Z",
+            "EvictionDate": "2022-02-02T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "deA2B3eefde7AEac8ECECdb5eF9cE90F",
+                    "ChecksumDate": "2022-01-26T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2022-02-02T00:00:00.000Z",
+                "End": "2022-02-02T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "cc881d20-6c73-41c4-936e-fde007e0bfae",
+            "Name": "S1A_OPER_MPL_ORBSCT_20230206T150704_99999999T999999_0025.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "4346434",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-02-06T00:00:00.000Z",
+            "EvictionDate": "2023-02-13T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "eaAebEC4d4EA56eB74817Fd9E16cDC1a",
+                    "ChecksumDate": "2023-02-06T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-02-06T00:00:00.000Z",
+                "End": "2023-02-06T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "30fd9b92-7062-47f0-af71-f54bdf4a0406",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20210529T110702_V20210529T071044_20210529T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "4053522",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-05-29T00:00:00.000Z",
+            "EvictionDate": "2021-06-05T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "23DcbA1eB976810CfEA6f643f78a8Cb4",
+                    "ChecksumDate": "2021-05-29T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-05-29T00:00:00.000Z",
+                "End": "2021-05-29T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "28dd83b0-3493-4f37-a942-a3ccf4bab591",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20230718T110702_V20230718T071044_20230718T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9585694",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-07-18T00:00:00.000Z",
+            "EvictionDate": "2023-07-25T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "3fd6aD5AB9fAF2Bd66ba3bA3446aCb45",
+                    "ChecksumDate": "2023-07-18T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-07-18T00:00:00.000Z",
+                "End": "2023-07-18T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "6572933a-163d-4398-9b04-39ce582acdff",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20210106T062732_V20210106T053140_20210106T120640.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "5263435",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-01-06T00:00:00.000Z",
+            "EvictionDate": "2021-01-13T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "8053eBA71AA940544DE5c7C077980Cde",
+                    "ChecksumDate": "2021-01-06T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-01-06T00:00:00.000Z",
+                "End": "2021-01-06T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "7158d45f-4a44-4141-a3c9-d82cc8f4c2a0",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20240527T062732_V20240527T062732_20240527T062732.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "9981408",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2024-05-27T00:00:00.000Z",
+            "EvictionDate": "2024-06-03T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "1A3fd140679fdd99EbD9f0A268B0B6AC",
+                    "ChecksumDate": "2024-05-27T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2024-05-27T00:00:00.000Z",
+                "End": "2024-05-27T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "e1c6471b-489d-48a0-bca4-8834349d765f",
+            "Name": "S1A_AUX_PP2_V20200228T080000_G20200228T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3556917",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-02-28T00:00:00.000Z",
+            "EvictionDate": "2020-03-06T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "3a7dd5A37BA2aCc22F2e4CE137D8DfE9",
+                    "ChecksumDate": "2020-02-28T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-02-28T00:00:00.000Z",
+                "End": "2020-02-28T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "5e55b855-c57f-49a3-9a2e-b6bf95b24450",
+            "Name": "S1A_AUX_PP2_V20200413T080000_G20200413T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1332116",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-04-13T00:00:00.000Z",
+            "EvictionDate": "2020-04-20T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "3abBebCe5EEeDFc372e26fF83f120eca",
+                    "ChecksumDate": "2020-04-13T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-04-13T00:00:00.000Z",
+                "End": "2020-04-13T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "938d9027-5153-42f0-875c-8e27c8a83673",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20230216T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1554558",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-02-16T00:00:00.000Z",
+            "EvictionDate": "2023-02-23T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "51AaecfCBF0c233b6feBdd47e4A8eC94",
+                    "ChecksumDate": "2023-02-16T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
+        },
+        {
+            "Id": "6e7f7f39-4060-4448-875d-b11f96681551",
+            "Name": "S1A_OPER_MPL_ORBPRE_20200409T021411_20200416T021411_0001.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "1922340",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-04-09T00:00:00.000Z",
+            "EvictionDate": "2020-04-16T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "9c4e28Df72Ee8c6e7E8A7CC2FbbB566b",
+                    "ChecksumDate": "2020-04-09T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-04-16T00:00:00.000Z",
+                "End": "2020-04-16T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "ed2d7804-9d77-4b98-84b2-3f7516652149",
+            "Name": "S1A_OPER_MPL_ORBSCT_20210902T150704_99999999T999999_0025.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "5003183",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-09-02T00:00:00.000Z",
+            "EvictionDate": "2021-09-09T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "81EDec487fE8e74BDc9d6E1e2caEc7dA",
+                    "ChecksumDate": "2021-09-02T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-09-02T00:00:00.000Z",
+                "End": "2021-09-02T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "5e228a66-3b81-4825-9783-41b0d6e9b78a",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20201127T110702_V20201127T071044_20201127T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "6543813",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-11-27T00:00:00.000Z",
+            "EvictionDate": "2020-12-04T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "D985d9b8e7e6da4cB484Fe07EC7f34FF",
+                    "ChecksumDate": "2020-11-27T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-11-27T00:00:00.000Z",
+                "End": "2020-11-27T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "09858a20-6996-4a07-9b79-e07741783f75",
+            "Name": "S1A_OPER_AUX_RESORB_OPOD_20210716T110702_V20210716T071044_20210716T102814.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "2029769",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2021-07-16T00:00:00.000Z",
+            "EvictionDate": "2021-07-23T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "DB279842EDF40d4e7FaF764382DE6ffB",
+                    "ChecksumDate": "2021-07-16T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2021-07-16T00:00:00.000Z",
+                "End": "2021-07-16T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "b66c3778-80de-4800-8ca8-ff26ed9eaf0a",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20200325T062732_V20200325T053140_20200325T120640.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "4286659",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-03-25T00:00:00.000Z",
+            "EvictionDate": "2020-04-01T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "84a5Ba5Fabfb2A4C41bBaa59B6426C97",
+                    "ChecksumDate": "2020-03-25T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-03-25T00:00:00.000Z",
+                "End": "2020-03-25T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "df29920f-7d06-4ef0-a95b-1f4c735db463",
+            "Name": "S1A_OPER_AUX_PREORB_OPOD_20230314T062732_V20230314T062732_20230314T062732.EOF",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3702370",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2023-03-14T00:00:00.000Z",
+            "EvictionDate": "2023-03-21T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "4803Cab45F6BacefACB9AAE55b9BFBec",
+                    "ChecksumDate": "2023-03-14T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2023-03-14T00:00:00.000Z",
+                "End": "2023-03-14T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "1f1ed01f-b81d-4fc8-86c7-2dfa556fb26d",
+            "Name": "S1A_AUX_PP2_V20200221T080000_G20200221T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "4250772",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-02-21T00:00:00.000Z",
+            "EvictionDate": "2020-02-28T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "cf7C229bcAc8172bbeb4cBCEcF5B594f",
+                    "ChecksumDate": "2020-02-21T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-02-21T00:00:00.000Z",
+                "End": "2020-02-21T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "ba6eb505-cdde-4cec-a83c-11ec7217fe82",
+            "Name": "S1A_AUX_PP2_V20200406T080000_G20200406T080000.SAFE",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "6060922",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2020-04-06T00:00:00.000Z",
+            "EvictionDate": "2020-04-13T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "3A33ccbC013dCc8B412049eFBFE3E72C",
+                    "ChecksumDate": "2020-04-06T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2020-04-06T00:00:00.000Z",
+                "End": "2020-04-06T00:00:00.000Z"
+            }
+        },
+        {
+            "Id": "dbe7d67b-02dc-4df1-bc16-fc21265227f9",
+            "Name": "S1A_OPER_AUX_OBMEMC_PDMC_20240106T000000.xml",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "3169203",
+            "OriginDate": "2024-04-12T15:16:47.000Z",
+            "PublicationDate": "2024-01-06T00:00:00.000Z",
+            "EvictionDate": "2024-01-13T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "cFeaFeAe20df52651743FC8CDdba02DB",
+                    "ChecksumDate": "2024-01-06T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": null,
+                "End": null
+            }
         }
+    
     ]
 }
