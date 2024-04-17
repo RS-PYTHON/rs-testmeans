@@ -22,7 +22,7 @@ jobs:
 
   # Calculate variables for this workflow
   set-env:
-    if: github.actor != 'dependabot' # ignore pull requests by github bot
+    if: github.actor != 'dependabot[bot]' # ignore pull requests by github bot
     runs-on: ubuntu-latest
     name: "Set environment"
     outputs:
@@ -68,7 +68,7 @@ jobs:
         shell: bash
 
   pre-actions:
-    if: github.actor != 'dependabot'
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     name: "pre-actions"
     outputs:
@@ -80,7 +80,7 @@ jobs:
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
   services-adgs-img:
-    if: github.actor != 'dependabot'
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     name: "'services/adgs' Docker image"
     needs: [set-env, pre-actions]
@@ -101,7 +101,7 @@ jobs:
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
   services-cadip-img:
-    if: github.actor != 'dependabot'
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     name: "'services/cadip' Docker image"
     needs: [set-env, pre-actions]
@@ -122,7 +122,7 @@ jobs:
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
   services-dpr-processor-img:
-    if: github.actor != 'dependabot'
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     name: "'DPR Processor Mockup' Docker image"
     needs: [set-env, pre-actions]
@@ -148,7 +148,7 @@ jobs:
 
   # Test rs-demo with the new Docker images
   test-demo:
-    if: github.actor != 'dependabot'
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     name: "Test rs-demo"
     needs: [set-env, services-adgs-img, services-cadip-img, services-dpr-processor-img]
