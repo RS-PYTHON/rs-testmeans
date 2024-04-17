@@ -1581,26 +1581,6 @@
             }
         },
         {
-            "Id": "28dd83b0-3493-4f37-a942-a3ccf4bab591",
-            "Name": "S1A_OPER_AUX_RESORB_OPOD_20230718T110702_V20230718T071044_20230718T102814.EOF",
-            "ContentType": "application/octet-stream",
-            "ContentLength": "9585694",
-            "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-07-18T00:00:00.000Z",
-            "EvictionDate": "2023-07-25T00:00:00.000Z",
-            "Checksum": [
-                {
-                    "Algorithm": "MD5",
-                    "Value": "3fd6aD5AB9fAF2Bd66ba3bA3446aCb45",
-                    "ChecksumDate": "2023-07-18T00:00:00.000Z"
-                }
-            ],
-            "ContentDate": {
-                "Start": "2023-07-18T00:00:00.000Z",
-                "End": "2023-07-18T00:00:00.000Z"
-            }
-        },
-        {
             "Id": "6572933a-163d-4398-9b04-39ce582acdff",
             "Name": "S1A_OPER_AUX_PREORB_OPOD_20210106T062732_V20210106T053140_20210106T120640.EOF",
             "ContentType": "application/octet-stream",
