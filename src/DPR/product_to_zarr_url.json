@@ -1,6 +1,6 @@
 {
     "S1SEWRAW": {
-        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SEWRAW_20230103T225516_0038_A003_T950.zarr.zip"
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S01SIWSLC_20231201T170634_0067_A117_S000_5464A_VH_IW1_249411.zarr.zip"
     },
     "S1SIWGRH": {
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWGRH_20220831T021758_0029_A093__69.zarr.zip",
@@ -12,7 +12,7 @@
         "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWOCN_20220412T054447_0024_S139_T902.nc"
     },
     "S1SIWRAW": {
-        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWRAW_20220406T130116_0032_A056_T754.zarr.zip"
+        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S01SIWSLC_20231119T170635_0067_A117_S000_5464A_VH_IW1_249411.zarr.zip"
     },
     "S1SIWSLC": {
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SIWSLC_20220615T162409_0026_A029_T162.zarr.zip",
@@ -23,8 +23,8 @@
         "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SSMOCN_20220708T000110_0019_S004__69.cog.zip",
         "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SSMOCN_20220708T000110_0019_S004__732.nc"
     },
-    "S1SSMRAW": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SSMRAW_20230103T171935_0030_A175_T158.zarr.zip",
-    "S1SWVRAW": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S1SWVRAW_20230320T144903_1905_A057_T803.zarr.zip",
+    "S1SSMRAW": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S01SSMOSW_20230315T185328_0029_A161_S000_5464A_VV.zarr.zip",
+    "S1SWVRAW": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S01SSMOWI_20230315T185328_0029_A161_S000_5464A_VV.zarr.zip",
     "S2MSIL0_": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL0__20221223T220352_0043_B086_T105.zarr.zip",
     "S2MSIL1C": {
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL1C_20220721T085559_0000_B007_T191.zarr.zip",
