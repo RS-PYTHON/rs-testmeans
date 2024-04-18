@@ -1,5 +1,6 @@
 """Docstring."""
 import argparse
+import asyncio
 import json
 import logging
 import os
@@ -15,7 +16,6 @@ import crcmod
 import requests
 import yaml
 from s3_handler import PutFilesToS3Config, S3StorageHandler
-import asyncio
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -44,9 +44,9 @@ class DPRProcessor:
                 logger.error("Payload configuration cannot be loaded.")
                 raise ValueError("Bad payload")
         logger.info("Successfully loaded payload file")
-        if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
-            logger.error("Bad payload file")
-            raise ValueError("Bad inputs")
+        # if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
+        #     logger.error("Bad payload file")
+        #     raise ValueError("Bad inputs")
 
     async def run(self, *args, **kwargs) -> list:
         """Function that simulates the processing of the DPR payload."""
@@ -122,7 +122,7 @@ class DPRProcessor:
                     zattrs = zf.getinfo(path.stem + "/attrs.json")
                 with zf.open(zattrs) as f:
                     data = json.loads(f.read())
-                if 'other_metadata' not in data.keys():
+                if "other_metadata" not in data.keys():
                     data.update({"other_metadata": {"history": default_processing_stamp}})
                 else:
                     data["other_metadata"]["history"] = default_processing_stamp
@@ -139,7 +139,7 @@ class DPRProcessor:
                 data = json.load(open(zattrs))
                 data["other_metadata"]["history"] = default_processing_stamp
                 with open(zattrs, "w") as f:
-                   json.dump(data, f)
+                    json.dump(data, f)
         self.meta_attrs.append(data)
         logger.info("Processing stamp added: %s", default_processing_stamp)
         logger.info("Computed CRC for %s is %s", path, DPRProcessor.crc_stamp(data))
