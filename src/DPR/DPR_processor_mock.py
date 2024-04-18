@@ -5,8 +5,10 @@ import json
 import logging
 import os
 import pathlib
+import random
 import re
 import shutil
+import string
 import sys
 import zipfile
 from datetime import datetime
@@ -119,9 +121,12 @@ class DPRProcessor:
                 try:
                     zattrs = zf.getinfo(".zattrs")
                 except:
-                    zattrs = zf.getinfo(path.stem + "/attrs.json")
-                with zf.open(zattrs) as f:
-                    data = json.loads(f.read())
+                    try:
+                        zattrs = zf.getinfo(path.stem + "/attrs.json")
+                        with zf.open(zattrs) as f:
+                            data = json.loads(f.read())
+                    except:
+                        data = {"metadata": "".join(random.choices(string.ascii_lowercase, k=5))}
                 if "other_metadata" not in data.keys():
                     data.update({"other_metadata": {"history": default_processing_stamp}})
                 else:
