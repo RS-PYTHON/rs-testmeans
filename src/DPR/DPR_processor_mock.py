@@ -53,11 +53,11 @@ class DPRProcessor:
         """Function that simulates the processing of the DPR payload."""
         logger.info("DPR processor mockup running:")
         self.payload_to_url()
-        for url, product_path in self.list_of_downloads:
+        for url, product_path, ptype in self.list_of_downloads:
             logger.info("Downloading from %s", url)
             DPRProcessor.download(url, product_path)
             logger.info("Updating product %s", product_path)
-            self.update_product(product_path)
+            self.update_product(product_path, ptype)
 
         self.threaded_upload_to_s3()
         if kwargs.get("delete", True):
@@ -95,7 +95,7 @@ class DPRProcessor:
                 url = self.mapped_data[ptype][store_type]
                 output_path = pathlib.Path(output_dir) / url.split("/")[-1]
                 logger.info("Mapped url %s with path %s", url, output_path)
-                self.list_of_downloads.append((url, output_path))
+                self.list_of_downloads.append((url, output_path, ptype))
 
     @staticmethod
     def read_attrs(path: pathlib.Path):
@@ -103,7 +103,7 @@ class DPRProcessor:
         data = zipfile.ZipFile(path, "r").read(".zattrs") if path.suffix == ".zip" else open(path / ".zattrs").read()
         return json.loads(data)
 
-    def update_product(self, path: pathlib.Path):
+    def update_product(self, path: pathlib.Path, ptype):
         default_processing_stamp = {
             "output": "",
             "processingTime": str(datetime.now()),
@@ -114,9 +114,10 @@ class DPRProcessor:
         if path.suffix == ".zip":
             logger.info("Updating .zattrs from a zip file.")
             # IF zipped zarr, update attrs without extracting
-
             with open(self.default_zattrs_path) as default_attr:
                 data = json.loads(default_attr.read())
+                data['stac_discovery']['properties']['eopf:type'] = ptype
+                data['stac_discovery']['id'] = path.stem
             if "other_metadata" not in data.keys():
                 data.update({"other_metadata": {"history": default_processing_stamp}})
             else:
@@ -160,7 +161,7 @@ class DPRProcessor:
     def threaded_upload_to_s3(self):
         logger.info("Uploading products to S3")
         thread_array = [
-            Thread(target=self.upload_to_s3, args=(product_path,)) for _, product_path in self.list_of_downloads
+            Thread(target=self.upload_to_s3, args=(product_path,)) for _, product_path, _ in self.list_of_downloads
         ]
 
         list(map(Thread.start, thread_array))
@@ -168,7 +169,7 @@ class DPRProcessor:
 
     def prepare_catalog_data(self):
         """To be added. Should update catalog with zattrs contents."""
-        self.meta_attrs = [self.read_attrs(product) for _, product in self.list_of_downloads]
+        self.meta_attrs = [self.read_attrs(product) for _, product, _ in self.list_of_downloads]
 
     @staticmethod
     def check_inputs(inputs: list) -> bool:
@@ -181,7 +182,7 @@ class DPRProcessor:
 
     def remove_local_products(self):
         """Used to remove a product from disk after upload to bucket."""
-        for _, path in self.list_of_downloads:
+        for _, path, _ in self.list_of_downloads:
             if path.is_file():
                 path.unlink()
             else:
@@ -223,7 +224,7 @@ class DPRProcessor:
         new_product_path = str(path).replace(path.name, new_product_name)
 
         self.list_of_downloads = list(
-            map(lambda x: (x[0], pathlib.Path(new_product_path)) if x[1] == path else x, self.list_of_downloads),
+            map(lambda x: (x[0], pathlib.Path(new_product_path), x[2]) if x[1] == path else x, self.list_of_downloads),
         )
 
         # rename on disk
