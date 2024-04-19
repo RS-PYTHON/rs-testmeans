@@ -18,10 +18,16 @@ workflow:
     in3: AUX1
     in4: AUX2 # One AUX{N} entry by ADGS file we want to pass as input. In this example we consider 2 aux files
   outputs:
-    out: outputs
+    out1: S1SEWRAW
+    out2: S1SIWRAW
+    out3: S1SSMRAW
+    out4: S1SWVRAW
   parameters:
     product_types: # List of EOPF product types we want to generate. In this example we simulate S1L0 processor that generates 4 products
-      - S1SSMOCN
+      - S1SEWRAW
+      - S1SIWRAW
+      - S1SSMRAW
+      - S1SWVRAW
 I/O:
   inputs_products:
   - id: CADU1
@@ -41,11 +47,27 @@ I/O:
     store_type: zarr
     store_params: {}
   output_products:
-  - id: outputs
-    path: src/DPR/data # output folder or S3 bucket
+  - id: S1SEWRAW
+    path: src/DPR/data/S1SEWRAW # output folder or S3 bucket
     type: folder
     store_type: zarr
     store_params: {} #Credentials will be here
+  - id: S1SIWRAW
+    path: src/DPR/data/S1SIWRAW # output folder or S3 bucket
+    type: folder
+    store_type: zarr
+    store_params: { } #Credentials will be here
+  - id: S1SSMRAW
+    path: src/DPR/data/S1SSMRAW # output folder or S3 bucket
+    type: folder
+    store_type: zarr
+    store_params: {} #Credentials will be here
+  - id: S1SWVRAW
+    path: src/DPR/data/S1SWVRAW # output folder or S3 bucket
+    type: folder
+    store_type: zarr
+    store_params: { } #Credentials will be here
+
 dask_context: {}
 logging: {}
 config: {}

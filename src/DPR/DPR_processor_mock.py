@@ -25,6 +25,7 @@ class DPRProcessor:
     """This is DPR Processor mockup."""
 
     mapper = pathlib.Path(__file__).resolve().parent / "product_to_zarr_url.json"
+    default_zattrs_path = pathlib.Path(__file__).resolve().parent / "default_zattrs.json"
     mapped_data = json.load(open(mapper))
 
     def __init__(self, payload_file: pathlib.Path | str):
@@ -88,11 +89,11 @@ class DPRProcessor:
             raise ValueError("Invalid payload")
 
         payload_parameters = self.payload_data["workflow"][0].get("parameters", None)
-        outputs_dir = self.payload_data["I/O"]["output_products"][0].get("path", None)
-        for ptype in filter(lambda x: x in self.mapped_data.keys(), payload_parameters["product_types"]):
+        for ptype, output_dir in zip(filter(lambda x: x in self.mapped_data.keys(), payload_parameters["product_types"]),
+                                     [out['path'] for out in self.payload_data["I/O"]["output_products"]]):
             for store_type in self.mapped_data[ptype]:
                 url = self.mapped_data[ptype][store_type]
-                output_path = pathlib.Path(outputs_dir) / url.split("/")[-1]
+                output_path = pathlib.Path(output_dir) / url.split("/")[-1]
                 logger.info("Mapped url %s with path %s", url, output_path)
                 self.list_of_downloads.append((url, output_path))
 
@@ -114,7 +115,7 @@ class DPRProcessor:
             logger.info("Updating .zattrs from a zip file.")
             # IF zipped zarr, update attrs without extracting
 
-            with open("default_zattrs.json") as default_attr:
+            with open(self.default_zattrs_path) as default_attr:
                 data = json.loads(default_attr.read())
             if "other_metadata" not in data.keys():
                 data.update({"other_metadata": {"history": default_processing_stamp}})
