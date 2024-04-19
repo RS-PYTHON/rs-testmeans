@@ -1,0 +1,205 @@
+{
+    "other_metadata": {
+        "class": "S",
+        "composition": "Individual",
+        "cycle_number": 258,
+        "end_datetime_anx": 2281730.0,
+        "history": [
+            {
+                "output": "Downlinked Stream",
+                "processingTime": "2022-04-12T05:47:45.772210",
+                "processor": null,
+                "type": "Raw Data"
+            },
+            {
+                "inputs": {
+                    "Applicable Document1": "S-1 Core PDGS S-1 Level-0 Product Format Specifications S1PD.SP.00110.ASTR",
+                    "Applicable Document2": "Sentinel-1 SAR Space Packet Protocol Data Unit S1-IF-ASD-PL-0007",
+                    "Raw Data": "Downlinked Stream"
+                },
+                "output": "Unknown",
+                "processingTime": "2022-04-12T06:12:34.086648",
+                "processor": null,
+                "type": "Raw Data"
+            },
+            {
+                "output": "Downlinked Stream",
+                "processingTime": "2022-04-12T05:47:29.878126",
+                "processor": null,
+                "type": "Raw Data"
+            },
+            {
+                "inputs": {
+                    "Applicable Document1": "S-1 Core PDGS S-1 Level-0 Product Format Specifications S1PD.SP.00110.ASTR",
+                    "Applicable Document2": "Sentinel-1 SAR Space Packet Protocol Data Unit S1-IF-ASD-PL-0007",
+                    "Raw Data": "Downlinked Stream"
+                },
+                "output": "Unknown",
+                "processingTime": "2022-04-12T06:16:02.536571",
+                "processor": null,
+                "type": "Raw Data"
+            },
+            {
+                "inputs": {
+                    "Applicable Document1": "S-1 Core PDGS S-1 Level-0 Product Format Specifications S1PD.SP.00110.ASTR",
+                    "Applicable Document2": "Sentinel-1 SAR Space Packet Protocol Data Unit S1-IF-ASD-PL-0007",
+                    "Raw Data1": "Unknown",
+                    "Raw Data2": "Unknown"
+                },
+                "output": "/data/CDP/production//226510/S1A_IW_RAW__0SDV_20220412T054443_20220412T054516_042736_051989_B5EF.SAFE",
+                "processingCentre": "S1A-PS, ESA",
+                "processingTime": "2022-04-12T06:17:42.640978",
+                "processor": "",
+                "type": "Level-0 Product"
+            },
+            {
+                "inputs": {
+                    "AUX_CAL": "/data/CDP/production//226510/S1A_AUX_CAL_V20190228T092500_G20210104T141310.SAFE",
+                    "AUX_INS": "/data/CDP/production//226510/S1A_AUX_INS_V20190228T092500_G20211103T111906.SAFE",
+                    "AUX_PP1": "/data/CDP/production//226510/S1A_AUX_PP1_V20190228T092500_G20220323T153041.SAFE",
+                    "AUX_PRE": "/data/CDP/production//226510/S1A_OPER_AUX_PREORB_OPOD_20220412T060948_V20220412T050711_20220412T114211.EOF",
+                    "Level-0 Product": "/data/CDP/production//226510/S1A_IW_RAW__0SDV_20220412T054443_20220412T054516_042736_051989_B5EF.SAFE",
+                    "product definition": "Sentinel-1 Product Definition (S1-RS-MDA-52-7440) release 2/7",
+                    "product specification": "Sentinel-1 Product Specification (S1-RS-MDA-52-7441) release 3/11"
+                },
+                "output": "S1A_IW_SL2__1_DV_20220412T054446_20220412T054516_042736_051989_BB0C.SAFE",
+                "processingCentre": "Copernicus Ground Segment, ESA",
+                "processingTime": "2022-04-12T06:42:55.000000",
+                "processor": "Sentinel-1 IPF",
+                "type": "Level-1 Intermediate SLC Product",
+                "version": "003.51"
+            },
+            {
+                "inputs": {
+                    "Level-1 Intermediate SLC Product": "S1A_IW_SL2__1_DV_20220412T054446_20220412T054516_042736_051989_BB0C.SAFE"
+                },
+                "output": "S1A_IW_GR2__1_DV_20220412T054447_20220412T054512_042736_051989_F70F.SAFE",
+                "processingCentre": "Copernicus Ground Segment, ESA",
+                "processingTime": "2022-04-12T06:44:44.000000",
+                "processor": "Sentinel-1 IPF",
+                "type": "Level-1 Intermediate GRD Product",
+                "version": "003.51"
+            },
+            {
+                "inputs": {
+                    "AUX_ICE": "S1__AUX_ICE_V20220411T120000_G20220412T042045.SAFE",
+                    "AUX_PP2": "S1A_AUX_PP2_V20190228T092500_G20220323T152739.SAFE",
+                    "AUX_WAV": "S1__AUX_WAV_V20220412T060000_G20220412T043655.SAFE",
+                    "AUX_WND": "S1__AUX_WND_V20220412T070000_G20220412T054917.SAFE",
+                    "Level-1 Intermediate GRD Product": "S1A_IW_GR2__1_DV_20220412T054447_20220412T054512_042736_051989_F70F.SAFE"
+                },
+                "output": "",
+                "processingCentre": "Unknown, Unknown",
+                "processingTime": "2022-04-12T06:51:59.109790",
+                "processor": "Sentinel-1 IPF",
+                "type": "L2",
+                "version": "03.51"
+            }
+        ],
+        "instrument_configuration_id": 7,
+        "leap_second_occurence": "null",
+        "leap_second_sign": "null",
+        "phase_identifier": 1,
+        "receiver_polarisation": "VH",
+        "slice_number": "null",
+        "slice_product_flag": 0,
+        "start_datetime_anx": 2256730.0,
+        "total_number_of_slices": "null",
+        "transmitter_polarisation": "VV"
+    },
+    "stac_discovery": {
+        "assets": [
+          {
+            "zarr": {
+              "href": "s3://temp-bucket/S1SIWOCN_20220412T054447_0024_S139_T717.zarr.zip",
+              "roles": [
+                "data"
+              ]
+            }
+          }
+        ],
+        "bbox": [
+            7.23847,
+            41.496895,
+            3.712271,
+            43.405128
+        ],
+        "geometry": {
+            "coordinates": [
+                [
+                    [
+                        6.843285,
+                        41.496895
+                    ],
+                    [
+                        3.712271,
+                        41.90538
+                    ],
+                    [
+                        4.031686,
+                        43.405128
+                    ],
+                    [
+                        7.23847,
+                        42.99741
+                    ]
+                ]
+            ],
+            "type": "Polygon"
+        },
+        "id": "SAR Standard L2 Product",
+        "links": [
+            {
+                "href": "./.zattrs.json",
+                "rel": "self",
+                "type": "application/json"
+            }
+        ],
+        "properties": {
+            "created": "2022-04-12T06:51:59.109790",
+            "datetime": "null",
+            "end_datetime": "2022-04-12T05:45:12.619848",
+            "eopf:data_take_id": "334217",
+            "eopf:instrument_mode": "IW",
+            "eopf:instrument_swath": "IW",
+            "eopf:timeline": "NRT-3h",
+            "eopf:type": "S01SIWOCN",
+            "instrument": "sar",
+            "mission": "Sentinel-1",
+            "platform": "s",
+            "processing:facility": "Unknown Unknown Unknown Unknown",
+            "processing:level": "L2",
+            "processing:sofware": "Sentinel-1 IPF 03.51",
+            "providers": [
+                {
+                    "name": "Unknown",
+                    "roles": [
+                        "processor"
+                    ]
+                },
+                {
+                    "name": "Unknown",
+                    "roles": [
+                        "producer"
+                    ]
+                }
+            ],
+            "sat:absolute_orbit": 42736,
+            "sat:anx_datetime": "2022-04-12T05:07:10.890454",
+            "sat:orbit_state": "DESCENDING",
+            "sat:platform_international_designator": "2014-016A",
+            "sat:relative_orbit": 139,
+            "start_datetime": "2022-04-12T05:44:47.620394"
+        },
+        "stac_extensions": [
+            "https://stac-extensions.github.io/eopf/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
+            "https://stac-extensions.github.io/sat/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/view/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/scientific/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/processing/v1.1.0/schema.json"
+        ],
+        "stac_version": "1.0.0",
+        "type": "Feature"
+    }
+}
