@@ -110,28 +110,18 @@ class DPRProcessor:
             "type": "L0",
         }
         """Update zarr attributes and product_name with specific processing stamp."""
-        data = dict()
         if path.suffix == ".zip":
             logger.info("Updating .zattrs from a zip file.")
             # IF zipped zarr, update attrs without extracting
 
-            with zipfile.ZipFile(path, "a") as zf:
-                try:
-                    zattrs = zf.getinfo(".zattrs")
-                except:
-                    try:
-                        zattrs = zf.getinfo(path.stem + "/attrs.json")
-                        with zf.open(zattrs) as f:
-                            data = json.loads(f.read())
-                    except:
-                        with open("default_zattrs.json") as default_attr:
-                            data = json.loads(default_attr.read())
-                if "other_metadata" not in data.keys():
-                    data.update({"other_metadata": {"history": default_processing_stamp}})
-                else:
-                    data["other_metadata"]["history"] = default_processing_stamp
-                # disable this for now, as it would require to extract the zip.
-                # zf.writestr(zattrs, json.dumps(data))
+            with open("default_zattrs.json") as default_attr:
+                data = json.loads(default_attr.read())
+            if "other_metadata" not in data.keys():
+                data.update({"other_metadata": {"history": default_processing_stamp}})
+            else:
+                data["other_metadata"]["history"] = default_processing_stamp
+            # disable this for now, as it would require to extract the zip.
+            # zf.writestr(zattrs, json.dumps(data))
         else:
             # Else just read / update / write
             logger.info("Updating .zattrs from disk.")
