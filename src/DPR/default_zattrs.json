@@ -111,7 +111,7 @@
         "assets": [
           {
             "zarr": {
-              "href": "s3://temp-bucket/S1SIWOCN_20220412T054447_0024_S139_T717.zarr.zip",
+              "href": "",
               "roles": [
                 "data"
               ]
