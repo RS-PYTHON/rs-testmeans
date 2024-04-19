@@ -117,7 +117,6 @@ class DPRProcessor:
             with open(self.default_zattrs_path) as default_attr:
                 data = json.loads(default_attr.read())
                 data['stac_discovery']['properties']['eopf:type'] = ptype
-                data['stac_discovery']['id'] = path.stem
             if "other_metadata" not in data.keys():
                 data.update({"other_metadata": {"history": default_processing_stamp}})
             else:
@@ -136,10 +135,11 @@ class DPRProcessor:
                 data["other_metadata"]["history"] = default_processing_stamp
                 with open(zattrs, "w") as f:
                     json.dump(data, f)
-        self.meta_attrs.append(data)
         logger.info("Processing stamp added: %s", default_processing_stamp)
         logger.info("Computed CRC for %s is %s", path, DPRProcessor.crc_stamp(data))
-        self.update_product_name(path, DPRProcessor.crc_stamp(data))
+        new_product_id = self.update_product_name(path, DPRProcessor.crc_stamp(data))
+        data['stac_discovery']['id'] = new_product_id
+        self.meta_attrs.append(data)
 
     def upload_to_s3(self, path: pathlib.Path):
         """To be added. Should update products to a given s3 storage."""
@@ -230,6 +230,7 @@ class DPRProcessor:
         # rename on disk
         logger.info("%s renamed to %s on disk", path.name, new_product_name)
         path.rename(new_product_path)
+        return new_product_path.split("/")[-1]
 
 
 if __name__ == "__main__":
