@@ -141,7 +141,7 @@ class DPRProcessor:
         data['stac_discovery']['id'] = new_product_id
         self.meta_attrs.append(data)
 
-    def upload_to_s3(self, path: pathlib.Path):
+    def upload_to_s3(self, path: pathlib.Path, ptype):
         """To be added. Should update products to a given s3 storage."""
         handler = S3StorageHandler(
             os.environ["S3_ACCESSKEY"],
@@ -149,7 +149,7 @@ class DPRProcessor:
             os.environ["S3_ENDPOINT"],
             os.environ["S3_REGION"],  # "sbg",
         )
-        bucket_path = self.payload_data["I/O"]["output_products"][0]["path"].split("/")
+        bucket_path = [out['path'] for out in self.payload_data["I/O"]["output_products"] if ptype == out['id']][0]
         logger.info("Bucked path where files will be uploaded %s", bucket_path)
         s3_config = PutFilesToS3Config(
             [str(path.absolute().resolve())],
@@ -161,7 +161,7 @@ class DPRProcessor:
     def threaded_upload_to_s3(self):
         logger.info("Uploading products to S3")
         thread_array = [
-            Thread(target=self.upload_to_s3, args=(product_path,)) for _, product_path, _ in self.list_of_downloads
+            Thread(target=self.upload_to_s3, args=(product_path, ptype, )) for _, product_path, ptype in self.list_of_downloads
         ]
 
         list(map(Thread.start, thread_array))
