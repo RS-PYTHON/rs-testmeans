@@ -143,18 +143,19 @@ class DPRProcessor:
 
     def upload_to_s3(self, path: pathlib.Path, ptype):
         """To be added. Should update products to a given s3 storage."""
+        bucket_path = [out['path'] for out in self.payload_data["I/O"]["output_products"] if ptype == out['id']][0].split("/")
+        logger.info("Bucket path where files will be uploaded %s", bucket_path)
+        s3_config = PutFilesToS3Config(
+            [str(path.absolute().resolve())],
+            bucket_path[2],
+            "/".join(bucket_path[3:]),
+        )
+        logger.info("S3 config: %s %s %s", [str(path.absolute().resolve())], bucket_path[2], "/".join(bucket_path[3:]))
         handler = S3StorageHandler(
             os.environ["S3_ACCESSKEY"],
             os.environ["S3_SECRETKEY"],
             os.environ["S3_ENDPOINT"],
             os.environ["S3_REGION"],  # "sbg",
-        )
-        bucket_path = [out['path'] for out in self.payload_data["I/O"]["output_products"] if ptype == out['id']][0]
-        logger.info("Bucked path where files will be uploaded %s", bucket_path)
-        s3_config = PutFilesToS3Config(
-            [str(path.absolute().resolve())],
-            bucket_path[2],
-            "/".join(bucket_path[3:]),
         )
         handler.put_files_to_s3(s3_config)
 
