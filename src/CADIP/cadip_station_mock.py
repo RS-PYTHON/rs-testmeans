@@ -198,7 +198,7 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
         Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
         # as per ICD response is OK even if empty
-        else Response(status=OK)
+        else Response(status=OK, response=json.dumps([]))
     )
 
 def manage_str_querry(op, value, catalog_data, field, headers):
