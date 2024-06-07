@@ -126,7 +126,7 @@ def query_session() -> Response | list[Any]:
     if len(split_request := [req.strip() for req in request.args["$filter"].split('and')]) in [2, 3]:
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         if not all(resp.status_code == 200 for resp in responses):
-            return Response(response = json.dumps([]), status=OK)
+            return Response(response=json.dumps([]), status=OK)
         try:
             responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
@@ -134,9 +134,14 @@ def query_session() -> Response | list[Any]:
             common_response = set.intersection(*resp_set)
             common_elements = [d for d in responses_norm[0] if d.get("Id") in common_response]
             # 200 OK even if search is empty
-            return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
-                response = json.dumps([]),
-                status=OK)
+            if not request.args.get("$expand", None) in ["Files", "files"]:
+                # Do not expand
+                return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else (
+                    Response(response=json.dumps([]), status=OK))
+            else:
+                # Otherwise, process event and expand each session
+                import pdb
+                pdb.set_trace()
         except json.JSONDecodeError:  # if a response is empty, whole querry is empty
             return Response(status=NOT_FOUND)
     elif len(split_request := [req.strip() for req in request.args["$filter"].split('or')]) in [2, 3]:
@@ -147,10 +152,26 @@ def query_session() -> Response | list[Any]:
         union_set = [{d.get("Id") for d in resp} for resp in responses_norm]
         union_response = set.union(*union_set)
         common_elements = [d for d in sum(responses_norm, []) if d.get("Id") in union_response]
-        return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
+        if not request.args.get("$expand", None) in ["Files", "files"]:
+            return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
                 status=NOT_FOUND)
+        else:
+            # Otherwise, process event and expand each session
+            import pdb
+            pdb.set_trace()
 
-    return process_session_request(request.args["$filter"], request.args, catalog_data)
+    if not request.args.get("$expand", None) in ["Files", "files"]:
+        return process_session_request(request.args["$filter"], request.args, catalog_data)
+    else:
+        catalog_path_files = app.config["configuration_path"] / "Catalogue/FileResponse.json"
+        catalog_data_files = json.loads(open(catalog_path_files).read())
+        raw_result = json.loads(process_session_request(request.args["$filter"], request.args, catalog_data).response[0])
+        session_response = raw_result['responses'] if "response" in raw_result else [raw_result]
+        for session in session_response:
+            files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files)
+            session.update({"Files": [json.loads(file) for file in files.response]})
+        return Response(status=OK, response=batch_response_odata_v4(session_response), headers=None)
+        # Otherwise, process event and expand each session
 
 
 def manage_int_querry(op, value, catalog_data, field, headers):
@@ -200,6 +221,7 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
         # as per ICD response is OK even if empty
         else Response(status=OK, response=json.dumps([]))
     )
+
 
 def manage_str_querry(op, value, catalog_data, field, headers):
     match op:
@@ -295,7 +317,7 @@ def query_files() -> Response | list[Any]:
     if not any(
             [
                 query_text in request.args["$filter"].split(" ")[0]
-                for query_text in ["Id", "Orbit", "Name", "PublicationDate"]
+                for query_text in ["Id", "Orbit", "Name", "PublicationDate", "SessionID"]
             ],
     ):
         return Response(status=BAD_REQUEST)
