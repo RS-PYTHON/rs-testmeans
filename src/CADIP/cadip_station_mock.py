@@ -119,6 +119,8 @@ def query_session() -> Response | list[Any]:
     # Proceed to process request
     catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
     catalog_data = json.loads(open(catalog_path).read())
+    catalog_path_files = app.config["configuration_path"] / "Catalogue/FileResponse.json"
+    catalog_data_files = json.loads(open(catalog_path_files).read())
     # all operators with all possible spacing combinations
     # accepted_operators = [" and ", " or ", " in ", " not ", "and ", " or ", " in ", " not", "and", "or", "in", "not"]
     # split_request = [req.strip() for req in request.args["$filter"].split('and')]
@@ -127,6 +129,9 @@ def query_session() -> Response | list[Any]:
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         if not all(resp.status_code == 200 for resp in responses):
             return Response(response=json.dumps([]), status=OK)
+        if any(not resp.response for resp in responses):
+            # Case where an response is empty or not dict => the query is empty
+            return Response(response=json.dumps([]), status=NOT_FOUND)
         try:
             responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
@@ -140,9 +145,12 @@ def query_session() -> Response | list[Any]:
                     Response(response=json.dumps([]), status=OK))
             else:
                 # Otherwise, process event and expand each session
-                import pdb
-                pdb.set_trace()
-        except json.JSONDecodeError:  # if a response is empty, whole querry is empty
+                for session in common_elements:
+                    files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args,
+                                                  catalog_data_files)
+                    session.update({"Files": [json.loads(file) for file in files.response]})
+                return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=None)
+        except (json.JSONDecodeError, AttributeError):  # if a response is empty, whole querry is empty
             return Response(status=NOT_FOUND)
     elif len(split_request := [req.strip() for req in request.args["$filter"].split('or')]) in [2, 3]:
         # add test when a response is empty, and other not.
@@ -157,14 +165,14 @@ def query_session() -> Response | list[Any]:
                 status=NOT_FOUND)
         else:
             # Otherwise, process event and expand each session
-            import pdb
-            pdb.set_trace()
+            for session in common_elements:
+                files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files)
+                session.update({"Files": [json.loads(file) for file in files.response]})
+            return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=None)
 
     if not request.args.get("$expand", None) in ["Files", "files"]:
         return process_session_request(request.args["$filter"], request.args, catalog_data)
     else:
-        catalog_path_files = app.config["configuration_path"] / "Catalogue/FileResponse.json"
-        catalog_data_files = json.loads(open(catalog_path_files).read())
         raw_result = json.loads(process_session_request(request.args["$filter"], request.args, catalog_data).response[0])
         session_response = raw_result['responses'] if "response" in raw_result else [raw_result]
         for session in session_response:
@@ -179,7 +187,13 @@ def manage_int_querry(op, value, catalog_data, field, headers):
         value = int(value)
     except ValueError:
         return Response(status=BAD_REQUEST)
-    query_result = [product for product in catalog_data["Data"] if value == product[field]]
+    match op:
+        case "eq":
+            query_result = [product for product in catalog_data["Data"] if value == int(product[field])]
+        case "lt":
+            query_result = [product for product in catalog_data["Data"] if value > int(product[field])]
+        case "gt":
+            query_result = [product for product in catalog_data["Data"] if value < int(product[field])]
     return (
         Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
