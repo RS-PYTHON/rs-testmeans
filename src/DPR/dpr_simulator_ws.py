@@ -5,8 +5,12 @@ from fastapi import status
 import yaml
 import uvicorn
 
-
 app = FastAPI()
+
+
+@app.route("/health", methods=["GET"])
+def ready_live_status():
+    return JSONResponse(status_code=status.HTTP_200_OK)
 
 
 @app.post("/run")
@@ -16,6 +20,7 @@ async def run_simulator(request: Request):
     dpr_sim = DPRProcessor(yaml_data)
     attrs = await dpr_sim.run()
     return JSONResponse(status_code=status.HTTP_200_OK, content=attrs)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

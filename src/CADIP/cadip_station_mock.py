@@ -91,6 +91,11 @@ def verify_password(username, password) -> bool:
     return False
 
 
+@app.route("/health", methods=["GET"])
+def ready_live_status():
+    return Response(status=OK)
+
+
 @app.route("/", methods=["GET", "POST"])
 @auth.login_required
 def hello():
@@ -126,7 +131,7 @@ def query_session() -> Response | list[Any]:
     if len(split_request := [req.strip() for req in request.args["$filter"].split('and')]) in [2, 3]:
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         if not all(resp.status_code == 200 for resp in responses):
-            return Response(response = json.dumps([]), status=OK)
+            return Response(response=json.dumps([]), status=OK)
         try:
             responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
@@ -134,8 +139,9 @@ def query_session() -> Response | list[Any]:
             common_response = set.intersection(*resp_set)
             common_elements = [d for d in responses_norm[0] if d.get("Id") in common_response]
             # 200 OK even if search is empty
-            return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
-                response = json.dumps([]),
+            return Response(status=OK,
+                            response=batch_response_odata_v4(common_elements)) if common_elements else Response(
+                response=json.dumps([]),
                 status=OK)
         except json.JSONDecodeError:  # if a response is empty, whole querry is empty
             return Response(status=NOT_FOUND)
@@ -148,7 +154,7 @@ def query_session() -> Response | list[Any]:
         union_response = set.union(*union_set)
         common_elements = [d for d in sum(responses_norm, []) if d.get("Id") in union_response]
         return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
-                status=NOT_FOUND)
+            status=NOT_FOUND)
 
     return process_session_request(request.args["$filter"], request.args, catalog_data)
 
@@ -200,6 +206,7 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
         # as per ICD response is OK even if empty
         else Response(status=OK, response=json.dumps([]))
     )
+
 
 def manage_str_querry(op, value, catalog_data, field, headers):
     match op:
