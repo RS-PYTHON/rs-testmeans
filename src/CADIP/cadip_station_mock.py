@@ -174,7 +174,7 @@ def query_session() -> Response | list[Any]:
         return process_session_request(request.args["$filter"], request.args, catalog_data)
     else:
         raw_result = json.loads(process_session_request(request.args["$filter"], request.args, catalog_data).response[0])
-        session_response = raw_result['responses'] if "response" in raw_result else [raw_result]
+        session_response = raw_result['responses'] if "responses" in raw_result else [raw_result]
         for session in session_response:
             files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files)
             session.update({"Files": [json.loads(file) for file in files.response]})
