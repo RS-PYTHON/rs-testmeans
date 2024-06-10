@@ -110,6 +110,10 @@ def verify_password(username: str, password: str) -> bool:
     return False
 
 
+@app.route("/health", methods=["GET"])
+def ready_live_status():
+    return Response(status=OK)
+
 @app.route("/", methods=["GET", "POST"])
 @auth.login_required
 def hello():
