@@ -139,17 +139,17 @@ def query_session() -> Response | list[Any]:
             common_response = set.intersection(*resp_set)
             common_elements = [d for d in responses_norm[0] if d.get("Id") in common_response]
             # 200 OK even if search is empty
-            if not request.args.get("$expand", None) in ["Files", "files"]:
-                # Do not expand
-                return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else (
-                    Response(response=json.dumps([]), status=OK))
-            else:
-                # Otherwise, process event and expand each session
+            if app.config["expand"] and request.args.get("$expand", None) in ["Files", "files"]:
                 for session in common_elements:
                     files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args,
                                                   catalog_data_files)
                     session.update({"Files": [json.loads(file) for file in files.response]})
                 return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=None)
+            else:
+                # If expand is enabled with -e and request contains &$expand
+                # Do not expand
+                return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else (
+                    Response(response=json.dumps([]), status=OK))
         except (json.JSONDecodeError, AttributeError):  # if a response is empty, whole querry is empty
             return Response(status=NOT_FOUND)
     elif len(split_request := [req.strip() for req in request.args["$filter"].split('or')]) in [2, 3]:
@@ -160,26 +160,26 @@ def query_session() -> Response | list[Any]:
         union_set = [{d.get("Id") for d in resp} for resp in responses_norm]
         union_response = set.union(*union_set)
         common_elements = [d for d in sum(responses_norm, []) if d.get("Id") in union_response]
-        if not request.args.get("$expand", None) in ["Files", "files"]:
-            return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
-                status=NOT_FOUND)
-        else:
-            # Otherwise, process event and expand each session
+        if app.config["expand"] and request.args.get("$expand", None) in ["Files", "files"]:
+            # If expand is enabled with -e and request contains &$expand
             for session in common_elements:
                 files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files)
                 session.update({"Files": [json.loads(file) for file in files.response]})
             return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=None)
+        else:
+            return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
+                status=NOT_FOUND)
 
-    if not request.args.get("$expand", None) in ["Files", "files"]:
-        return process_session_request(request.args["$filter"], request.args, catalog_data)
-    else:
+    if app.config["expand"] and request.args.get("$expand", None) in ["Files", "files"]:
+        # If expand is enabled with -e and request contains &$expand
         raw_result = json.loads(process_session_request(request.args["$filter"], request.args, catalog_data).response[0])
         session_response = raw_result['responses'] if "responses" in raw_result else [raw_result]
         for session in session_response:
             files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files)
             session.update({"Files": [json.loads(file) for file in files.response]})
         return Response(status=OK, response=batch_response_odata_v4(session_response), headers=None)
-        # Otherwise, process event and expand each session
+    else:
+        return process_session_request(request.args["$filter"], request.args, catalog_data)
 
 
 def manage_int_querry(op, value, catalog_data, field, headers):
@@ -488,9 +488,17 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
     parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
+    parser.add_argument(
+        "-e", "--expand",
+        type=str,
+        required=False,
+        default="True",
+        help="Station support expanded sessions"
+    )
 
     args = parser.parse_args()
     configuration_path = pathlib.Path(args.config)
+    app.config["expand"] = args.expand.lower() in ('true', '1', 't', 'y', 'yes')
     # configuration_path.iterdir() / signature in str(x)
     if default_config_path is not configuration_path:
         # define config folder mandatory structure
