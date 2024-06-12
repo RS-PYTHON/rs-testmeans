@@ -1,8 +1,8 @@
-# Add data into RS testmeans pickup point simulators
+# 1. Add data into RS testmeans CADIP simulator
 
 
-To add data to simulators, follow these steps to configure the **config** folder for each station. The required files 
-for the CADIP simulator should be structured as follows:
+To add data into CADIP simulator, follow these steps to populate the **config** folder for each station. 
+The required files  for the CADIP simulator should be structured as follows:
 
 - "auth.json" - File containing the basic auth credentials.
 - "Catalogue/FileResponse.json" - File containing the JSON response with metadata for each file.
@@ -40,7 +40,7 @@ The actual files should be placed into **config/S3Mock/** directory.
 
 2. Add the actual files into **config/S3Mock/** directory.
 ```shell
-ll src/CADIP/config/S3Mock 
+ovidiu@MBP2023 rs-testmeans % ll src/CADIP/config/S3Mock 
 total 1688
 -rw-r--r--  1 ovidiu  staff    85B Apr 19 11:33 DCS_01_S1A_20200105072204051312_ch1_DSDB_00000.raw
 -rw-r--r--  1 ovidiu  staff   219B Apr 19 11:33 DCS_01_S1A_20200105072204051312_ch1_DSDB_00001.raw
@@ -90,3 +90,53 @@ docker exec cadip_container poetry run python3.11 /opt/cadip/cadip_station_mock.
 
 By following these steps, you can successfully add data to the RS testmeans pickup point simulators and configure the 
 sessions as needed.
+
+# 2. Add data into RS testmeans ADGS simulator
+
+In the similar way, your custom data directory should have the following signature:
+
+- "auth.json" - File containing the basic auth credentials.
+- "Catalog/GETFileResponse.json" - File containing JSON metadata for each AUX.
+
+Files should be placed in **Storage** directory.
+
+### Example: Add an AUX file overwriting current structure.
+
+1. Modify the **GETFileResponse.json** file by adding your session metadata as shown below:
+```json
+{
+  "Id": "2b17b57d-fff4-4645-b539-91f305c27c69",
+  "Name": "S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000.TGZ",
+  "ContentType": "application/octet-stream",
+  "ContentLength": "8326253",
+  "OriginDate": "2018-01-17T12:56:05.232Z",
+  "PublicationDate": "2019-02-16T12:00:00.000Z",
+  "EvictionDate": "2019-02-23T12:00:00.000Z",
+  "Checksum": [
+    {
+      "Algorithm": "MD5",
+      "Value": "E8A303BF3D85200514F727DB60E7DB65",
+      "ChecksumDate": "2019-02-16T12:00:00.000Z"
+    }
+  ],
+  "ContentDate": {
+    "Start": "2019-02-17T09:00:00.000Z",
+    "End": "2019-02-17T21:00:00.000Z"
+  }
+}
+```
+
+2. Add the actual files into **config/Storage/** directory.
+```shell
+ovidiu@MBP2023 rs-testmeans % ll src/ADGS/config/Storage 
+total 744
+-rw-r--r--  1 ovidiu  staff   542B Apr 19 11:33 S1A_AUX_PP2_V20200106T080000_G20200106T080000.SAFE
+-rw-r--r--  1 ovidiu  staff   833B Apr 19 11:33 S1A_AUX_PP2_V20200121T080000_G20200121T080000.SAFE
+```
+
+### Example 2: Add data using "-c" flag.
+With files already placed in a custom location, start the docker image by passing the path using -c flag.
+```shell
+docker exec adgs_container poetry run python3.11 /opt/adgs/adgs_station_mock.py -H 127.0.0.1 -p 8080 -c /your/dir/
+
+```
