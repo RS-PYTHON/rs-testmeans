@@ -155,6 +155,9 @@ def query_session() -> Response | list[Any]:
     elif len(split_request := [req.strip() for req in request.args["$filter"].split('or')]) in [2, 3]:
         # add test when a response is empty, and other not.
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
+        if not all(isinstance(resp, dict) for resp in responses):
+            # handle incorrect requests, status OK, but empty content
+            return Response(status=OK)
         responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
         responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
         union_set = [{d.get("Id") for d in resp} for resp in responses_norm]
@@ -174,10 +177,12 @@ def query_session() -> Response | list[Any]:
         # If expand is enabled with -e and request contains &$expand
         raw_result = json.loads(process_session_request(request.args["$filter"], request.args, catalog_data).response[0])
         session_response = raw_result['responses'] if "responses" in raw_result else [raw_result]
+        session_response = [] if session_response in [[], [[]]] else session_response # flatten empty if needed
         for session in session_response:
             files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files)
             session.update({"Files": [json.loads(file) for file in files.response]})
-        return Response(status=OK, response=batch_response_odata_v4(session_response), headers=None)
+        session_response = batch_response_odata_v4(session_response) if session_response else json.dumps([])
+        return Response(status=OK, response=session_response, headers=None)
     else:
         return process_session_request(request.args["$filter"], request.args, catalog_data)
 
@@ -309,10 +314,13 @@ SPJ_LUT = {
 def process_session_request(request: str, headers: dict, catalog_data: dict) -> Response:
     """Docstring to be added."""
     # Normalize request (lower case / remove ')
-    field, op, *value = map(
-        lambda norm: norm.replace("'", ""),
-        request.strip('"').split(" "),
-    )
+    try:
+        field, op, *value = map(
+            lambda norm: norm.replace("'", ""),
+            request.strip('"').split(" "),
+        )
+    except:
+        return Response(status=NOT_FOUND, response={})
     # field, op, *value = request.split(" ")
     value = " ".join(value)
     # return results or the 200OK code is returned with an empty response (PSD)
