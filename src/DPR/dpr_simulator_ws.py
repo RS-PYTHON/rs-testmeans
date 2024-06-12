@@ -9,8 +9,8 @@ app = FastAPI()
 
 
 @app.route("/health", methods=["GET"])
-def ready_live_status():
-    return JSONResponse(status_code=status.HTTP_200_OK)
+async def ready_live_status(request):
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"Healthy": "True"})
 
 
 @app.post("/run")
