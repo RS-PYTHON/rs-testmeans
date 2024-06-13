@@ -1,6 +1,3 @@
-# Foo
-test github
-
 # Add data into RS testmeans CADIP simulator
 
 
@@ -156,6 +153,3 @@ The **SPJ.json** and **Catalogue/FileResponse.json** files are deployed as confi
 ## ADGS simulator
 A pvc is mounted in **config/Storage/** directory. The operator should perform a git pull of the rs-testmeans project on his/her local pc. This allows the access to the simulated data from the **rs-testmeans/src/ADGS/config/Storage** directory. When the pod is first created with the pvc mounted in **config/Storage/** directory, the operator should manually copy all the files from his/her computer to this location. This is requested at the pod initialization only. Whenever the pod is restarted, the files will be persistent.
 The **Catalog/GETFileResponse.json** file is deployed as a configuration map. To add more files, one should copy the files to **config/Storage/** (now mounted as pvc) and follow the step [1 from adding data to ADGS simulator](#add-data-into-rs-testmeans-adgs-simulator). Kind reminder that for the cluster, the **Catalogue/FileResponse.json** is a configuration map, and should be treated accordingly.
-
-
-[Test github anchor ](#foo)
