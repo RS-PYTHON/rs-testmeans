@@ -141,7 +141,7 @@ docker exec adgs_container poetry run python3.11 /opt/adgs/adgs_station_mock.py 
 
 ```
 
-# 3. Usage on cluster
+# Usage on cluster
 
 The modified simulated data should be persistent even after a pod restart. To achieve this, Persistent Volume Claims (PVC) are mounted in the directories from where the simulator may use the files found there.
 The other config files are anyway created as configuration maps for each pod.
