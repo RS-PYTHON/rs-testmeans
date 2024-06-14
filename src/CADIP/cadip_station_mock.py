@@ -3,6 +3,7 @@ import argparse
 import datetime
 import json
 import pathlib
+import pdb
 import re
 from functools import wraps
 from typing import Any
@@ -443,7 +444,7 @@ def process_files_request(request, headers, catalog_data):
         field, op, *value = request.split(" ")
         match op:
             case "eq":
-                matching = [product for product in catalog_data["Data"] if value == product[field]]
+                matching = [product for product in catalog_data["Data"] if value[0] == product[field]]
             case "in":
                 matching = []
                 for idx in value:
