@@ -200,7 +200,7 @@ Note: If you have many files, you can create an archive, copy it on the pod and 
 
 ### CADIP simulator config
 
-There is 4 configuration files that are managed as ConfigMap :
+There are 4 configuration files that are managed as ConfigMap :
 
 - Catalogue/SPJ.json
 - Catalogue/FileResponse.json
