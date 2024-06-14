@@ -147,23 +147,23 @@ The modified simulated data should be persistent even after a pod restart. To ac
 The other config files are anyway created as configuration maps for each pod.
 
 ## CADIP simulator
-A pvc is mounted in **config/S3Mock/** directory inside the CADIP mockup pod.
+A pvc is mounted in **/opt/cadip/config/S3Mock/** directory inside the CADIP mockup pod.
 
 The operator should perform a git pull of the rs-testmeans project on his/her local pc. This allows the access to the simulated data from the **rs-testmeans/src/CADIP/config/S3Mock** directory.
 
-When the pod is first created with the pvc mounted in **config/S3Mock/** directory, the operator should manually copy all the files from his/her computer to this location. This is requested at the pod initialization only. Whenever the pod is restarted, the files will be persistent.
+When the pod is first created with the pvc mounted in **/opt/cadip/config/S3Mock/** directory, the operator should manually copy all the files from his/her computer to this location. This is requested at the pod initialization only. Whenever the pod is restarted, the files will be persistent.
 
-The **SPJ.json** and **Catalogue/FileResponse.json** files are deployed as configuration maps. To add a session or to add more files, one should copy the files to **config/S3Mock/** (now mounted as a pvc) and follow the steps [1 and 2 from adding data to CADIP simulator](#add-data-into-rs-testmeans-cadip-simulator).
+The **SPJ.json** and **Catalogue/FileResponse.json** files are deployed as configuration maps. To add a session or to add more files, one should copy the files to **/opt/cadip/config/S3Mock/** (now mounted as a pvc) and follow the steps [1 and 2 from adding data to CADIP simulator](#add-data-into-rs-testmeans-cadip-simulator).
 
 Kind reminder that for the cluster, the **SPJ.json** and **Catalogue/FileResponse.json** are configuration maps, and should be treated accordingly.
 
 ## ADGS simulator
-A pvc is mounted in **config/Storage/** directory inside the ADGS mockup pod.
+A pvc is mounted in **/opt/adgs/config/Storage/** directory inside the ADGS mockup pod.
 
 The operator should perform a git pull of the rs-testmeans project on his/her local pc. This allows the access to the simulated data from the **rs-testmeans/src/ADGS/config/Storage** directory.
 
-When the pod is first created with the pvc mounted in **config/Storage/** directory, the operator should manually copy all the files from his/her computer to this location. This is requested at the pod initialization only. Whenever the pod is restarted, the files will be persistent.
+When the pod is first created with the pvc mounted in **/opt/adgs/config/Storage/** directory, the operator should manually copy all the files from his/her computer to this location. This is requested at the pod initialization only. Whenever the pod is restarted, the files will be persistent.
 
-The **Catalog/GETFileResponse.json** file is deployed as a configuration map. To add more files, one should copy the files to **config/Storage/** (now mounted as a pvc) and follow the step [1 from adding data to ADGS simulator](#add-data-into-rs-testmeans-adgs-simulator).
+The **Catalog/GETFileResponse.json** file is deployed as a configuration map. To add more files, one should copy the files to **/opt/adgs/config/Storage/** (now mounted as a pvc) and follow the step [1 from adding data to ADGS simulator](#add-data-into-rs-testmeans-adgs-simulator).
 
 Kind reminder that for the cluster, the **Catalogue/FileResponse.json** is a configuration map, and should be treated accordingly.
