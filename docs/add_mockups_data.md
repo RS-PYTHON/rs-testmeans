@@ -211,8 +211,16 @@ Refer to [Add data into RS testmeans CADIP simulator](#add-data-into-rs-testmean
 
  To add a session or to add more files, one should :
 
- 1. Copy the files to **/opt/cadip/config/S3Mock/** (now mounted as a volume)
- 2. Edit the configuration files (`kubectl -n processing edit cm xxx`)
+ 1. Copy the files to **/opt/cadip/config/S3Mock/** (Done in previous steps)
+
+ 2. Edit the 3 configuration files in the **Catalogue** folder :
+
+    ```shell
+    kubectl -n processing edit cm mockup-station-cadip-mti-catalog-config
+    kubectl -n processing edit cm mockup-station-cadip-mti-quality-config
+    kubectl -n processing edit cm mockup-station-cadip-mti-sessionid-config
+    ```
+
  3. Restart the pod (`kubectl -n processing rollout restart deploy mockup-station-cadip-mti`)
 
 Kind reminder that for the cluster, the **SPJ.json** and **Catalogue/FileResponse.json** are configuration maps, and should be treated accordingly.
