@@ -351,11 +351,10 @@ def query_files() -> Response | list[Any]:
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
 
-    accepted_operators = [" and ", " or ", " in ", " not "]
+    accepted_operators = [" and ", " or ", " not "]
     if any(header in request.args["$filter"] for header in accepted_operators):
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
         groups = re.search(pattern, request.args["$filter"])
-
         if groups:
             first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
         # split and processes the requests
@@ -387,7 +386,6 @@ def query_files() -> Response | list[Any]:
                 union_set = fresp_set.union(sresp_set)
                 union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
                 return Response(status=OK, response=batch_response_odata_v4(union_elements), headers=request.args)
-
     return process_files_request(request.args["$filter"], request.args, catalog_data)
 
 
@@ -442,8 +440,14 @@ def process_files_request(request, headers, catalog_data):
         )
     else:  # SessionId / Orbit
         request = request.replace('"', '')
-        field, op, value = request.split(" ")
-        matching =  [product for product in catalog_data["Data"] if value == product[field]],
+        field, op, *value = request.split(" ")
+        match op:
+            case "eq":
+                matching = [product for product in catalog_data["Data"] if value == product[field]]
+            case "in":
+                matching = []
+                for idx in value:
+                    matching += [product for product in catalog_data["Data"] if idx.replace(",", "") in product[field]]
         return Response(response=batch_response_odata_v4(matching), status=OK) if matching else Response(status=NOT_FOUND)
 
 
