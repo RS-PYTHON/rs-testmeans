@@ -200,7 +200,7 @@ Note: If you have many files, you can create an archive, copy it on the pod and 
 
 ### CADIP simulator config
 
-There are 4 configuration files that are managed as ConfigMap :
+There are 4 configuration files managed as ConfigMap :
 
 - Catalogue/SPJ.json
 - Catalogue/FileResponse.json
@@ -209,30 +209,83 @@ There are 4 configuration files that are managed as ConfigMap :
 
 Refer to [Add data into RS testmeans CADIP simulator](#add-data-into-rs-testmeans-cadip-simulator)
 
- To add a session or to add more files, one should :
+To add a session or to add more files, one should :
 
- 1. Copy the files to **/opt/cadip/config/S3Mock/** (Done in previous steps)
+1. Copy the files to **/opt/cadip/config/S3Mock/** (Done in previous steps)
 
- 2. Edit the 3 configuration files in the **Catalogue** folder :
+2. Edit the 3 configuration files of the **Catalogue** folder :
 
-    ```shell
-    kubectl -n processing edit cm mockup-station-cadip-mti-catalog-config
-    kubectl -n processing edit cm mockup-station-cadip-mti-quality-config
-    kubectl -n processing edit cm mockup-station-cadip-mti-sessionid-config
-    ```
+   ```shell
+   kubectl -n processing edit cm mockup-station-cadip-mti-catalog-config
+   kubectl -n processing edit cm mockup-station-cadip-mti-quality-config
+   kubectl -n processing edit cm mockup-station-cadip-mti-sessionid-config
+   ```
 
- 3. Restart the pod (`kubectl -n processing rollout restart deploy mockup-station-cadip-mti`)
-
-Kind reminder that for the cluster, the **SPJ.json** and **Catalogue/FileResponse.json** are configuration maps, and should be treated accordingly.
+3. Restart the pod (`kubectl -n processing rollout restart deploy mockup-station-cadip-mti`)
 
 ### ADGS simulator data
 
-A pvc is mounted in **/opt/adgs/config/Storage/** directory inside the ADGS mockup pod.
+A volume is mounted in **/opt/adgs/config/Storage/** directory inside the ADGS mockup pod.
 
-The operator should perform a git pull of the rs-testmeans project on his/her local pc. This allows the access to the simulated data from the **rs-testmeans/src/ADGS/config/Storage** directory.
+The folder **/opt/adgs/config/Storage/** is created empty the first time.
 
-When the pod is first created with the pvc mounted in **/opt/adgs/config/Storage/** directory, the operator should manually copy all the files from his/her computer to this location. This is requested at the pod initialization only. Whenever the pod is restarted, the files will be persistent.
+#### Dummy files (Optionnal)
 
-The **Catalog/GETFileResponse.json** file is deployed as a configuration map. To add more files, one should copy the files to **/opt/adgs/config/Storage/** (now mounted as a pvc) and follow the step [1 from adding data to ADGS simulator](#add-data-into-rs-testmeans-adgs-simulator).
+If one still wants to use the dummy files provided in the source code of the mockup, he should copy them manually.
 
-Kind reminder that for the cluster, the **Catalogue/FileResponse.json** is a configuration map, and should be treated accordingly.
+Perform a git pull of the rs-testmeans project on the local pc and access the simulated data from the **rs-testmeans/src/adgs/config/Storage** directory.
+
+Then simply make an archive of the files :
+
+```shell
+cd rs-testmeans/src/ADGS/config/Storage
+tar -zcvf dummy_files.tgz *
+```
+
+Copy it from the source code to the desired mockup-station-adgs pod :
+
+```shell
+kubectl -n processing cp dummy_files.tgz mockup-station-adgs-6b7b9669bc-z6xjr:/opt/adgs/config/Storage/dummy_files.tgz
+```
+
+And finally uncompress the archive on the pod :
+
+```shell
+kubectl -n processing exec -ti mockup-station-adgs-6b7b9669bc-z6xjr -- bash
+cd /opt/adgs/config/Storage
+tar -zxvf dummy_files.tgz
+```
+
+#### Real files
+
+Copy the files to the pod :
+
+```shell
+kubectl -n processing cp file1 mockup-station-adgs-6b7b9669bc-z6xjr:/opt/adgs/config/Storage/file1
+kubectl -n processing cp file2 mockup-station-adgs-6b7b9669bc-z6xjr:/opt/adgs/config/Storage/file2
+[...]
+kubectl -n processing cp fileN mockup-station-adgs-6b7b9669bc-z6xjr:/opt/adgs/config/Storage/fileN
+```
+
+Note: If you have many files, you can create an archive, copy it on the pod and uncompress it on the pod with the `tar` command.
+
+### ADGS simulator config
+
+There are 2 configuration files managed as ConfigMap :
+
+- Catalog/GETFileResponse.json
+- auth.json
+
+Refer to [Add data into RS testmeans ADGS simulator](#add-data-into-rs-testmeans-adgs-simulator)
+
+To add a session or to add more files, one should :
+
+1. Copy the files to **/opt/adgs/config/Storage/** (Done in previous steps)
+
+2. Edit the configuration file of the **Catalog** folder :
+
+   ```shell
+   kubectl -n processing edit cm mockup-station-adgs-catalog-config
+   ```
+
+3. Restart the pod (`kubectl -n processing rollout restart mockup-station-adgs`)
