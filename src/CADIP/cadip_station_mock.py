@@ -91,6 +91,11 @@ def verify_password(username, password) -> bool:
     return False
 
 
+@app.route("/health", methods=["GET"])
+def ready_live_status():
+    return Response(status=OK)
+
+
 @app.route("/", methods=["GET", "POST"])
 @auth.login_required
 def hello():
@@ -436,12 +441,10 @@ def process_files_request(request, headers, catalog_data):
             else Response(status=NOT_FOUND)
         )
     else:  # SessionId / Orbit
+        request = request.replace('"', '')
         field, op, value = request.split(" ")
-        matching = map(
-            json.dumps,
-            [product for product in catalog_data["Data"] if value == product[field]],
-        )
-        return Response(response=matching, status=OK) if matching else Response(status=NOT_FOUND)
+        matching =  [product for product in catalog_data["Data"] if value == product[field]],
+        return Response(response=batch_response_odata_v4(matching), status=OK) if matching else Response(status=NOT_FOUND)
 
 
 # 3.5
