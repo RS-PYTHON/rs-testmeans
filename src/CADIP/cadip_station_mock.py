@@ -145,11 +145,11 @@ def query_session() -> Response | list[Any]:
             common_response = set.intersection(*resp_set)
             common_elements = [d for d in responses_norm[0] if d.get("Id") in common_response]
             # 200 OK even if search is empty
-            if app.config["expand"] and request.args.get("$expand", None) in ["Files", "files"]:
+            if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
                 for session in common_elements:
-                    files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args,
-                                                  catalog_data_files)
-                    session.update({"Files": [json.loads(file) for file in files.response]})
+                    files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
+                    files = files['responses'] if "responses" in files else [files]
+                    session.update({"Files": [file for file in files]})
                 return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=None)
             else:
                 # If expand is enabled with -e and request contains &$expand
@@ -161,32 +161,35 @@ def query_session() -> Response | list[Any]:
     elif len(split_request := [req.strip() for req in request.args["$filter"].split('or')]) in [2, 3]:
         # add test when a response is empty, and other not.
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
-        if not all(isinstance(resp, dict) for resp in responses):
-            # handle incorrect requests, status OK, but empty content
-            return Response(status=OK)
+        # if not all(isinstance(resp, dict) for resp in responses):
+        #     # handle incorrect requests, status OK, but empty content
+        #     For OR operator, responses can be empty
+        #     return Response(status=OK)
         responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
         responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
         union_set = [{d.get("Id") for d in resp} for resp in responses_norm]
         union_response = set.union(*union_set)
         common_elements = [d for d in sum(responses_norm, []) if d.get("Id") in union_response]
-        if app.config["expand"] and request.args.get("$expand", None) in ["Files", "files"]:
+        if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
             # If expand is enabled with -e and request contains &$expand
             for session in common_elements:
-                files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files)
-                session.update({"Files": [json.loads(file) for file in files.response]})
+                files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
+                files = files['responses'] if "responses" in files else [files]
+                session.update({"Files": [file for file in files]})
             return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=None)
         else:
             return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
                 status=NOT_FOUND)
 
-    if app.config["expand"] and request.args.get("$expand", None) in ["Files", "files"]:
+    if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
         # If expand is enabled with -e and request contains &$expand
         raw_result = json.loads(process_session_request(request.args["$filter"], request.args, catalog_data).response[0])
         session_response = raw_result['responses'] if "responses" in raw_result else [raw_result]
         session_response = [] if session_response in [[], [[]]] else session_response # flatten empty if needed
         for session in session_response:
-            files = process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files)
-            session.update({"Files": [json.loads(file) for file in files.response]})
+            files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
+            files = files['responses'] if "responses" in files else [files]
+            session.update({"Files": [file for file in files]})
         session_response = batch_response_odata_v4(session_response) if session_response else json.dumps([])
         return Response(status=OK, response=session_response, headers=None)
     else:
@@ -494,6 +497,7 @@ def create_cadip_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
     app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
+    app.config["expand"] = True
     return app
 
 
