@@ -3,6 +3,7 @@ import argparse
 import datetime
 import json
 import pathlib
+import pdb
 import re
 from functools import wraps
 from typing import Any
@@ -124,6 +125,8 @@ def query_session() -> Response | list[Any]:
     # Proceed to process request
     catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
     catalog_data = json.loads(open(catalog_path).read())
+    catalog_path_files = app.config["configuration_path"] / "Catalogue/FileResponse.json"
+    catalog_data_files = json.loads(open(catalog_path_files).read())
     # all operators with all possible spacing combinations
     # accepted_operators = [" and ", " or ", " in ", " not ", "and ", " or ", " in ", " not", "and", "or", "in", "not"]
     # split_request = [req.strip() for req in request.args["$filter"].split('and')]
@@ -132,6 +135,9 @@ def query_session() -> Response | list[Any]:
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         if not all(resp.status_code == 200 for resp in responses):
             return Response(response=json.dumps([]), status=OK)
+        if any(not resp.response for resp in responses):
+            # Case where an response is empty or not dict => the query is empty
+            return Response(response=json.dumps([]), status=NOT_FOUND)
         try:
             responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
@@ -139,24 +145,55 @@ def query_session() -> Response | list[Any]:
             common_response = set.intersection(*resp_set)
             common_elements = [d for d in responses_norm[0] if d.get("Id") in common_response]
             # 200 OK even if search is empty
-            return Response(status=OK,
-                            response=batch_response_odata_v4(common_elements)) if common_elements else Response(
-                response=json.dumps([]),
-                status=OK)
-        except json.JSONDecodeError:  # if a response is empty, whole querry is empty
+            if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
+                for session in common_elements:
+                    files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
+                    files = files['responses'] if "responses" in files else [files]
+                    session.update({"Files": [file for file in files]})
+                return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=None)
+            else:
+                # If expand is enabled with -e and request contains &$expand
+                # Do not expand
+                return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else (
+                    Response(response=json.dumps([]), status=OK))
+        except (json.JSONDecodeError, AttributeError):  # if a response is empty, whole querry is empty
             return Response(status=NOT_FOUND)
     elif len(split_request := [req.strip() for req in request.args["$filter"].split('or')]) in [2, 3]:
         # add test when a response is empty, and other not.
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
+        # if not all(isinstance(resp, dict) for resp in responses):
+        #     # handle incorrect requests, status OK, but empty content
+        #     For OR operator, responses can be empty
+        #     return Response(status=OK)
         responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
         responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
         union_set = [{d.get("Id") for d in resp} for resp in responses_norm]
         union_response = set.union(*union_set)
         common_elements = [d for d in sum(responses_norm, []) if d.get("Id") in union_response]
-        return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
-            status=NOT_FOUND)
+        if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
+            # If expand is enabled with -e and request contains &$expand
+            for session in common_elements:
+                files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
+                files = files['responses'] if "responses" in files else [files]
+                session.update({"Files": [file for file in files]})
+            return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=None)
+        else:
+            return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
+                status=NOT_FOUND)
 
-    return process_session_request(request.args["$filter"], request.args, catalog_data)
+    if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
+        # If expand is enabled with -e and request contains &$expand
+        raw_result = json.loads(process_session_request(request.args["$filter"], request.args, catalog_data).response[0])
+        session_response = raw_result['responses'] if "responses" in raw_result else [raw_result]
+        session_response = [] if session_response in [[], [[]]] else session_response # flatten empty if needed
+        for session in session_response:
+            files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
+            files = files['responses'] if "responses" in files else [files]
+            session.update({"Files": [file for file in files]})
+        session_response = batch_response_odata_v4(session_response) if session_response else json.dumps([])
+        return Response(status=OK, response=session_response, headers=None)
+    else:
+        return process_session_request(request.args["$filter"], request.args, catalog_data)
 
 
 def manage_int_querry(op, value, catalog_data, field, headers):
@@ -164,7 +201,13 @@ def manage_int_querry(op, value, catalog_data, field, headers):
         value = int(value)
     except ValueError:
         return Response(status=BAD_REQUEST)
-    query_result = [product for product in catalog_data["Data"] if value == product[field]]
+    match op:
+        case "eq":
+            query_result = [product for product in catalog_data["Data"] if value == int(product[field])]
+        case "lt":
+            query_result = [product for product in catalog_data["Data"] if value > int(product[field])]
+        case "gt":
+            query_result = [product for product in catalog_data["Data"] if value < int(product[field])]
     return (
         Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
@@ -280,10 +323,13 @@ SPJ_LUT = {
 def process_session_request(request: str, headers: dict, catalog_data: dict) -> Response:
     """Docstring to be added."""
     # Normalize request (lower case / remove ')
-    field, op, *value = map(
-        lambda norm: norm.replace("'", ""),
-        request.strip('"').split(" "),
-    )
+    try:
+        field, op, *value = map(
+            lambda norm: norm.replace("'", ""),
+            request.strip('"').split(" "),
+        )
+    except:
+        return Response(status=NOT_FOUND, response={})
     # field, op, *value = request.split(" ")
     value = " ".join(value)
     # return results or the 200OK code is returned with an empty response (PSD)
@@ -302,18 +348,17 @@ def query_files() -> Response | list[Any]:
     if not any(
             [
                 query_text in request.args["$filter"].split(" ")[0]
-                for query_text in ["Id", "Orbit", "Name", "PublicationDate"]
+                for query_text in ["Id", "Orbit", "Name", "PublicationDate", "SessionID"]
             ],
     ):
         return Response(status=BAD_REQUEST)
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
 
-    accepted_operators = [" and ", " or ", " in ", " not "]
+    accepted_operators = [" and ", " or ", " not "]
     if any(header in request.args["$filter"] for header in accepted_operators):
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
         groups = re.search(pattern, request.args["$filter"])
-
         if groups:
             first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
         # split and processes the requests
@@ -345,7 +390,6 @@ def query_files() -> Response | list[Any]:
                 union_set = fresp_set.union(sresp_set)
                 union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
                 return Response(status=OK, response=batch_response_odata_v4(union_elements), headers=request.args)
-
     return process_files_request(request.args["$filter"], request.args, catalog_data)
 
 
@@ -400,8 +444,14 @@ def process_files_request(request, headers, catalog_data):
         )
     else:  # SessionId / Orbit
         request = request.replace('"', '')
-        field, op, value = request.split(" ")
-        matching =  [product for product in catalog_data["Data"] if value == product[field]],
+        field, op, *value = request.split(" ")
+        match op:
+            case "eq":
+                matching = [product for product in catalog_data["Data"] if value[0] == product[field]]
+            case "in":
+                matching = []
+                for idx in value:
+                    matching += [product for product in catalog_data["Data"] if idx.replace(",", "") in product[field]]
         return Response(response=batch_response_odata_v4(matching), status=OK) if matching else Response(status=NOT_FOUND)
 
 
@@ -447,6 +497,7 @@ def create_cadip_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
     app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
+    app.config["expand"] = True
     return app
 
 
@@ -457,9 +508,17 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
     parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
+    parser.add_argument(
+        "-e", "--expand",
+        type=str,
+        required=False,
+        default="True",
+        help="Station support expanded sessions"
+    )
 
     args = parser.parse_args()
     configuration_path = pathlib.Path(args.config)
+    app.config["expand"] = args.expand.lower() in ('true', '1', 't', 'y', 'yes')
     # configuration_path.iterdir() / signature in str(x)
     if default_config_path is not configuration_path:
         # define config folder mandatory structure
