@@ -3,7 +3,7 @@ import argparse
 import datetime
 import json
 import pathlib
-import pdb
+import os
 import re
 from functools import wraps
 from typing import Any
@@ -508,17 +508,12 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
     parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
-    parser.add_argument(
-        "-e", "--expand",
-        type=str,
-        required=False,
-        default="True",
-        help="Station support expanded sessions"
-    )
 
     args = parser.parse_args()
     configuration_path = pathlib.Path(args.config)
-    app.config["expand"] = args.expand.lower() in ('true', '1', 't', 'y', 'yes')
+    if is_expanded := str(os.getenv("CADIP_SESSION_EXPAND", True)).lower() in ('true', '1', 't', 'y', 'yes'):
+        print("Starting CADIP server mockup with expanded sessions support.")
+    app.config["expand"] = is_expanded
     # configuration_path.iterdir() / signature in str(x)
     if default_config_path is not configuration_path:
         # define config folder mandatory structure
