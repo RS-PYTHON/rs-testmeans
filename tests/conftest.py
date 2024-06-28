@@ -1,5 +1,8 @@
 """Docstring to be added."""
+import json
 import os
+import datetime
+from io import StringIO
 
 import pytest
 import yaml
@@ -53,3 +56,88 @@ def lta_response():  # noqa: D103
         "Online": "true",
         "EvictionDate": "2018-01-22T18:00:00.000Z",
     }
+
+
+## Fixture to mock internal LTA orders.json file.
+
+
+mock_queued_order_data = {
+    "orders": [
+        {
+            "Id": "test_order",
+            "Status": "queued",
+            "StatusMessage": "request is queued",
+            "OrderSize": 1716,
+            "SubmissionDate": str(datetime.datetime.now()),
+            "EstimatedDate": str(datetime.datetime.now() + datetime.timedelta(seconds=30)),
+            "CompletedDate": "None",
+            "EvictionDate": "None",
+            "Priority": 1
+        }
+    ]
+}
+
+
+@pytest.fixture
+def mock_open_queued_feature(monkeypatch):
+    """Fixture to mock the open function."""
+    file_content = json.dumps(mock_queued_order_data)
+
+    def mock_file_open(path, *args, **kwargs):
+        path_str = str(path)  # Convert Path object to string
+        if path_str.endswith("orders.json"):
+            if args[0] == "r":
+                file = StringIO(file_content)
+                file.seek(0)  # Ensure we're at the start of the file
+                return file
+            elif args[0] == "w":
+                file = StringIO()
+
+                def write(data):
+                    nonlocal file_content
+                    file_content = data
+
+                file.write = write
+                file.getvalue = lambda: file_content
+                return file
+
+    monkeypatch.setattr("builtins.open", mock_file_open)
+    monkeypatch.setattr("pathlib.Path.open", mock_file_open)
+    return mock_queued_order_data
+
+
+mock_completed_order_data = {
+    "orders": [
+        {"Id": "un_id_oarecare2", "Status": "completed", "StatusMessage": "requested product is available",
+         "OrderSize": 1716,
+         "SubmissionDate": "2024-06-28 16:31:09.632384", "EstimatedDate": "2024-06-28 16:33:00.632528", "CompletedDate":
+             "2024-06-28 17:01:46.706597", "EvictionDate": "2024-07-01 17:01:46.706610", "Priority": 1}]
+}
+
+
+@pytest.fixture
+def mock_open_completed_feature(monkeypatch):
+    """Fixture to mock the open function."""
+    file_content = json.dumps(mock_completed_order_data)
+
+    def mock_file_open(path, *args, **kwargs):
+        path_str = str(path)  # Convert Path object to string
+        if path_str.endswith("orders.json"):
+            if args[0] == "r":
+                file = StringIO(file_content)
+                file.seek(0)  # Ensure we're at the start of the file
+                return file
+            elif args[0] == "w":
+                file = StringIO()
+
+                def write(data):
+                    nonlocal file_content
+                    file_content = data
+
+                file.write = write
+                file.getvalue = lambda: file_content
+                return file
+
+    monkeypatch.setattr("builtins.open", mock_file_open)
+    monkeypatch.setattr("pathlib.Path.open", mock_file_open)
+    return mock_completed_order_data
