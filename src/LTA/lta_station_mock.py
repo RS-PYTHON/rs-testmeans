@@ -252,6 +252,11 @@ def ready_live_status():
     return Response(status=HTTP_OK)
 
 
+def create_lta_app():  # noqa: D103
+    app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
+    return app
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Starts the LTA  server mockup ")
 
