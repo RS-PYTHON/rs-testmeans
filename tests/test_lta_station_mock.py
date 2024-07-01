@@ -1,12 +1,36 @@
+import base64
 import json
 
 import pytest
 
-from .conftest import mock_queued_order_data, mock_completed_order_data
+from .conftest import mock_queued_order_data
 
 HTTP_OK = 200
-HTTP_NOT_FOUND = 404
 HTTP_BAD_REQUEST = 400
+HTTP_UNAUTHORIZED = 401
+HTTP_FORBIDDEN = 403
+HTTP_NOT_FOUND = 404
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "correct_login, incorrect_login",
+    [
+        ("test:test", "notTest:notTest"),
+    ],
+)
+def test_basic_auth(lta_client, correct_login: str, incorrect_login: str):
+    """Docstring to be added."""
+    # test credentials on get methods with auth required.
+    correct_login = base64.b64encode(str.encode(correct_login)).decode("utf-8")
+    incorrect_login = base64.b64encode(str.encode(incorrect_login)).decode("utf-8")
+    assert lta_client.get("/", headers={"Authorization": "Basic {}".format(correct_login)}).status_code == HTTP_OK
+    assert (
+            lta_client.get("/", headers={
+                "Authorization": "Basic {}".format(incorrect_login)}).status_code == HTTP_UNAUTHORIZED
+    )
+    # test a broken endpoint route
+    assert lta_client.get("incorrectRoute/").status_code == HTTP_NOT_FOUND
 
 
 @pytest.mark.unit
@@ -114,11 +138,12 @@ def test_completed_order_endpoint_by_id(lta_client, mock_open_completed_feature)
 
 @pytest.mark.unit
 def test_download_when_order_completed(lta_client):
-    """Download when order is completed."""
-    pass
+    """Try to download when order is completed."""
+    assert lta_client.get("Products(Incorrect_id)/$value").status_code == HTTP_NOT_FOUND
+    assert lta_client.get("Products(2b17b57d-fff4-4645-b539-91f305c27c69)/$value").status_code == HTTP_OK
 
 
 @pytest.mark.unit
 def test_download_when_order_incomplete(lta_client):
     """Try to download when order is not completed."""
-    pass
+    assert lta_client.get("Products(35bfe28a-a4c1-4c4d-9e98-bae950e4b774)/$value").status_code == HTTP_FORBIDDEN

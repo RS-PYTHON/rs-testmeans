@@ -8,8 +8,12 @@ from pathlib import Path
 from typing import Any
 
 from flask import Flask, Response, request, send_file
+from flask_bcrypt import Bcrypt
+from flask_httpauth import HTTPBasicAuth
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
+auth = HTTPBasicAuth()
 
 HTTP_OK = 200
 HTTP_CREATED = 201
@@ -24,6 +28,24 @@ def batch_response_odata_v4(resp_body: list | map) -> Any:
     return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
 
 
+@auth.verify_password
+def verify_password(username, password) -> bool:
+    """Docstring to be added."""
+    auth_path = app.config["configuration_path"] / "auth.json"
+    users = json.loads(open(auth_path).read())
+    if username in users.keys():
+        return bcrypt.check_password_hash(users.get(username), password)
+    return False
+
+
+@app.route("/", methods=["GET", "POST"])
+@auth.login_required
+def auth_page():
+    """Only for auth, if reached here, return OK."""
+    return Response(status=HTTP_OK)
+
+
+@auth.login_required
 @app.route("/Products", methods=["GET"])
 def query_files_endpoint():
     """Endpoint used to process query files requests."""
@@ -135,6 +157,7 @@ def process_query_request(request: str, catalog_data: dict) -> Response:
             status=HTTP_NOT_FOUND)
 
 
+@auth.login_required
 @app.route("/Products(<Id>)", methods=["GET", "POST"])
 def create_order_endpoint(Id):
     """Add order to internal json."""
@@ -183,6 +206,7 @@ def update_product_order(order: dict, field: str, value: str) -> dict:
     pass
 
 
+@auth.login_required
 @app.route("/Orders", methods=["GET"])
 def query_order_status_endpoint():
     """Check and update status of an existing order."""
@@ -222,6 +246,7 @@ def query_order_status_endpoint():
     return json.dumps(selected_order)
 
 
+@auth.login_required
 @app.route("/Products(<product_id>)/$value", methods=["GET"])
 def download_product_endpoint(product_id):
     """Endpoint to process download if available."""
@@ -243,7 +268,16 @@ def download_product_endpoint(product_id):
             selected_order["CompletedDate"] = str(datetime.datetime.now())
             selected_order["EvictionDate"] = str(datetime.datetime.now() + datetime.timedelta(days=3))
     # download it
-    return send_file(f'config/Storage/{selected_order["Name"]}')
+    print(selected_order)
+    catalog_path = app.config["configuration_path"] / "Catalog/GETQueryResponse.json"
+    catalog_data = json.loads(open(catalog_path).read())
+    product_name = [product["Name"] for product in catalog_data['Data'] if product["Id"] == selected_order["Id"]]
+    if len(product_name) > 1:
+        # Should be non-reachable
+        return Response(status=HTTP_NOT_FOUND)
+    else:
+        product_name = product_name[0]
+    return send_file(f'config/Storage/{product_name}')
 
 
 @app.route("/health", methods=["GET"])

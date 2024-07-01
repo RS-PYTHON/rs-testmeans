@@ -108,7 +108,7 @@ def mock_open_queued_feature(monkeypatch):
 
 mock_completed_order_data = {
     "orders": [
-        {"Id": "un_id_oarecare2", "Status": "completed", "StatusMessage": "requested product is available",
+        {"Id": "test_order_completed", "Status": "completed", "StatusMessage": "requested product is available",
          "OrderSize": 1716,
          "SubmissionDate": "2024-06-28 16:31:09.632384", "EstimatedDate": "2024-06-28 16:33:00.632528", "CompletedDate":
              "2024-06-28 17:01:46.706597", "EvictionDate": "2024-07-01 17:01:46.706610", "Priority": 1}]
