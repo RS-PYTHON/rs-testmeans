@@ -121,6 +121,27 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
+  services-lta-img:
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    name: "'services/lta' Docker image"
+    needs: [set-env, pre-actions]
+    permissions: write-all
+    outputs:
+      docker_image: ${{ steps.publish-docker.outputs.docker_image}}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: publish-docker
+        uses: ./.github/actions/publish-docker
+        with:
+          dockerfile: ./src/LTA/Dockerfile
+          build_context_path: ./src/LTA
+          image_suffix: _lta-station-mock
+          version_name: ${{ needs.pre-actions.outputs.sha_short }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          docker_tag: ${{ needs.set-env.outputs.docker_tag }}
+
   services-dpr-processor-img:
     if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest

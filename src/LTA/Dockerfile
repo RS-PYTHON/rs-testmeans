@@ -1,6 +1,6 @@
 
 FROM python:3.11-slim-bookworm
-LABEL description="This docker allow to run a LTA mockup server."
+LABEL description="This docker allows to run a LTA mockup server."
 
 WORKDIR /opt/LTA
 COPY ./lta_station_mock.py /opt/LTA
