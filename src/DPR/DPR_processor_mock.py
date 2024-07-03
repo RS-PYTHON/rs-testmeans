@@ -15,7 +15,9 @@ from threading import Thread
 import crcmod
 import requests
 import yaml
+from fastapi import HTTPException
 from s3_handler import PutFilesToS3Config, S3StorageHandler
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -43,11 +45,11 @@ class DPRProcessor:
                 logger.info("Triggering string yaml-like loaded into processor.")
             except yaml.YAMLError:
                 logger.error("Payload configuration cannot be loaded.")
-                raise ValueError("Bad payload")
+                raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Bad payload")
         logger.info("Successfully loaded payload file")
         # if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
         #     logger.error("Bad payload file")
-        #     raise ValueError("Bad inputs")
+        #     raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Bad inputs")
 
     async def run(self, *args, **kwargs) -> list:
         """Function that simulates the processing of the DPR payload."""
@@ -83,13 +85,24 @@ class DPRProcessor:
         """Use json to map product_type to s3 public download url."""
         if "workflow" not in self.payload_data.keys():
             logger.error("Payload configuration is missing workflow.")
-            raise ValueError("Invalid payload")
+            raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Invalid payload")
         if "parameters" not in self.payload_data["workflow"][0].keys():
             logger.error("Payload configuration is missing workflow parameters.")
-            raise ValueError("Invalid payload")
+            raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Invalid payload")
 
         payload_parameters = self.payload_data["workflow"][0].get("parameters", None)
-        for ptype, output_dir in zip(filter(lambda x: x in self.mapped_data.keys(), payload_parameters["product_types"]),
+
+        requested_ptypes = payload_parameters["product_types"]
+        existing_ptypes = self.mapped_data.keys()
+
+        for ptype in requested_ptypes:
+            if ptype not in existing_ptypes:
+                raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , 
+                    f"Unrecognized product type: {ptype!r}, "
+                    "it should be one of: " + ", ".join(existing_ptypes),
+                )
+        
+        for ptype, output_dir in zip(filter(lambda x: x in existing_ptypes, requested_ptypes),
                                      [out['path'] for out in self.payload_data["I/O"]["output_products"]]):
             for store_type in self.mapped_data[ptype]:
                 url = self.mapped_data[ptype][store_type]
