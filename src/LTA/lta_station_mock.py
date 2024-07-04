@@ -23,14 +23,14 @@ HTTP_NOT_FOUND = 404
 
 
 def batch_response_odata_v4(resp_body: list | map) -> Any:
-    """Docstring to be added."""
+    """Used to custom-jsonify output to OData v4 protocol."""
     unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
     return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
 
 
 @auth.verify_password
 def verify_password(username, password) -> bool:
-    """Docstring to be added."""
+    """Small deco for basic auth check."""
     auth_path = app.config["configuration_path"] / "auth.json"
     users = json.loads(open(auth_path).read())
     if username in users.keys():
@@ -277,7 +277,16 @@ def download_product_endpoint(product_id):
         return Response(status=HTTP_NOT_FOUND)
     else:
         product_name = product_name[0]
-    return send_file(f'config/Storage/{product_name}')
+
+    if any(gzip_extension in product_name for gzip_extension in [".TGZ", ".gz", ".zip", ".tar"]):
+        import io
+
+        fpath = app.config["configuration_path"] / "Storage" / product_name
+        send_args = io.BytesIO(open(fpath, "rb").read())
+        return send_file(send_args, download_name=product_name, as_attachment=True)
+    else:
+        # Nominal case.
+        return send_file(f'config/Storage/{product_name}')
 
 
 @app.route("/health", methods=["GET"])

@@ -20,7 +20,7 @@ HTTP_NOT_FOUND = 404
     ],
 )
 def test_basic_auth(lta_client, correct_login: str, incorrect_login: str):
-    """Docstring to be added."""
+    """Test basic authentication"""
     # test credentials on get methods with auth required.
     correct_login = base64.b64encode(str.encode(correct_login)).decode("utf-8")
     incorrect_login = base64.b64encode(str.encode(incorrect_login)).decode("utf-8")
