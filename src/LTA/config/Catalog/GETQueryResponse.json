@@ -1,0 +1,104 @@
+{
+  "Data": [
+    {
+      "Id": "2b17b57d-fff4-4645-b539-91f305c27c69",
+      "Name": "S1A_IW_SLC__1SDV_20160117T103451_20160117T103518_009533_0094_D46A.SAFE.zip",
+      "ContentType": "application/octet-stream",
+      "ContentLength": "4737286945",
+      "OriginDate": "2018-01-17T12:56:05.232Z",
+      "PublicationDate": "2018-01-17T14:46:03.788Z",
+      "ModificationDate": "2018-01-19T18:00:00.000Z",
+      "Online": "true",
+      "EvictionDate": "2018-01-22T18:00:00.000Z",
+      "Checksum": [
+        {
+          "Algorithm": "MD5",
+          "Value": "E8A303BF3D85200514F727DB60E7DB65",
+          "ChecksumDate": "2018-01-22T18:00:00.000Z"
+        }
+      ],
+      "ContentDate": {
+        "Start": "2016-01-17T10:34:51.922Z",
+        "End": "2016-01-17T10:35:18.872Z"
+      },
+      "Footprint": "geography'SRID=4326;POLYGON((-59.3169 2.6367,-63.105 -14.0539,-60.8506 -14.4245,-57.1309 2.3269,-59.3169 2.6367))",
+      "GeoFootprint": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.3169,
+              2.6367
+            ],
+            [
+              -63.105,
+              -14.0539
+            ],
+            [
+              -60.8506,
+              -14.4245
+            ],
+            [
+              -57.1309,
+              2.3269
+            ],
+            [
+              -59.3169,
+              2.6367
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "Id": "35bfe28a-a4c1-4c4d-9e98-bae950e4b774",
+      "Name": "S5P_IW_SLC__1SDV_20180726T143357_20200505T205041_931799_6107_ESAF.SEN3",
+      "ContentType": "application/octet-stream",
+      "ContentLength": "4737286945",
+      "OriginDate": "2020-01-17T12:56:05.232Z",
+      "PublicationDate": "2020-01-17T14:46:03.788Z",
+      "ModificationDate": "2020-01-19T18:00:00.000Z",
+      "Online": "true",
+      "EvictionDate": "2020-01-22T18:00:00.000Z",
+      "Checksum": [
+        {
+          "Algorithm": "MD5",
+          "Value": "E8A303BF3D85200514F727DB60E7DB65",
+          "ChecksumDate": "2020-01-22T18:00:00.000Z"
+        }
+      ],
+      "ContentDate": {
+        "Start": "2016-01-17T10:34:51.922Z",
+        "End": "2016-01-17T10:35:18.872Z"
+      },
+      "Footprint": "geography'SRID=4326;POLYGON((-59.3169 2.6367,-63.105 -14.0539,-60.8506 -14.4245,-57.1309 2.3269,-59.3169 2.6367))",
+      "GeoFootprint": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.3169,
+              2.6367
+            ],
+            [
+              -63.105,
+              -14.0539
+            ],
+            [
+              -60.8506,
+              -14.4245
+            ],
+            [
+              -57.1309,
+              2.3269
+            ],
+            [
+              -59.3169,
+              2.6367
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+    "orders": [
+        {
+            "Id": "2b17b57d-fff4-4645-b539-91f305c27c69",
+            "Status": "completed",
+            "StatusMessage": "requested product is available",
+            "OrderSize": 4008,
+            "SubmissionDate": "2024-07-01 14:11:12.681046",
+            "EstimatedDate": "2024-07-01 14:11:40.681065",
+            "CompletedDate": "2024-07-01 14:12:00.907049",
+            "EvictionDate": "2024-07-04 14:12:00.907061",
+            "Priority": 1
+        },
+        {
+            "Id": "35bfe28a-a4c1-4c4d-9e98-bae950e4b774",
+            "Status": "queued",
+            "StatusMessage": "request is queued",
+            "OrderSize": 6261,
+            "SubmissionDate": "2024-07-01 14:11:27.259185",
+            "EstimatedDate": "2035-07-01 14:11:47.259217",
+            "CompletedDate": null,
+            "EvictionDate": null,
+            "Priority": 1
+        }
+    ]
+}
