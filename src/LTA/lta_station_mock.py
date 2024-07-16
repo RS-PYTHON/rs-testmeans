@@ -172,8 +172,9 @@ def create_product_order(product_id: str) -> dict | str:
     with order_file.open("r") as file:
         data = json.load(file)
 
-    if [order for order in data['orders'] if order['Id'] == product_id]:
-        return "Order already created, request the status."
+    existing_order = [order for order in data['orders'] if order['Id'] == product_id]
+    if existing_order:
+        return batch_response_odata_v4(existing_order)
 
     # Create a new order entry
     order_info = {
