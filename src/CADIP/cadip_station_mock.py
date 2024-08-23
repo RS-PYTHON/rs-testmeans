@@ -150,11 +150,11 @@ def query_session() -> Response | list[Any]:
                     files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
                     files = files['responses'] if "responses" in files else [files]
                     session.update({"Files": [file for file in files]})
-                return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=None)
+                return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args)
             else:
                 # If expand is enabled with -e and request contains &$expand
                 # Do not expand
-                return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else (
+                return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args) if common_elements else (
                     Response(response=json.dumps([]), status=OK))
         except (json.JSONDecodeError, AttributeError):  # if a response is empty, whole querry is empty
             return Response(status=NOT_FOUND)
@@ -176,7 +176,7 @@ def query_session() -> Response | list[Any]:
                 files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
                 files = files['responses'] if "responses" in files else [files]
                 session.update({"Files": [file for file in files]})
-            return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=None)
+            return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args)
         else:
             return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
                 status=NOT_FOUND)
@@ -191,7 +191,7 @@ def query_session() -> Response | list[Any]:
             files = files['responses'] if "responses" in files else [files]
             session.update({"Files": [file for file in files]})
         session_response = batch_response_odata_v4(session_response) if session_response else json.dumps([])
-        return Response(status=OK, response=session_response, headers=None)
+        return Response(status=OK, response=session_response, headers=request.args)
     else:
         return process_session_request(request.args["$filter"], request.args, catalog_data)
 
