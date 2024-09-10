@@ -139,7 +139,7 @@ def verify_password(username: str, password: str) -> bool:
 
 @app.route("/health", methods=["GET"])
 def ready_live_status():
-    """Docstring to be added."""    
+    """Docstring to be added."""
     return Response(status=HTTP_OK)
 
 
@@ -298,7 +298,9 @@ def query_products():
                     union_set = fresp_set.union(sresp_set)
                     union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
                     return Response(
-                        status=HTTP_OK, response=prepare_response_odata_v4(union_elements), headers=request.args,
+                        status=HTTP_OK,
+                        response=prepare_response_odata_v4(union_elements),
+                        headers=request.args,
                     )
 
     return process_products_request(str(request.args["$filter"]), request.args)
@@ -358,13 +360,13 @@ def token():
         return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid username or password"}))
     # Validate the grant_type
     if grant_type != config_auth["grant_type"]:
-        return jsonify({"error": "unsupported_grant_type"}), 400
+        return jsonify({"error": "unsupported_grant_type"}), HTTP_BAD_REQUEST
     print("Grant type validated ")
     print(f"Returning token {config_auth['token']}")
     # Return the token in JSON format
     response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
     # print("Endpoint oauth2/token ended\n\n")
-    return jsonify(response), 200
+    return jsonify(response), HTTP_OK
 
 
 def create_adgs_app():
@@ -375,6 +377,7 @@ def create_adgs_app():
 
 
 if __name__ == "__main__":
+    """Docstring to be added."""
     parser = argparse.ArgumentParser(
         description="Starts the ADGS server mockup ",
     )

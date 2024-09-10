@@ -112,7 +112,9 @@ def query_files_endpoint():
                 common_elements = [d for d in first_response if d.get("Id") in common_response]
                 if common_elements:
                     return Response(
-                        status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args,
+                        status=HTTP_OK,
+                        response=batch_response_odata_v4(common_elements),
+                        headers=request.args,
                     )
                 return Response(status=HTTP_OK, response=json.dumps([]))
             case "or":  # union
@@ -363,21 +365,23 @@ def token():
         return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid username or password"}))
     # Validate the grant_type
     if grant_type != config_auth["grant_type"]:
-        return jsonify({"error": "unsupported_grant_type"}), 400
+        return jsonify({"error": "unsupported_grant_type"}), HTTP_BAD_REQUEST
     print("Grant type validated ")
     # print(f"Returning token {config_auth['token']}")
     # Return the token in JSON format
     response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
     print("Endpoint oauth2/token ended\n\n")
-    return jsonify(response), 200
+    return jsonify(response), HTTP_OK
 
 
 def create_lta_app():  # noqa: D103
+    """Docstring to be added."""
     app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
     return app
 
 
 if __name__ == "__main__":
+    """Docstring to be added."""
     parser = argparse.ArgumentParser(description="Starts the LTA  server mockup ")
 
     default_config_path = pathlib.Path(__file__).parent.resolve() / "config"

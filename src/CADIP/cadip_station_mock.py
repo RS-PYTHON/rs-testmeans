@@ -121,6 +121,7 @@ def verify_password(username, password) -> bool:
 
 @app.route("/health", methods=["GET"])
 def ready_live_status():
+    """Docstring to be added."""
     return Response(status=HTTP_OK)
 
 
@@ -173,7 +174,9 @@ def query_session() -> Response | list[Any]:
                 for session in common_elements:
                     files = json.loads(
                         process_files_request(
-                            f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files,
+                            f'SessionID eq {session["SessionId"]}',
+                            request.args,
+                            catalog_data_files,
                         ).response[0],
                     )
                     files = files["responses"] if "responses" in files else [files]
@@ -206,7 +209,9 @@ def query_session() -> Response | list[Any]:
             for session in common_elements:
                 files = json.loads(
                     process_files_request(
-                        f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files,
+                        f'SessionID eq {session["SessionId"]}',
+                        request.args,
+                        catalog_data_files,
                     ).response[0],
                 )
                 files = files["responses"] if "responses" in files else [files]
@@ -229,7 +234,9 @@ def query_session() -> Response | list[Any]:
         for session in session_response:
             files = json.loads(
                 process_files_request(
-                    f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files,
+                    f'SessionID eq {session["SessionId"]}',
+                    request.args,
+                    catalog_data_files,
                 ).response[0],
             )
             files = files["responses"] if "responses" in files else [files]
@@ -241,6 +248,7 @@ def query_session() -> Response | list[Any]:
 
 
 def manage_int_querry(op, value, catalog_data, field, headers):
+    """Docstring to be added."""
     try:
         value = int(value)
     except ValueError:
@@ -260,6 +268,7 @@ def manage_int_querry(op, value, catalog_data, field, headers):
 
 
 def manage_bool_querry(op, value, catalog_data, field, headers):
+    """Docstring to be added."""
     try:
         value = bool(value)
     except ValueError:
@@ -279,6 +288,7 @@ def manage_bool_querry(op, value, catalog_data, field, headers):
 
 
 def manage_satellite_sid_query(op, value, catalog_data, field, headers):
+    """Docstring to be added."""
     match op:
         case "eq":
             query_result = [product for product in catalog_data["Data"] if value == product[field]]
@@ -298,6 +308,7 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
 
 
 def manage_str_querry(op, value, catalog_data, field, headers):
+    """Docstring to be added."""
     match op:
         case "eq":
             query_result = [product for product in catalog_data["Data"] if value == product[field]]
@@ -311,6 +322,7 @@ def manage_str_querry(op, value, catalog_data, field, headers):
 
 
 def manage_datetime_querry(op, value, catalog_data, field, headers):
+    """Docstring to be added."""
     date = datetime.datetime.fromisoformat(value)
     match op:
         case "eq":
@@ -427,7 +439,9 @@ def query_files() -> Response | list[Any]:
                 common_elements = [d for d in first_response if d.get("Id") in common_response]
                 if common_elements:
                     return Response(
-                        status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args,
+                        status=HTTP_OK,
+                        response=batch_response_odata_v4(common_elements),
+                        headers=request.args,
                     )
                 return Response(status=HTTP_OK, response=json.dumps([]))
             case "or":  # union
@@ -572,13 +586,13 @@ def token():
         return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid username or password"}))
     # Validate the grant_type
     if grant_type != config_auth["grant_type"]:
-        return jsonify({"error": "unsupported_grant_type"}), 400
+        return jsonify({"error": "unsupported_grant_type"}), HTTP_BAD_REQUEST
     print("Grant type validated ")
     print(f"Returning token {config_auth['token']}")
     # Return the token in JSON format
     response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
     # print("Endpoint oauth2/token ended\n\n")
-    return jsonify(response), 200
+    return jsonify(response), HTTP_OK
 
 
 def create_cadip_app():
@@ -590,6 +604,7 @@ def create_cadip_app():
 
 
 if __name__ == "__main__":
+    """Docstring to be added."""
     parser = argparse.ArgumentParser(description="Starts the CADIP server mockup ")
 
     default_config_path = pathlib.Path(__file__).parent.resolve() / "config"
