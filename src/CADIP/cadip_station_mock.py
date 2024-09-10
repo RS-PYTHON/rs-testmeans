@@ -2,13 +2,13 @@
 import argparse
 import datetime
 import json
-import pathlib
 import os
+import pathlib
 import re
 from functools import wraps
 from typing import Any
 
-from flask import Flask, Response, request, send_file
+from flask import Flask, Response, jsonify, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 
@@ -16,10 +16,37 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 
-OK = 200
-BAD_REQUEST = 400
-UNAUTHORIZED = 401
-NOT_FOUND = 404
+HTTP_OK = 200
+HTTP_BAD_REQUEST = 400
+HTTP_UNAUTHORIZED = 401
+HTTP_NOT_FOUND = 404
+
+
+def token_required(f):
+    """Docstring to be added."""
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        """Docstring to be added."""
+        token = None
+        print(f"decorator request.headers = {request.headers}")
+        if "Authorization" in request.headers:
+            token = request.headers["Authorization"].split()[1]
+
+        if not token:
+            return jsonify({"message": "Token is missing!"}), 403
+
+        auth_path = app.config["configuration_path"] / "auth.json"
+        config_auth = json.loads(open(auth_path).read())
+        print(f"token {token}")
+        print(f"config_auth['token'] {config_auth['token']}")
+        if token != config_auth["token"]:
+            print("Returning 403")
+            return jsonify({"message": "Token is invalid!"}), 403
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def additional_options(func):
@@ -69,8 +96,8 @@ def additional_options(func):
                 case "$count":
                     json_data = parse_response_data()
                     if "responses" in json_data:
-                        return Response(status=OK, response=str(len(json_data["responses"])))
-                    return Response(status=OK, response=str(len(json_data)))
+                        return Response(status=HTTP_OK, response=str(len(json_data["responses"])))
+                    return Response(status=HTTP_OK, response=str(len(json_data)))
         return response
 
     return wrapper
@@ -94,34 +121,31 @@ def verify_password(username, password) -> bool:
 
 @app.route("/health", methods=["GET"])
 def ready_live_status():
-    return Response(status=OK)
+    return Response(status=HTTP_OK)
 
 
 @app.route("/", methods=["GET", "POST"])
-@auth.login_required
+@token_required
 def hello():
     """Docstring to be added."""
-    # Used only for auth, if reached here, return OK.
-    return Response(status=OK)
+    # Used only for auth, if reached here, return HTTP_OK.
+    return Response(status=HTTP_OK)
 
 
 # 3.3 (PSD)
 @app.route("/Sessions", methods=["GET"])
-@auth.login_required
+@token_required
 @additional_options
 def query_session() -> Response | list[Any]:
     """Docstring to be added."""
     if not request.args:
-        return Response(status=BAD_REQUEST)
+        return Response(status=HTTP_BAD_REQUEST)
         # return Response('Bad Request', Response.status_code(400), None)
     # Check requested values, filter type can only be json keys
     if not any(
-            [
-                query_text == request.args["$filter"].strip('"').split(" ")[0]
-                for query_text in SPJ_LUT.keys()
-            ],
+        [query_text == request.args["$filter"].strip('"').split(" ")[0] for query_text in SPJ_LUT.keys()],
     ):
-        return Response(status=BAD_REQUEST)
+        return Response(status=HTTP_BAD_REQUEST)
     # Proceed to process request
     catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
     catalog_data = json.loads(open(catalog_path).read())
@@ -131,40 +155,47 @@ def query_session() -> Response | list[Any]:
     # accepted_operators = [" and ", " or ", " in ", " not ", "and ", " or ", " in ", " not", "and", "or", "in", "not"]
     # split_request = [req.strip() for req in request.args["$filter"].split('and')]
     # Handle multiple "AND" / "OR" operands
-    if len(split_request := [req.strip() for req in request.args["$filter"].split('and')]) in [2, 3]:
+    if len(split_request := [req.strip() for req in request.args["$filter"].split("and")]) in [2, 3]:
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         if not all(resp.status_code == 200 for resp in responses):
-            return Response(response=json.dumps([]), status=OK)
+            return Response(response=json.dumps([]), status=HTTP_OK)
         if any(not resp.response for resp in responses):
             # Case where an response is empty or not dict => the query is empty
-            return Response(response=json.dumps([]), status=NOT_FOUND)
+            return Response(response=json.dumps([]), status=HTTP_NOT_FOUND)
         try:
             responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
             resp_set = [{d.get("Id") for d in resp} for resp in responses_norm]
             common_response = set.intersection(*resp_set)
             common_elements = [d for d in responses_norm[0] if d.get("Id") in common_response]
-            # 200 OK even if search is empty
+            # 200 HTTP_OK even if search is empty
             if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
                 for session in common_elements:
-                    files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
-                    files = files['responses'] if "responses" in files else [files]
+                    files = json.loads(
+                        process_files_request(
+                            f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files,
+                        ).response[0],
+                    )
+                    files = files["responses"] if "responses" in files else [files]
                     session.update({"Files": [file for file in files]})
-                return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+                return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
             else:
                 # If expand is enabled with -e and request contains &$expand
                 # Do not expand
-                return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args) if common_elements else (
-                    Response(response=json.dumps([]), status=OK))
+                return (
+                    Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+                    if common_elements
+                    else (Response(response=json.dumps([]), status=HTTP_OK))
+                )
         except (json.JSONDecodeError, AttributeError):  # if a response is empty, whole querry is empty
-            return Response(status=NOT_FOUND)
-    elif len(split_request := [req.strip() for req in request.args["$filter"].split('or')]) in [2, 3]:
+            return Response(status=HTTP_NOT_FOUND)
+    elif len(split_request := [req.strip() for req in request.args["$filter"].split("or")]) in [2, 3]:
         # add test when a response is empty, and other not.
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         # if not all(isinstance(resp, dict) for resp in responses):
-        #     # handle incorrect requests, status OK, but empty content
+        #     # handle incorrect requests, status HTTP_OK, but empty content
         #     For OR operator, responses can be empty
-        #     return Response(status=OK)
+        #     return Response(status=HTTP_OK)
         responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
         responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
         union_set = [{d.get("Id") for d in resp} for resp in responses_norm]
@@ -173,25 +204,38 @@ def query_session() -> Response | list[Any]:
         if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
             # If expand is enabled with -e and request contains &$expand
             for session in common_elements:
-                files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
-                files = files['responses'] if "responses" in files else [files]
+                files = json.loads(
+                    process_files_request(
+                        f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files,
+                    ).response[0],
+                )
+                files = files["responses"] if "responses" in files else [files]
                 session.update({"Files": [file for file in files]})
-            return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+            return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
         else:
-            return Response(status=OK, response=batch_response_odata_v4(common_elements)) if common_elements else Response(
-                status=NOT_FOUND)
+            return (
+                Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements))
+                if common_elements
+                else Response(status=HTTP_NOT_FOUND)
+            )
 
     if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
         # If expand is enabled with -e and request contains &$expand
-        raw_result = json.loads(process_session_request(request.args["$filter"], request.args, catalog_data).response[0])
-        session_response = raw_result['responses'] if "responses" in raw_result else [raw_result]
-        session_response = [] if session_response in [[], [[]]] else session_response # flatten empty if needed
+        raw_result = json.loads(
+            process_session_request(request.args["$filter"], request.args, catalog_data).response[0],
+        )
+        session_response = raw_result["responses"] if "responses" in raw_result else [raw_result]
+        session_response = [] if session_response in [[], [[]]] else session_response  # flatten empty if needed
         for session in session_response:
-            files = json.loads(process_files_request(f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files).response[0])
-            files = files['responses'] if "responses" in files else [files]
+            files = json.loads(
+                process_files_request(
+                    f'SessionID eq {session["SessionId"]}', request.args, catalog_data_files,
+                ).response[0],
+            )
+            files = files["responses"] if "responses" in files else [files]
             session.update({"Files": [file for file in files]})
         session_response = batch_response_odata_v4(session_response) if session_response else json.dumps([])
-        return Response(status=OK, response=session_response, headers=request.args)
+        return Response(status=HTTP_OK, response=session_response, headers=request.args)
     else:
         return process_session_request(request.args["$filter"], request.args, catalog_data)
 
@@ -200,7 +244,7 @@ def manage_int_querry(op, value, catalog_data, field, headers):
     try:
         value = int(value)
     except ValueError:
-        return Response(status=BAD_REQUEST)
+        return Response(status=HTTP_BAD_REQUEST)
     match op:
         case "eq":
             query_result = [product for product in catalog_data["Data"] if value == int(product[field])]
@@ -209,9 +253,9 @@ def manage_int_querry(op, value, catalog_data, field, headers):
         case "gt":
             query_result = [product for product in catalog_data["Data"] if value < int(product[field])]
     return (
-        Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
+        Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=NOT_FOUND)
+        else Response(status=HTTP_NOT_FOUND)
     )
 
 
@@ -219,7 +263,7 @@ def manage_bool_querry(op, value, catalog_data, field, headers):
     try:
         value = bool(value)
     except ValueError:
-        return Response(status=BAD_REQUEST)
+        return Response(status=HTTP_BAD_REQUEST)
     match op:
         case "eq":
             query_result = [product for product in catalog_data["Data"] if value == product[field]]
@@ -228,9 +272,9 @@ def manage_bool_querry(op, value, catalog_data, field, headers):
         case "gt":
             query_result = [product for product in catalog_data["Data"] if value > product[field]]
     return (
-        Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
+        Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=NOT_FOUND)
+        else Response(status=HTTP_NOT_FOUND)
     )
 
 
@@ -239,15 +283,17 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
         case "eq":
             query_result = [product for product in catalog_data["Data"] if value == product[field]]
         case "in":
-            sat_sid_match = re.sub(r'[()]', '', value).split(', ')
-            query_result = [[product for product in catalog_data["Data"] if product[field] == sat_sid.strip()] for
-                            sat_sid in sat_sid_match]
+            sat_sid_match = re.sub(r"[()]", "", value).split(", ")
+            query_result = [
+                [product for product in catalog_data["Data"] if product[field] == sat_sid.strip()]
+                for sat_sid in sat_sid_match
+            ]
             query_result = [product for sublist in query_result for product in sublist]
     return (
-        Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
+        Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        # as per ICD response is OK even if empty
-        else Response(status=OK, response=json.dumps([]))
+        # as per ICD response is HTTP_OK even if empty
+        else Response(status=HTTP_OK, response=json.dumps([]))
     )
 
 
@@ -258,9 +304,9 @@ def manage_str_querry(op, value, catalog_data, field, headers):
         case "in":
             query_result = [product for product in catalog_data["Data"] if value in product[field]]
     return (
-        Response(status=OK, response=batch_response_odata_v4(query_result), headers=headers)
+        Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=NOT_FOUND)
+        else Response(status=HTTP_NOT_FOUND)
     )
 
 
@@ -269,30 +315,24 @@ def manage_datetime_querry(op, value, catalog_data, field, headers):
     match op:
         case "eq":
             resp_body = [
-                product
-                for product in catalog_data["Data"]
-                if date == datetime.datetime.fromisoformat(product[field])
+                product for product in catalog_data["Data"] if date == datetime.datetime.fromisoformat(product[field])
             ]
         case "gt":
             resp_body = [
-                product
-                for product in catalog_data["Data"]
-                if date < datetime.datetime.fromisoformat(product[field])
+                product for product in catalog_data["Data"] if date < datetime.datetime.fromisoformat(product[field])
             ]
         case "lt":
             resp_body = [
-                product
-                for product in catalog_data["Data"]
-                if date > datetime.datetime.fromisoformat(product[field])
+                product for product in catalog_data["Data"] if date > datetime.datetime.fromisoformat(product[field])
             ]
         case _:
             # If the operation is not recognized, return a 404 NOT FOUND response
-            return Response(status=NOT_FOUND)
+            return Response(status=HTTP_NOT_FOUND)
     # Return the response with the processed results or a 404 NOT FOUND if no results are found
     return (
-        Response(status=OK, response=batch_response_odata_v4(resp_body), headers=headers)
+        Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
         if resp_body
-        else Response(status=NOT_FOUND)
+        else Response(status=HTTP_NOT_FOUND)
     )
 
 
@@ -308,14 +348,14 @@ SPJ_LUT = {
     "AntennaId": manage_str_querry,
     "FronEndId": manage_str_querry,
     "Retransfer": manage_bool_querry,
-    "AntennaStatusOK": manage_bool_querry,
-    "FrontEndStatusOK": manage_bool_querry,
+    "AntennaStatusHTTP_OK": manage_bool_querry,
+    "FrontEndStatusHTTP_OK": manage_bool_querry,
     "PlannedDataStart": manage_datetime_querry,
     "PlannedDataStop": manage_datetime_querry,
     "DownlinkStart": manage_datetime_querry,
     "DownlinkStop": manage_datetime_querry,
-    "DownlinkStatusOK": manage_bool_querry,
-    "DeliveryPushOK": manage_bool_querry,
+    "DownlinkStatusHTTP_OK": manage_bool_querry,
+    "DeliveryPushHTTP_OK": manage_bool_querry,
     "NumChannels": manage_int_querry,
 }
 
@@ -329,29 +369,31 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
             request.strip('"').split(" "),
         )
     except:
-        return Response(status=NOT_FOUND, response={})
+        return Response(status=HTTP_NOT_FOUND, response={})
     # field, op, *value = request.split(" ")
     value = " ".join(value)
-    # return results or the 200OK code is returned with an empty response (PSD)
-    return SPJ_LUT[field](op, value, catalog_data, field, headers) if field in SPJ_LUT else Response(status=NOT_FOUND)
+    # return results or the 200HTTP_OK code is returned with an empty response (PSD)
+    return (
+        SPJ_LUT[field](op, value, catalog_data, field, headers) if field in SPJ_LUT else Response(status=HTTP_NOT_FOUND)
+    )
 
 
 # 3.4
 @app.route("/Files", methods=["GET"])
-@auth.login_required
+@token_required
 @additional_options
 def query_files() -> Response | list[Any]:
     """Docstring to be added."""
     if not request.args:
-        return Response(status=BAD_REQUEST)
+        return Response(status=HTTP_BAD_REQUEST)
 
     if not any(
-            [
-                query_text in request.args["$filter"].split(" ")[0]
-                for query_text in ["Id", "Orbit", "Name", "PublicationDate", "SessionID"]
-            ],
+        [
+            query_text in request.args["$filter"].split(" ")[0]
+            for query_text in ["Id", "Orbit", "Name", "PublicationDate", "SessionID"]
+        ],
     ):
-        return Response(status=BAD_REQUEST)
+        return Response(status=HTTP_BAD_REQUEST)
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
 
@@ -384,12 +426,14 @@ def query_files() -> Response | list[Any]:
                 common_response = fresp_set.intersection(sresp_set)
                 common_elements = [d for d in first_response if d.get("Id") in common_response]
                 if common_elements:
-                    return Response(status=OK, response=batch_response_odata_v4(common_elements), headers=request.args)
-                return Response(status=OK, response=json.dumps([]))
+                    return Response(
+                        status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args,
+                    )
+                return Response(status=HTTP_OK, response=json.dumps([]))
             case "or":  # union
                 union_set = fresp_set.union(sresp_set)
                 union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-                return Response(status=OK, response=batch_response_odata_v4(union_elements), headers=request.args)
+                return Response(status=HTTP_OK, response=batch_response_odata_v4(union_elements), headers=request.args)
     return process_files_request(request.args["$filter"], request.args, catalog_data)
 
 
@@ -410,9 +454,9 @@ def process_files_request(request, headers, catalog_data):
             case "endswith":
                 resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)]
         return (
-            Response(status=OK, response=batch_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=NOT_FOUND)
+            else Response(status=HTTP_NOT_FOUND)
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
@@ -438,12 +482,12 @@ def process_files_request(request, headers, catalog_data):
                     if date > datetime.datetime.fromisoformat(product[field])
                 ]
         return (
-            Response(status=OK, response=batch_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=NOT_FOUND)
+            else Response(status=HTTP_NOT_FOUND)
         )
     else:  # SessionId / Orbit
-        request = request.replace('"', '')
+        request = request.replace('"', "")
         field, op, *value = request.split(" ")
         match op:
             case "eq":
@@ -452,14 +496,18 @@ def process_files_request(request, headers, catalog_data):
                 matching = []
                 for idx in value:
                     matching += [product for product in catalog_data["Data"] if idx.replace(",", "") in product[field]]
-        return Response(response=batch_response_odata_v4(matching), status=OK) if matching else Response(status=NOT_FOUND)
+        return (
+            Response(response=batch_response_odata_v4(matching), status=HTTP_OK)
+            if matching
+            else Response(status=HTTP_NOT_FOUND)
+        )
 
 
 # 3.5
 # v1.0.0 takes id from route GET and filters FPJ (json outputs of file query) in order to download a file
 # Is possible / how to download multiple files
 @app.route("/Files(<Id>)/$value", methods=["GET"])
-@auth.login_required
+@token_required
 def download_file(Id) -> Response:  # noqa: N803
     """Docstring to be added."""
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
@@ -489,8 +537,48 @@ def quality_info(Id) -> Response | list[Any]:  # noqa: N803
                 json.dumps,
                 [QIData for QIData in catalog_data["Data"] if Id.replace("'", "") == QIData["Id"]],
             )
-            return Response(status=OK, response=QIData)
+            return Response(status=HTTP_OK, response=QIData)
     return Response(status="405 Request denied, need qualityInfo")
+
+
+@app.route("/oauth2/token", methods=["POST"])
+def token():
+    """Docstring to be added."""
+    # Get the form data
+    print("Endpoint oauth2/token called")
+    auth_path = app.config["configuration_path"] / "auth.json"
+    config_auth = json.loads(open(auth_path).read())
+    client_id = request.form.get("client_id")
+    client_secret = request.form.get("client_secret")
+    username = request.form.get("username")
+    password = request.form.get("password")
+    grant_type = request.form.get("grant_type")
+    scope = request.form.get("scope")
+    print(f"scope = {scope}")
+
+    # Optional Authorization header check
+    # auth_header = request.headers.get('Authorization')
+    # print(f"auth_header {auth_header}")
+    print(f"request.headers = {request.headers}")
+
+    print(f"{client_id} | {client_secret} | {grant_type}")
+    # Validate required fields
+    if not client_id or not client_secret or not username or not password:
+        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid client"}))
+
+    if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
+        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid client id and secret"}))
+    if username != config_auth["username"] or password != config_auth["password"]:
+        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid username or password"}))
+    # Validate the grant_type
+    if grant_type != config_auth["grant_type"]:
+        return jsonify({"error": "unsupported_grant_type"}), 400
+    print("Grant type validated ")
+    print(f"Returning token {config_auth['token']}")
+    # Return the token in JSON format
+    response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
+    # print("Endpoint oauth2/token ended\n\n")
+    return jsonify(response), 200
 
 
 def create_cadip_app():
@@ -511,7 +599,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     configuration_path = pathlib.Path(args.config)
-    if is_expanded := str(os.getenv("CADIP_SESSION_EXPAND", True)).lower() in ('true', '1', 't', 'y', 'yes'):
+    if is_expanded := str(os.getenv("CADIP_SESSION_EXPAND", True)).lower() in ("true", "1", "t", "y", "yes"):
         print("Starting CADIP server mockup with expanded sessions support.")
     app.config["expand"] = is_expanded
     # configuration_path.iterdir() / signature in str(x)

@@ -4,10 +4,11 @@ import json
 import pathlib
 import random
 import re
+from functools import wraps
 from pathlib import Path
 from typing import Any
 
-from flask import Flask, Response, request, send_file
+from flask import Flask, Response, jsonify, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 
@@ -18,8 +19,36 @@ auth = HTTPBasicAuth()
 HTTP_OK = 200
 HTTP_CREATED = 201
 HTTP_BAD_REQUEST = 400
+HTTP_UNAUTHORIZED = 401
 HTTP_FORBIDDEN = 403
 HTTP_NOT_FOUND = 404
+
+
+def token_required(f):
+    """Docstring to be added."""
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        """Docstring to be added."""
+        token = None
+        print(f"decorator request.headers = {request.headers}")
+        if "Authorization" in request.headers:
+            token = request.headers["Authorization"].split()[1]
+
+        if not token:
+            return jsonify({"message": "Token is missing!"}), 403
+
+        auth_path = app.config["configuration_path"] / "auth.json"
+        config_auth = json.loads(open(auth_path).read())
+        print(f"token {token}")
+        print(f"config_auth['token'] {config_auth['token']}")
+        if token != config_auth["token"]:
+            print("Returning 403")
+            return jsonify({"message": "Token is invalid!"}), 403
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def batch_response_odata_v4(resp_body: list | map) -> Any:
@@ -82,8 +111,9 @@ def query_files_endpoint():
                 common_response = fresp_set.intersection(sresp_set)
                 common_elements = [d for d in first_response if d.get("Id") in common_response]
                 if common_elements:
-                    return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements),
-                                    headers=request.args)
+                    return Response(
+                        status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args,
+                    )
                 return Response(status=HTTP_OK, response=json.dumps([]))
             case "or":  # union
                 union_set = fresp_set.union(sresp_set)
@@ -106,13 +136,18 @@ def process_query_request(request: str, catalog_data: dict) -> Response:
                 case "contains":
                     resp_body = [product for product in catalog_data["Data"] if filter_value in product[filter_by]]
                 case "startswith":
-                    resp_body = [product for product in catalog_data["Data"] if product[filter_by].startswith(
-                        filter_value)]
+                    resp_body = [
+                        product for product in catalog_data["Data"] if product[filter_by].startswith(filter_value)
+                    ]
                 case "endswith":
-                    resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(
-                        filter_value)]
-            return Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body)) if resp_body else (
-                Response(status=HTTP_NOT_FOUND))
+                    resp_body = [
+                        product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)
+                    ]
+            return (
+                Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body))
+                if resp_body
+                else (Response(status=HTTP_NOT_FOUND))
+            )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
         date = datetime.datetime.fromisoformat(value)
@@ -144,7 +179,7 @@ def process_query_request(request: str, catalog_data: dict) -> Response:
         # Geometrical intersection to be added in next versions
         pass
     else:
-        split_request = request.replace('"', '')
+        split_request = request.replace('"', "")
         field, op, *value = split_request.split(" ")
         matching = []
         match op:
@@ -153,8 +188,11 @@ def process_query_request(request: str, catalog_data: dict) -> Response:
             case "in":
                 for idx in value:
                     matching += [product for product in catalog_data["Data"] if idx.replace(",", "") in product[field]]
-        return Response(response=batch_response_odata_v4(matching), status=HTTP_OK) if matching else Response(
-            status=HTTP_NOT_FOUND)
+        return (
+            Response(response=batch_response_odata_v4(matching), status=HTTP_OK)
+            if matching
+            else Response(status=HTTP_NOT_FOUND)
+        )
 
 
 @auth.login_required
@@ -172,7 +210,7 @@ def create_product_order(product_id: str) -> dict | str:
     with order_file.open("r") as file:
         data = json.load(file)
 
-    existing_order = [order for order in data['orders'] if order['Id'] == product_id]
+    existing_order = [order for order in data["orders"] if order["Id"] == product_id]
     if existing_order:
         return batch_response_odata_v4(existing_order)
 
@@ -186,7 +224,7 @@ def create_product_order(product_id: str) -> dict | str:
         "EstimatedDate": str(datetime.datetime.now() + datetime.timedelta(seconds=random.randint(10, 120))),
         "CompletedDate": None,
         "EvictionDate": None,
-        "Priority": 1  # default, not supported
+        "Priority": 1,  # default, not supported
         # "NotificationEndpoint": "N/A",
         # "NotificationEpUsername": "N/A",
         # "NotificationEpPassword": "N/A"
@@ -214,7 +252,7 @@ def query_order_status_endpoint():
     if not request.args:
         return Response(status=HTTP_BAD_REQUEST)
 
-    field, op, value = request.args['$filter'].split(" ")
+    field, op, value = request.args["$filter"].split(" ")
     order_file = Path(app.config["configuration_path"]) / "Internal/orders.json"
     if op != "eq":
         return  # not implemented yed
@@ -222,13 +260,13 @@ def query_order_status_endpoint():
     with order_file.open("r") as file:
         data = json.load(file)
 
-    selected_order = [order for order in data['orders'] if order[field] == value]
+    selected_order = [order for order in data["orders"] if order[field] == value]
     if not selected_order or len(selected_order) > 1:
         return Response(status=HTTP_NOT_FOUND)
     else:
         selected_order = selected_order[0]
 
-    order_estimated_time = datetime.datetime.strptime(selected_order['EstimatedDate'], "%Y-%m-%d %H:%M:%S.%f")
+    order_estimated_time = datetime.datetime.strptime(selected_order["EstimatedDate"], "%Y-%m-%d %H:%M:%S.%f")
     if datetime.datetime.now() < order_estimated_time:
         # If estimated time has not passed, means that order is still processing
         selected_order["Status"] = "in_progress"
@@ -238,8 +276,7 @@ def query_order_status_endpoint():
         selected_order["Status"] = "completed"
         selected_order["StatusMessage"] = "requested product is available"
         selected_order["CompletedDate"] = str(datetime.datetime.now())
-        selected_order["EvictionDate"] = str(datetime.datetime.now() + datetime.timedelta(
-            days=3))
+        selected_order["EvictionDate"] = str(datetime.datetime.now() + datetime.timedelta(days=3))
 
     with order_file.open("w") as file:
         json.dump(data, file, indent=4)
@@ -254,13 +291,13 @@ def download_product_endpoint(product_id):
     order_file = Path(app.config["configuration_path"]) / "Internal/orders.json"
     with order_file.open("r") as file:
         order_data = json.load(file)
-    selected_order = [order for order in order_data['orders'] if order['Id'] == product_id]
+    selected_order = [order for order in order_data["orders"] if order["Id"] == product_id]
     if selected_order != "completed":
         if not selected_order or len(selected_order) > 1:
             return Response(status=HTTP_NOT_FOUND)
         else:
             selected_order = selected_order[0]
-        order_estimated_time = datetime.datetime.strptime(selected_order['EstimatedDate'], "%Y-%m-%d %H:%M:%S.%f")
+        order_estimated_time = datetime.datetime.strptime(selected_order["EstimatedDate"], "%Y-%m-%d %H:%M:%S.%f")
         if datetime.datetime.now() < order_estimated_time:
             return Response(status=HTTP_FORBIDDEN, response="Not allowed yet")
         else:
@@ -272,7 +309,7 @@ def download_product_endpoint(product_id):
     print(selected_order)
     catalog_path = app.config["configuration_path"] / "Catalog/GETQueryResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
-    product_name = [product["Name"] for product in catalog_data['Data'] if product["Id"] == selected_order["Id"]]
+    product_name = [product["Name"] for product in catalog_data["Data"] if product["Id"] == selected_order["Id"]]
     if len(product_name) > 1:
         # Should be non-reachable
         return Response(status=HTTP_NOT_FOUND)
@@ -287,13 +324,52 @@ def download_product_endpoint(product_id):
         return send_file(send_args, download_name=product_name, as_attachment=True)
     else:
         # Nominal case.
-        return send_file(f'config/Storage/{product_name}')
+        return send_file(f"config/Storage/{product_name}")
 
 
 @app.route("/health", methods=["GET"])
 def ready_live_status():
     """Health probe."""
     return Response(status=HTTP_OK)
+
+
+@app.route("/oauth2/token", methods=["POST"])
+def token():
+    """Docstring to be added."""
+    # Get the form data
+    print("Endpoint oauth2/token called")
+    auth_path = app.config["configuration_path"] / "auth.json"
+    config_auth = json.loads(open(auth_path).read())
+    client_id = request.form.get("client_id")
+    client_secret = request.form.get("client_secret")
+    username = request.form.get("username")
+    password = request.form.get("password")
+    grant_type = request.form.get("grant_type")
+    scope = request.form.get("scope")
+    print(f"scope = {scope}")
+
+    # Optional Authorization header check
+    # auth_header = request.headers.get('Authorization')
+    # print(f"auth_header {auth_header}")
+    print(f"request.headers = {request.headers}")
+
+    # Validate required fields
+    if not client_id or not client_secret or not username or not password:
+        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid client"}))
+
+    if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
+        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid client id and secret"}))
+    if username != config_auth["username"] or password != config_auth["password"]:
+        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid username or password"}))
+    # Validate the grant_type
+    if grant_type != config_auth["grant_type"]:
+        return jsonify({"error": "unsupported_grant_type"}), 400
+    print("Grant type validated ")
+    # print(f"Returning token {config_auth['token']}")
+    # Return the token in JSON format
+    response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
+    print("Endpoint oauth2/token ended\n\n")
+    return jsonify(response), 200
 
 
 def create_lta_app():  # noqa: D103
