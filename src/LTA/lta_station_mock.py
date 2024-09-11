@@ -23,33 +23,28 @@ HTTP_UNAUTHORIZED = 401
 HTTP_FORBIDDEN = 403
 HTTP_NOT_FOUND = 404
 
-
 def token_required(f):
     """Docstring to be added."""
 
     @wraps(f)
     def decorated(*args, **kwargs):
         """Docstring to be added."""
-        token = None
-        print(f"decorator request.headers = {request.headers}")
+        token = None        
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split()[1]
 
         if not token:
-            return jsonify({"message": "Token is missing!"}), 403
+            return jsonify({"message": "Token is missing!"}), HTTP_FORBIDDEN
 
         auth_path = app.config["configuration_path"] / "auth.json"
-        config_auth = json.loads(open(auth_path).read())
-        print(f"token {token}")
-        print(f"config_auth['token'] {config_auth['token']}")
+        config_auth = json.loads(open(auth_path).read())        
         if token != config_auth["token"]:
-            print("Returning 403")
-            return jsonify({"message": "Token is invalid!"}), 403
+            print("Returning HTTP_FORBIDDEN")
+            return jsonify({"message": "Token is invalid!"}), HTTP_FORBIDDEN
 
         return f(*args, **kwargs)
 
     return decorated
-
 
 def batch_response_odata_v4(resp_body: list | map) -> Any:
     """Used to custom-jsonify output to OData v4 protocol."""
@@ -347,13 +342,13 @@ def token():
     username = request.form.get("username")
     password = request.form.get("password")
     grant_type = request.form.get("grant_type")
-    scope = request.form.get("scope")
-    print(f"scope = {scope}")
+    scope = request.form.get("scope")    
 
     # Optional Authorization header check
     # auth_header = request.headers.get('Authorization')
     # print(f"auth_header {auth_header}")
-    print(f"request.headers = {request.headers}")
+    if request.headers.get("Authorization", None):
+        print(f"Authorization in request.headers = {request.headers['Authorization']}")
 
     # Validate required fields
     if not client_id or not client_secret or not username or not password:
@@ -365,12 +360,10 @@ def token():
         return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid username or password"}))
     # Validate the grant_type
     if grant_type != config_auth["grant_type"]:
-        return jsonify({"error": "unsupported_grant_type"}), HTTP_BAD_REQUEST
-    print("Grant type validated ")
-    # print(f"Returning token {config_auth['token']}")
+        return jsonify({"error": "unsupported_grant_type"}), HTTP_BAD_REQUEST    
     # Return the token in JSON format
     response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
-    print("Endpoint oauth2/token ended\n\n")
+    print("Grant type validated. Token sent back")
     return jsonify(response), HTTP_OK
 
 
