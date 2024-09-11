@@ -325,7 +325,6 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         send_args = f'config/Storage/{files[0]["Name"]}'
         return send_file(send_args)
 
-
 @app.route("/oauth2/token", methods=["POST"])
 def token():
     """Docstring to be added."""
@@ -360,7 +359,7 @@ def token():
     # Return the token in JSON format
     response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
     print("Grant type validated. Token sent back")
-    return jsonify(response), HTTP_OK
+    return Response(status=HTTP_OK, response=json.dumps(response))
 
 
 def create_adgs_app():

@@ -63,13 +63,13 @@ def verify_password(username, password) -> bool:
 
 
 @app.route("/", methods=["GET", "POST"])
-@auth.login_required
+@token_required
 def auth_page():
     """Only for auth, if reached here, return OK."""
     return Response(status=HTTP_OK)
 
 
-@auth.login_required
+@token_required
 @app.route("/Products", methods=["GET"])
 def query_files_endpoint():
     """Endpoint used to process query files requests."""
@@ -192,7 +192,7 @@ def process_query_request(request: str, catalog_data: dict) -> Response:
         )
 
 
-@auth.login_required
+@token_required
 @app.route("/Products(<Id>)", methods=["GET", "POST"])
 def create_order_endpoint(Id):
     """Add order to internal json."""
@@ -242,7 +242,7 @@ def update_product_order(order: dict, field: str, value: str) -> dict:
     pass
 
 
-@auth.login_required
+@token_required
 @app.route("/Orders", methods=["GET"])
 def query_order_status_endpoint():
     """Check and update status of an existing order."""
@@ -281,7 +281,7 @@ def query_order_status_endpoint():
     return json.dumps(selected_order)
 
 
-@auth.login_required
+@token_required
 @app.route("/Products(<product_id>)/$value", methods=["GET"])
 def download_product_endpoint(product_id):
     """Endpoint to process download if available."""
@@ -364,7 +364,7 @@ def token():
     # Return the token in JSON format
     response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
     print("Grant type validated. Token sent back")
-    return jsonify(response), HTTP_OK
+    return Response(status=HTTP_OK, response=json.dumps(response))
 
 
 def create_lta_app():  # noqa: D103

@@ -586,7 +586,7 @@ def token():
     # Return the token in JSON format
     response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
     print("Grant type validated. Token sent back")
-    return jsonify(response), HTTP_OK
+    return Response(status=HTTP_OK, response=json.dumps(response))
 
 
 def create_cadip_app():
