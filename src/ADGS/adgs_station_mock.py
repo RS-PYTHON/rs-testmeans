@@ -7,7 +7,7 @@ import re
 from functools import wraps
 from typing import Any
 
-from flask import Flask, Response, jsonify, request, send_file
+from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 
@@ -34,13 +34,15 @@ def token_required(f):
             token = request.headers["Authorization"].split()[1]
 
         if not token:
-            return jsonify({"message": "Token is missing!"}), HTTP_FORBIDDEN
+            print("Returning HTTP_FORBIDDEN. Token is missing")
+            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is missing!"}))
+        
 
         auth_path = app.config["configuration_path"] / "auth.json"
         config_auth = json.loads(open(auth_path).read())        
         if token != config_auth["token"]:
-            print("Returning HTTP_FORBIDDEN")
-            return jsonify({"message": "Token is invalid!"}), HTTP_FORBIDDEN
+            print("Returning HTTP_FORBIDDEN")            
+            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is invalid!"}))
 
         return f(*args, **kwargs)
 
@@ -349,18 +351,18 @@ def token():
     # Validate required fields
     if not client_id or not client_secret or not username or not password:
         print("Invalid client. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "Invalid client"}))
+        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
 
     if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
         print("Invalid client id and/or secret. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "Invalid client id and/or secret"}))
+        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client id and/or secret"}))
     if username != config_auth["username"] or password != config_auth["password"]:
         print("Invalid username and/or password. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "Invalid username and/or password"}))
+        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
     # Validate the grant_type
     if grant_type != config_auth["grant_type"]:
         print("Unsupported grant_type. The token is not granted")
-        return jsonify({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
+        return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
     # Return the token in JSON format
     response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
     print("Grant type validated. Token sent back")
