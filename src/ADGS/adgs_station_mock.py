@@ -5,6 +5,7 @@ import json
 import logging
 import pathlib
 import re
+import sys
 from functools import wraps
 from typing import Any
 
@@ -13,6 +14,7 @@ from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
