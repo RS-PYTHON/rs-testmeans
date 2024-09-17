@@ -355,7 +355,8 @@ def token():
 
     if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
         print("Invalid client id and/or secret. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client id and/or secret"}))
+        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": 
+                                                                       f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
     if username != config_auth["username"] or password != config_auth["password"]:
         print("Invalid username and/or password. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
