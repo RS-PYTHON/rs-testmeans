@@ -349,6 +349,7 @@ def token():
     # auth_header = request.headers.get('Authorization')
     # print(f"auth_header {auth_header}")
     logger.info("Token requested")
+    logger.debug(request.form)
     if request.headers.get("Authorization", None):
         logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
     logger.debug(f"config_auth = {config_auth}")
