@@ -348,11 +348,10 @@ def token():
     # Optional Authorization header check
     # auth_header = request.headers.get('Authorization')
     # print(f"auth_header {auth_header}")
-    logger.info("Token requested")
-    logger.debug(request.form)
+    logger.info("Token requested")    
     if request.headers.get("Authorization", None):
         logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
-    logger.debug(f"config_auth = {config_auth}")
+    
     # Validate required fields
     if not client_id or not client_secret or not username or not password:
         logger.error("Invalid client. The token is not granted")
