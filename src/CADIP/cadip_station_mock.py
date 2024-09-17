@@ -569,20 +569,25 @@ def token():
     # Optional Authorization header check
     # auth_header = request.headers.get('Authorization')
     # print(f"auth_header {auth_header}")
+    print("Token requested")
     if request.headers.get("Authorization", None):
         print(f"Authorization in request.headers = {request.headers['Authorization']}")
 
     # Validate required fields
     if not client_id or not client_secret or not username or not password:
-        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid client"}))
+        print("Invalid client. The token is not granted")
+        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "Invalid client"}))
 
     if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
-        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid client id and secret"}))
+        print("Invalid client id and/or secret. The token is not granted")
+        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "Invalid client id and/or secret"}))
     if username != config_auth["username"] or password != config_auth["password"]:
-        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "invalid username or password"}))
+        print("Invalid username and/or password. The token is not granted")
+        return Response(status=HTTP_UNAUTHORIZED, response=jsonify({"error": "Invalid username and/or password"}))
     # Validate the grant_type
     if grant_type != config_auth["grant_type"]:
-        return jsonify({"error": "unsupported_grant_type"}), HTTP_BAD_REQUEST    
+        print("Unsupported grant_type. The token is not granted")
+        return jsonify({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
     # Return the token in JSON format
     response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
     print("Grant type validated. Token sent back")
