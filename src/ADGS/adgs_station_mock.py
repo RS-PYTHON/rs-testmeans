@@ -45,7 +45,7 @@ def token_required(f):
         auth_path = app.config["configuration_path"] / "auth.json"
         config_auth = json.loads(open(auth_path).read())        
         if token != config_auth["token"]:
-            logger.error("Returning HTTP_FORBIDDEN")            
+            logger.error("Returning HTTP_FORBIDDEN. Token is invalid!")
             return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is invalid!"}))
 
         return f(*args, **kwargs)
