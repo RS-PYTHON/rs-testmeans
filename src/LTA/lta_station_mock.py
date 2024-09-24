@@ -1,15 +1,22 @@
+"""Docstring to be added."""
 import argparse
 import datetime
 import json
+import logging
 import pathlib
 import random
 import re
+import sys
+from functools import wraps
 from pathlib import Path
 from typing import Any
 
 from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -18,9 +25,62 @@ auth = HTTPBasicAuth()
 HTTP_OK = 200
 HTTP_CREATED = 201
 HTTP_BAD_REQUEST = 400
+HTTP_UNAUTHORIZED = 401
 HTTP_FORBIDDEN = 403
 HTTP_NOT_FOUND = 404
 
+def token_required(f):
+    """Decorator to enforce token-based authentication for a Flask route.
+
+    This decorator checks for the presence of a valid authorization token in the 
+    request headers. It ensures that the incoming request contains a valid token, 
+    which is compared against a pre-configured value stored in the auth.json file. If the 
+    token is missing or invalid, the request is denied with a 403 Forbidden response.
+
+    Args:
+        f: The Flask route function being decorated.
+
+    Returns:
+        The decorated function that performs token validation before executing the original 
+        route logic.
+    """
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        """Inner function that performs token validation for the decorated route.
+
+        This function:
+        - Retrieves the token from the "Authorization" header.
+        - If no token is found or the token is invalid, it logs the error and returns a 403 
+          Forbidden response.
+        - If the token is valid, it allows the original route logic to proceed.
+
+        Args:
+            *args: Positional arguments passed to the original route function.
+            **kwargs: Keyword arguments passed to the original route function.
+
+        Returns:
+            A Response object with a 403 Forbidden status if the token is missing or invalid.
+            Otherwise, the original route function's response is returned.
+        """
+        token = None        
+        if "Authorization" in request.headers:
+            token = request.headers["Authorization"].split()[1]
+
+        if not token:
+            logger.error("Returning HTTP_FORBIDDEN. Token is missing")
+            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is missing!"}))
+        
+
+        auth_path = app.config["configuration_path"] / "auth.json"
+        config_auth = json.loads(open(auth_path).read())        
+        if token != config_auth["token"]:
+            logger.error("Returning HTTP_FORBIDDEN. Token is invalid!")
+            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is invalid!"}))
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 def batch_response_odata_v4(resp_body: list | map) -> Any:
     """Used to custom-jsonify output to OData v4 protocol."""
@@ -39,13 +99,13 @@ def verify_password(username, password) -> bool:
 
 
 @app.route("/", methods=["GET", "POST"])
-@auth.login_required
+@token_required
 def auth_page():
     """Only for auth, if reached here, return OK."""
     return Response(status=HTTP_OK)
 
 
-@auth.login_required
+@token_required
 @app.route("/Products", methods=["GET"])
 def query_files_endpoint():
     """Endpoint used to process query files requests."""
@@ -82,8 +142,11 @@ def query_files_endpoint():
                 common_response = fresp_set.intersection(sresp_set)
                 common_elements = [d for d in first_response if d.get("Id") in common_response]
                 if common_elements:
-                    return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements),
-                                    headers=request.args)
+                    return Response(
+                        status=HTTP_OK,
+                        response=batch_response_odata_v4(common_elements),
+                        headers=request.args,
+                    )
                 return Response(status=HTTP_OK, response=json.dumps([]))
             case "or":  # union
                 union_set = fresp_set.union(sresp_set)
@@ -106,13 +169,18 @@ def process_query_request(request: str, catalog_data: dict) -> Response:
                 case "contains":
                     resp_body = [product for product in catalog_data["Data"] if filter_value in product[filter_by]]
                 case "startswith":
-                    resp_body = [product for product in catalog_data["Data"] if product[filter_by].startswith(
-                        filter_value)]
+                    resp_body = [
+                        product for product in catalog_data["Data"] if product[filter_by].startswith(filter_value)
+                    ]
                 case "endswith":
-                    resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(
-                        filter_value)]
-            return Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body)) if resp_body else (
-                Response(status=HTTP_NOT_FOUND))
+                    resp_body = [
+                        product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)
+                    ]
+            return (
+                Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body))
+                if resp_body
+                else (Response(status=HTTP_NOT_FOUND))
+            )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
         date = datetime.datetime.fromisoformat(value)
@@ -144,7 +212,7 @@ def process_query_request(request: str, catalog_data: dict) -> Response:
         # Geometrical intersection to be added in next versions
         pass
     else:
-        split_request = request.replace('"', '')
+        split_request = request.replace('"', "")
         field, op, *value = split_request.split(" ")
         matching = []
         match op:
@@ -153,11 +221,14 @@ def process_query_request(request: str, catalog_data: dict) -> Response:
             case "in":
                 for idx in value:
                     matching += [product for product in catalog_data["Data"] if idx.replace(",", "") in product[field]]
-        return Response(response=batch_response_odata_v4(matching), status=HTTP_OK) if matching else Response(
-            status=HTTP_NOT_FOUND)
+        return (
+            Response(response=batch_response_odata_v4(matching), status=HTTP_OK)
+            if matching
+            else Response(status=HTTP_NOT_FOUND)
+        )
 
 
-@auth.login_required
+@token_required
 @app.route("/Products(<Id>)", methods=["GET", "POST"])
 def create_order_endpoint(Id):
     """Add order to internal json."""
@@ -172,7 +243,7 @@ def create_product_order(product_id: str) -> dict | str:
     with order_file.open("r") as file:
         data = json.load(file)
 
-    existing_order = [order for order in data['orders'] if order['Id'] == product_id]
+    existing_order = [order for order in data["orders"] if order["Id"] == product_id]
     if existing_order:
         return batch_response_odata_v4(existing_order)
 
@@ -186,7 +257,7 @@ def create_product_order(product_id: str) -> dict | str:
         "EstimatedDate": str(datetime.datetime.now() + datetime.timedelta(seconds=random.randint(10, 120))),
         "CompletedDate": None,
         "EvictionDate": None,
-        "Priority": 1  # default, not supported
+        "Priority": 1,  # default, not supported
         # "NotificationEndpoint": "N/A",
         # "NotificationEpUsername": "N/A",
         # "NotificationEpPassword": "N/A"
@@ -207,14 +278,14 @@ def update_product_order(order: dict, field: str, value: str) -> dict:
     pass
 
 
-@auth.login_required
+@token_required
 @app.route("/Orders", methods=["GET"])
 def query_order_status_endpoint():
     """Check and update status of an existing order."""
     if not request.args:
         return Response(status=HTTP_BAD_REQUEST)
 
-    field, op, value = request.args['$filter'].split(" ")
+    field, op, value = request.args["$filter"].split(" ")
     order_file = Path(app.config["configuration_path"]) / "Internal/orders.json"
     if op != "eq":
         return  # not implemented yed
@@ -222,13 +293,13 @@ def query_order_status_endpoint():
     with order_file.open("r") as file:
         data = json.load(file)
 
-    selected_order = [order for order in data['orders'] if order[field] == value]
+    selected_order = [order for order in data["orders"] if order[field] == value]
     if not selected_order or len(selected_order) > 1:
         return Response(status=HTTP_NOT_FOUND)
     else:
         selected_order = selected_order[0]
 
-    order_estimated_time = datetime.datetime.strptime(selected_order['EstimatedDate'], "%Y-%m-%d %H:%M:%S.%f")
+    order_estimated_time = datetime.datetime.strptime(selected_order["EstimatedDate"], "%Y-%m-%d %H:%M:%S.%f")
     if datetime.datetime.now() < order_estimated_time:
         # If estimated time has not passed, means that order is still processing
         selected_order["Status"] = "in_progress"
@@ -238,8 +309,7 @@ def query_order_status_endpoint():
         selected_order["Status"] = "completed"
         selected_order["StatusMessage"] = "requested product is available"
         selected_order["CompletedDate"] = str(datetime.datetime.now())
-        selected_order["EvictionDate"] = str(datetime.datetime.now() + datetime.timedelta(
-            days=3))
+        selected_order["EvictionDate"] = str(datetime.datetime.now() + datetime.timedelta(days=3))
 
     with order_file.open("w") as file:
         json.dump(data, file, indent=4)
@@ -247,20 +317,20 @@ def query_order_status_endpoint():
     return json.dumps(selected_order)
 
 
-@auth.login_required
+@token_required
 @app.route("/Products(<product_id>)/$value", methods=["GET"])
 def download_product_endpoint(product_id):
     """Endpoint to process download if available."""
     order_file = Path(app.config["configuration_path"]) / "Internal/orders.json"
     with order_file.open("r") as file:
         order_data = json.load(file)
-    selected_order = [order for order in order_data['orders'] if order['Id'] == product_id]
+    selected_order = [order for order in order_data["orders"] if order["Id"] == product_id]
     if selected_order != "completed":
         if not selected_order or len(selected_order) > 1:
             return Response(status=HTTP_NOT_FOUND)
         else:
             selected_order = selected_order[0]
-        order_estimated_time = datetime.datetime.strptime(selected_order['EstimatedDate'], "%Y-%m-%d %H:%M:%S.%f")
+        order_estimated_time = datetime.datetime.strptime(selected_order["EstimatedDate"], "%Y-%m-%d %H:%M:%S.%f")
         if datetime.datetime.now() < order_estimated_time:
             return Response(status=HTTP_FORBIDDEN, response="Not allowed yet")
         else:
@@ -272,7 +342,7 @@ def download_product_endpoint(product_id):
     print(selected_order)
     catalog_path = app.config["configuration_path"] / "Catalog/GETQueryResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
-    product_name = [product["Name"] for product in catalog_data['Data'] if product["Id"] == selected_order["Id"]]
+    product_name = [product["Name"] for product in catalog_data["Data"] if product["Id"] == selected_order["Id"]]
     if len(product_name) > 1:
         # Should be non-reachable
         return Response(status=HTTP_NOT_FOUND)
@@ -287,7 +357,7 @@ def download_product_endpoint(product_id):
         return send_file(send_args, download_name=product_name, as_attachment=True)
     else:
         # Nominal case.
-        return send_file(f'config/Storage/{product_name}')
+        return send_file(f"config/Storage/{product_name}")
 
 
 @app.route("/health", methods=["GET"])
@@ -296,12 +366,76 @@ def ready_live_status():
     return Response(status=HTTP_OK)
 
 
+@app.route("/oauth2/token", methods=["POST"])
+def token():
+    """OAuth 2.0 token endpoint for issuing an access token based on client credentials.
+
+    It is intended to be used for tests only.
+    This function handles the OAuth 2.0 token request by validating the incoming client 
+    credentials, username, password, and grant type against the pre-configured values 
+    stored in an authentication file (`auth.json`). If the request is valid, an access 
+    token (fake string) is returned in JSON format; otherwise, appropriate error responses are sent.
+
+    The supported grant type is validated against the `grant_type` stored in the configuration.
+
+    Returns:
+        Response: 
+            - A JSON response with the access token and other token-related information 
+              if the client credentials and other parameters are valid.
+            - An HTTP 401 Unauthorized response if the client credentials, username, or 
+              password are invalid.
+            - An HTTP 400 Bad Request response if the grant type is unsupported or missing 
+              required parameters.
+    """
+    # Get the form data
+    logger.info("Endpoint oauth2/token called")
+    auth_path = app.config["configuration_path"] / "auth.json"
+    config_auth = json.loads(open(auth_path).read())
+    client_id = request.form.get("client_id")
+    client_secret = request.form.get("client_secret")
+    username = request.form.get("username")
+    password = request.form.get("password")
+    grant_type = request.form.get("grant_type")
+    scope = request.form.get("scope")    
+
+    # Optional Authorization header check
+    # auth_header = request.headers.get('Authorization')
+    # print(f"auth_header {auth_header}")
+    logger.info("Token requested")    
+    if request.headers.get("Authorization", None):
+        logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
+    
+    # Validate required fields
+    if not client_id or not client_secret or not username or not password:
+        logger.error("Invalid client. The token is not granted")
+        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
+
+    if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
+        logger.error("Invalid client id and/or secret. The token is not granted")
+        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": 
+                                                                       f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
+    if username != config_auth["username"] or password != config_auth["password"]:
+        logger.error("Invalid username and/or password. The token is not granted")
+        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
+    # Validate the grant_type
+    if grant_type != config_auth["grant_type"]:
+        logger.error("Unsupported grant_type. The token is not granted")
+        return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
+    # Return the token in JSON format
+    response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
+    logger.info("Grant type validated. Token sent back")
+    return Response(status=HTTP_OK, response=json.dumps(response))
+
+
+
 def create_lta_app():  # noqa: D103
+    """Docstring to be added."""
     app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
     return app
 
 
 if __name__ == "__main__":
+    """Docstring to be added."""
     parser = argparse.ArgumentParser(description="Starts the LTA  server mockup ")
 
     default_config_path = pathlib.Path(__file__).parent.resolve() / "config"

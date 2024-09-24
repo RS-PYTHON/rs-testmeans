@@ -2,8 +2,10 @@
 import argparse
 import datetime
 import json
+import logging
 import pathlib
 import re
+import sys
 from functools import wraps
 from typing import Any
 
@@ -11,16 +13,72 @@ from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 
-OK = 200
-BAD_REQUEST = 400
-UNAUTHORIZED = 401
-NOT_FOUND = 404
+HTTP_OK = 200
+HTTP_BAD_REQUEST = 400
+HTTP_UNAUTHORIZED = 401
+HTTP_FORBIDDEN = 403
+HTTP_NOT_FOUND = 404
 
 aditional_operators = [" and ", " or ", " in ", " not "]
+
+def token_required(f):
+    """Decorator to enforce token-based authentication for a Flask route.
+
+    This decorator checks for the presence of a valid authorization token in the 
+    request headers. It ensures that the incoming request contains a valid token, 
+    which is compared against a pre-configured value stored in the auth.json file. If the 
+    token is missing or invalid, the request is denied with a 403 Forbidden response.
+
+    Args:
+        f: The Flask route function being decorated.
+
+    Returns:
+        The decorated function that performs token validation before executing the original 
+        route logic.
+    """
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        """Inner function that performs token validation for the decorated route.
+
+        This function:
+        - Retrieves the token from the "Authorization" header.
+        - If no token is found or the token is invalid, it logs the error and returns a 403 
+          Forbidden response.
+        - If the token is valid, it allows the original route logic to proceed.
+
+        Args:
+            *args: Positional arguments passed to the original route function.
+            **kwargs: Keyword arguments passed to the original route function.
+
+        Returns:
+            A Response object with a 403 Forbidden status if the token is missing or invalid.
+            Otherwise, the original route function's response is returned.
+        """
+        token = None        
+        if "Authorization" in request.headers:
+            token = request.headers["Authorization"].split()[1]
+
+        if not token:
+            logger.error("Returning HTTP_FORBIDDEN. Token is missing")
+            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is missing!"}))
+        
+
+        auth_path = app.config["configuration_path"] / "auth.json"
+        config_auth = json.loads(open(auth_path).read())        
+        if token != config_auth["token"]:
+            logger.error("Returning HTTP_FORBIDDEN. Token is invalid!")
+            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is invalid!"}))
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def additional_options(func):
@@ -57,7 +115,7 @@ def additional_options(func):
                     return (
                         prepare_response_odata_v4(json_data["responses"][:top_value])
                         if "responses" in json_data
-                        else json_data # No need for slicing since there is only one response.
+                        else json_data  # No need for slicing since there is only one response.
                     )
                 case "$skip":
                     skip_value = int(display_headers.get("$skip", 0))
@@ -65,13 +123,13 @@ def additional_options(func):
                     return (
                         prepare_response_odata_v4(json_data["responses"][skip_value:])
                         if "responses" in json_data
-                        else json_data # No need for slicing since there is only one response.
+                        else json_data  # No need for slicing since there is only one response.
                     )
                 case "$count":
                     json_data = parse_response_data()
                     if "responses" in json_data:
-                        return Response(status=OK, response=str(len(json_data["responses"])))
-                    return Response(status=OK, response=str(len(json_data)))
+                        return Response(status=HTTP_OK, response=str(len(json_data["responses"])))
+                    return Response(status=HTTP_OK, response=str(len(json_data)))
         return response
 
     return wrapper
@@ -112,13 +170,15 @@ def verify_password(username: str, password: str) -> bool:
 
 @app.route("/health", methods=["GET"])
 def ready_live_status():
-    return Response(status=OK)
+    """Docstring to be added."""
+    return Response(status=HTTP_OK)
+
 
 @app.route("/", methods=["GET", "POST"])
-@auth.login_required
+@token_required
 def hello():
     """Docstring to be added."""
-    return Response(status=OK)
+    return Response(status=HTTP_OK)
 
 
 def process_products_request(request, headers):
@@ -138,9 +198,9 @@ def process_products_request(request, headers):
             case "endswith":
                 resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)]
         return (
-            Response(status=OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=NOT_FOUND)
+            else Response(status=HTTP_NOT_FOUND)
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
@@ -167,11 +227,11 @@ def process_products_request(request, headers):
                 ]
             case _:
                 # If the operation is not recognized, return a 404 NOT FOUND response
-                return Response(status=NOT_FOUND)
+                return Response(status=HTTP_NOT_FOUND)
         return (
-            Response(status=OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=NOT_FOUND)
+            else Response(status=HTTP_NOT_FOUND)
         )
     elif "ContentDate" in request.args["$filter"]:
         pattern = r"Start (\S+) (\S+) and ContentDate/End (\S+) (\S+)"
@@ -200,27 +260,27 @@ def process_products_request(request, headers):
                     )
                 ]
         return (
-            Response(status=OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=NOT_FOUND)
+            else Response(status=HTTP_NOT_FOUND)
         )
     elif "Attributes" in request.args["$filter"]:
         pass  # WIP
     else:
-        return Response(status=BAD_REQUEST)
+        return Response(status=HTTP_BAD_REQUEST)
 
 
 @app.route("/Products", methods=["GET"])
-@auth.login_required
+@token_required
 @additional_options
 def query_products():
     """Docstring to be added."""
     if not request.args:
-        return Response(status=BAD_REQUEST)
+        return Response(status=HTTP_BAD_REQUEST)
     if not any(
         [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate"]],
     ):
-        return Response(status=BAD_REQUEST)
+        return Response(status=HTTP_BAD_REQUEST)
 
     if any(header in request.args["$filter"] for header in aditional_operators):
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
@@ -247,7 +307,7 @@ def query_products():
             except json.decoder.JSONDecodeError:
                 # Empty dict if error while unwrapping
                 second_response = [{}]
-            
+
             # Normalize responses, must be a list, even with one element, for iterator
             first_response = first_response if isinstance(first_response, list) else [first_response]
             second_response = second_response if isinstance(second_response, list) else [second_response]
@@ -260,21 +320,25 @@ def query_products():
                     common_elements = [d for d in first_response if d.get("Id") in common_response]
                     if common_elements:
                         return Response(
-                            status=OK,
+                            status=HTTP_OK,
                             response=prepare_response_odata_v4(common_elements),
                             headers=request.args,
                         )
-                    return Response(status=OK, response = json.dumps([]))
+                    return Response(status=HTTP_OK, response=json.dumps([]))
                 case "or":  # union
                     union_set = fresp_set.union(sresp_set)
                     union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-                    return Response(status=OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
+                    return Response(
+                        status=HTTP_OK,
+                        response=prepare_response_odata_v4(union_elements),
+                        headers=request.args,
+                    )
 
     return process_products_request(str(request.args["$filter"]), request.args)
 
 
 @app.route("/Products(<Id>)/$value", methods=["GET"])
-@auth.login_required
+@token_required
 def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     """Docstring to be added."""
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
@@ -295,6 +359,67 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         send_args = f'config/Storage/{files[0]["Name"]}'
         return send_file(send_args)
 
+@app.route("/oauth2/token", methods=["POST"])
+def token():
+    """OAuth 2.0 token endpoint for issuing an access token based on client credentials.
+
+    It is intended to be used for tests only.
+    This function handles the OAuth 2.0 token request by validating the incoming client 
+    credentials, username, password, and grant type against the pre-configured values 
+    stored in an authentication file (`auth.json`). If the request is valid, an access 
+    token (fake string) is returned in JSON format; otherwise, appropriate error responses are sent.
+
+    The supported grant type is validated against the `grant_type` stored in the configuration.
+
+    Returns:
+        Response: 
+            - A JSON response with the access token and other token-related information 
+              if the client credentials and other parameters are valid.
+            - An HTTP 401 Unauthorized response if the client credentials, username, or 
+              password are invalid.
+            - An HTTP 400 Bad Request response if the grant type is unsupported or missing 
+              required parameters.
+    """
+    # Get the form data
+    logger.info("Endpoint oauth2/token called")
+    auth_path = app.config["configuration_path"] / "auth.json"
+    config_auth = json.loads(open(auth_path).read())
+    client_id = request.form.get("client_id")
+    client_secret = request.form.get("client_secret")
+    username = request.form.get("username")
+    password = request.form.get("password")
+    grant_type = request.form.get("grant_type")
+    scope = request.form.get("scope")    
+
+    # Optional Authorization header check
+    # auth_header = request.headers.get('Authorization')
+    # print(f"auth_header {auth_header}")
+    logger.info("Token requested")    
+    if request.headers.get("Authorization", None):
+        logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
+    
+    # Validate required fields
+    if not client_id or not client_secret or not username or not password:
+        logger.error("Invalid client. The token is not granted")
+        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
+
+    if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
+        logger.error("Invalid client id and/or secret. The token is not granted")
+        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": 
+                                                                       f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
+    if username != config_auth["username"] or password != config_auth["password"]:
+        logger.error("Invalid username and/or password. The token is not granted")
+        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
+    # Validate the grant_type
+    if grant_type != config_auth["grant_type"]:
+        logger.error("Unsupported grant_type. The token is not granted")
+        return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
+    # Return the token in JSON format
+    response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
+    logger.info("Grant type validated. Token sent back")
+    return Response(status=HTTP_OK, response=json.dumps(response))
+
+
 
 def create_adgs_app():
     """Docstring to be added."""
@@ -304,6 +429,7 @@ def create_adgs_app():
 
 
 if __name__ == "__main__":
+    """Docstring to be added."""
     parser = argparse.ArgumentParser(
         description="Starts the ADGS server mockup ",
     )
