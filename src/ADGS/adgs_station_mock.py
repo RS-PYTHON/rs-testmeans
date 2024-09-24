@@ -28,11 +28,39 @@ HTTP_NOT_FOUND = 404
 aditional_operators = [" and ", " or ", " in ", " not "]
 
 def token_required(f):
-    """Docstring to be added."""
+    """Decorator to enforce token-based authentication for a Flask route.
+
+    This decorator checks for the presence of a valid authorization token in the 
+    request headers. It ensures that the incoming request contains a valid token, 
+    which is compared against a pre-configured value stored in the auth.json file. If the 
+    token is missing or invalid, the request is denied with a 403 Forbidden response.
+
+    Args:
+        f: The Flask route function being decorated.
+
+    Returns:
+        The decorated function that performs token validation before executing the original 
+        route logic.
+    """
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        """Docstring to be added."""
+        """Inner function that performs token validation for the decorated route.
+
+        This function:
+        - Retrieves the token from the "Authorization" header.
+        - If no token is found or the token is invalid, it logs the error and returns a 403 
+          Forbidden response.
+        - If the token is valid, it allows the original route logic to proceed.
+
+        Args:
+            *args: Positional arguments passed to the original route function.
+            **kwargs: Keyword arguments passed to the original route function.
+
+        Returns:
+            A Response object with a 403 Forbidden status if the token is missing or invalid.
+            Otherwise, the original route function's response is returned.
+        """
         token = None        
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split()[1]
@@ -333,7 +361,25 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
 
 @app.route("/oauth2/token", methods=["POST"])
 def token():
-    """Docstring to be added."""
+    """OAuth 2.0 token endpoint for issuing an access token based on client credentials.
+
+    It is intended to be used for tests only.
+    This function handles the OAuth 2.0 token request by validating the incoming client 
+    credentials, username, password, and grant type against the pre-configured values 
+    stored in an authentication file (`auth.json`). If the request is valid, an access 
+    token (fake string) is returned in JSON format; otherwise, appropriate error responses are sent.
+
+    The supported grant type is validated against the `grant_type` stored in the configuration.
+
+    Returns:
+        Response: 
+            - A JSON response with the access token and other token-related information 
+              if the client credentials and other parameters are valid.
+            - An HTTP 401 Unauthorized response if the client credentials, username, or 
+              password are invalid.
+            - An HTTP 400 Bad Request response if the grant type is unsupported or missing 
+              required parameters.
+    """
     # Get the form data
     logger.info("Endpoint oauth2/token called")
     auth_path = app.config["configuration_path"] / "auth.json"
