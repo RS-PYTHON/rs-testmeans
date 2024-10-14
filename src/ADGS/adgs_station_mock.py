@@ -103,15 +103,10 @@ def additional_options(func):
                 return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
             return json_data
         json_data = parse_response_data()
-        if request.args.get("$expand", False) == "Attributes":
-            new_json_data = []  
-            for item in json_data.get("responses", json_data):
-                new_json_data.append(item.pop("Attributes") if isinstance(item, dict) else json_data.pop("Attributes"))
-            return prepare_response_odata_v4([attr for sublist in new_json_data for attr in sublist])
-        else:
+        if not request.args.get("$expand", False) == "Attributes":
             for item in json_data.get("responses", json_data):
                 item.pop("Attributes") if isinstance(item, dict) else json_data.pop("Attributes")
-            return prepare_response_odata_v4(json_data['responses'] if 'responses' in json_data else json_data)
+        return prepare_response_odata_v4(json_data['responses'] if 'responses' in json_data else json_data)
 
         if any(header in accepted_display_options for header in display_headers.keys()):
             match list(set(accepted_display_options) & set(display_headers.keys()))[0]:

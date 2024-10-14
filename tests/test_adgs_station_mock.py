@@ -63,8 +63,6 @@ def test_query_products(adgs_client_with_auth, products_response):
     assert json.loads(response.text).keys() == products_response.keys()
     assert json.loads(response.text) == products_response
     # Name contains.
-    import pdb
-    pdb.set_trace()
     adgs_client_with_auth.get("Products?$filter=contains(Name, 'S2__OPER_AUX_ECMWFD_PDMC_20190216T120')")
 
     assert json.loads(response.text).keys() == products_response.keys()
