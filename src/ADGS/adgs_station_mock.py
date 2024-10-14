@@ -102,6 +102,16 @@ def additional_options(func):
             if "responses" in json_data:
                 return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
             return json_data
+        json_data = parse_response_data()
+        if request.args.get("$expand", False) == "Attributes":
+            new_json_data = []  
+            for item in json_data.get("responses", json_data):
+                new_json_data.append(item.pop("Attributes") if isinstance(item, dict) else json_data.pop("Attributes"))
+            return prepare_response_odata_v4([attr for sublist in new_json_data for attr in sublist])
+        else:
+            for item in json_data.get("responses", json_data):
+                item.pop("Attributes") if isinstance(item, dict) else json_data.pop("Attributes")
+            return prepare_response_odata_v4(json_data['responses'] if 'responses' in json_data else json_data)
 
         if any(header in accepted_display_options for header in display_headers.keys()):
             match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
@@ -269,19 +279,86 @@ def process_products_request(request, headers):
     else:
         return Response(status=HTTP_BAD_REQUEST)
 
+def process_query(query):
+    # Step 1: Remove the part before "any("
+    if "any(" in query:
+        query = query.split("any(", 1)[1]  # Keep only the part after "any("
+        query = query.rstrip(")")  # Remove the closing parenthesis at the end
+    
+    # Step 2: Split the remaining string by "and"
+    parts = query.split(" and ")
+    
+    if len(parts) == 2:
+        part1 = parts[0].strip()
+        part2 = parts[1].strip()
+        return part1, part2
+    else:
+        return None, None
+    
+def extract_values_and_operation(part1, part2):
+    # Regular expression to capture the operation and value between single quotes
+    pattern = r"(\b(eq|gt|lt)\b)\s+'(.*?)'"
+    
+    # Search for the operation and value in part1
+    value1 = re.search(r"'(.*?)'", part1).group(1) if re.search(r"'(.*?)'", part1) else None
 
-@app.route("/Products", methods=["GET"])
-@token_required
+    # Search for the operation and value in part2
+    match2 = re.search(pattern, part2)
+    if match2:
+        operation = match2.group(1)  # Capture the operation (eq, gt, lt)
+        value2 = match2.group(3)      # Capture the value between single quotes
+    else:
+        operation, value2 = None, None
+
+    return value1, operation, value2
+    
+def process_attributes_search(query, headers):
+    part1, part2 = process_query(query)
+    field, op, value = extract_values_and_operation(part1, part2)
+    catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
+    catalog_data = json.loads(open(catalog_path).read())
+    if field in ["beginningDateTime", "endingDateTime", "processingDate"]:
+        date = datetime.datetime.fromisoformat(value)
+        resp = []
+        for product in catalog_data['Data']:
+            for attr in product["Attributes"]:
+                try:
+                    if attr['Name'] == field:
+                        match op:
+                            case "eq":
+                                if date == datetime.datetime.fromisoformat(attr['Value']):
+                                    resp.append(product)
+                            case "lt":
+                                if date > datetime.datetime.fromisoformat(attr['Value']):
+                                    resp.append(product)
+                            case "gt":
+                                if date > datetime.datetime.fromisoformat(attr['Value']):
+                                    resp.append(product)
+                except KeyError:
+                    continue
+    if field in ["platformShortName", "platformSerialIdentifier", "processingCenter", "processorVersion"]:
+        resp = []
+        for product in catalog_data['Data']:
+            for attr in product["Attributes"]:
+                try:
+                    if attr['Name'].lower() == field.lower() and attr['Value'].lower() == value.lower():
+                        resp.append(product)
+                except KeyError:
+                    continue
+    return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else [[]]), headers=headers)
+
+@app.route("/Products", methods=["GET"])    
 @additional_options
 def query_products():
     """Docstring to be added."""
     if not request.args:
         return Response(status=HTTP_BAD_REQUEST)
     if not any(
-        [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate"]],
+        [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes"]],
     ):
         return Response(status=HTTP_BAD_REQUEST)
-
+    if "Attributes" in request.args['$filter']:
+        return process_attributes_search(request.args['$filter'], request.args)
     if any(header in request.args["$filter"] for header in aditional_operators):
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
         groups = re.search(pattern, request.args["$filter"])
