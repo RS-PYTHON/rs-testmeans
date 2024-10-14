@@ -1,40 +1,29 @@
 """Docstring to be added."""
-import base64
+
 import filecmp
 import json
-import os
-
+from pathlib import Path
 import pytest
 
 OK = 200
 BAD_REQUEST = 400
-UNAUTHORIZED = 401
+FORBIDDEN = 403
 NOT_FOUND = 404
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize(
-    "correct_login, incorrect_login",
-    [
-        (("test:test"), ("notTest:notTest")),
-    ],
-)
-def test_basic_auth(adgs_client, correct_login: str, incorrect_login: str):
-    """Docstring to be added."""
+def test_basic_auth(adgs_client, adgs_token):
+    """Method used to test endpoint access with token."""
     # test credentials on get methods with auth required.
-    correct_login = base64.b64encode(str.encode(correct_login)).decode("utf-8")
-    incorrect_login = base64.b64encode(str.encode(incorrect_login)).decode("utf-8")
-    assert adgs_client.get("/", headers={"Authorization": "Basic {}".format(correct_login)}).status_code == OK
-    assert (
-        adgs_client.get("/", headers={"Authorization": "Basic {}".format(incorrect_login)}).status_code == UNAUTHORIZED
-    )
+    assert adgs_client.get("/", headers=adgs_token).status_code == OK
+    assert adgs_client.get("/", headers={"Authorization": "Token invalid_value"}).status_code == FORBIDDEN
     # test a broken endpoint route
     assert adgs_client.get("incorrectRoute/").status_code == NOT_FOUND
 
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "products_response, login",
+    "products_response",
     [
         (
             {
@@ -53,119 +42,110 @@ def test_basic_auth(adgs_client, correct_login: str, incorrect_login: str):
                     },
                 ],
                 "ContentDate": {"Start": "2019-02-17T09:00:00.000Z", "End": "2019-02-17T21:00:00.000Z"},
-            },
-            ("test:test"),
+            }
         ),
     ],
 )
-def test_query_products(adgs_client, products_response, login):
+def test_query_products(adgs_client_with_auth, products_response):
     """Docstring to be added."""
-    # conftest to be updated, in order to support session-client to persist login
-    login = base64.b64encode(str.encode(login)).decode("utf-8")
-    auth_header = {"Authorization": f"Basic {login}"}
     # test without args
-    assert adgs_client.get("Products", headers=auth_header).status_code == BAD_REQUEST
+    assert adgs_client_with_auth.get("Products").status_code == BAD_REQUEST
     # test with an incorrect filter
-    assert adgs_client.get("Products?$filter=Incorrect_filter", headers=auth_header).status_code == BAD_REQUEST
+    assert adgs_client_with_auth.get("Products?$filter=Incorrect_filter").status_code == BAD_REQUEST
     # Response containing more than 1 result, since there are more products matching
-    response = adgs_client.get("Products?$filter=PublicationDate gt 2019-01-01T00:00:00.000Z", headers=auth_header)
+    response = adgs_client_with_auth.get("Products?$filter=PublicationDate gt 2019-01-01T00:00:00.000Z")
     assert len(json.loads(response.text)["responses"]) > 1
     # Response containing exactly one item, since explicit date is mentioned.
-    response = adgs_client.get("Products?$filter=PublicationDate eq 2023-02-16T12:00:00.000Z", headers=auth_header)
+    response = adgs_client_with_auth.get("Products?$filter=PublicationDate eq 2023-02-16T12:00:00.000Z")
     assert isinstance(json.loads(response.text), dict)
     # Check response content with test-defined one.
-    response = adgs_client.get("Products?$filter=PublicationDate eq 2019-02-16T12:00:00.000Z", headers=auth_header)
+    response = adgs_client_with_auth.get("Products?$filter=PublicationDate eq 2019-02-16T12:00:00.000Z")
     assert json.loads(response.text).keys() == products_response.keys()
     assert json.loads(response.text) == products_response
     # Name contains.
-    response = adgs_client.get(
-        "Products?$filter=contains(Name, S2__OPER_AUX_ECMWFD_PDMC_20190216T120)",
-        headers=auth_header,
-    )
+    import pdb
+    pdb.set_trace()
+    adgs_client_with_auth.get("Products?$filter=contains(Name, 'S2__OPER_AUX_ECMWFD_PDMC_20190216T120')")
+
     assert json.loads(response.text).keys() == products_response.keys()
     assert json.loads(response.text) == products_response
     # Name contains enclosed with ''.
-    response = adgs_client.get(
-        "Products?$filter=contains(Name, 'S2__OPER_AUX_ECMWFD_PDMC_20190216T1')",
-        headers=auth_header,
-    )
+    response = adgs_client_with_auth.get("Products?$filter=contains(Name, 'S2__OPER_AUX_ECMWFD_PDMC_20190216T1')")
     assert json.loads(response.text).keys() == products_response.keys()
     assert json.loads(response.text) == products_response
     # name startwith
-    response = adgs_client.get("Products?$filter=startswith(Name, S2__OPER_AUX_ECMWFD_PDMC_2019)", headers=auth_header)
+    response = adgs_client_with_auth.get("Products?$filter=startswith(Name, S2__OPER_AUX_ECMWFD_PDMC_2019)")
     assert json.loads(response.text).keys() == products_response.keys()
     assert json.loads(response.text) == products_response
     # Empty json response since there are no products older than 1999.
-    response = adgs_client.get("Products?$filter=PublicationDate lt 1999-05-15T00:00:00.000Z", headers=auth_header)
+    response = adgs_client_with_auth.get("Products?$filter=PublicationDate lt 1999-05-15T00:00:00.000Z")
     assert not response.text
     # Test with AND operator
     q1 = "PublicationDate gt 2018-05-15T00:00:00.000Z"
     q2 = "PublicationDate lt 2023-05-15T00:00:00.000Z"
     endpoint = f"Products?$filter={q1} and {q2}"
-    response = adgs_client.get(
-        endpoint,
-        headers=auth_header,
-    )
+    response = adgs_client_with_auth.get(endpoint)
     assert json.loads(response.text).keys()
     top_pagination = "3"
     # filter&top
     endpoint = f'Products?$filter="PublicationDate gt 2014-01-01T12:00:00.000Z and PublicationDate lt 2023-12-30T12:00:00.000Z&$top={top_pagination}'
-    response = adgs_client.get(
-        endpoint,
-        headers=auth_header,
-    )
+    response = adgs_client_with_auth.get(endpoint)
     print(response)
     assert len(json.loads(response.text)["responses"]) == int(top_pagination)
     # top&filter
     endpoint = f'Products?$top={top_pagination}&$filter="PublicationDate gt 2014-01-01T12:00:00.000Z and PublicationDate lt 2023-12-30T12:00:00.000Z'
-    response = adgs_client.get(
-        endpoint,
-        headers=auth_header,
-    )
+    response = adgs_client_with_auth.get(endpoint)
     assert len(json.loads(response.text)["responses"]) == int(top_pagination)
 
 
 @pytest.mark.parametrize(
-    "local_path, download_path, login",
+    "local_path, download_path",
     [
         (
             # to be changed after deploy / pipeline
-            ("tests/data/", "S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000.TGZ"),
-            ("tests/S3MockTest/", "S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000_test.TGZ"),
-            ("test:test"),
+            ("data/", "S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000.TGZ"),
+            ("S3MockTest/", "S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000_test.TGZ"),
         ),
     ],
 )
-def test_download_file(adgs_client, local_path, download_path, login):
-    """Docstring to be added."""
-    # Remove artifacts if any
-    original_path, original_file = local_path
-    download_path, download_file = download_path
-    login = base64.b64encode(str.encode(login)).decode("utf-8")
-    auth_header = {"Authorization": f"Basic {login}"}
-    if os.path.exists(os.path.join(download_path, download_file)):
-        os.remove(os.path.join(download_path, download_file))
-    else:
-        os.makedirs(download_path)
+def test_download_file(adgs_client_with_auth, local_path, download_path):
+    """Test downloading a file and comparing its content with the original."""
+    # Convert paths to pathlib Path objects
+    original_dir = Path(local_path[0])
+    original_file = local_path[1]
+    download_dir = Path(download_path[0])
+    download_file = download_path[1]
 
-    # fail if there is not original file to compare with, tbd
-    if not os.path.exists(os.path.join(original_path, original_file)):
-        assert False
-    # Test download for an inexistent file (404 expected)
+    download_file_path = download_dir / download_file  # Combine directory and file
+
+    # Remove artifacts if any
+    if download_file_path.exists():
+        download_file_path.unlink()  # Remove the file
+    else:
+        download_dir.mkdir(parents=True, exist_ok=True)  # Create the directory if it doesn't exist
+
+    # Fail if the original file to compare with doesn't exist
+    original_file_path = Path(__file__).parent.resolve() / original_dir / original_file
+    if not original_file_path.exists():
+        assert False, f"Original file {original_file} does not exist in {original_dir}"
+
+    # Test download for a nonexistent file (404 expected)
     api_route = "Products(some_inexistent_ID)/$value"
-    assert adgs_client.get(api_route, headers=auth_header).status_code == NOT_FOUND
-    # Test existing file
+    assert adgs_client_with_auth.get(api_route).status_code == NOT_FOUND
+
+    # Test existing file download
     api_route = "Products(2b17b57d-fff4-4645-b539-91f305c27c69)/$value"
-    response = adgs_client.get(api_route, headers=auth_header)
+    response = adgs_client_with_auth.get(api_route)
     assert response.status_code == OK
-    # Dump response to file (python-request limitation, server is automatically downloading file in accepted brows)
-    with open(os.path.join(download_path, download_file), "wb+") as df:
+
+    # Dump response to file
+    with download_file_path.open("wb+") as df:
         df.write(response.get_data())
-    # test file content
-    assert filecmp.cmp(
-        os.path.join(original_path, original_file),
-        os.path.join(download_path, download_file),
-    )
-    # clean downloaded file
-    os.remove(os.path.join(download_path, download_file))
-    os.removedirs(download_path)
+
+    # Test file content using filecmp
+    assert filecmp.cmp(original_file_path, download_file_path), "Downloaded file differs from the original file"
+
+    # Clean up the downloaded file and directory
+    download_file_path.unlink()  # Remove the file
+    if not any(download_dir.iterdir()):  # If the directory is empty, remove it
+        download_dir.rmdir()
