@@ -170,8 +170,10 @@ def hello():
 @additional_options
 def query_session() -> Response | list[Any]:
     """Docstring to be added."""
-    if not request.args:
-        return Response(status=HTTP_BAD_REQUEST)
+    catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
+    catalog_data = json.loads(open(catalog_path).read())
+    if "$filter" not in request.args:
+        return Response(status=HTTP_OK, response=batch_response_odata_v4(catalog_data['Data']))
         # return Response('Bad Request', Response.status_code(400), None)
     # Check requested values, filter type can only be json keys
     if not any(
@@ -179,8 +181,6 @@ def query_session() -> Response | list[Any]:
     ):
         return Response(status=HTTP_BAD_REQUEST)
     # Proceed to process request
-    catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
-    catalog_data = json.loads(open(catalog_path).read())
     catalog_path_files = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data_files = json.loads(open(catalog_path_files).read())
     # all operators with all possible spacing combinations
