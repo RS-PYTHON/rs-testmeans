@@ -365,7 +365,8 @@ def process_individual_query_part(query_parts, headers):
                     continue
     return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else [[]]), headers=headers)
 
-@app.route("/Products", methods=["GET"])    
+@app.route("/Products", methods=["GET"])
+@token_required
 @additional_options
 def query_products():
     """Docstring to be added."""
