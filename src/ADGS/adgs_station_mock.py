@@ -80,7 +80,6 @@ def token_required(f):
 
     return decorated
 
-
 def additional_options(func):
     """Docstring to be added."""
 
@@ -102,21 +101,22 @@ def additional_options(func):
             if "responses" in json_data:
                 return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
             return json_data
-        json_data = parse_response_data()
-        if not request.args.get("$expand", False) == "Attributes":
-            for item in json_data.get("responses", json_data):
-                item.pop("Attributes") if isinstance(item, dict) else json_data.pop("Attributes")
-            return prepare_response_odata_v4(json_data['responses'] if 'responses' in json_data else json_data)
+
+        def truncate_attrs(request, json_data):
+            if not request.args.get("$expand", False) == "Attributes":
+                for item in json_data.get("responses", json_data):
+                    item.pop("Attributes") if isinstance(item, dict) else json_data.pop("Attributes")
+            return json_data
 
         if any(header in accepted_display_options for header in display_headers.keys()):
             match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
                 case "$orderBy":
                     field, ordering_type = display_headers["$orderBy"].split(" ")
-                    json_data = parse_response_data()
+                    json_data = truncate_attrs(request, parse_response_data())
                     return sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
                 case "$top":
                     top_value = int(display_headers["$top"])
-                    json_data = parse_response_data()
+                    json_data = truncate_attrs(request, parse_response_data())
                     return (
                         prepare_response_odata_v4(json_data["responses"][:top_value])
                         if "responses" in json_data
@@ -124,14 +124,14 @@ def additional_options(func):
                     )
                 case "$skip":
                     skip_value = int(display_headers.get("$skip", 0))
-                    json_data = parse_response_data()
+                    json_data = truncate_attrs(request, parse_response_data())
                     return (
                         prepare_response_odata_v4(json_data["responses"][skip_value:])
                         if "responses" in json_data
                         else json_data  # No need for slicing since there is only one response.
                     )
                 case "$count":
-                    json_data = parse_response_data()
+                    json_data = truncate_attrs(request, parse_response_data())
                     if "responses" in json_data:
                         return Response(status=HTTP_OK, response=str(len(json_data["responses"])))
                     return Response(status=HTTP_OK, response=str(len(json_data)))
