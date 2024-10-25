@@ -190,8 +190,6 @@ def process_products_request(request, headers):
     """Docstring to be added."""
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
-    if "$filter" not in request.args:
-        return Response(status=HTTP_OK, response=prepare_response_odata_v4(catalog_data['Data']))
     if "Name" in request:
         pattern = r"(\w+)\((\w+), \'?(\w+)\'?\)"
         op = re.search(pattern, request).group(1)
@@ -372,8 +370,10 @@ def process_individual_query_part(query_parts, headers):
 @additional_options
 def query_products():
     """Docstring to be added."""
-    if not request.args:
-        return Response(status=HTTP_BAD_REQUEST)
+    if "$filter" not in request.args:
+        catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
+        catalog_data = json.loads(open(catalog_path).read())
+        return Response(status=HTTP_OK, response=prepare_response_odata_v4(catalog_data['Data']))
     if not any(
         [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes"]],
     ):
