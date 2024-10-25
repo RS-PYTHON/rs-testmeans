@@ -1,7 +1,7 @@
 """Docstring to be added."""
+import datetime
 import json
 import os
-import datetime
 from io import StringIO
 
 import pytest
@@ -72,9 +72,9 @@ mock_queued_order_data = {
             "EstimatedDate": str(datetime.datetime.now() + datetime.timedelta(seconds=30)),
             "CompletedDate": "None",
             "EvictionDate": "None",
-            "Priority": 1
-        }
-    ]
+            "Priority": 1,
+        },
+    ],
 }
 
 
@@ -108,10 +108,18 @@ def mock_open_queued_feature(monkeypatch):
 
 mock_completed_order_data = {
     "orders": [
-        {"Id": "test_order_completed", "Status": "completed", "StatusMessage": "requested product is available",
-         "OrderSize": 1716,
-         "SubmissionDate": "2024-06-28 16:31:09.632384", "EstimatedDate": "2024-06-28 16:33:00.632528", "CompletedDate":
-             "2024-06-28 17:01:46.706597", "EvictionDate": "2024-07-01 17:01:46.706610", "Priority": 1}]
+        {
+            "Id": "test_order_completed",
+            "Status": "completed",
+            "StatusMessage": "requested product is available",
+            "OrderSize": 1716,
+            "SubmissionDate": "2024-06-28 16:31:09.632384",
+            "EstimatedDate": "2024-06-28 16:33:00.632528",
+            "CompletedDate": "2024-06-28 17:01:46.706597",
+            "EvictionDate": "2024-07-01 17:01:46.706610",
+            "Priority": 1,
+        },
+    ],
 }
 
 
@@ -141,3 +149,20 @@ def mock_open_completed_feature(monkeypatch):
     monkeypatch.setattr("builtins.open", mock_file_open)
     monkeypatch.setattr("pathlib.Path.open", mock_file_open)
     return mock_completed_order_data
+
+
+@pytest.fixture(name="adgs_token")
+def valid_adgs_header_with_token():
+    return {"Authorization": "Token P4JSuo3gfQxKo0gfbQTb7nDn5OkzWP3umdGvy7G3CcI"}
+
+
+@pytest.fixture(name="adgs_client_with_auth")
+def adgs_client_with_auth(adgs_client, adgs_token):
+    """Fixture to return a client with automatic auth header handling."""
+    # Create a session from the test client
+    client = adgs_client
+
+    # Attach token to session so it persists across requests
+    client.environ_base["HTTP_AUTHORIZATION"] = adgs_token["Authorization"]
+
+    return client

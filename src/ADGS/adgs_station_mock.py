@@ -102,6 +102,11 @@ def additional_options(func):
             if "responses" in json_data:
                 return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
             return json_data
+        json_data = parse_response_data()
+        if not request.args.get("$expand", False) == "Attributes":
+            for item in json_data.get("responses", json_data):
+                item.pop("Attributes") if isinstance(item, dict) else json_data.pop("Attributes")
+            return prepare_response_odata_v4(json_data['responses'] if 'responses' in json_data else json_data)
 
         if any(header in accepted_display_options for header in display_headers.keys()):
             match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
@@ -185,6 +190,8 @@ def process_products_request(request, headers):
     """Docstring to be added."""
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
+    if "$filter" not in request.args:
+        return Response(status=HTTP_OK, response=prepare_response_odata_v4(catalog_data['Data']))
     if "Name" in request:
         pattern = r"(\w+)\((\w+), \'?(\w+)\'?\)"
         op = re.search(pattern, request).group(1)
@@ -269,6 +276,96 @@ def process_products_request(request, headers):
     else:
         return Response(status=HTTP_BAD_REQUEST)
 
+def process_query(query):
+    # Step 1: Remove the part before "any("
+    queries = query.split("any(")
+    
+    results = []
+    
+    # Step 2: Process each part individually
+    for q in queries:
+        if ")" in q:
+            # Extract the content inside the parentheses
+            q = q.split(")", 1)[0]
+            # Split by "and" to separate the conditions
+            parts = q.split(" and ")
+            # Collect and clean up each part
+            for part in parts:
+                results.append(part.strip())
+    
+    return results
+    
+def extract_values_and_operation(part1, part2):
+    # Regular expression to capture the operation and value between single quotes
+    pattern = r"(\b(eq|gt|lt)\b)\s+'(.*?)'"
+    
+    # Search for the operation and value in part1
+    value1 = re.search(r"'(.*?)'", part1).group(1) if re.search(r"'(.*?)'", part1) else None
+
+    # Search for the operation and value in part2
+    match2 = re.search(pattern, part2)
+    if match2:
+        operation = match2.group(1)  # Capture the operation (eq, gt, lt)
+        value2 = match2.group(3)      # Capture the value between single quotes
+    else:
+        operation, value2 = None, None
+
+    return value1, operation, value2
+    
+def process_attributes_search(query, headers):
+    # Don;t touch this, it just works
+    results = process_query(query)
+    if len(results) == 2:
+        return process_individual_query_part(process_query(query), headers)
+    elif len(results) == 4:
+        part1 = process_individual_query_part(process_query(query)[:2], headers)
+        part2 = process_individual_query_part(process_query(query)[2:], headers)
+        return Response(status=HTTP_OK, response=prepare_response_odata_v4(process_response(part1, part2)), headers=headers)
+
+def process_response(query_resp1, query_resp2):
+    response1 = json.loads(query_resp1.response[0].decode('utf-8')).get("responses", json.loads(query_resp1.response[0].decode('utf-8')))
+    response2 = json.loads(query_resp2.response[0].decode('utf-8')).get("responses", json.loads(query_resp2.response[0].decode('utf-8')))
+    ids_list1 = {item['Id'] for item in response1}
+    ids_list2 = {item['Id'] for item in response2}
+    common_ids = ids_list1.intersection(ids_list2)
+    common_items_list1 = [item for item in response1 if item['Id'] in common_ids]
+    common_items_list2 = [item for item in response2 if item['Id'] in common_ids]
+    return common_items_list1 + common_items_list2
+
+
+def process_individual_query_part(query_parts, headers):
+    field, op, value = extract_values_and_operation(query_parts[0], query_parts[1])
+    catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
+    catalog_data = json.loads(open(catalog_path).read())
+    if field in ("beginningDateTime", "endingDateTime", "processingDate"):
+        date = datetime.datetime.fromisoformat(value)
+        resp = []
+        for product in catalog_data['Data']:
+            for attr in product["Attributes"]:
+                try:
+                    if attr['Name'] == field:
+                        match op:
+                            case "eq":
+                                if date == datetime.datetime.fromisoformat(attr['Value']):
+                                    resp.append(product)
+                            case "lt":
+                                if date > datetime.datetime.fromisoformat(attr['Value']):
+                                    resp.append(product)
+                            case "gt":
+                                if date > datetime.datetime.fromisoformat(attr['Value']):
+                                    resp.append(product)
+                except KeyError:
+                    continue
+    if field in ("platformShortName", "platformSerialIdentifier", "processingCenter", "productType", "processorVersion"):
+        resp = []
+        for product in catalog_data['Data']:
+            for attr in product["Attributes"]:
+                try:
+                    if attr['Name'].lower() == field.lower() and attr['Value'].lower() == value.lower():
+                        resp.append(product)
+                except KeyError:
+                    continue
+    return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else [[]]), headers=headers)
 
 @app.route("/Products", methods=["GET"])
 @token_required
@@ -278,10 +375,11 @@ def query_products():
     if not request.args:
         return Response(status=HTTP_BAD_REQUEST)
     if not any(
-        [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate"]],
+        [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes"]],
     ):
         return Response(status=HTTP_BAD_REQUEST)
-
+    if "Attributes" in request.args['$filter'] or "OData.CSC" in request.args['$filter']:
+        return process_attributes_search(request.args['$filter'], request.args)
     if any(header in request.args["$filter"] for header in aditional_operators):
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
         groups = re.search(pattern, request.args["$filter"])
