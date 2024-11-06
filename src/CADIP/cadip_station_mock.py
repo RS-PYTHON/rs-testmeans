@@ -136,8 +136,8 @@ def additional_options(func):
 
 def batch_response_odata_v4(resp_body: list | map) -> Any:
     """Docstring to be added."""
-    unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
-    return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
+    unpacked = list(resp_body) if resp_body and not isinstance(resp_body, list) else resp_body
+    return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0] if unpacked else [])
 
 
 @auth.verify_password

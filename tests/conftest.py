@@ -155,6 +155,10 @@ def mock_open_completed_feature(monkeypatch):
 def valid_adgs_header_with_token():
     return {"Authorization": "Token P4JSuo3gfQxKo0gfbQTb7nDn5OkzWP3umdGvy7G3CcI"}
 
+@pytest.fixture(name="cadip_token")
+def valid_cadip_header_with_token():
+    return {"Authorization": "Token P4JSuo3gfQxKo0gfbQTb7nDn5OkzWP3umdGvy7G3CcI"}
+
 
 @pytest.fixture(name="adgs_client_with_auth")
 def adgs_client_with_auth(adgs_client, adgs_token):
@@ -164,5 +168,17 @@ def adgs_client_with_auth(adgs_client, adgs_token):
 
     # Attach token to session so it persists across requests
     client.environ_base["HTTP_AUTHORIZATION"] = adgs_token["Authorization"]
+
+    return client
+
+
+@pytest.fixture(name="cadip_client_with_auth")
+def cadip_client_with_auth(cadip_client, cadip_token):
+    """Fixture to return a client with automatic auth header handling."""
+    # Create a session from the test client
+    client = cadip_client
+
+    # Attach token to session so it persists across requests
+    client.environ_base["HTTP_AUTHORIZATION"] = cadip_token["Authorization"]
 
     return client
