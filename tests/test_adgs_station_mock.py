@@ -95,6 +95,50 @@ def test_query_products(adgs_client_with_auth, products_response):
     response = adgs_client_with_auth.get(endpoint)
     assert len(json.loads(response.text)["responses"]) == int(top_pagination)
 
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "query, is_valid",
+    [
+        (
+            "Products?$filter=contains(Name, 'S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000.TGZ') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_AUX_ECMWFD_PDMC')",
+            True
+        ),
+        (
+            "Products?$filter=contains(Name, 'NOT_FOUND.TGZ') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_AUX_ECMWFD_PDMC')",
+            False
+        ),
+        (
+            "Products?$filter=contains(Name, 'S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000.TGZ') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'INVALID_TYPE')",
+            False
+        ),
+        (
+            "Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_AUX_ECMWFD_PDMC') and contains(Name, 'S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000.TGZ')",
+            True
+        ),
+        (
+            "Products?$filter=PublicationDate gt 2014-01-01T12:00:00.000Z and PublicationDate lt 2023-12-30T12:00:00.000Z and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_AUX_ECMWFD_PDMC')",
+            True
+        ),
+        # Invalid publicationdate
+        (
+            "Products?$filter=PublicationDate gt 2030-01-01T12:00:00.000Z and PublicationDate lt 2023-12-30T12:00:00.000Z and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_AUX_ECMWFD_PDMC')",
+            False
+        ),
+        # Reverse order
+        (
+            "Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_AUX_ECMWFD_PDMC') and PublicationDate gt 2014-01-01T12:00:00.000Z and PublicationDate lt 2023-12-30T12:00:00.000Z",
+            True
+        ),
+    ],
+)
+def test_complex_query(adgs_client_with_auth, query, is_valid):
+    # Name and attrs
+    resp = adgs_client_with_auth.get(query)
+    assert resp.status_code == OK
+    if is_valid:
+        assert json.loads(resp.data)
+    else:
+        assert json.loads(resp.data) == []
 
 @pytest.mark.parametrize(
     "local_path, download_path",
