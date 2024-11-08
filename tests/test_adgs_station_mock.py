@@ -49,7 +49,7 @@ def test_basic_auth(adgs_client, adgs_token):
 def test_query_products(adgs_client_with_auth, products_response):
     """Docstring to be added."""
     # test without args
-    assert adgs_client_with_auth.get("Products").status_code == BAD_REQUEST
+    assert adgs_client_with_auth.get("Products").status_code == OK # Should return all products
     # test with an incorrect filter
     assert adgs_client_with_auth.get("Products?$filter=Incorrect_filter").status_code == BAD_REQUEST
     # Response containing more than 1 result, since there are more products matching

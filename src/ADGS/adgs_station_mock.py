@@ -103,12 +103,20 @@ def additional_options(func):
             return json_data
 
         def truncate_attrs(request, json_data):
+            # Remove attribtes if not defined
             if not request.args.get("$expand", False) == "Attributes":
-                for item in json_data.get("responses", json_data):
-                    item.pop("Attributes") if isinstance(item, dict) else json_data.pop("Attributes")
+                if "responses" in json_data:
+                    for item in json_data['responses']:
+                        item.pop("Attributes")
+                else:
+                    json_data.pop("Attributes", None)
             return json_data
+        
+        if data := parse_response_data():
+            json_data = truncate_attrs(request, data)
+        else:
+            return response
 
-        json_data = truncate_attrs(request, parse_response_data())
         if any(header in accepted_display_options for header in display_headers.keys()):
             match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
                 case "$orderBy":
@@ -132,7 +140,7 @@ def additional_options(func):
                     if "responses" in json_data:
                         return Response(status=HTTP_OK, response=str(len(json_data["responses"])))
                     return Response(status=HTTP_OK, response=str(len(json_data)))
-        return response
+        return json_data
 
     return wrapper
 
