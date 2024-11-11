@@ -103,6 +103,17 @@ def additional_options(func):
             return json_data
 
         if any(header in accepted_display_options for header in display_headers.keys()):
+            # Handle specific case when both top and skip are defined
+            if all(header in display_headers for header in ["$top", "$skip"]):
+                    json_data = parse_response_data()
+                    top_value = int(display_headers["$top"], 10)
+                    skip_value = int(display_headers.get("$skip", 0))
+                    return (
+                        batch_response_odata_v4(json_data["responses"][skip_value:top_value])
+                        if "responses" in json_data
+                        else json_data  # No need for slicing since there is only one response.
+                    )
+            # Else handle singe case if defined
             match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
                 case "$orderBy":
                     field, ordering_type = display_headers["$orderBy"].split(" ")
