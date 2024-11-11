@@ -105,11 +105,13 @@ def additional_options(func):
         if any(header in accepted_display_options for header in display_headers.keys()):
             # Handle specific case when both top and skip are defined
             if all(header in display_headers for header in ["$top", "$skip"]):
+                    # ICD extract:
+                    # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
                     json_data = parse_response_data()
                     top_value = int(display_headers["$top"], 10)
                     skip_value = int(display_headers.get("$skip", 0))
                     return (
-                        batch_response_odata_v4(json_data["responses"][skip_value:top_value])
+                        batch_response_odata_v4(json_data["responses"][skip_value:skip_value+top_value])
                         if "responses" in json_data
                         else json_data  # No need for slicing since there is only one response.
                     )

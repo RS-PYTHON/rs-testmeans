@@ -116,7 +116,7 @@ def additional_options(func):
                     top_value = int(display_headers["$top"], 10)
                     skip_value = int(display_headers.get("$skip", 0))
                     return (
-                        prepare_response_odata_v4(json_data["responses"][skip_value:top_value])
+                        prepare_response_odata_v4(json_data["responses"][skip_value:skip_value+top_value])
                         if "responses" in json_data
                         else json_data  # No need for slicing since there is only one response.
                     )
