@@ -100,21 +100,24 @@ def additional_options(func):
         def sort_responses_by_field(json_data, field, reverse=False):
             if "responses" in json_data:
                 return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
-            return json_data
+            return sorted(json_data, key=lambda x: x[field], reverse=reverse)
 
         if any(header in accepted_display_options for header in display_headers.keys()):
             # Handle specific case when both top and skip are defined
-            if all(header in display_headers for header in ["$top", "$skip"]):
+            if all(header in display_headers for header in ["$top", "$skip", "$orderby"]):
                     # ICD extract:
                     # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
                     json_data = parse_response_data()
                     top_value = int(display_headers["$top"], 10)
                     skip_value = int(display_headers.get("$skip", 0))
-                    return (
-                        batch_response_odata_v4(json_data["responses"][skip_value:skip_value+top_value])
-                        if "responses" in json_data
-                        else json_data  # No need for slicing since there is only one response.
-                    )
+                    field, ordering_type = display_headers["$orderby"].split(" ")
+                    if "responses" in json_data:
+                        data = sort_responses_by_field(json_data["responses"][skip_value:skip_value+top_value], field, reverse=(ordering_type == "desc"))
+                    else:
+                        data = sort_responses_by_field(json_data[skip_value:skip_value+top_value], field, reverse=(ordering_type == "desc"))
+                    return data
+            
+
             # Else handle singe case if defined
             match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
                 case "$orderBy":
@@ -186,7 +189,7 @@ def query_session() -> Response | list[Any]:
     catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
     catalog_data = json.loads(open(catalog_path).read())
     if "$filter" not in request.args:
-        return Response(status=HTTP_OK, response=batch_response_odata_v4(catalog_data['Data']))
+        return Response(status=HTTP_OK, response=batch_response_odata_v4(catalog_data['Data']), headers=request.args)
         # return Response('Bad Request', Response.status_code(400), None)
     # Check requested values, filter type can only be json keys
     if not any(
