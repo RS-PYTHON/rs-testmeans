@@ -129,6 +129,10 @@ def test_query_products(adgs_client_with_auth, products_response):
             "Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_AUX_ECMWFD_PDMC') and PublicationDate gt 2014-01-01T12:00:00.000Z and PublicationDate lt 2023-12-30T12:00:00.000Z",
             True
         ),
+        (
+            "Products?$filter=contains(Name,%20'S1A_OPER_MPL_ORBSCT_20210902T150704_99999999T999999_0025.EOF')%20and%20PublicationDate%20gt%202020-01-01T00:00:00.000Z%20and%20PublicationDate%20lt%202024-01-01T00:00:00.000Z",
+            True
+        )
     ],
 )
 def test_complex_query(adgs_client_with_auth, query, is_valid):

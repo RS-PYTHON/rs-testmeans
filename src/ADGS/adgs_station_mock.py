@@ -450,13 +450,24 @@ def query_products():
                 properties_filter.append(filter)
             elif "OData.CSC.StringAttribute" in filter:
                 attributes_filter.append(filter)
-        if len(properties_filter) == 1:
-            outputs.append(process_products_request(properties_filter[0].strip('"'), request.args))
-        elif len(properties_filter) == 2:
-            # Merge properties queryes and then merge with attributes query
-            first = process_products_request(properties_filter[0], request.args)
-            second = process_products_request(properties_filter[1], request.args)
-            outputs.append(process_common_elements(first, second, "and"))
+
+        if not 1 <= len(properties_filter) <= 3:
+            raise HTTP_BAD_REQUEST("Too complex for adgs sim")
+
+        # Process each property in the filter
+        processed_requests = [
+            process_products_request(prop.strip("'\""), request.args)
+            for prop in properties_filter
+        ]
+
+        # Combine the processed requests based on the number of filters
+        if len(processed_requests) == 1:
+            outputs.append(processed_requests[0])
+        elif len(processed_requests) == 2:
+            outputs.append(process_common_elements(processed_requests[0], processed_requests[1], "and"))
+        elif len(processed_requests) == 3:
+            one_and_two = process_common_elements(processed_requests[0], processed_requests[1], "and")
+            return process_common_elements(one_and_two, processed_requests[2], "and")
         if len(attributes_filter) == 2:
             outputs.append(process_attributes_search(f"{attributes_filter[0]} and {attributes_filter[1]}", request.args))
         return process_common_elements(outputs[0], outputs[1], "and")
