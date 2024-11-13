@@ -100,7 +100,7 @@ def additional_options(func):
         def sort_responses_by_field(json_data, field, reverse=False):
             if "responses" in json_data:
                 return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
-            return json_data
+            return sorted(json_data, key=lambda x: x[field], reverse=reverse)
 
         def truncate_attrs(request, json_data):
             # Remove attribtes if not defined
@@ -118,6 +118,19 @@ def additional_options(func):
             return response
 
         if any(header in accepted_display_options for header in display_headers.keys()):
+            # Handle specific case when both top and skip are defined
+            if all(header in display_headers for header in ["$top", "$skip", "$orderby"]):
+                    json_data = parse_response_data()
+                    top_value = int(display_headers["$top"], 10)
+                    skip_value = int(display_headers.get("$skip", 0))
+                    field, ordering_type = display_headers["$orderby"].split(" ")
+                    if "responses" in json_data:
+                        data = sort_responses_by_field(json_data["responses"][skip_value:skip_value+top_value], field, reverse=(ordering_type == "desc"))
+                    else:
+                        # should not be the case.
+                        data = sort_responses_by_field(json_data[skip_value:skip_value+top_value], field, reverse=(ordering_type == "desc"))
+                    return data
+            # Else handle singe case if defined
             match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
                 case "$orderBy":
                     field, ordering_type = display_headers["$orderBy"].split(" ")
