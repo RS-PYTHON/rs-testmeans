@@ -125,18 +125,20 @@ def additional_options(func):
                     json_data = parse_response_data()
                     return sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
                 case "$top":
-                    top_value = int(display_headers["$top"])
+                    skip_value = int(display_headers.get("$skip", 0))
+                    top_value = int(display_headers.get("$top", 1000))
                     json_data = parse_response_data()
                     return (
-                        batch_response_odata_v4(json_data["responses"][:top_value])
+                        batch_response_odata_v4(json_data["responses"][skip_value:top_value])
                         if "responses" in json_data
                         else json_data  # No need for slicing since there is only one response.
                     )
                 case "$skip":
+                    top_value = int(display_headers.get("$top", 1000))
                     skip_value = int(display_headers.get("$skip", 0))
                     json_data = parse_response_data()
                     return (
-                        batch_response_odata_v4(json_data["responses"][skip_value:])
+                        batch_response_odata_v4(json_data["responses"][skip_value:skip_value+top_value])
                         if "responses" in json_data
                         else json_data  # No need for slicing since there is only one response.
                     )
