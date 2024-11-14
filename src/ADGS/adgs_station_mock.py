@@ -90,7 +90,6 @@ def additional_options(func):
         accepted_display_options = ["$orderBy", "$top", "$skip", "$count"]
         response = func(*args, **kwargs)
         display_headers = response.headers
-
         def parse_response_data():
             try:
                 return json.loads(response.data)
@@ -121,7 +120,7 @@ def additional_options(func):
             # Handle specific case when both top and skip are defined
             if all(header in display_headers for header in ["$top", "$skip", "$orderby"]):
                     json_data = parse_response_data()
-                    top_value = int(display_headers["$top"], 10)
+                    top_value = int(display_headers["$top"], 1000)
                     skip_value = int(display_headers.get("$skip", 0))
                     field, ordering_type = display_headers["$orderby"].split(" ")
                     if "responses" in json_data:
@@ -136,16 +135,18 @@ def additional_options(func):
                     field, ordering_type = display_headers["$orderBy"].split(" ")
                     return sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
                 case "$top":
+                    skip_value = int(display_headers.get("$skip", 0))
                     top_value = int(display_headers["$top"])
                     return (
-                        prepare_response_odata_v4(json_data["responses"][:top_value])
+                        prepare_response_odata_v4(json_data["responses"][skip_value:top_value])
                         if "responses" in json_data
                         else json_data  # No need for slicing since there is only one response.
                     )
                 case "$skip":
+                    top_value = int(display_headers["$top"], 1000)
                     skip_value = int(display_headers.get("$skip", 0))
                     return (
-                        prepare_response_odata_v4(json_data["responses"][skip_value:])
+                        prepare_response_odata_v4(json_data["responses"][skip_value:skip_value+top_value])
                         if "responses" in json_data
                         else json_data  # No need for slicing since there is only one response.
                     )
@@ -168,7 +169,11 @@ def prepare_response_odata_v4(resp_body: list | map) -> Any:
     :rtype: str
     """
     unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
-    return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
+    try:
+        data = json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
+    except IndexError:
+        return json.dumps({})
+    return data
 
 
 @auth.verify_password
