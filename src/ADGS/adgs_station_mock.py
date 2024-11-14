@@ -120,7 +120,7 @@ def additional_options(func):
             # Handle specific case when both top and skip are defined
             if all(header in display_headers for header in ["$top", "$skip", "$orderby"]):
                     json_data = parse_response_data()
-                    top_value = int(display_headers["$top"], 1000)
+                    top_value = int(display_headers.get("$top", 1000))
                     skip_value = int(display_headers.get("$skip", 0))
                     field, ordering_type = display_headers["$orderby"].split(" ")
                     if "responses" in json_data:
@@ -136,14 +136,14 @@ def additional_options(func):
                     return sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
                 case "$top":
                     skip_value = int(display_headers.get("$skip", 0))
-                    top_value = int(display_headers["$top"])
+                    top_value = int(display_headers.get("$top", 1000))
                     return (
                         prepare_response_odata_v4(json_data["responses"][skip_value:top_value])
                         if "responses" in json_data
                         else json_data  # No need for slicing since there is only one response.
                     )
                 case "$skip":
-                    top_value = int(display_headers["$top"], 1000)
+                    top_value = int(display_headers.get("$top", 1000))
                     skip_value = int(display_headers.get("$skip", 0))
                     return (
                         prepare_response_odata_v4(json_data["responses"][skip_value:skip_value+top_value])
