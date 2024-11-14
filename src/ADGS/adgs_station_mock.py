@@ -103,12 +103,20 @@ def additional_options(func):
             return sorted(json_data, key=lambda x: x[field], reverse=reverse)
 
         def truncate_attrs(request, json_data):
+            # Remove attribtes if not defined
             if not request.args.get("$expand", False) == "Attributes":
-                for item in json_data.get("responses", json_data):
-                    item.pop("Attributes") if isinstance(item, dict) else json_data.pop("Attributes")
+                if "responses" in json_data:
+                    for item in json_data['responses']:
+                        item.pop("Attributes")
+                else:
+                    json_data.pop("Attributes", None)
             return json_data
+        
+        if data := parse_response_data():
+            json_data = truncate_attrs(request, data)
+        else:
+            return response
 
-        json_data = truncate_attrs(request, parse_response_data())
         if any(header in accepted_display_options for header in display_headers.keys()):
             # Handle specific case when both top and skip are defined
             if all(header in display_headers for header in ["$top", "$skip", "$orderby"]):
@@ -145,7 +153,7 @@ def additional_options(func):
                     if "responses" in json_data:
                         return Response(status=HTTP_OK, response=str(len(json_data["responses"])))
                     return Response(status=HTTP_OK, response=str(len(json_data)))
-        return response
+        return json_data
 
     return wrapper
 
@@ -201,7 +209,7 @@ def process_products_request(request, headers):
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
     if "Name" in request:
-        pattern = r"(\w+)\((\w+), \'?(\w+)\'?\)"
+        pattern = r"(\w+)\((\w+), '?([\w.]+)'?\)"
         op = re.search(pattern, request).group(1)
         filter_by = re.search(pattern, request).group(2)
         filter_value = re.search(pattern, request).group(3)
@@ -373,7 +381,52 @@ def process_individual_query_part(query_parts, headers):
                         resp.append(product)
                 except KeyError:
                     continue
-    return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else [[]]), headers=headers)
+    return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else [{}]), headers=headers)
+
+def process_common_elements(first_response, second_response, operator):
+    try:
+        # Decode
+        first_response_data = json.loads(first_response.data)
+        # Get responses if any, else default json
+        first_response = first_response_data.get("responses", json.loads(first_response.data))
+    except (json.decoder.JSONDecodeError, AttributeError):
+        # Empty dict if error while unwrapping
+        first_response = [{}]
+    try:
+        # Decode
+        second_response_data = json.loads(second_response.data)
+        # Get responses if any, else default json
+        second_response = second_response_data.get("responses", json.loads(second_response.data))
+    except (json.decoder.JSONDecodeError, AttributeError):
+        # Empty dict if error while unwrapping
+        second_response = [{}]
+    # Normalize responses, must be a list, even with one element, for iterator
+    first_response = first_response if isinstance(first_response, list) else [first_response]
+    second_response = second_response if isinstance(second_response, list) else [second_response]
+    # Convert to a set, elements unique by ID
+    fresp_set = {d.get("Id") for d in first_response}
+    sresp_set = {d.get("Id") for d in second_response}
+    match operator:
+        case "and":  # intersection
+            common_response = fresp_set.intersection(sresp_set)
+            common_elements = [d for d in first_response if d.get("Id") in common_response]
+            if common_elements:
+                return Response(
+                    status=HTTP_OK,
+                    response=prepare_response_odata_v4(common_elements),
+                    headers=request.args,
+                )
+            return Response(status=HTTP_OK, response=json.dumps([]))
+        case "or":  # union
+            union_set = fresp_set.union(sresp_set)
+            union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+            return Response(
+                status=HTTP_OK,
+                response=prepare_response_odata_v4(union_elements),
+                headers=request.args,
+            )
+
+
 
 @app.route("/Products", methods=["GET"])
 @token_required
@@ -388,6 +441,37 @@ def query_products():
         [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes"]],
     ):
         return Response(status=HTTP_BAD_REQUEST)
+    if len(qs_parser := request.args['$filter'].split(' and ')) > 2:
+        outputs = []
+        properties_filter = []
+        attributes_filter = []
+        for filter in qs_parser:
+            if any(property in filter for property in ["contains", "PublicationDate"]):
+                properties_filter.append(filter)
+            elif "OData.CSC.StringAttribute" in filter:
+                attributes_filter.append(filter)
+
+        if not 1 <= len(properties_filter) <= 3:
+            raise HTTP_BAD_REQUEST("Too complex for adgs sim")
+
+        # Process each property in the filter
+        processed_requests = [
+            process_products_request(prop.strip("'\""), request.args)
+            for prop in properties_filter
+        ]
+
+        # Combine the processed requests based on the number of filters
+        if len(processed_requests) == 1:
+            outputs.append(processed_requests[0])
+        elif len(processed_requests) == 2:
+            outputs.append(process_common_elements(processed_requests[0], processed_requests[1], "and"))
+        elif len(processed_requests) == 3:
+            one_and_two = process_common_elements(processed_requests[0], processed_requests[1], "and")
+            return process_common_elements(one_and_two, processed_requests[2], "and")
+        if len(attributes_filter) == 2:
+            outputs.append(process_attributes_search(f"{attributes_filter[0]} and {attributes_filter[1]}", request.args))
+        return process_common_elements(outputs[0], outputs[1], "and")
+
     if "Attributes" in request.args['$filter'] or "OData.CSC" in request.args['$filter']:
         return process_attributes_search(request.args['$filter'], request.args)
     if any(header in request.args["$filter"] for header in aditional_operators):
@@ -399,48 +483,7 @@ def query_products():
             first_response = process_products_request(first_request.replace('"', ""), request.args)
             second_response = process_products_request(second_request.replace('"', ""), request.args)
             # Load response data to a json dict
-            try:
-                # Decode
-                first_response_data = json.loads(first_response.data)
-                # Get responses if any, else default json
-                first_response = first_response_data.get("responses", json.loads(first_response.data))
-            except json.decoder.JSONDecodeError:
-                # Empty dict if error while unwrapping
-                first_response = [{}]
-            try:
-                # Decode
-                second_response_data = json.loads(second_response.data)
-                # Get responses if any, else default json
-                second_response = second_response_data.get("responses", json.loads(second_response.data))
-            except json.decoder.JSONDecodeError:
-                # Empty dict if error while unwrapping
-                second_response = [{}]
-
-            # Normalize responses, must be a list, even with one element, for iterator
-            first_response = first_response if isinstance(first_response, list) else [first_response]
-            second_response = second_response if isinstance(second_response, list) else [second_response]
-            # Convert to a set, elements unique by ID
-            fresp_set = {d.get("Id") for d in first_response}
-            sresp_set = {d.get("Id") for d in second_response}
-            match operator:
-                case "and":  # intersection
-                    common_response = fresp_set.intersection(sresp_set)
-                    common_elements = [d for d in first_response if d.get("Id") in common_response]
-                    if common_elements:
-                        return Response(
-                            status=HTTP_OK,
-                            response=prepare_response_odata_v4(common_elements),
-                            headers=request.args,
-                        )
-                    return Response(status=HTTP_OK, response=json.dumps([]))
-                case "or":  # union
-                    union_set = fresp_set.union(sresp_set)
-                    union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-                    return Response(
-                        status=HTTP_OK,
-                        response=prepare_response_odata_v4(union_elements),
-                        headers=request.args,
-                    )
+            return process_common_elements(first_response, second_response, operator)
 
     return process_products_request(str(request.args["$filter"]), request.args)
 
