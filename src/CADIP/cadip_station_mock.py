@@ -87,7 +87,6 @@ def additional_options(func):
     # Endpoint function is called inside wrapper and output is sorted or sliced according to request arguments.
     @wraps(func)
     def wrapper(*args, **kwargs):
-        accepted_display_options = ["$orderBy", "$top", "$skip", "$count"]
         response = func(*args, **kwargs)
         display_headers = response.headers
 
@@ -98,56 +97,30 @@ def additional_options(func):
                 return None
 
         def sort_responses_by_field(json_data, field, reverse=False):
-            if "responses" in json_data:
-                return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
-            return sorted(json_data, key=lambda x: x[field], reverse=reverse)
+            return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
 
-        if any(header in accepted_display_options for header in display_headers.keys()):
-            # Handle specific case when both top and skip are defined
-            if all(header in display_headers for header in ["$top", "$skip", "$orderby"]):
-                    # ICD extract:
-                    # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
-                    json_data = parse_response_data()
-                    top_value = int(display_headers["$top"], 10)
-                    skip_value = int(display_headers.get("$skip", 0))
-                    field, ordering_type = display_headers["$orderby"].split(" ")
-                    if "responses" in json_data:
-                        data = sort_responses_by_field(json_data["responses"][skip_value:skip_value+top_value], field, reverse=(ordering_type == "desc"))
-                    else:
-                        data = sort_responses_by_field(json_data[skip_value:skip_value+top_value], field, reverse=(ordering_type == "desc"))
-                    return data
-            
+        json_data = parse_response_data()
+        if json_data and "responses" not in json_data or not json_data:
+            return response
 
-            # Else handle singe case if defined
-            match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
-                case "$orderBy":
-                    field, ordering_type = display_headers["$orderBy"].split(" ")
-                    json_data = parse_response_data()
-                    return sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
-                case "$top":
-                    skip_value = int(display_headers.get("$skip", 0))
-                    top_value = int(display_headers.get("$top", 1000))
-                    json_data = parse_response_data()
-                    return (
-                        batch_response_odata_v4(json_data["responses"][skip_value:top_value])
-                        if "responses" in json_data
-                        else json_data  # No need for slicing since there is only one response.
-                    )
-                case "$skip":
-                    top_value = int(display_headers.get("$top", 1000))
-                    skip_value = int(display_headers.get("$skip", 0))
-                    json_data = parse_response_data()
-                    return (
-                        batch_response_odata_v4(json_data["responses"][skip_value:skip_value+top_value])
-                        if "responses" in json_data
-                        else json_data  # No need for slicing since there is only one response.
-                    )
-                case "$count":
-                    json_data = parse_response_data()
-                    if "responses" in json_data:
-                        return Response(status=HTTP_OK, response=str(len(json_data["responses"])))
-                    return Response(status=HTTP_OK, response=str(len(json_data)))
-        return response
+        # ICD extract:
+        # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
+        skip_value = int(display_headers.get("$skip", 0))
+        top_value = int(display_headers.get("$top", 1000))
+        if "$skip" in display_headers:
+            # No slicing if there is only one result
+            json_data['responses'] = json_data['responses'][skip_value:]
+        if "$top" in display_headers:
+            # No slicing if there is only one result
+            json_data['responses'] = json_data['responses'][:top_value]
+        if "$orderby" in display_headers:
+            if " " in display_headers["$orderby"]:
+                field, ordering_type = display_headers["$orderby"].split(" ")
+            else:
+                field, ordering_type = display_headers["$orderby"], "desc"
+            json_data = sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
+                
+        return batch_response_odata_v4(json_data['responses'])
 
     return wrapper
 

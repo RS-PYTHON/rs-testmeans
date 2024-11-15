@@ -87,7 +87,7 @@ def additional_options(func):
     # Endpoint function is called inside wrapper and output is sorted or sliced according to request arguments.
     @wraps(func)
     def wrapper(*args, **kwargs):
-        accepted_display_options = ["$orderBy", "$top", "$skip", "$count"]
+        accepted_display_options = ["$orderby", "$top", "$skip", "$count"]
         response = func(*args, **kwargs)
         display_headers = response.headers
         def parse_response_data():
@@ -97,9 +97,8 @@ def additional_options(func):
                 return None
 
         def sort_responses_by_field(json_data, field, reverse=False):
-            if "responses" in json_data:
-                return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
-            return sorted(json_data, key=lambda x: x[field], reverse=reverse)
+            keys = field.split("/")
+            return {"responses": sorted(json_data["responses"], key=lambda x: x[keys[0]][keys[1]] if len(keys) > 1 else x[field], reverse=reverse)}
 
         def truncate_attrs(request, json_data):
             # Remove attribtes if not defined
@@ -115,46 +114,27 @@ def additional_options(func):
             json_data = truncate_attrs(request, data)
         else:
             return response
-
-        if any(header in accepted_display_options for header in display_headers.keys()):
-            # Handle specific case when both top and skip are defined
-            if all(header in display_headers for header in ["$top", "$skip", "$orderby"]):
-                    json_data = parse_response_data()
-                    top_value = int(display_headers.get("$top", 1000))
-                    skip_value = int(display_headers.get("$skip", 0))
-                    field, ordering_type = display_headers["$orderby"].split(" ")
-                    if "responses" in json_data:
-                        data = sort_responses_by_field(json_data["responses"][skip_value:skip_value+top_value], field, reverse=(ordering_type == "desc"))
-                    else:
-                        # should not be the case.
-                        data = sort_responses_by_field(json_data[skip_value:skip_value+top_value], field, reverse=(ordering_type == "desc"))
-                    return data
-            # Else handle singe case if defined
-            match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
-                case "$orderBy":
-                    field, ordering_type = display_headers["$orderBy"].split(" ")
-                    return sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
-                case "$top":
-                    skip_value = int(display_headers.get("$skip", 0))
-                    top_value = int(display_headers.get("$top", 1000))
-                    return (
-                        prepare_response_odata_v4(json_data["responses"][skip_value:top_value])
-                        if "responses" in json_data
-                        else json_data  # No need for slicing since there is only one response.
-                    )
-                case "$skip":
-                    top_value = int(display_headers.get("$top", 1000))
-                    skip_value = int(display_headers.get("$skip", 0))
-                    return (
-                        prepare_response_odata_v4(json_data["responses"][skip_value:skip_value+top_value])
-                        if "responses" in json_data
-                        else json_data  # No need for slicing since there is only one response.
-                    )
-                case "$count":
-                    if "responses" in json_data:
-                        return Response(status=HTTP_OK, response=str(len(json_data["responses"])))
-                    return Response(status=HTTP_OK, response=str(len(json_data)))
-        return json_data
+        if "responses" not in json_data:
+            return json_data
+        
+        # ICD extract:
+        # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
+        skip_value = int(display_headers.get("$skip", 0))
+        top_value = int(display_headers.get("$top", 1000))
+        if "$skip" in display_headers:
+            # No slicing if there is only one result
+            json_data['responses'] = json_data['responses'][skip_value:]
+        if "$top" in display_headers:
+            # No slicing if there is only one result
+            json_data['responses'] = json_data['responses'][:top_value]
+        if "$orderby" in display_headers:
+            if " " in display_headers["$orderby"]:
+                field, ordering_type = display_headers["$orderby"].split(" ")
+            else:
+                field, ordering_type = display_headers["$orderby"], "desc"
+            json_data = sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
+                
+        return prepare_response_odata_v4(json_data['responses'])
 
     return wrapper
 
@@ -441,7 +421,7 @@ def query_products():
     if "$filter" not in request.args:
         catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
         catalog_data = json.loads(open(catalog_path).read())
-        return Response(status=HTTP_OK, response=prepare_response_odata_v4(catalog_data['Data']))
+        return Response(status=HTTP_OK, response=prepare_response_odata_v4(catalog_data['Data']), headers=request.args)
     if not any(
         [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes"]],
     ):
