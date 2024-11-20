@@ -535,7 +535,7 @@ def process_files_request(request, headers, catalog_data):
             case "in":
                 matching = []
                 for idx in value:
-                    matching += [product for product in catalog_data["Data"] if idx.replace(",", "") in product[field]]
+                    matching += [product for product in catalog_data["Data"] if idx.strip("('),") in product[field]]
         return (
             Response(response=batch_response_odata_v4(matching), status=HTTP_OK)
             if matching
