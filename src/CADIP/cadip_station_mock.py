@@ -97,10 +97,10 @@ def additional_options(func):
                 return None
 
         def sort_responses_by_field(json_data, field, reverse=False):
-            return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
+            return {"value": sorted(json_data["value"], key=lambda x: x[field], reverse=reverse)}
 
         json_data = parse_response_data()
-        if json_data and "responses" not in json_data or not json_data:
+        if json_data and "value" not in json_data or not json_data:
             return response
 
         # ICD extract:
@@ -109,10 +109,10 @@ def additional_options(func):
         top_value = int(display_headers.get("$top", 1000))
         if "$skip" in display_headers:
             # No slicing if there is only one result
-            json_data['responses'] = json_data['responses'][skip_value:]
+            json_data['value'] = json_data['value'][skip_value:]
         if "$top" in display_headers:
             # No slicing if there is only one result
-            json_data['responses'] = json_data['responses'][:top_value]
+            json_data['value'] = json_data['value'][:top_value]
         if "$orderby" in display_headers:
             if " " in display_headers["$orderby"]:
                 field, ordering_type = display_headers["$orderby"].split(" ")
@@ -120,7 +120,7 @@ def additional_options(func):
                 field, ordering_type = display_headers["$orderby"], "desc"
             json_data = sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
                 
-        return batch_response_odata_v4(json_data['responses'])
+        return batch_response_odata_v4(json_data['value'])
 
     return wrapper
 
@@ -129,7 +129,7 @@ def batch_response_odata_v4(resp_body: list | map) -> Any:
     """Docstring to be added."""
     unpacked = list(resp_body) if resp_body and not isinstance(resp_body, list) else resp_body
     try:
-        data = json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0] if unpacked else [])
+        data = json.dumps(dict(value=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0] if unpacked else [])
     except IndexError:
         return json.dumps({})
     return data
@@ -190,7 +190,7 @@ def query_session() -> Response | list[Any]:
             # Case where an response is empty or not dict => the query is empty
             return Response(response=json.dumps([]), status=HTTP_NOT_FOUND)
         try:
-            responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
+            responses_json = [json.loads(resp.data).get("value", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
             resp_set = [{d.get("Id") for d in resp} for resp in responses_norm]
             common_response = set.intersection(*resp_set)
@@ -205,7 +205,7 @@ def query_session() -> Response | list[Any]:
                             catalog_data_files,
                         ).response[0],
                     )
-                    files = files["responses"] if "responses" in files else [files]
+                    files = files["value"] if "value" in files else [files]
                     session.update({"Files": [file for file in files]})
                 return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
             else:
@@ -225,7 +225,7 @@ def query_session() -> Response | list[Any]:
         #     # handle incorrect requests, status HTTP_OK, but empty content
         #     For OR operator, responses can be empty
         #     return Response(status=HTTP_OK)
-        responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
+        responses_json = [json.loads(resp.data).get("value", json.loads(resp.data)) for resp in responses]
         responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
         union_set = [{d.get("Id") for d in resp} for resp in responses_norm]
         union_response = set.union(*union_set)
@@ -240,7 +240,7 @@ def query_session() -> Response | list[Any]:
                         catalog_data_files,
                     ).response[0],
                 )
-                files = files["responses"] if "responses" in files else [files]
+                files = files["value"] if "value" in files else [files]
                 session.update({"Files": [file for file in files]})
             return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
         else:
@@ -255,7 +255,7 @@ def query_session() -> Response | list[Any]:
         raw_result = json.loads(
             process_session_request(request.args["$filter"], request.args, catalog_data).response[0],
         )
-        session_response = raw_result["responses"] if "responses" in raw_result else [raw_result]
+        session_response = raw_result["value"] if "value" in raw_result else [raw_result]
         session_response = [] if session_response in [[], [[]]] else session_response  # flatten empty if needed
         for session in session_response:
             files = json.loads(
@@ -265,7 +265,7 @@ def query_session() -> Response | list[Any]:
                     catalog_data_files,
                 ).response[0],
             )
-            files = files["responses"] if "responses" in files else [files]
+            files = files["value"] if "value" in files else [files]
             session.update({"Files": [file for file in files]})
         session_response = batch_response_odata_v4(session_response) if session_response else json.dumps([])
         return Response(status=HTTP_OK, response=session_response, headers=request.args)
@@ -446,11 +446,11 @@ def query_files() -> Response | list[Any]:
         second_response = process_files_request(second_request.replace('"', ""), request.args, catalog_data)
         # Load response data to a json dict
         try:
-            first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
+            first_response = json.loads(first_response.data).get("value", json.loads(first_response.data))
         except json.JSONDecodeError:
             first_response = []
         try:
-            second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
+            second_response = json.loads(second_response.data).get("value", json.loads(second_response.data))
         except json.JSONDecodeError:
             second_response = []
         # Normalize responses, must be a list, even with one element, for iterator

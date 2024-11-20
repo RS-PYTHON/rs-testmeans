@@ -59,7 +59,7 @@ def test_query_sessions(cadip_client_with_auth, session_response20230216):
     assert cadip_client_with_auth.get("Sessions?$filter=Incorrect_filter").status_code == BAD_REQUEST
     # Response containing more than 1 result, since there are more products matching
     response = cadip_client_with_auth.get("Sessions?$filter=PublicationDate gt 2019-01-01T12:00:00.000Z")
-    assert len(json.loads(response.text)["responses"]) > 1
+    assert len(json.loads(response.text)["value"]) > 1
     # Response containing exactly one item, since explicit date is mentioned.
     response = cadip_client_with_auth.get("Sessions?$filter=PublicationDate eq 2020-01-05T18:52:26.165Z")
     assert isinstance(json.loads(response.text), dict)
@@ -124,10 +124,10 @@ def test_query_sessions(cadip_client_with_auth, session_response20230216):
     assert cadip_client_with_auth.get(query).status_code == NOT_FOUND
     # Eodagspecific request tests
     dag_filter = [
-        "SessionId%20in%20S2B_20231117033237234567,%20S1A_20231120061537234567%20&$top=20",
-        "SessionId%20in%20S1A_20231120061537234567%20&$top=20",
-        "SessionId%20in%20S1A_20231120061537234567%20and%20Satellite%20in%20S1A%22&$top=20",
-        "SessionId in S1A_20231120061537234567, S2B_20231117033237234567 and Satellite in S1A, S2B&$top=20&$expand=Files"
+        "SessionId%20in%20('S2B_20231117033237234567,%20S1A_20231120061537234567%20&$top=20",
+        "SessionId%20in%20('S1A_20231120061537234567')%20&$top=20",
+        "SessionId%20in%20('S1A_20231120061537234567')%20and%20Satellite%20in%20('S1A')%22&$top=20",
+        "SessionId in ('S1A_20231120061537234567', 'S2B_20231117033237234567') and Satellite in ('S1A', 'S2B')&$top=20&$expand=Files"
     ] 
     for query in dag_filter:
         endpoint = f"Sessions?$filter={query}"
@@ -144,7 +144,7 @@ def test_query_files(cadip_client_with_auth):
     assert cadip_client_with_auth.get("Files?$filter=Incorrect_filter").status_code == BAD_REQUEST
     # Response containing more than 1 result, since there are more products matching
     response = cadip_client_with_auth.get("Files?$filter=PublicationDate gt 2019-01-01T12:00:00.000Z")
-    assert len(json.loads(response.text)["responses"]) > 1
+    assert len(json.loads(response.text)["value"]) > 1
     # Response containing exactly one item, since explicit date is mentioned.
     response = cadip_client_with_auth.get("Files?$filter=Id eq e4d17d2f-29eb-4c18-bc1f-bf2769a3a16d")
     assert isinstance(json.loads(response.text), dict)
@@ -166,20 +166,20 @@ def test_query_files(cadip_client_with_auth):
     top_pagination_nr = "3"
     query = f'Files?$top={top_pagination_nr}&$filter="PublicationDate%20gt%202014-01-01T12:00:00.000Z%20and%20PublicationDate%20lt%202023-12-30T12:00:00.000Z'
     data = cadip_client_with_auth.get(query)
-    assert len(json.loads(data.text)['responses']) == int(top_pagination_nr)
+    assert len(json.loads(data.text)['value']) == int(top_pagination_nr)
     assert cadip_client_with_auth.get(query).status_code == OK
     # Test top pagination element, this query should return 10 elements, top should display only first 3. filter&top
     top_pagination_nr = "3"
     query = f'Files?$filter="PublicationDate%20gt%202014-01-01T12:00:00.000Z%20and%20PublicationDate%20lt%202023-12-30T12:00:00.000Z&$top={top_pagination_nr}'
     data = cadip_client_with_auth.get(query)
-    assert len(json.loads(data.text)['responses']) == int(top_pagination_nr)
+    assert len(json.loads(data.text)['value']) == int(top_pagination_nr)
     assert cadip_client_with_auth.get(query).status_code == OK
 
     # Test skip pagination element, this query should return 201 elements, skip should display only 194. (07.06.24 update)
     skip_pagination_nr = "7"
     query = f'Files?$skip={skip_pagination_nr}&$filter="PublicationDate%20gt%202014-01-01T12:00:00.000Z%20and%20PublicationDate%20lt%202023-12-30T12:00:00.000Z'
     data = cadip_client_with_auth.get(query)
-    assert len(json.loads(data.text)['responses']) == 201 - int(skip_pagination_nr)
+    assert len(json.loads(data.text)['value']) == 201 - int(skip_pagination_nr)
     assert cadip_client_with_auth.get(query).status_code == OK
 
 
@@ -234,7 +234,7 @@ def test_download_file(cadip_client_with_auth, local_path, download_path):
 @pytest.mark.unit
 def test_expand(cadip_client_with_auth):
     # Test with a simple query, should return 1 expanded session
-    endpoint = "Sessions?$filter=SessionId eq S1A_20200105072204051312&$expand=files"
+    endpoint = "Sessions?$filter=SessionId eq 'S1A_20200105072204051312'&$expand=files"
     assert cadip_client_with_auth.get(endpoint).status_code == OK
     assert json.loads(cadip_client_with_auth.get(endpoint).text)
     # Check that the "Files" list is not empty
@@ -246,5 +246,5 @@ def test_expand(cadip_client_with_auth):
     assert cadip_client_with_auth.get(endpoint).status_code == OK
     assert json.loads(cadip_client_with_auth.get(endpoint).text)
     # Check that each sessions files list is not empty
-    for session in json.loads(cadip_client_with_auth.get(endpoint).text)['responses']:
+    for session in json.loads(cadip_client_with_auth.get(endpoint).text)['value']:
         assert len(session['Files'])
