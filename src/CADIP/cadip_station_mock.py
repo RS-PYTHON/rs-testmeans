@@ -531,7 +531,7 @@ def process_files_request(request, headers, catalog_data):
         field, op, *value = request.split(" ")
         match op:
             case "eq":
-                matching = [product for product in catalog_data["Data"] if value[0] == product[field]]
+                matching = [product for product in catalog_data["Data"] if value[0].strip("('),") == product[field]]
             case "in":
                 matching = []
                 for idx in value:
