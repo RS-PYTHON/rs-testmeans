@@ -98,13 +98,13 @@ def additional_options(func):
 
         def sort_responses_by_field(json_data, field, reverse=False):
             keys = field.split("/")
-            return {"responses": sorted(json_data["responses"], key=lambda x: x[keys[0]][keys[1]] if len(keys) > 1 else x[field], reverse=reverse)}
+            return {"value": sorted(json_data["value"], key=lambda x: x[keys[0]][keys[1]] if len(keys) > 1 else x[field], reverse=reverse)}
 
         def truncate_attrs(request, json_data):
             # Remove attribtes if not defined
             if not request.args.get("$expand", False) == "Attributes":
-                if "responses" in json_data:
-                    for item in json_data['responses']:
+                if "value" in json_data:
+                    for item in json_data['value']:
                         item.pop("Attributes")
                 else:
                     json_data.pop("Attributes", None)
@@ -114,7 +114,7 @@ def additional_options(func):
             json_data = truncate_attrs(request, data)
         else:
             return response
-        if "responses" not in json_data:
+        if "value" not in json_data:
             return json_data
         
         # ICD extract:
@@ -123,10 +123,10 @@ def additional_options(func):
         top_value = int(display_headers.get("$top", 1000))
         if "$skip" in display_headers:
             # No slicing if there is only one result
-            json_data['responses'] = json_data['responses'][skip_value:]
+            json_data['value'] = json_data['value'][skip_value:]
         if "$top" in display_headers:
             # No slicing if there is only one result
-            json_data['responses'] = json_data['responses'][:top_value]
+            json_data['value'] = json_data['value'][:top_value]
         if "$orderby" in display_headers:
             if " " in display_headers["$orderby"]:
                 field, ordering_type = display_headers["$orderby"].split(" ")
@@ -134,7 +134,7 @@ def additional_options(func):
                 field, ordering_type = display_headers["$orderby"], "desc"
             json_data = sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
                 
-        return prepare_response_odata_v4(json_data['responses'])
+        return prepare_response_odata_v4(json_data['value'])
 
     return wrapper
 
@@ -150,7 +150,7 @@ def prepare_response_odata_v4(resp_body: list | map) -> Any:
     """
     unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
     try:
-        data = json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
+        data = json.dumps(dict(value=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
     except IndexError:
         return json.dumps({})
     return data
@@ -324,8 +324,8 @@ def process_attributes_search(query, headers):
         return Response(status=HTTP_OK, response=prepare_response_odata_v4(process_response(part1, part2)), headers=headers)
 
 def process_response(query_resp1, query_resp2):
-    response1 = json.loads(query_resp1.response[0].decode('utf-8')).get("responses", json.loads(query_resp1.response[0].decode('utf-8')))
-    response2 = json.loads(query_resp2.response[0].decode('utf-8')).get("responses", json.loads(query_resp2.response[0].decode('utf-8')))
+    response1 = json.loads(query_resp1.response[0].decode('utf-8')).get("value", json.loads(query_resp1.response[0].decode('utf-8')))
+    response2 = json.loads(query_resp2.response[0].decode('utf-8')).get("value", json.loads(query_resp2.response[0].decode('utf-8')))
     ids_list1 = {item['Id'] for item in response1}
     ids_list2 = {item['Id'] for item in response2}
     common_ids = ids_list1.intersection(ids_list2)
@@ -373,7 +373,7 @@ def process_common_elements(first_response, second_response, operator):
         # Decode
         first_response_data = json.loads(first_response.data)
         # Get responses if any, else default json
-        first_response = first_response_data.get("responses", json.loads(first_response.data))
+        first_response = first_response_data.get("value", json.loads(first_response.data))
     except (json.decoder.JSONDecodeError, AttributeError):
         # Empty dict if error while unwrapping
         first_response = [{}]
@@ -381,7 +381,7 @@ def process_common_elements(first_response, second_response, operator):
         # Decode
         second_response_data = json.loads(second_response.data)
         # Get responses if any, else default json
-        second_response = second_response_data.get("responses", json.loads(second_response.data))
+        second_response = second_response_data.get("value", json.loads(second_response.data))
     except (json.decoder.JSONDecodeError, AttributeError):
         # Empty dict if error while unwrapping
         second_response = [{}]
