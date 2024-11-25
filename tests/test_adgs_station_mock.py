@@ -142,7 +142,7 @@ def test_complex_query(adgs_client_with_auth, query, is_valid):
     if is_valid:
         assert json.loads(resp.data)
     else:
-        assert json.loads(resp.data) == []
+        assert json.loads(resp.data) == {"value": []}
 
 @pytest.mark.parametrize(
     "local_path, download_path",

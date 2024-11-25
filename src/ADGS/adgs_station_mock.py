@@ -152,7 +152,7 @@ def prepare_response_odata_v4(resp_body: list | map) -> Any:
     try:
         data = json.dumps(dict(value=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
     except IndexError:
-        return json.dumps({})
+        return json.dumps({"value": []})
     return data
 
 
@@ -366,7 +366,7 @@ def process_individual_query_part(query_parts, headers):
                         resp.append(product)
                 except KeyError:
                     continue
-    return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else [{}]), headers=headers)
+    return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else {"value": []}), headers=headers)
 
 def process_common_elements(first_response, second_response, operator):
     try:
@@ -376,7 +376,7 @@ def process_common_elements(first_response, second_response, operator):
         first_response = first_response_data.get("value", json.loads(first_response.data))
     except (json.decoder.JSONDecodeError, AttributeError):
         # Empty dict if error while unwrapping
-        first_response = [{}]
+        first_response = {"value": []}
     try:
         # Decode
         second_response_data = json.loads(second_response.data)
@@ -384,7 +384,7 @@ def process_common_elements(first_response, second_response, operator):
         second_response = second_response_data.get("value", json.loads(second_response.data))
     except (json.decoder.JSONDecodeError, AttributeError):
         # Empty dict if error while unwrapping
-        second_response = [{}]
+        second_response = {"value": []}
     # Normalize responses, must be a list, even with one element, for iterator
     first_response = first_response if isinstance(first_response, list) else [first_response]
     second_response = second_response if isinstance(second_response, list) else [second_response]
@@ -401,7 +401,7 @@ def process_common_elements(first_response, second_response, operator):
                     response=prepare_response_odata_v4(common_elements),
                     headers=request.args,
                 )
-            return Response(status=HTTP_OK, response=json.dumps([]))
+            return Response(status=HTTP_OK, response=json.dumps({"value": []}))
         case "or":  # union
             union_set = fresp_set.union(sresp_set)
             union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]

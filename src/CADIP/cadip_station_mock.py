@@ -131,7 +131,7 @@ def batch_response_odata_v4(resp_body: list | map) -> Any:
     try:
         data = json.dumps(dict(value=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0] if unpacked else [])
     except IndexError:
-        return json.dumps({})
+        return json.dumps({"value": []})
     return data
 
 
@@ -200,7 +200,7 @@ def query_session() -> Response | list[Any]:
                 for session in common_elements:
                     files = json.loads(
                         process_files_request(
-                            f'SessionID eq {session["SessionId"]}',
+                            f'SessionId eq {session["SessionId"]}',
                             request.args,
                             catalog_data_files,
                         ).response[0],
@@ -260,7 +260,7 @@ def query_session() -> Response | list[Any]:
         for session in session_response:
             files = json.loads(
                 process_files_request(
-                    f'SessionID eq {session["SessionId"]}',
+                    f'SessionId eq {session["SessionId"]}',
                     request.args,
                     catalog_data_files,
                 ).response[0],
@@ -407,7 +407,7 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
             request.strip('"').split(" "),
         )
     except:
-        return Response(status=HTTP_NOT_FOUND, response={})
+        return Response(status=HTTP_NOT_FOUND, response={"value": []})
     # field, op, *value = request.split(" ")
     value = " ".join(value)
     # return results or the 200HTTP_OK code is returned with an empty response (PSD)
