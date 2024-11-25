@@ -116,7 +116,6 @@ def additional_options(func):
             return response
         if "value" not in json_data:
             return json_data
-        
         # ICD extract:
         # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
         skip_value = int(display_headers.get("$skip", 0))
@@ -366,7 +365,7 @@ def process_individual_query_part(query_parts, headers):
                         resp.append(product)
                 except KeyError:
                     continue
-    return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else {"value": []}), headers=headers)
+    return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else []), headers=headers)
 
 def process_common_elements(first_response, second_response, operator):
     try:
