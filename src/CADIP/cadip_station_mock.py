@@ -102,7 +102,6 @@ def additional_options(func):
         json_data = parse_response_data()
         if json_data and "value" not in json_data or not json_data:
             return response
-
         # ICD extract:
         # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
         skip_value = int(display_headers.get("$skip", 0))
@@ -537,7 +536,7 @@ def process_files_request(request, headers, catalog_data):
                 for idx in value:
                     matching += [product for product in catalog_data["Data"] if idx.strip("('),") in product[field]]
         return (
-            Response(response=batch_response_odata_v4(matching), status=HTTP_OK)
+            Response(response=batch_response_odata_v4(matching), status=HTTP_OK, headers=headers)
             if matching
             else Response(status=HTTP_NOT_FOUND)
         )
