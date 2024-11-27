@@ -22,7 +22,6 @@ auth = HTTPBasicAuth()
 HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
 HTTP_UNAUTHORIZED = 401
-HTTP_FORBIDDEN = 403
 HTTP_NOT_FOUND = 404
 
 aditional_operators = [" and ", " or ", " in ", " not "]
@@ -66,15 +65,15 @@ def token_required(f):
             token = request.headers["Authorization"].split()[1]
 
         if not token:
-            logger.error("Returning HTTP_FORBIDDEN. Token is missing")
-            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is missing!"}))
+            logger.error("Returning HTTP_UNAUTHORIZED. Token is missing")
+            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
         
 
         auth_path = app.config["configuration_path"] / "auth.json"
         config_auth = json.loads(open(auth_path).read())        
         if token != config_auth["token"]:
-            logger.error("Returning HTTP_FORBIDDEN. Token is invalid!")
-            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is invalid!"}))
+            logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
+            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
 
         return f(*args, **kwargs)
 

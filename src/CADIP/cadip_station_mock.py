@@ -26,7 +26,6 @@ auth = HTTPBasicAuth()
 HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
 HTTP_UNAUTHORIZED = 401
-HTTP_FORBIDDEN = 403
 HTTP_NOT_FOUND = 404
 
 def token_required(f):
@@ -71,15 +70,15 @@ def token_required(f):
             logger.info("NO AUTHORIZATION IN HEADERS")
 
         if not token:
-            logger.error("Returning HTTP_FORBIDDEN. Token is missing")
-            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is missing!"}))
+            logger.error("Returning HTTP_UNAUTHORIZED. Token is missing")
+            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
         
 
         auth_path = app.config["configuration_path"] / "auth.json"
         config_auth = json.loads(open(auth_path).read())        
         if token != config_auth["token"]:
-            logger.error("Returning HTTP_FORBIDDEN. Token is invalid!")
-            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is invalid!"}))
+            logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
+            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
 
         return f(*args, **kwargs)
 
@@ -449,8 +448,9 @@ def query_files() -> Response | list[Any]:
     if any(header in request.args["$filter"] for header in accepted_operators):
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
         groups = re.search(pattern, request.args["$filter"])
-        if groups:
-            first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
+        if not groups:
+            return Response(status=HTTP_NOT_FOUND, response={"message": "The pattern did not match"})
+        first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
         # split and processes the requests
         first_response = process_files_request(first_request.replace('"', ""), request.args, catalog_data)
         second_response = process_files_request(second_request.replace('"', ""), request.args, catalog_data)
@@ -562,8 +562,8 @@ def process_files_request(request, headers, catalog_data):
 def redirection(Id) -> Response | list[Any]:
     """Docstring to be added."""
     # Redirect to the final destination with a 307 Temporary Redirect
-    logger.info("redirection")
     target_url = f"http://127.0.0.1:{app.config['redirection_port']}/Redirect/Files({Id})/$value"
+    logger.info(f"Request redirected to {target_url}")
     return redirect(f"{target_url}", code=307)
 
 # 3.5
@@ -573,7 +573,7 @@ def redirection(Id) -> Response | list[Any]:
 @token_required
 def download_file(Id) -> Response:  # noqa: N803
     """Docstring to be added."""
-    logger.info("download_file")
+    logger.info("Redirected port for downloading")
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
 
@@ -675,7 +675,7 @@ def create_cadip_app():
 def run_app_on_port(host, port):
     """Run the Flask app on a specific port."""
     logger.info(f"Starting server on {host}:{port}")
-    app.run(host=host, port=port)
+    app.run(debug=True, host=host, port=port)
 
 if __name__ == "__main__":
     """Docstring to be added."""
@@ -708,10 +708,10 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             print("Using default config")
     app.config["configuration_path"] = configuration_path
-    app.config["redirection_port"] = args.redirection_port
+    app.config["redirection_port"] = os.getenv("HTTP_REDIRECTION_PORT", args.port)
     #app.run(debug=True, host=args.host, port=args.port)  # local    
-    port_redirection = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.port,))    
-    port_download = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.redirection_port))    
+    port_redirection = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.redirection_port,))
+    port_download = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.port))
     port_redirection.start()    
     port_download.start()
 
