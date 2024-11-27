@@ -10,9 +10,11 @@ import sys
 from functools import wraps
 from typing import Any
 
-from flask import Flask, Response, request, send_file
+from flask import Flask, Response, request, redirect, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
+import multiprocessing
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -61,9 +63,12 @@ def token_required(f):
             A Response object with a 403 Forbidden status if the token is missing or invalid.
             Otherwise, the original route function's response is returned.
         """
-        token = None        
+        token = None                
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split()[1]
+            logger.info(f"{request.headers['Authorization']}")
+        else:
+            logger.info("NO AUTHORIZATION IN HEADERS")
 
         if not token:
             logger.error("Returning HTTP_FORBIDDEN. Token is missing")
@@ -87,6 +92,7 @@ def additional_options(func):
     # Endpoint function is called inside wrapper and output is sorted or sliced according to request arguments.
     @wraps(func)
     def wrapper(*args, **kwargs):
+        accepted_display_options = ["$orderBy", "$top", "$skip", "$count"]
         response = func(*args, **kwargs)
         display_headers = response.headers
 
@@ -97,41 +103,46 @@ def additional_options(func):
                 return None
 
         def sort_responses_by_field(json_data, field, reverse=False):
-            return {"value": sorted(json_data["value"], key=lambda x: x[field], reverse=reverse)}
+            if "responses" in json_data:
+                return {"responses": sorted(json_data["responses"], key=lambda x: x[field], reverse=reverse)}
+            return json_data
 
-        json_data = parse_response_data()
-        if json_data and "value" not in json_data or not json_data:
-            return response
-        # ICD extract:
-        # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
-        skip_value = int(display_headers.get("$skip", 0))
-        top_value = int(display_headers.get("$top", 1000))
-        if "$skip" in display_headers:
-            # No slicing if there is only one result
-            json_data['value'] = json_data['value'][skip_value:]
-        if "$top" in display_headers:
-            # No slicing if there is only one result
-            json_data['value'] = json_data['value'][:top_value]
-        if "$orderby" in display_headers:
-            if " " in display_headers["$orderby"]:
-                field, ordering_type = display_headers["$orderby"].split(" ")
-            else:
-                field, ordering_type = display_headers["$orderby"], "desc"
-            json_data = sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
-                
-        return batch_response_odata_v4(json_data['value'])
+        if any(header in accepted_display_options for header in display_headers.keys()):
+            match list(set(accepted_display_options) & set(display_headers.keys()))[0]:
+                case "$orderBy":
+                    field, ordering_type = display_headers["$orderBy"].split(" ")
+                    json_data = parse_response_data()
+                    return sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
+                case "$top":
+                    top_value = int(display_headers["$top"])
+                    json_data = parse_response_data()
+                    return (
+                        batch_response_odata_v4(json_data["responses"][:top_value])
+                        if "responses" in json_data
+                        else json_data  # No need for slicing since there is only one response.
+                    )
+                case "$skip":
+                    skip_value = int(display_headers.get("$skip", 0))
+                    json_data = parse_response_data()
+                    return (
+                        batch_response_odata_v4(json_data["responses"][skip_value:])
+                        if "responses" in json_data
+                        else json_data  # No need for slicing since there is only one response.
+                    )
+                case "$count":
+                    json_data = parse_response_data()
+                    if "responses" in json_data:
+                        return Response(status=HTTP_OK, response=str(len(json_data["responses"])))
+                    return Response(status=HTTP_OK, response=str(len(json_data)))
+        return response
 
     return wrapper
 
 
 def batch_response_odata_v4(resp_body: list | map) -> Any:
     """Docstring to be added."""
-    unpacked = list(resp_body) if resp_body and not isinstance(resp_body, list) else resp_body
-    try:
-        data = json.dumps(dict(value=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0] if unpacked else [])
-    except IndexError:
-        return json.dumps({"value": []})
-    return data
+    unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
+    return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
 
 
 @auth.verify_password
@@ -167,7 +178,7 @@ def query_session() -> Response | list[Any]:
     catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
     catalog_data = json.loads(open(catalog_path).read())
     if "$filter" not in request.args:
-        return Response(status=HTTP_OK, response=batch_response_odata_v4(catalog_data['Data']), headers=request.args)
+        return Response(status=HTTP_OK, response=batch_response_odata_v4(catalog_data['Data']))
         # return Response('Bad Request', Response.status_code(400), None)
     # Check requested values, filter type can only be json keys
     if not any(
@@ -189,7 +200,7 @@ def query_session() -> Response | list[Any]:
             # Case where an response is empty or not dict => the query is empty
             return Response(response=json.dumps([]), status=HTTP_NOT_FOUND)
         try:
-            responses_json = [json.loads(resp.data).get("value", json.loads(resp.data)) for resp in responses]
+            responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
             resp_set = [{d.get("Id") for d in resp} for resp in responses_norm]
             common_response = set.intersection(*resp_set)
@@ -204,7 +215,7 @@ def query_session() -> Response | list[Any]:
                             catalog_data_files,
                         ).response[0],
                     )
-                    files = files["value"] if "value" in files else [files]
+                    files = files["responses"] if "responses" in files else [files]
                     session.update({"Files": [file for file in files]})
                 return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
             else:
@@ -224,7 +235,7 @@ def query_session() -> Response | list[Any]:
         #     # handle incorrect requests, status HTTP_OK, but empty content
         #     For OR operator, responses can be empty
         #     return Response(status=HTTP_OK)
-        responses_json = [json.loads(resp.data).get("value", json.loads(resp.data)) for resp in responses]
+        responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
         responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
         union_set = [{d.get("Id") for d in resp} for resp in responses_norm]
         union_response = set.union(*union_set)
@@ -239,7 +250,7 @@ def query_session() -> Response | list[Any]:
                         catalog_data_files,
                     ).response[0],
                 )
-                files = files["value"] if "value" in files else [files]
+                files = files["responses"] if "responses" in files else [files]
                 session.update({"Files": [file for file in files]})
             return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
         else:
@@ -254,7 +265,7 @@ def query_session() -> Response | list[Any]:
         raw_result = json.loads(
             process_session_request(request.args["$filter"], request.args, catalog_data).response[0],
         )
-        session_response = raw_result["value"] if "value" in raw_result else [raw_result]
+        session_response = raw_result["responses"] if "responses" in raw_result else [raw_result]
         session_response = [] if session_response in [[], [[]]] else session_response  # flatten empty if needed
         for session in session_response:
             files = json.loads(
@@ -264,7 +275,7 @@ def query_session() -> Response | list[Any]:
                     catalog_data_files,
                 ).response[0],
             )
-            files = files["value"] if "value" in files else [files]
+            files = files["responses"] if "responses" in files else [files]
             session.update({"Files": [file for file in files]})
         session_response = batch_response_odata_v4(session_response) if session_response else json.dumps([])
         return Response(status=HTTP_OK, response=session_response, headers=request.args)
@@ -445,11 +456,11 @@ def query_files() -> Response | list[Any]:
         second_response = process_files_request(second_request.replace('"', ""), request.args, catalog_data)
         # Load response data to a json dict
         try:
-            first_response = json.loads(first_response.data).get("value", json.loads(first_response.data))
+            first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
         except json.JSONDecodeError:
             first_response = []
         try:
-            second_response = json.loads(second_response.data).get("value", json.loads(second_response.data))
+            second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
         except json.JSONDecodeError:
             second_response = []
         # Normalize responses, must be a list, even with one element, for iterator
@@ -530,25 +541,39 @@ def process_files_request(request, headers, catalog_data):
         field, op, *value = request.split(" ")
         match op:
             case "eq":
-                matching = [product for product in catalog_data["Data"] if value[0].strip("('),") == product[field]]
+                matching = [product for product in catalog_data["Data"] if value[0] == product[field]]
             case "in":
                 matching = []
                 for idx in value:
-                    matching += [product for product in catalog_data["Data"] if idx.strip("('),") in product[field]]
+                    matching += [product for product in catalog_data["Data"] if idx.replace(",", "") in product[field]]
         return (
             Response(response=batch_response_odata_v4(matching), status=HTTP_OK, headers=headers)
             if matching
             else Response(status=HTTP_NOT_FOUND)
         )
 
+# This is implemented to simulate the behavior of the real stations like Neustrelitz CADIP station (ngs):
+# Requests to “https://<service-root-uri>/odata/v1/Files(Id)/$value” results in a 307 Temporary Redirect
+# response containing a “Location: <url>” header. When following the location URL all headers from the initial
+# request must be re-applied. This includes for example authentication and range headers.
+# Thus, this endpoint will redirect the call to another endpoint which listens on a different port
+@app.route("/Files(<Id>)/$value", methods=["GET"])
+@token_required
+def redirection(Id) -> Response | list[Any]:
+    """Docstring to be added."""
+    # Redirect to the final destination with a 307 Temporary Redirect
+    logger.info("redirection")
+    target_url = f"http://127.0.0.1:{app.config['redirection_port']}/Redirect/Files({Id})/$value"
+    return redirect(f"{target_url}", code=307)
 
 # 3.5
 # v1.0.0 takes id from route GET and filters FPJ (json outputs of file query) in order to download a file
 # Is possible / how to download multiple files
-@app.route("/Files(<Id>)/$value", methods=["GET"])
+@app.route("/Redirect/Files(<Id>)/$value", methods=["GET"])
 @token_required
 def download_file(Id) -> Response:  # noqa: N803
     """Docstring to be added."""
+    logger.info("download_file")
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
 
@@ -647,6 +672,10 @@ def create_cadip_app():
     app.config["expand"] = True
     return app
 
+def run_app_on_port(host, port):
+    """Run the Flask app on a specific port."""
+    logger.info(f"Starting server on {host}:{port}")
+    app.run(host=host, port=port)
 
 if __name__ == "__main__":
     """Docstring to be added."""
@@ -654,6 +683,9 @@ if __name__ == "__main__":
 
     default_config_path = pathlib.Path(__file__).parent.resolve() / "config"
     parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
+    parser.add_argument("-r", "--redirection-port", type=int, 
+                        required=False, default=10000, 
+                        help="Port for redirection. This is needed to simulate real stations like nsg")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
     parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
 
@@ -676,5 +708,12 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             print("Using default config")
     app.config["configuration_path"] = configuration_path
-    app.run(debug=True, host=args.host, port=args.port)  # local
-    # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
+    app.config["redirection_port"] = args.redirection_port
+    #app.run(debug=True, host=args.host, port=args.port)  # local    
+    port_redirection = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.port,))    
+    port_download = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.redirection_port))    
+    port_redirection.start()    
+    port_download.start()
+
+    port_redirection.join()
+    port_download.join()
