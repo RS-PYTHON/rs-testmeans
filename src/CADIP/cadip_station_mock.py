@@ -635,7 +635,7 @@ def token():
     username = request.form.get("username")
     password = request.form.get("password")
     grant_type = request.form.get("grant_type")
-    scope = request.form.get("scope")    
+    scope = request.form.get("scope")
 
     # Optional Authorization header check
     # auth_header = request.headers.get('Authorization')
@@ -712,7 +712,7 @@ if __name__ == "__main__":
     #app.run(debug=True, host=args.host, port=args.port)  # local    
     port_redirection = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.redirection_port,))
     port_download = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.port))
-    port_redirection.start()    
+    port_redirection.start()
     port_download.start()
 
     port_redirection.join()
