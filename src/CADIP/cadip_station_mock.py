@@ -62,7 +62,7 @@ def token_required(f):
             A Response object with a 403 Forbidden status if the token is missing or invalid.
             Otherwise, the original route function's response is returned.
         """
-        token = None                
+        token = None        
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split()[1]
             logger.info(f"{request.headers['Authorization']}")
@@ -130,8 +130,12 @@ def additional_options(func):
 
 def batch_response_odata_v4(resp_body: list | map) -> Any:
     """Docstring to be added."""
-    unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
-    return json.dumps(dict(responses=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
+    unpacked = list(resp_body) if resp_body and not isinstance(resp_body, list) else resp_body
+    try:
+        data = json.dumps(dict(value=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0] if unpacked else [])
+    except IndexError:
+        return json.dumps({"value": []})
+    return data
 
 
 @auth.verify_password
@@ -167,7 +171,7 @@ def query_session() -> Response | list[Any]:
     catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
     catalog_data = json.loads(open(catalog_path).read())
     if "$filter" not in request.args:
-        return Response(status=HTTP_OK, response=batch_response_odata_v4(catalog_data['Data']))
+        return Response(status=HTTP_OK, response=batch_response_odata_v4(catalog_data['Data']), headers=request.args)
         # return Response('Bad Request', Response.status_code(400), None)
     # Check requested values, filter type can only be json keys
     if not any(
@@ -189,7 +193,7 @@ def query_session() -> Response | list[Any]:
             # Case where an response is empty or not dict => the query is empty
             return Response(response=json.dumps([]), status=HTTP_NOT_FOUND)
         try:
-            responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
+            responses_json = [json.loads(resp.data).get("value", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
             resp_set = [{d.get("Id") for d in resp} for resp in responses_norm]
             common_response = set.intersection(*resp_set)
@@ -204,7 +208,7 @@ def query_session() -> Response | list[Any]:
                             catalog_data_files,
                         ).response[0],
                     )
-                    files = files["responses"] if "responses" in files else [files]
+                    files = files["value"] if "value" in files else [files]
                     session.update({"Files": [file for file in files]})
                 return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
             else:
@@ -224,7 +228,7 @@ def query_session() -> Response | list[Any]:
         #     # handle incorrect requests, status HTTP_OK, but empty content
         #     For OR operator, responses can be empty
         #     return Response(status=HTTP_OK)
-        responses_json = [json.loads(resp.data).get("responses", json.loads(resp.data)) for resp in responses]
+        responses_json = [json.loads(resp.data).get("value", json.loads(resp.data)) for resp in responses]
         responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
         union_set = [{d.get("Id") for d in resp} for resp in responses_norm]
         union_response = set.union(*union_set)
@@ -239,7 +243,7 @@ def query_session() -> Response | list[Any]:
                         catalog_data_files,
                     ).response[0],
                 )
-                files = files["responses"] if "responses" in files else [files]
+                files = files["value"] if "value" in files else [files]
                 session.update({"Files": [file for file in files]})
             return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
         else:
@@ -254,7 +258,7 @@ def query_session() -> Response | list[Any]:
         raw_result = json.loads(
             process_session_request(request.args["$filter"], request.args, catalog_data).response[0],
         )
-        session_response = raw_result["responses"] if "responses" in raw_result else [raw_result]
+        session_response = raw_result["value"] if "value" in raw_result else [raw_result]
         session_response = [] if session_response in [[], [[]]] else session_response  # flatten empty if needed
         for session in session_response:
             files = json.loads(
@@ -264,7 +268,7 @@ def query_session() -> Response | list[Any]:
                     catalog_data_files,
                 ).response[0],
             )
-            files = files["responses"] if "responses" in files else [files]
+            files = files["value"] if "value" in files else [files]
             session.update({"Files": [file for file in files]})
         session_response = batch_response_odata_v4(session_response) if session_response else json.dumps([])
         return Response(status=HTTP_OK, response=session_response, headers=request.args)
@@ -438,19 +442,18 @@ def query_files() -> Response | list[Any]:
     if any(header in request.args["$filter"] for header in accepted_operators):
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
         groups = re.search(pattern, request.args["$filter"])
-        if not groups:
-            return Response(status=HTTP_NOT_FOUND, response={"message": "The pattern did not match"})
-        first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
+        if groups:
+            first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
         # split and processes the requests
         first_response = process_files_request(first_request.replace('"', ""), request.args, catalog_data)
         second_response = process_files_request(second_request.replace('"', ""), request.args, catalog_data)
         # Load response data to a json dict
         try:
-            first_response = json.loads(first_response.data).get("responses", json.loads(first_response.data))
+            first_response = json.loads(first_response.data).get("value", json.loads(first_response.data))
         except json.JSONDecodeError:
             first_response = []
         try:
-            second_response = json.loads(second_response.data).get("responses", json.loads(second_response.data))
+            second_response = json.loads(second_response.data).get("value", json.loads(second_response.data))
         except json.JSONDecodeError:
             second_response = []
         # Normalize responses, must be a list, even with one element, for iterator
@@ -531,11 +534,11 @@ def process_files_request(request, headers, catalog_data):
         field, op, *value = request.split(" ")
         match op:
             case "eq":
-                matching = [product for product in catalog_data["Data"] if value[0] == product[field]]
+                matching = [product for product in catalog_data["Data"] if value[0].strip("('),") == product[field]]
             case "in":
                 matching = []
                 for idx in value:
-                    matching += [product for product in catalog_data["Data"] if idx.replace(",", "") in product[field]]
+                    matching += [product for product in catalog_data["Data"] if idx.strip("('),") in product[field]]
         return (
             Response(response=batch_response_odata_v4(matching), status=HTTP_OK, headers=headers)
             if matching
@@ -625,7 +628,7 @@ def token():
     username = request.form.get("username")
     password = request.form.get("password")
     grant_type = request.form.get("grant_type")
-    scope = request.form.get("scope")
+    scope = request.form.get("scope")    
 
     # Optional Authorization header check
     # auth_header = request.headers.get('Authorization')
