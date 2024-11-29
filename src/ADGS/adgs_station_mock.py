@@ -12,7 +12,6 @@ from typing import Any
 from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
-from werkzeug.exceptions import HTTPException
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -437,7 +436,9 @@ def query_products():
                 attributes_filter.append(filter)
 
         if not 1 <= len(properties_filter) <= 3:
-            raise HTTPException("Too complex for adgs sim")
+            msg = "Too complex for adgs sim"
+            logger.error(msg)
+            return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
 
         # Process each property in the filter
         processed_requests = [
