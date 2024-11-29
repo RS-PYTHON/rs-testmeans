@@ -554,10 +554,16 @@ def process_files_request(request, headers, catalog_data):
 @token_required
 def redirection(Id) -> Response | list[Any]:
     """Docstring to be added."""
-    # Redirect to the final destination with a 307 Temporary Redirect
-    target_url = f"{app.config['redirection_href']}/Redirect/Files({Id})/$value"
-    logger.info(f"Request redirected to {target_url}")
-    return redirect(f"{target_url}", code=307)
+    # Extract the port from the host
+    # Redirect to the final destination with a 307 Temporary Redirect only if 
+    # the request came on port 10000
+    port_number = request.host.split(":")[-1]  
+    if port_number == app.config["redirection_port"] and app.config["redirection_href"]:
+        target_url = f"{app.config['redirection_href']}/Redirect/Files({Id})/$value"
+        logger.info(f"Request redirected to {target_url}")
+        return redirect(f"{target_url}", code=307)
+    else:
+        return(download_file(Id))
 
 # 3.5
 # v1.0.0 takes id from route GET and filters FPJ (json outputs of file query) in order to download a file
@@ -565,12 +571,12 @@ def redirection(Id) -> Response | list[Any]:
 @app.route("/Redirect/Files(<Id>)/$value", methods=["GET"])
 @token_required
 def download_file(Id) -> Response:  # noqa: N803
-    """Docstring to be added."""
-    logger.info("Redirected port for downloading")
-    catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
-    catalog_data = json.loads(open(catalog_path).read())
+    """Docstring to be added."""    
+    catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"    
+    catalog_data = json.loads(open(catalog_path).read())    
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
+    
     return (
         send_file("config/S3Mock/" + files[0]["Name"])
         if len(files) == 1
@@ -701,7 +707,8 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
-    app.config["redirection_href"] = os.getenv("HTTP_REDIRECTION_HREF", f"http://127.0.0.1:{args.port}")
+    app.config["redirection_href"] = os.getenv("HTTP_REDIRECTION_HREF", None)
+    app.config["redirection_port"] = args.redirection_port
     
     port_redirection = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.redirection_port,))
     port_download = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.port))
