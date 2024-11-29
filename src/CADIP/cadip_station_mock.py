@@ -555,7 +555,7 @@ def process_files_request(request, headers, catalog_data):
 def redirection(Id) -> Response | list[Any]:
     """Docstring to be added."""
     # Redirect to the final destination with a 307 Temporary Redirect
-    target_url = f"http://127.0.0.1:{app.config['redirection_port']}/Redirect/Files({Id})/$value"
+    target_url = f"{app.config['redirection_href']}/Redirect/Files({Id})/$value"
     logger.info(f"Request redirected to {target_url}")
     return redirect(f"{target_url}", code=307)
 
@@ -632,7 +632,7 @@ def token():
 
     # Optional Authorization header check
     # auth_header = request.headers.get('Authorization')
-    # print(f"auth_header {auth_header}")
+    # logger.info(f"auth_header {auth_header}")
     logger.info("Token requested")    
     if request.headers.get("Authorization", None):
         logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
@@ -685,7 +685,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     configuration_path = pathlib.Path(args.config)
     if is_expanded := str(os.getenv("CADIP_SESSION_EXPAND", True)).lower() in ("true", "1", "t", "y", "yes"):
-        print("Starting CADIP server mockup with expanded sessions support.")
+        logger.info("Starting CADIP server mockup with expanded sessions support.")
     app.config["expand"] = is_expanded
     # configuration_path.iterdir() / signature in str(x)
     if default_config_path is not configuration_path:
@@ -699,10 +699,10 @@ if __name__ == "__main__":
         if not all((configuration_path / file_name).exists() for file_name in config_signature):
             # use default config if given structure doesn't match
             configuration_path = default_config_path
-            print("Using default config")
+            logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
-    app.config["redirection_port"] = os.getenv("HTTP_REDIRECTION_PORT", args.port)
-    #app.run(debug=True, host=args.host, port=args.port)  # local    
+    app.config["redirection_href"] = os.getenv("HTTP_REDIRECTION_HREF", f"http://127.0.0.1:{args.port}")
+    
     port_redirection = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.redirection_port,))
     port_download = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.port))
     port_redirection.start()
@@ -710,3 +710,4 @@ if __name__ == "__main__":
 
     port_redirection.join()
     port_download.join()
+    logger.info("Exiting")
