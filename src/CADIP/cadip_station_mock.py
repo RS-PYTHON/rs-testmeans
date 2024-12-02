@@ -10,9 +10,11 @@ import sys
 from functools import wraps
 from typing import Any
 
-from flask import Flask, Response, request, send_file
+from flask import Flask, Response, request, redirect, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
+import multiprocessing
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -24,7 +26,6 @@ auth = HTTPBasicAuth()
 HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
 HTTP_UNAUTHORIZED = 401
-HTTP_FORBIDDEN = 403
 HTTP_NOT_FOUND = 404
 
 def token_required(f):
@@ -64,17 +65,20 @@ def token_required(f):
         token = None        
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split()[1]
+            logger.info(f"{request.headers['Authorization']}")
+        else:
+            logger.info("NO AUTHORIZATION IN HEADERS")
 
         if not token:
-            logger.error("Returning HTTP_FORBIDDEN. Token is missing")
-            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is missing!"}))
+            logger.error("Returning HTTP_UNAUTHORIZED. Token is missing")
+            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
         
 
         auth_path = app.config["configuration_path"] / "auth.json"
         config_auth = json.loads(open(auth_path).read())        
         if token != config_auth["token"]:
-            logger.error("Returning HTTP_FORBIDDEN. Token is invalid!")
-            return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is invalid!"}))
+            logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
+            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
 
         return f(*args, **kwargs)
 
@@ -541,18 +545,38 @@ def process_files_request(request, headers, catalog_data):
             else Response(status=HTTP_NOT_FOUND)
         )
 
+# This is implemented to simulate the behavior of the real stations like Neustrelitz CADIP station (ngs):
+# Requests to “https://<service-root-uri>/odata/v1/Files(Id)/$value” results in a 307 Temporary Redirect
+# response containing a “Location: <url>” header. When following the location URL all headers from the initial
+# request must be re-applied. This includes for example authentication and range headers.
+# Thus, this endpoint will redirect the call to another endpoint which listens on a different port
+@app.route("/Files(<Id>)/$value", methods=["GET"])
+@token_required
+def redirection(Id) -> Response | list[Any]:
+    """Docstring to be added."""
+    # Extract the port from the host
+    # Redirect to the final destination with a 307 Temporary Redirect only if 
+    # the request came on port 10000
+    port_number = request.host.split(":")[-1]  
+    if port_number == app.config["redirection_port"] and app.config["redirection_href"]:
+        target_url = f"{app.config['redirection_href']}/Redirect/Files({Id})/$value"
+        logger.info(f"Request redirected to {target_url}")
+        return redirect(f"{target_url}", code=307)
+    else:
+        return(download_file(Id))
 
 # 3.5
 # v1.0.0 takes id from route GET and filters FPJ (json outputs of file query) in order to download a file
 # Is possible / how to download multiple files
-@app.route("/Files(<Id>)/$value", methods=["GET"])
+@app.route("/Redirect/Files(<Id>)/$value", methods=["GET"])
 @token_required
 def download_file(Id) -> Response:  # noqa: N803
-    """Docstring to be added."""
-    catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
-    catalog_data = json.loads(open(catalog_path).read())
+    """Docstring to be added."""    
+    catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"    
+    catalog_data = json.loads(open(catalog_path).read())    
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
+    
     return (
         send_file("config/S3Mock/" + files[0]["Name"])
         if len(files) == 1
@@ -614,7 +638,7 @@ def token():
 
     # Optional Authorization header check
     # auth_header = request.headers.get('Authorization')
-    # print(f"auth_header {auth_header}")
+    # logger.info(f"auth_header {auth_header}")
     logger.info("Token requested")    
     if request.headers.get("Authorization", None):
         logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
@@ -647,6 +671,10 @@ def create_cadip_app():
     app.config["expand"] = True
     return app
 
+def run_app_on_port(host, port):
+    """Run the Flask app on a specific port."""
+    logger.info(f"Starting server on {host}:{port}")
+    app.run(debug=True, host=host, port=port)
 
 if __name__ == "__main__":
     """Docstring to be added."""
@@ -654,13 +682,16 @@ if __name__ == "__main__":
 
     default_config_path = pathlib.Path(__file__).parent.resolve() / "config"
     parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
+    parser.add_argument("-r", "--redirection-port", type=int, 
+                        required=False, default=10000, 
+                        help="Port for redirection. This is needed to simulate real stations like nsg")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
     parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
 
     args = parser.parse_args()
     configuration_path = pathlib.Path(args.config)
     if is_expanded := str(os.getenv("CADIP_SESSION_EXPAND", True)).lower() in ("true", "1", "t", "y", "yes"):
-        print("Starting CADIP server mockup with expanded sessions support.")
+        logger.info("Starting CADIP server mockup with expanded sessions support.")
     app.config["expand"] = is_expanded
     # configuration_path.iterdir() / signature in str(x)
     if default_config_path is not configuration_path:
@@ -674,7 +705,16 @@ if __name__ == "__main__":
         if not all((configuration_path / file_name).exists() for file_name in config_signature):
             # use default config if given structure doesn't match
             configuration_path = default_config_path
-            print("Using default config")
+            logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
-    app.run(debug=True, host=args.host, port=args.port)  # local
-    # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
+    app.config["redirection_href"] = os.getenv("HTTP_REDIRECTION_HREF", None)
+    app.config["redirection_port"] = args.redirection_port
+    
+    port_redirection = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.redirection_port,))
+    port_download = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.port))
+    port_redirection.start()
+    port_download.start()
+
+    port_redirection.join()
+    port_download.join()
+    logger.info("Exiting")
