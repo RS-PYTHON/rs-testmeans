@@ -137,6 +137,10 @@ def test_query_products(adgs_client_with_auth, products_response):
         (
             "Products?$filter=contains(Name, 'S1A_OPER_MPL_ORBSCT_20240514T150704_99999999T999999_0025.EOF') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_MPL_ORBSCT') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'platformShortName' and att/OData.CSC.StringAttribute/Value eq 'sentinel-1')&$orderby=PublicationDate desc&$top=10000&$skip=0&$expand=Attributes",
             True
+        ),
+        (
+            "Products?$filter=contains(Name, 'S1A_OPER_MPL_ORBSCT_20240514T150704_99999999T999999_0025.EOF') and PublicationDate gt 2024-05-13T23:59:59.000Z and PublicationDate lt 2024-05-14T00:00:01.000Z&$orderby=PublicationDate desc&$top=10000&$skip=0&$expand=Attributes",
+            True
         )
     ],
 )

@@ -454,6 +454,10 @@ def query_products():
                 for req in processed_requests[1:]:
                     common_elements = process_common_elements(common_elements, req, "and")
                 outputs.append(common_elements)
+                if not attributes_filter:
+                    # If there are no attributes to process, just return this
+                    return Response(status=outputs[0].status, response=outputs[0].data, headers=request.args)
+
 
         # Handle attributes_filter processing
         if len(attributes_filter) in {2, 4}:
