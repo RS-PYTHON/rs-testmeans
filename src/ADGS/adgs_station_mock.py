@@ -455,7 +455,10 @@ def query_products():
             return process_common_elements(one_and_two, processed_requests[2], "and")
         if len(attributes_filter) == 2:
             outputs.append(process_attributes_search(f"{attributes_filter[0]} and {attributes_filter[1]}", request.args))
-        return process_common_elements(outputs[0], outputs[1], "and")
+        try:
+            return process_common_elements(outputs[0], outputs[1], "and")
+        except IndexError:
+            return Response(status=HTTP_OK, response=json.dumps({"value": []}))
 
     if "Attributes" in request.args['$filter'] or "OData.CSC" in request.args['$filter']:
         return process_attributes_search(request.args['$filter'], request.args)
