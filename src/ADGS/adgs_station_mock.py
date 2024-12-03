@@ -434,7 +434,7 @@ def query_products():
             elif "OData.CSC.StringAttribute" in filter:
                 attributes_filter.append(filter)
 
-        if not 1 <= len(properties_filter) <= 3:
+        if len(properties_filter) > 4 or len(attributes_filter) > 4:
             msg = "Too complex for adgs sim"
             logger.error(msg)
             return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
