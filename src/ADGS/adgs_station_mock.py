@@ -446,15 +446,20 @@ def query_products():
         ]
 
         # Combine the processed requests based on the number of filters
-        if len(processed_requests) == 1:
-            outputs.append(processed_requests[0])
-        elif len(processed_requests) == 2:
-            outputs.append(process_common_elements(processed_requests[0], processed_requests[1], "and"))
-        elif len(processed_requests) == 3:
-            one_and_two = process_common_elements(processed_requests[0], processed_requests[1], "and")
-            return process_common_elements(one_and_two, processed_requests[2], "and")
-        if len(attributes_filter) == 2:
-            outputs.append(process_attributes_search(f"{attributes_filter[0]} and {attributes_filter[1]}", request.args))
+        if len(processed_requests) in {1, 2, 3}:
+            if len(processed_requests) == 1:
+                outputs.append(processed_requests[0])
+            else:
+                common_elements = processed_requests[0]
+                for req in processed_requests[1:]:
+                    common_elements = process_common_elements(common_elements, req, "and")
+                outputs.append(common_elements)
+
+        # Handle attributes_filter processing
+        if len(attributes_filter) in {2, 4}:
+            for i in range(0, len(attributes_filter), 2):
+                outputs.append(process_attributes_search(f"{attributes_filter[i]} and {attributes_filter[i + 1]}", request.args))
+
         try:
             return process_common_elements(outputs[0], outputs[1], "and")
         except IndexError:

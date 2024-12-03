@@ -7,6 +7,7 @@ import pytest
 
 OK = 200
 BAD_REQUEST = 400
+UNAUTHORIZED = 401
 FORBIDDEN = 403
 NOT_FOUND = 404
 
@@ -16,7 +17,7 @@ def test_basic_auth(adgs_client, adgs_token):
     """Method used to test endpoint access with token."""
     # test credentials on get methods with auth required.
     assert adgs_client.get("/", headers=adgs_token).status_code == OK
-    assert adgs_client.get("/", headers={"Authorization": "Token invalid_value"}).status_code == FORBIDDEN
+    assert adgs_client.get("/", headers={"Authorization": "Token invalid_value"}).status_code == UNAUTHORIZED
     # test a broken endpoint route
     assert adgs_client.get("incorrectRoute/").status_code == NOT_FOUND
 
@@ -130,7 +131,11 @@ def test_query_products(adgs_client_with_auth, products_response):
             True
         ),
         (
-            "Products?$filter=contains(Name,%20'S1A_OPER_MPL_ORBSCT_20210902T150704_99999999T999999_0025.EOF')%20and%20PublicationDate%20gt%202020-01-01T00:00:00.000Z%20and%20PublicationDate%20lt%202024-01-01T00:00:00.000Z",
+            "Products?$filter=contains(Name, 'S1A_OPER_MPL_ORBSCT_20210902T150704_99999999T999999_0025.EOF') and PublicationDate gt 2020-01-01T00:00:00.000Z and PublicationDate lt 2024-01-01T00:00:00.000Z",
+            True
+        ),
+        (
+            "Products?$filter=contains(Name, 'S1A_OPER_MPL_ORBSCT_20240514T150704_99999999T999999_0025.EOF') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_MPL_ORBSCT') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'platformShortName' and att/OData.CSC.StringAttribute/Value eq 'sentinel-1')&$orderby=PublicationDate desc&$top=10000&$skip=0&$expand=Attributes",
             True
         )
     ],
