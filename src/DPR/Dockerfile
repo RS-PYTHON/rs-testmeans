@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM ghcr.io/rs-python/python:3.11.7-slim-bookworm
 LABEL description="This docker allow to run a DPR Processor mockup."
 
 WORKDIR /src/DPR

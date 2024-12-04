@@ -1,5 +1,5 @@
 
-FROM python:3.11-slim-bookworm
+FROM ghcr.io/rs-python/python:3.11.7-slim-bookworm
 LABEL description="This docker allows to run a LTA mockup server."
 
 WORKDIR /opt/LTA
