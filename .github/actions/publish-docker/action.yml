@@ -39,6 +39,11 @@ runs:
         username: ${{ github.actor }}
         password: ${{ inputs.github_token }}
 
+    - id: pull_base_docker_images
+      run: |
+        docker pull ghcr.io/rs-python/python:3.11.7-slim-bookworm
+      shell: bash
+
     # Replace invalid characters in the Docker version name, e.g. 1.2.3a4+dev1a2b3c4d becomes 1.2.3a4.dev1a2b3c4d
     # Then we can use ${{ inputs.docker_version_name }}
     - run: echo "docker_version_name=$(echo ${{ inputs.version_name }} | tr + .)" >> $GITHUB_ENV
