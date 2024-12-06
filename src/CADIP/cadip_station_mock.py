@@ -373,7 +373,7 @@ def manage_datetime_querry(op, value, catalog_data, field, headers):
     return (
         Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
         if resp_body
-        else Response(status=HTTP_NOT_FOUND)
+        else Response(status=HTTP_OK, response = json.dumps({"value": []}))
     )
 
 
