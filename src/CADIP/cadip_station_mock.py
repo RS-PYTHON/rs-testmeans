@@ -191,7 +191,7 @@ def query_session() -> Response | list[Any]:
             return Response(response=json.dumps([]), status=HTTP_OK)
         if any(not resp.response for resp in responses):
             # Case where an response is empty or not dict => the query is empty
-            return Response(response=json.dumps([]), status=HTTP_NOT_FOUND)
+            return Response(status=HTTP_OK, response = json.dumps({"value": []}))
         try:
             responses_json = [json.loads(resp.data).get("value", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
@@ -220,7 +220,7 @@ def query_session() -> Response | list[Any]:
                     else (Response(response=json.dumps([]), status=HTTP_OK))
                 )
         except (json.JSONDecodeError, AttributeError):  # if a response is empty, whole querry is empty
-            return Response(status=HTTP_NOT_FOUND)
+            return Response(status=HTTP_OK, response = json.dumps({"value": []}))
     elif len(split_request := [req.strip() for req in request.args["$filter"].split("or")]) in [2, 3]:
         # add test when a response is empty, and other not.
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
@@ -250,7 +250,7 @@ def query_session() -> Response | list[Any]:
             return (
                 Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements))
                 if common_elements
-                else Response(status=HTTP_NOT_FOUND)
+                else Response(status=HTTP_OK, response = json.dumps({"value": []}))
             )
 
     if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
@@ -292,7 +292,7 @@ def manage_int_querry(op, value, catalog_data, field, headers):
     return (
         Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=HTTP_NOT_FOUND)
+        else Response(status=HTTP_OK, response = json.dumps({"value": []}))
     )
 
 
@@ -312,7 +312,7 @@ def manage_bool_querry(op, value, catalog_data, field, headers):
     return (
         Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=HTTP_NOT_FOUND)
+        else Response(status=HTTP_OK, response = json.dumps({"value": []}))
     )
 
 
@@ -346,7 +346,7 @@ def manage_str_querry(op, value, catalog_data, field, headers):
     return (
         Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=HTTP_NOT_FOUND)
+        else Response(status=HTTP_OK, response = json.dumps({"value": []}))
     )
 
 
@@ -368,7 +368,7 @@ def manage_datetime_querry(op, value, catalog_data, field, headers):
             ]
         case _:
             # If the operation is not recognized, return a 404 NOT FOUND response
-            return Response(status=HTTP_NOT_FOUND)
+            return Response(status=HTTP_OK, response = json.dumps({"value": []}))
     # Return the response with the processed results or a 404 NOT FOUND if no results are found
     return (
         Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
@@ -410,12 +410,12 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
             request.strip('"').split(" "),
         )
     except:
-        return Response(status=HTTP_NOT_FOUND, response={"value": []})
+        return Response(status=HTTP_OK, response = json.dumps({"value": []}))
     # field, op, *value = request.split(" ")
     value = " ".join(value)
     # return results or the 200HTTP_OK code is returned with an empty response (PSD)
     return (
-        SPJ_LUT[field](op, value, catalog_data, field, headers) if field in SPJ_LUT else Response(status=HTTP_NOT_FOUND)
+        SPJ_LUT[field](op, value, catalog_data, field, headers) if field in SPJ_LUT else Response(status=HTTP_OK, response = json.dumps({"value": []}))
     )
 
 
@@ -499,7 +499,7 @@ def process_files_request(request, headers, catalog_data):
         return (
             Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTP_NOT_FOUND)
+            else Response(status=HTTP_OK, response = json.dumps({"value": []}))
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
@@ -527,7 +527,7 @@ def process_files_request(request, headers, catalog_data):
         return (
             Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTP_NOT_FOUND)
+            else Response(status=HTTP_OK, response = json.dumps({"value": []}))
         )
     else:  # SessionId / Orbit
         request = request.replace('"', "")
@@ -542,7 +542,7 @@ def process_files_request(request, headers, catalog_data):
         return (
             Response(response=batch_response_odata_v4(matching), status=HTTP_OK, headers=headers)
             if matching
-            else Response(status=HTTP_NOT_FOUND)
+            else Response(status=HTTP_OK, response = json.dumps({"value": []}))
         )
 
 # This is implemented to simulate the behavior of the real stations like Neustrelitz CADIP station (ngs):
