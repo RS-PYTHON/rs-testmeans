@@ -185,7 +185,7 @@ def query_session() -> Response | list[Any]:
     # accepted_operators = [" and ", " or ", " in ", " not ", "and ", " or ", " in ", " not", "and", "or", "in", "not"]
     # split_request = [req.strip() for req in request.args["$filter"].split('and')]
     # Handle multiple "AND" / "OR" operands
-    if len(split_request := [req.strip() for req in request.args["$filter"].split("and")]) in [2, 3]:
+    if len(split_request := [req.strip() for req in request.args["$filter"].split("and")]) in [2, 3, 4]:
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         if not all(resp.status_code == 200 for resp in responses):
             return Response(response=json.dumps([]), status=HTTP_OK)
@@ -221,7 +221,7 @@ def query_session() -> Response | list[Any]:
                 )
         except (json.JSONDecodeError, AttributeError):  # if a response is empty, whole querry is empty
             return Response(status=HTTP_OK, response = json.dumps({"value": []}))
-    elif len(split_request := [req.strip() for req in request.args["$filter"].split("or")]) in [2, 3]:
+    elif len(split_request := [req.strip() for req in request.args["$filter"].split("or")]) in [2, 3, 4]:
         # add test when a response is empty, and other not.
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         # if not all(isinstance(resp, dict) for resp in responses):

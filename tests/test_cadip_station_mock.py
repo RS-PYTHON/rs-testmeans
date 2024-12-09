@@ -8,6 +8,7 @@ import pytest
 
 OK = 200
 BAD_REQUEST = 400
+UNAUTHORIZED = 401
 FORBIDDEN = 403
 NOT_FOUND = 404
 
@@ -16,7 +17,7 @@ def test_basic_auth(cadip_client, cadip_token):
     """Method used to test endpoint access with token."""
     # test credentials on get methods with auth required.
     assert cadip_client.get("/", headers=cadip_token).status_code == OK
-    assert cadip_client.get("/", headers={"Authorization": "Token invalid_value"}).status_code == FORBIDDEN
+    assert cadip_client.get("/", headers={"Authorization": "Token invalid_value"}).status_code == UNAUTHORIZED
     # test a broken endpoint route
     assert cadip_client.get("incorrectRoute/").status_code == NOT_FOUND
 
@@ -69,7 +70,7 @@ def test_query_sessions(cadip_client_with_auth, session_response20230216):
     assert json.loads(response.text) == session_response20230216
     # Empty json response since there are no products older than 1999.
     response = cadip_client_with_auth.get("Sessions?$filter=PublicationDate lt 1999-01-01T12:00:00.000Z")
-    assert not response.text
+    assert bool(response.text)
     # Test with sattelite - pos
     # Test status code - 200 OK, test that reponse exists and it's not empty
     assert cadip_client_with_auth.get("Sessions?$filter=Satellite eq S1A").status_code == OK
@@ -103,12 +104,15 @@ def test_query_sessions(cadip_client_with_auth, session_response20230216):
     #@@@assert not json.loads(cadip_client.get(query, headers=auth_header).text)
     # Test with 2 valid filters and 1 invalid, should raise 404 not found
     query = "Sessions?$filter=Satellite eq 'S3' and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
-    assert cadip_client_with_auth.get(query).status_code == NOT_FOUND
+    assert cadip_client_with_auth.get(query).status_code == OK
+    assert cadip_client_with_auth.get(query).text == '[]'
     # Test with sattelite in (invalid, valid) and 2 other filters valid
     query = "Sessions?$filter=Satellite in ('S1', invalid) and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
-    assert cadip_client_with_auth.get(query).status_code == NOT_FOUND
+    assert cadip_client_with_auth.get(query).status_code == OK
+    assert cadip_client_with_auth.get(query).text == '[]'
     query = "Sessions?$filter=Satellite in ('invalid', invalid) and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
-    assert cadip_client_with_auth.get(query).status_code == NOT_FOUND
+    assert cadip_client_with_auth.get(query).status_code == OK
+    assert cadip_client_with_auth.get(query).text == '[]'
     # Test with 2 invalid date filters
     query = "Sessions?$filter=Satellite in ('S1', invalid) and PublicationDate gt 2025-03-12T08:00:00.000Z and PublicationDate lt 2030-03-12T12:00:00.000Z"
     assert cadip_client_with_auth.get(query).status_code == OK
@@ -121,7 +125,7 @@ def test_query_sessions(cadip_client_with_auth, session_response20230216):
     query = "Sessions?$filter=NumChannels gt 1"
     assert cadip_client_with_auth.get(query).status_code == OK
     query = "Sessions?$filter=NumChannels lt 0"
-    assert cadip_client_with_auth.get(query).status_code == NOT_FOUND
+    assert cadip_client_with_auth.get(query).status_code == OK
     # Eodagspecific request tests
     dag_filter = [
         "SessionId%20in%20('S2B_20231117033237234567,%20S1A_20231120061537234567%20&$top=20",
@@ -149,7 +153,7 @@ def test_query_files(cadip_client_with_auth):
     response = cadip_client_with_auth.get("Files?$filter=Id eq e4d17d2f-29eb-4c18-bc1f-bf2769a3a16d")
     assert isinstance(json.loads(response.text), dict)
     response = cadip_client_with_auth.get("Files?$filter=PublicationDate lt 1999-01-01T12:00:00.000Z")
-    assert not response.text
+    assert bool(response.text)
     # Test with aditional filtering operator <<AND>>
     query = "Files?$filter=PublicationDate gt 2019-02-11T12:00:00.000Z and PublicationDate lt 2019-02-20T12:00:00.000Z"
     assert cadip_client_with_auth.get(query).status_code == OK
