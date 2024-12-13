@@ -366,6 +366,14 @@ def manage_datetime_querry(op, value, catalog_data, field, headers):
             resp_body = [
                 product for product in catalog_data["Data"] if date > datetime.datetime.fromisoformat(product[field])
             ]
+        case "gte":
+            resp_body = [
+                product for product in catalog_data["Data"] if date < datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+            ]
+        case "lte":
+            resp_body = [
+                product for product in catalog_data["Data"] if date > datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+            ]
         case _:
             # If the operation is not recognized, return a 404 NOT FOUND response
             return Response(status=HTTP_OK, response = json.dumps({"value": []}))
@@ -524,6 +532,18 @@ def process_files_request(request, headers, catalog_data):
                     for product in catalog_data["Data"]
                     if date > datetime.datetime.fromisoformat(product[field])
                 ]
+            case "gte":
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if date < datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                ]
+            case "lte":
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if date > datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                ]
         return (
             Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
@@ -557,8 +577,8 @@ def redirection(Id) -> Response | list[Any]:
     # Extract the port from the host
     # Redirect to the final destination with a 307 Temporary Redirect only if 
     # the request came on port 10000
-    port_number = request.host.split(":")[-1]  
-    if port_number == app.config["redirection_port"] and app.config["redirection_href"]:
+    port_number = request.host.split(":")[-1]
+    if port_number == app.config.get("redirection_port", 1000) and app.config.get("redirection_href", None):
         target_url = f"{app.config['redirection_href']}/Redirect/Files({Id})/$value"
         logger.info(f"Request redirected to {target_url}")
         return redirect(f"{target_url}", code=307)
@@ -683,7 +703,7 @@ if __name__ == "__main__":
     default_config_path = pathlib.Path(__file__).parent.resolve() / "config"
     parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
     parser.add_argument("-r", "--redirection-port", type=int, 
-                        required=False, default=10000, 
+                        required=False, 
                         help="Port for redirection. This is needed to simulate real stations like nsg")
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
     parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
@@ -707,14 +727,19 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
-    app.config["redirection_href"] = os.getenv("HTTP_REDIRECTION_HREF", None)
-    app.config["redirection_port"] = args.redirection_port
-    
-    port_redirection = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.redirection_port,))
-    port_download = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.port))
-    port_redirection.start()
-    port_download.start()
 
-    port_redirection.join()
-    port_download.join()
+    if os.getenv("HTTP_REDIRECTION_HREF", None) and args.redirection_port:
+        multiprocessing.set_start_method("fork")
+        app.config["redirection_href"] = os.getenv("HTTP_REDIRECTION_HREF", None)
+        app.config["redirection_port"] = args.redirection_port
+        
+        port_redirection = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.redirection_port,))
+        port_download = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.port))
+        port_redirection.start()
+        port_download.start()
+
+        port_redirection.join()
+        port_download.join()
+    else:
+        app.run(debug=False, host=args.host, port=args.port)
     logger.info("Exiting")

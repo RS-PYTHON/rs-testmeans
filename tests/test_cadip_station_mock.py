@@ -138,6 +138,16 @@ def test_query_sessions(cadip_client_with_auth, session_response20230216):
         assert cadip_client_with_auth.get(endpoint).status_code == OK
         assert json.loads(cadip_client_with_auth.get(endpoint).text)
 
+    time_filters = [
+        "Sessions?$filter=PublicationDate eq 2020-01-05T18:52:26.165Z",
+        "Sessions?$filter=PublicationDate lte 2020-01-05T18:52:26.165Z",
+        "Sessions?$filter=PublicationDate gte 2020-01-05T18:52:26.165Z"
+    ]
+    for query in time_filters:
+        resp = cadip_client_with_auth.get(query)
+        assert resp.status_code == OK
+        resp_data = json.loads(resp.text)
+        assert ("value" in resp_data and session_response20230216 in resp_data["value"]) or resp_data == json.loads(resp.text)
 
 @pytest.mark.unit
 def test_query_files(cadip_client_with_auth):
