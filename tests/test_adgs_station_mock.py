@@ -95,6 +95,18 @@ def test_query_products(adgs_client_with_auth, products_response):
     endpoint = f'Products?$top={top_pagination}&$filter="PublicationDate gt 2014-01-01T12:00:00.000Z and PublicationDate lt 2023-12-30T12:00:00.000Z'
     response = adgs_client_with_auth.get(endpoint)
     assert len(json.loads(response.text)["value"]) == int(top_pagination)
+    
+    time_filters = [
+        "Products?$filter=PublicationDate eq 2019-02-16T12:00:00.000Z",
+        "Products?$filter=PublicationDate lte 2019-02-16T12:00:00.000Z",
+        "Products?$filter=PublicationDate gte 2019-02-16T12:00:00.000Z"
+    ]
+    for query in time_filters:
+        resp = adgs_client_with_auth.get(query)
+        assert resp.status_code == OK
+        resp_data = json.loads(resp.text)
+        assert ("value" in resp_data and products_response in resp_data["value"]) or resp_data == json.loads(resp.text)
+
 
 @pytest.mark.unit
 @pytest.mark.parametrize(

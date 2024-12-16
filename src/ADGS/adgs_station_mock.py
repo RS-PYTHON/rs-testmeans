@@ -231,6 +231,18 @@ def process_products_request(request, headers):
                     for product in catalog_data["Data"]
                     if date > datetime.datetime.fromisoformat(product[field])
                 ]
+            case "gte":
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if date < datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                ]
+            case "lte":
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if date > datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                ]
             case _:
                 # If the operation is not recognized, return a 404 NOT FOUND response
                 return Response(status=HTTP_NOT_FOUND)
