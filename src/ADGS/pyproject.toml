@@ -24,8 +24,6 @@ authors = ["Your Name <you@example.com>"]
 python = "^3.11"
 flask-bcrypt = "^1.0.1"
 flask-httpauth = "^4.8.0"
-botocore = "1.31.83"
-boto3 = "1.28.81"
 
 [build-system]
 requires = ["poetry-core"]
