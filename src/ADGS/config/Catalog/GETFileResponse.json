@@ -6,8 +6,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8326253",
             "OriginDate": "2018-01-17T12:56:05.232Z",
-            "PublicationDate": "2019-02-16T12:00:00.000Z",
-            "EvictionDate": "2019-02-23T12:00:00.000Z",
+            "PublicationDate": "2019-02-16T18:29:37.522Z",
+            "EvictionDate": "2019-02-16T18:29:37.522Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -16,8 +16,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2019-02-17T09:00:00.000Z",
-                "End": "2019-02-17T21:00:00.000Z"
+                "Start": "2019-02-16T18:29:37.522Z",
+                "End": "2019-02-16T18:29:47.522Z"
             },
             "Attributes": [
                 {
@@ -42,13 +42,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2018-01-17T12:56:05.232Z"
+                    "Value": "2019-02-16T18:29:37.522Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2019-02-23T12:00:00.000Z"
+                    "Value": "2019-02-16T18:29:47.522Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -76,8 +76,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8326253",
             "OriginDate": "2019-01-17T12:56:05.232Z",
-            "PublicationDate": "2020-02-16T12:00:00.000Z",
-            "EvictionDate": "2020-02-23T12:00:00.000Z",
+            "PublicationDate": "2020-02-16T22:30:58.242Z",
+            "EvictionDate": "2020-02-16T22:30:58.242Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -86,8 +86,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-02-17T09:00:00.000Z",
-                "End": "2020-02-17T21:00:00.000Z"
+                "Start": "2020-02-16T22:30:58.242Z",
+                "End": "2020-02-16T22:31:08.242Z"
             },
             "Attributes": [
                 {
@@ -112,13 +112,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2019-01-17T12:56:05.232Z"
+                    "Value": "2020-02-16T22:30:58.242Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-02-23T12:00:00.000Z"
+                    "Value": "2020-02-16T22:31:08.242Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -146,8 +146,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8326253",
             "OriginDate": "2022-01-17T12:56:05.232Z",
-            "PublicationDate": "2023-02-16T12:00:00.000Z",
-            "EvictionDate": "2023-02-23T12:00:00.000Z",
+            "PublicationDate": "2023-02-16T12:55:35.361Z",
+            "EvictionDate": "2023-02-16T12:55:35.361Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -156,8 +156,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-02-17T09:00:00.000Z",
-                "End": "2023-02-17T21:00:00.000Z"
+                "Start": "2023-02-16T12:55:35.361Z",
+                "End": "2023-02-16T12:55:45.361Z"
             },
             "Attributes": [
                 {
@@ -182,13 +182,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2022-01-17T12:56:05.232Z"
+                    "Value": "2023-02-16T12:55:35.361Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-02-23T12:00:00.000Z"
+                    "Value": "2023-02-16T12:55:45.361Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -216,8 +216,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "5142456",
             "OriginDate": "2021-01-22T15:16:47.000Z",
-            "PublicationDate": "2021-01-23T00:00:00.000Z",
-            "EvictionDate": "2021-01-30T00:00:00.000Z",
+            "PublicationDate": "2021-01-23T00:52:18.805Z",
+            "EvictionDate": "2021-01-23T00:52:18.805Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -226,8 +226,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-01-23T00:00:00.000Z",
-                "End": "2021-01-23T00:00:00.000Z"
+                "Start": "2021-01-23T00:52:18.805Z",
+                "End": "2021-01-23T00:52:28.805Z"
             },
             "Attributes": [
                 {
@@ -252,13 +252,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-01-22T15:16:47.000Z"
+                    "Value": "2021-01-23T00:52:18.805Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-01-30T00:00:00.000Z"
+                    "Value": "2021-01-23T00:52:28.805Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -286,8 +286,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "2100565",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-02-14T00:00:00.000Z",
-            "EvictionDate": "2021-02-21T00:00:00.000Z",
+            "PublicationDate": "2021-02-14T20:16:05.577Z",
+            "EvictionDate": "2021-02-14T20:16:05.577Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -296,8 +296,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-02-21T00:00:00.000Z",
-                "End": "2021-02-21T00:00:00.000Z"
+                "Start": "2021-02-14T20:16:05.577Z",
+                "End": "2021-02-14T20:16:15.577Z"
             },
             "Attributes": [
                 {
@@ -322,13 +322,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-02-14T20:16:05.577Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-02-21T00:00:00.000Z"
+                    "Value": "2021-02-14T20:16:15.577Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -356,8 +356,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "7757721",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-08-29T00:00:00.000Z",
-            "EvictionDate": "2020-09-05T00:00:00.000Z",
+            "PublicationDate": "2020-08-29T14:33:30.117Z",
+            "EvictionDate": "2020-08-29T14:33:30.117Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -366,8 +366,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-08-29T00:00:00.000Z",
-                "End": "2020-08-29T00:00:00.000Z"
+                "Start": "2020-08-29T14:33:30.117Z",
+                "End": "2020-08-29T14:33:40.117Z"
             },
             "Attributes": [
                 {
@@ -392,13 +392,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-08-29T14:33:30.117Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-09-05T00:00:00.000Z"
+                    "Value": "2020-08-29T14:33:40.117Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -426,8 +426,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9496648",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-04-05T00:00:00.000Z",
-            "EvictionDate": "2023-04-12T00:00:00.000Z",
+            "PublicationDate": "2023-04-05T01:53:47.843Z",
+            "EvictionDate": "2023-04-05T01:53:47.843Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -436,8 +436,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-04-05T00:00:00.000Z",
-                "End": "2023-04-05T00:00:00.000Z"
+                "Start": "2023-04-05T01:53:47.843Z",
+                "End": "2023-04-05T01:53:57.843Z"
             },
             "Attributes": [
                 {
@@ -462,13 +462,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-04-05T01:53:47.843Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-04-12T00:00:00.000Z"
+                    "Value": "2023-04-05T01:53:57.843Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -496,8 +496,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8946986",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-12-18T00:00:00.000Z",
-            "EvictionDate": "2023-12-25T00:00:00.000Z",
+            "PublicationDate": "2023-12-18T23:27:56.465Z",
+            "EvictionDate": "2023-12-18T23:27:56.465Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -506,8 +506,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-12-18T00:00:00.000Z",
-                "End": "2023-12-18T00:00:00.000Z"
+                "Start": "2023-12-18T23:27:56.465Z",
+                "End": "2023-12-18T23:28:06.465Z"
             },
             "Attributes": [
                 {
@@ -532,13 +532,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-12-18T23:27:56.465Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-12-25T00:00:00.000Z"
+                    "Value": "2023-12-18T23:28:06.465Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -566,8 +566,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1946349",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-10-02T00:00:00.000Z",
-            "EvictionDate": "2020-10-09T00:00:00.000Z",
+            "PublicationDate": "2020-10-02T16:17:25.992Z",
+            "EvictionDate": "2020-10-02T16:17:25.992Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -576,8 +576,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-10-02T00:00:00.000Z",
-                "End": "2020-10-02T00:00:00.000Z"
+                "Start": "2020-10-02T16:17:25.992Z",
+                "End": "2020-10-02T16:17:35.992Z"
             },
             "Attributes": [
                 {
@@ -602,13 +602,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-10-02T16:17:25.992Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-10-09T00:00:00.000Z"
+                    "Value": "2020-10-02T16:17:35.992Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -636,8 +636,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1381807",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-01-22T00:00:00.000Z",
-            "EvictionDate": "2023-01-29T00:00:00.000Z",
+            "PublicationDate": "2023-01-22T21:06:06.426Z",
+            "EvictionDate": "2023-01-22T21:06:06.426Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -646,8 +646,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-01-22T00:00:00.000Z",
-                "End": "2023-01-22T00:00:00.000Z"
+                "Start": "2023-01-22T21:06:06.426Z",
+                "End": "2023-01-22T21:06:16.426Z"
             },
             "Attributes": [
                 {
@@ -672,13 +672,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-01-22T21:06:06.426Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-01-29T00:00:00.000Z"
+                    "Value": "2023-01-22T21:06:16.426Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -706,8 +706,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8477744",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-04-03T00:00:00.000Z",
-            "EvictionDate": "2023-04-10T00:00:00.000Z",
+            "PublicationDate": "2023-04-03T14:42:36.595Z",
+            "EvictionDate": "2023-04-03T14:42:36.595Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -716,8 +716,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-04-03T00:00:00.000Z",
-                "End": "2023-04-03T00:00:00.000Z"
+                "Start": "2023-04-03T14:42:36.595Z",
+                "End": "2023-04-03T14:42:46.595Z"
             },
             "Attributes": [
                 {
@@ -742,13 +742,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-04-03T14:42:36.595Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-04-10T00:00:00.000Z"
+                    "Value": "2023-04-03T14:42:46.595Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -776,8 +776,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8633489",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-05-17T00:00:00.000Z",
-            "EvictionDate": "2023-05-24T00:00:00.000Z",
+            "PublicationDate": "2023-05-17T17:20:52.448Z",
+            "EvictionDate": "2023-05-17T17:20:52.448Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -786,8 +786,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-05-17T00:00:00.000Z",
-                "End": "2023-05-17T00:00:00.000Z"
+                "Start": "2023-05-17T17:20:52.448Z",
+                "End": "2023-05-17T17:21:02.448Z"
             },
             "Attributes": [
                 {
@@ -812,13 +812,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-05-17T17:20:52.448Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-05-24T00:00:00.000Z"
+                    "Value": "2023-05-17T17:21:02.448Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -846,8 +846,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3921684",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-09-19T00:00:00.000Z",
-            "EvictionDate": "2020-09-26T00:00:00.000Z",
+            "PublicationDate": "2020-09-19T23:07:45.665Z",
+            "EvictionDate": "2020-09-19T23:07:45.665Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -856,8 +856,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-09-19T00:00:00.000Z",
-                "End": "2020-09-19T00:00:00.000Z"
+                "Start": "2020-09-19T23:07:45.665Z",
+                "End": "2020-09-19T23:07:55.665Z"
             },
             "Attributes": [
                 {
@@ -882,13 +882,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-09-19T23:07:45.665Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-09-26T00:00:00.000Z"
+                    "Value": "2020-09-19T23:07:55.665Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -916,8 +916,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9671255",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-04-21T00:00:00.000Z",
-            "EvictionDate": "2023-04-28T00:00:00.000Z",
+            "PublicationDate": "2023-04-21T17:38:47.089Z",
+            "EvictionDate": "2023-04-21T17:38:47.089Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -926,8 +926,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-04-28T00:00:00.000Z",
-                "End": "2023-04-28T00:00:00.000Z"
+                "Start": "2023-04-21T17:38:47.089Z",
+                "End": "2023-04-21T17:38:57.089Z"
             },
             "Attributes": [
                 {
@@ -952,13 +952,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-04-21T17:38:47.089Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-04-28T00:00:00.000Z"
+                    "Value": "2023-04-21T17:38:57.089Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -986,8 +986,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3304133",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2024-01-15T00:00:00.000Z",
-            "EvictionDate": "2024-01-22T00:00:00.000Z",
+            "PublicationDate": "2024-01-15T15:40:00.653Z",
+            "EvictionDate": "2024-01-15T15:40:00.653Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -996,8 +996,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2024-01-15T00:00:00.000Z",
-                "End": "2024-01-15T00:00:00.000Z"
+                "Start": "2024-01-15T15:40:00.653Z",
+                "End": "2024-01-15T15:40:10.653Z"
             },
             "Attributes": [
                 {
@@ -1022,13 +1022,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2024-01-15T15:40:00.653Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-01-22T00:00:00.000Z"
+                    "Value": "2024-01-15T15:40:10.653Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1056,8 +1056,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "6026585",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2024-02-14T00:00:00.000Z",
-            "EvictionDate": "2024-02-21T00:00:00.000Z",
+            "PublicationDate": "2024-02-14T02:08:13.372Z",
+            "EvictionDate": "2024-02-14T02:08:13.372Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1066,8 +1066,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2024-02-14T00:00:00.000Z",
-                "End": "2024-02-14T00:00:00.000Z"
+                "Start": "2024-02-14T02:08:13.372Z",
+                "End": "2024-02-14T02:08:23.372Z"
             },
             "Attributes": [
                 {
@@ -1092,13 +1092,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2024-02-14T02:08:13.372Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-02-21T00:00:00.000Z"
+                    "Value": "2024-02-14T02:08:23.372Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1126,8 +1126,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9766155",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2024-01-29T00:00:00.000Z",
-            "EvictionDate": "2024-02-05T00:00:00.000Z",
+            "PublicationDate": "2024-01-29T01:56:47.075Z",
+            "EvictionDate": "2024-01-29T01:56:47.075Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1136,8 +1136,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2024-01-29T00:00:00.000Z",
-                "End": "2024-01-29T00:00:00.000Z"
+                "Start": "2024-01-29T01:56:47.075Z",
+                "End": "2024-01-29T01:56:57.075Z"
             },
             "Attributes": [
                 {
@@ -1162,13 +1162,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2024-01-29T01:56:47.075Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-02-05T00:00:00.000Z"
+                    "Value": "2024-01-29T01:56:57.075Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1196,8 +1196,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9176686",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-08-07T00:00:00.000Z",
-            "EvictionDate": "2023-08-14T00:00:00.000Z",
+            "PublicationDate": "2023-08-07T13:50:32.569Z",
+            "EvictionDate": "2023-08-07T13:50:32.569Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1206,8 +1206,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-08-07T00:00:00.000Z",
-                "End": "2023-08-07T00:00:00.000Z"
+                "Start": "2023-08-07T13:50:32.569Z",
+                "End": "2023-08-07T13:50:42.569Z"
             },
             "Attributes": [
                 {
@@ -1232,13 +1232,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-08-07T13:50:32.569Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-08-14T00:00:00.000Z"
+                    "Value": "2023-08-07T13:50:42.569Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1266,8 +1266,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "7489159",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-06-28T00:00:00.000Z",
-            "EvictionDate": "2023-07-05T00:00:00.000Z",
+            "PublicationDate": "2023-06-28T07:56:04.042Z",
+            "EvictionDate": "2023-06-28T07:56:04.042Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1276,8 +1276,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-06-28T00:00:00.000Z",
-                "End": "2023-06-28T00:00:00.000Z"
+                "Start": "2023-06-28T07:56:04.042Z",
+                "End": "2023-06-28T07:56:14.042Z"
             },
             "Attributes": [
                 {
@@ -1302,13 +1302,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-06-28T07:56:04.042Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-07-05T00:00:00.000Z"
+                    "Value": "2023-06-28T07:56:14.042Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1336,8 +1336,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1104066",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-01-06T00:00:00.000Z",
-            "EvictionDate": "2020-01-13T00:00:00.000Z",
+            "PublicationDate": "2020-01-06T18:50:54.274Z",
+            "EvictionDate": "2020-01-06T18:50:54.274Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1346,8 +1346,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-01-06T00:00:00.000Z",
-                "End": "2020-01-06T00:00:00.000Z"
+                "Start": "2020-01-06T18:50:54.274Z",
+                "End": "2020-01-06T18:51:04.274Z"
             },
             "Attributes": [
                 {
@@ -1372,13 +1372,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-01-06T18:50:54.274Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-01-13T00:00:00.000Z"
+                    "Value": "2020-01-06T18:51:04.274Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1406,8 +1406,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "4968617",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-01-21T00:00:00.000Z",
-            "EvictionDate": "2020-01-28T00:00:00.000Z",
+            "PublicationDate": "2020-01-21T22:21:54.587Z",
+            "EvictionDate": "2020-01-21T22:21:54.587Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1416,8 +1416,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-01-21T00:00:00.000Z",
-                "End": "2020-01-21T00:00:00.000Z"
+                "Start": "2020-01-21T22:21:54.587Z",
+                "End": "2020-01-21T22:22:04.587Z"
             },
             "Attributes": [
                 {
@@ -1442,13 +1442,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-01-21T22:21:54.587Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-01-28T00:00:00.000Z"
+                    "Value": "2020-01-21T22:22:04.587Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1476,8 +1476,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1573770",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-03-29T00:00:00.000Z",
-            "EvictionDate": "2021-04-05T00:00:00.000Z",
+            "PublicationDate": "2021-03-29T05:37:15.986Z",
+            "EvictionDate": "2021-03-29T05:37:15.986Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1486,8 +1486,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-03-29T00:00:00.000Z",
-                "End": "2021-03-29T00:00:00.000Z"
+                "Start": "2021-03-29T05:37:15.986Z",
+                "End": "2021-03-29T05:37:25.986Z"
             },
             "Attributes": [
                 {
@@ -1512,13 +1512,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-03-29T05:37:15.986Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-04-05T00:00:00.000Z"
+                    "Value": "2021-03-29T05:37:25.986Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1546,8 +1546,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3588015",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2022-03-06T00:00:00.000Z",
-            "EvictionDate": "2022-03-13T00:00:00.000Z",
+            "PublicationDate": "2022-03-06T05:51:47.869Z",
+            "EvictionDate": "2022-03-06T05:51:47.869Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1556,8 +1556,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2022-03-13T00:00:00.000Z",
-                "End": "2022-03-13T00:00:00.000Z"
+                "Start": "2022-03-06T05:51:47.869Z",
+                "End": "2022-03-06T05:51:57.869Z"
             },
             "Attributes": [
                 {
@@ -1582,13 +1582,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2022-03-06T05:51:47.869Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2022-03-13T00:00:00.000Z"
+                    "Value": "2022-03-06T05:51:57.869Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1616,8 +1616,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "7586325",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-07-10T00:00:00.000Z",
-            "EvictionDate": "2023-07-17T00:00:00.000Z",
+            "PublicationDate": "2023-07-10T05:25:46.117Z",
+            "EvictionDate": "2023-07-10T05:25:46.117Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1626,8 +1626,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-07-10T00:00:00.000Z",
-                "End": "2023-07-10T00:00:00.000Z"
+                "Start": "2023-07-10T05:25:46.117Z",
+                "End": "2023-07-10T05:25:56.117Z"
             },
             "Attributes": [
                 {
@@ -1652,13 +1652,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-07-10T05:25:46.117Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-07-17T00:00:00.000Z"
+                    "Value": "2023-07-10T05:25:56.117Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1686,8 +1686,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "6306385",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-02-11T00:00:00.000Z",
-            "EvictionDate": "2020-02-18T00:00:00.000Z",
+            "PublicationDate": "2020-02-11T13:16:02.777Z",
+            "EvictionDate": "2020-02-11T13:16:02.777Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1696,8 +1696,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-02-11T00:00:00.000Z",
-                "End": "2020-02-11T00:00:00.000Z"
+                "Start": "2020-02-11T13:16:02.777Z",
+                "End": "2020-02-11T13:16:12.777Z"
             },
             "Attributes": [
                 {
@@ -1722,13 +1722,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-02-11T13:16:02.777Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-02-18T00:00:00.000Z"
+                    "Value": "2020-02-11T13:16:12.777Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1756,8 +1756,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "2880500",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-07-18T00:00:00.000Z",
-            "EvictionDate": "2023-07-25T00:00:00.000Z",
+            "PublicationDate": "2023-07-18T01:51:42.703Z",
+            "EvictionDate": "2023-07-18T01:51:42.703Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1766,8 +1766,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-07-18T00:00:00.000Z",
-                "End": "2023-07-18T00:00:00.000Z"
+                "Start": "2023-07-18T01:51:42.703Z",
+                "End": "2023-07-18T01:51:52.703Z"
             },
             "Attributes": [
                 {
@@ -1792,13 +1792,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-07-18T01:51:42.703Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-07-25T00:00:00.000Z"
+                    "Value": "2023-07-18T01:51:52.703Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1826,8 +1826,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "5235136",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-04-28T00:00:00.000Z",
-            "EvictionDate": "2023-05-05T00:00:00.000Z",
+            "PublicationDate": "2023-04-28T18:52:18.007Z",
+            "EvictionDate": "2023-04-28T18:52:18.007Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1836,8 +1836,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-04-28T00:00:00.000Z",
-                "End": "2023-04-28T00:00:00.000Z"
+                "Start": "2023-04-28T18:52:18.007Z",
+                "End": "2023-04-28T18:52:28.007Z"
             },
             "Attributes": [
                 {
@@ -1862,13 +1862,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-04-28T18:52:18.007Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-05-05T00:00:00.000Z"
+                    "Value": "2023-04-28T18:52:28.007Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1896,8 +1896,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3123404",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-02-19T00:00:00.000Z",
-            "EvictionDate": "2023-02-26T00:00:00.000Z",
+            "PublicationDate": "2023-02-19T23:42:46.777Z",
+            "EvictionDate": "2023-02-19T23:42:46.777Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1906,8 +1906,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-02-19T00:00:00.000Z",
-                "End": "2023-02-19T00:00:00.000Z"
+                "Start": "2023-02-19T23:42:46.777Z",
+                "End": "2023-02-19T23:42:56.777Z"
             },
             "Attributes": [
                 {
@@ -1932,13 +1932,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-02-19T23:42:46.777Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-02-26T00:00:00.000Z"
+                    "Value": "2023-02-19T23:42:56.777Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -1966,8 +1966,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "7304161",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-07-04T00:00:00.000Z",
-            "EvictionDate": "2023-07-11T00:00:00.000Z",
+            "PublicationDate": "2023-07-04T03:44:56.111Z",
+            "EvictionDate": "2023-07-04T03:44:56.111Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -1976,8 +1976,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-07-04T00:00:00.000Z",
-                "End": "2023-07-04T00:00:00.000Z"
+                "Start": "2023-07-04T03:44:56.111Z",
+                "End": "2023-07-04T03:45:06.111Z"
             },
             "Attributes": [
                 {
@@ -2002,13 +2002,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-07-04T03:44:56.111Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-07-11T00:00:00.000Z"
+                    "Value": "2023-07-04T03:45:06.111Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2036,8 +2036,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "7419612",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-08-18T00:00:00.000Z",
-            "EvictionDate": "2023-08-25T00:00:00.000Z",
+            "PublicationDate": "2023-08-18T15:56:52.781Z",
+            "EvictionDate": "2023-08-18T15:56:52.781Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2046,8 +2046,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-08-18T00:00:00.000Z",
-                "End": "2023-08-18T00:00:00.000Z"
+                "Start": "2023-08-18T15:56:52.781Z",
+                "End": "2023-08-18T15:57:02.781Z"
             },
             "Attributes": [
                 {
@@ -2072,13 +2072,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-08-18T15:56:52.781Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-08-25T00:00:00.000Z"
+                    "Value": "2023-08-18T15:57:02.781Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2106,8 +2106,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8120082",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-02-11T00:00:00.000Z",
-            "EvictionDate": "2021-02-18T00:00:00.000Z",
+            "PublicationDate": "2021-02-11T23:24:15.506Z",
+            "EvictionDate": "2021-02-11T23:24:15.506Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2116,8 +2116,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-02-11T00:00:00.000Z",
-                "End": "2021-02-11T00:00:00.000Z"
+                "Start": "2021-02-11T23:24:15.506Z",
+                "End": "2021-02-11T23:24:25.506Z"
             },
             "Attributes": [
                 {
@@ -2142,13 +2142,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-02-11T23:24:15.506Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-02-18T00:00:00.000Z"
+                    "Value": "2021-02-11T23:24:25.506Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2176,8 +2176,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "2349940",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-04-02T00:00:00.000Z",
-            "EvictionDate": "2020-04-09T00:00:00.000Z",
+            "PublicationDate": "2020-04-02T13:20:40.958Z",
+            "EvictionDate": "2020-04-02T13:20:40.958Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2186,8 +2186,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-04-09T00:00:00.000Z",
-                "End": "2020-04-09T00:00:00.000Z"
+                "Start": "2020-04-02T13:20:40.958Z",
+                "End": "2020-04-02T13:20:50.958Z"
             },
             "Attributes": [
                 {
@@ -2212,13 +2212,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-04-02T13:20:40.958Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-04-09T00:00:00.000Z"
+                    "Value": "2020-04-02T13:20:50.958Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2246,8 +2246,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "6931697",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-01-23T00:00:00.000Z",
-            "EvictionDate": "2021-01-30T00:00:00.000Z",
+            "PublicationDate": "2021-01-23T04:35:31.786Z",
+            "EvictionDate": "2021-01-23T04:35:31.786Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2256,8 +2256,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-01-23T00:00:00.000Z",
-                "End": "2021-01-23T00:00:00.000Z"
+                "Start": "2021-01-23T04:35:31.786Z",
+                "End": "2021-01-23T04:35:41.786Z"
             },
             "Attributes": [
                 {
@@ -2282,13 +2282,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-01-23T04:35:31.786Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-01-30T00:00:00.000Z"
+                    "Value": "2021-01-23T04:35:41.786Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2316,8 +2316,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9407640",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-10-12T00:00:00.000Z",
-            "EvictionDate": "2020-10-19T00:00:00.000Z",
+            "PublicationDate": "2020-10-12T12:24:29.792Z",
+            "EvictionDate": "2020-10-12T12:24:29.792Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2326,8 +2326,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-10-12T00:00:00.000Z",
-                "End": "2020-10-12T00:00:00.000Z"
+                "Start": "2020-10-12T12:24:29.792Z",
+                "End": "2020-10-12T12:24:39.792Z"
             },
             "Attributes": [
                 {
@@ -2352,13 +2352,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-10-12T12:24:29.792Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-10-19T00:00:00.000Z"
+                    "Value": "2020-10-12T12:24:39.792Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2386,8 +2386,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9689251",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-05-01T00:00:00.000Z",
-            "EvictionDate": "2021-05-08T00:00:00.000Z",
+            "PublicationDate": "2021-05-01T01:05:02.052Z",
+            "EvictionDate": "2021-05-01T01:05:02.052Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2396,8 +2396,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-05-01T00:00:00.000Z",
-                "End": "2021-05-01T00:00:00.000Z"
+                "Start": "2021-05-01T01:05:02.052Z",
+                "End": "2021-05-01T01:05:12.052Z"
             },
             "Attributes": [
                 {
@@ -2422,13 +2422,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-05-01T01:05:02.052Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-05-08T00:00:00.000Z"
+                    "Value": "2021-05-01T01:05:12.052Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2456,8 +2456,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "7371129",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-07-29T00:00:00.000Z",
-            "EvictionDate": "2020-08-05T00:00:00.000Z",
+            "PublicationDate": "2020-07-29T03:08:43.109Z",
+            "EvictionDate": "2020-07-29T03:08:43.109Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2466,8 +2466,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-07-29T00:00:00.000Z",
-                "End": "2020-07-29T00:00:00.000Z"
+                "Start": "2020-07-29T03:08:43.109Z",
+                "End": "2020-07-29T03:08:53.109Z"
             },
             "Attributes": [
                 {
@@ -2492,13 +2492,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-07-29T03:08:43.109Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-08-05T00:00:00.000Z"
+                    "Value": "2020-07-29T03:08:53.109Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2526,8 +2526,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "4148514",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-03-20T00:00:00.000Z",
-            "EvictionDate": "2023-03-27T00:00:00.000Z",
+            "PublicationDate": "2023-03-20T20:12:07.815Z",
+            "EvictionDate": "2023-03-20T20:12:07.815Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2536,8 +2536,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-03-20T00:00:00.000Z",
-                "End": "2023-03-20T00:00:00.000Z"
+                "Start": "2023-03-20T20:12:07.815Z",
+                "End": "2023-03-20T20:12:17.815Z"
             },
             "Attributes": [
                 {
@@ -2562,13 +2562,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-03-20T20:12:07.815Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-03-27T00:00:00.000Z"
+                    "Value": "2023-03-20T20:12:17.815Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2596,8 +2596,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "6458426",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-02-03T00:00:00.000Z",
-            "EvictionDate": "2020-02-10T00:00:00.000Z",
+            "PublicationDate": "2020-02-03T21:56:22.885Z",
+            "EvictionDate": "2020-02-03T21:56:22.885Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2606,8 +2606,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-02-03T00:00:00.000Z",
-                "End": "2020-02-03T00:00:00.000Z"
+                "Start": "2020-02-03T21:56:22.885Z",
+                "End": "2020-02-03T21:56:32.885Z"
             },
             "Attributes": [
                 {
@@ -2632,13 +2632,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-02-03T21:56:22.885Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-02-10T00:00:00.000Z"
+                    "Value": "2020-02-03T21:56:32.885Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2666,8 +2666,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1905326",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-02-18T00:00:00.000Z",
-            "EvictionDate": "2020-02-25T00:00:00.000Z",
+            "PublicationDate": "2020-02-18T20:52:05.392Z",
+            "EvictionDate": "2020-02-18T20:52:05.392Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2676,8 +2676,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-02-18T00:00:00.000Z",
-                "End": "2020-02-18T00:00:00.000Z"
+                "Start": "2020-02-18T20:52:05.392Z",
+                "End": "2020-02-18T20:52:15.392Z"
             },
             "Attributes": [
                 {
@@ -2702,13 +2702,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-02-18T20:52:05.392Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-02-25T00:00:00.000Z"
+                    "Value": "2020-02-18T20:52:15.392Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2736,8 +2736,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3206957",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-01-03T00:00:00.000Z",
-            "EvictionDate": "2023-01-10T00:00:00.000Z",
+            "PublicationDate": "2023-01-03T20:38:54.139Z",
+            "EvictionDate": "2023-01-03T20:38:54.139Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2746,8 +2746,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-01-03T00:00:00.000Z",
-                "End": "2023-01-03T00:00:00.000Z"
+                "Start": "2023-01-03T20:38:54.139Z",
+                "End": "2023-01-03T20:39:04.139Z"
             },
             "Attributes": [
                 {
@@ -2772,13 +2772,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-01-03T20:38:54.139Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-01-10T00:00:00.000Z"
+                    "Value": "2023-01-03T20:39:04.139Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2806,8 +2806,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "7945817",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-03-15T00:00:00.000Z",
-            "EvictionDate": "2020-03-22T00:00:00.000Z",
+            "PublicationDate": "2020-03-15T06:16:33.668Z",
+            "EvictionDate": "2020-03-15T06:16:33.668Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2816,8 +2816,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-03-22T00:00:00.000Z",
-                "End": "2020-03-22T00:00:00.000Z"
+                "Start": "2020-03-15T06:16:33.668Z",
+                "End": "2020-03-15T06:16:43.668Z"
             },
             "Attributes": [
                 {
@@ -2842,13 +2842,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-03-15T06:16:33.668Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-03-22T00:00:00.000Z"
+                    "Value": "2020-03-15T06:16:43.668Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2876,8 +2876,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8332259",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2022-04-26T00:00:00.000Z",
-            "EvictionDate": "2022-05-03T00:00:00.000Z",
+            "PublicationDate": "2022-04-26T11:08:18.274Z",
+            "EvictionDate": "2022-04-26T11:08:18.274Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2886,8 +2886,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2022-04-26T00:00:00.000Z",
-                "End": "2022-04-26T00:00:00.000Z"
+                "Start": "2022-04-26T11:08:18.274Z",
+                "End": "2022-04-26T11:08:28.274Z"
             },
             "Attributes": [
                 {
@@ -2912,13 +2912,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2022-04-26T11:08:18.274Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2022-05-03T00:00:00.000Z"
+                    "Value": "2022-04-26T11:08:28.274Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -2946,8 +2946,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8776207",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-11-16T00:00:00.000Z",
-            "EvictionDate": "2020-11-23T00:00:00.000Z",
+            "PublicationDate": "2020-11-16T11:14:59.025Z",
+            "EvictionDate": "2020-11-16T11:14:59.025Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -2956,8 +2956,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-11-16T00:00:00.000Z",
-                "End": "2020-11-16T00:00:00.000Z"
+                "Start": "2020-11-16T11:14:59.025Z",
+                "End": "2020-11-16T11:15:09.025Z"
             },
             "Attributes": [
                 {
@@ -2982,13 +2982,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-11-16T11:14:59.025Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-11-23T00:00:00.000Z"
+                    "Value": "2020-11-16T11:15:09.025Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3016,8 +3016,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1556289",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-07-05T00:00:00.000Z",
-            "EvictionDate": "2021-07-12T00:00:00.000Z",
+            "PublicationDate": "2021-07-05T12:14:39.394Z",
+            "EvictionDate": "2021-07-05T12:14:39.394Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3026,8 +3026,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-07-05T00:00:00.000Z",
-                "End": "2021-07-05T00:00:00.000Z"
+                "Start": "2021-07-05T12:14:39.394Z",
+                "End": "2021-07-05T12:14:49.394Z"
             },
             "Attributes": [
                 {
@@ -3052,13 +3052,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-07-05T12:14:39.394Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-07-12T00:00:00.000Z"
+                    "Value": "2021-07-05T12:14:49.394Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3086,8 +3086,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1182056",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-09-03T00:00:00.000Z",
-            "EvictionDate": "2020-09-10T00:00:00.000Z",
+            "PublicationDate": "2020-09-03T14:37:33.513Z",
+            "EvictionDate": "2020-09-03T14:37:33.513Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3096,8 +3096,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-09-03T00:00:00.000Z",
-                "End": "2020-09-03T00:00:00.000Z"
+                "Start": "2020-09-03T14:37:33.513Z",
+                "End": "2020-09-03T14:37:43.513Z"
             },
             "Attributes": [
                 {
@@ -3122,13 +3122,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-09-03T14:37:33.513Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-09-10T00:00:00.000Z"
+                    "Value": "2020-09-03T14:37:43.513Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3156,8 +3156,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9034860",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-04-23T00:00:00.000Z",
-            "EvictionDate": "2023-04-30T00:00:00.000Z",
+            "PublicationDate": "2023-04-23T05:52:15.112Z",
+            "EvictionDate": "2023-04-23T05:52:15.112Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3166,8 +3166,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-04-23T00:00:00.000Z",
-                "End": "2023-04-23T00:00:00.000Z"
+                "Start": "2023-04-23T05:52:15.112Z",
+                "End": "2023-04-23T05:52:25.112Z"
             },
             "Attributes": [
                 {
@@ -3192,13 +3192,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-04-23T05:52:15.112Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-04-30T00:00:00.000Z"
+                    "Value": "2023-04-23T05:52:25.112Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3226,8 +3226,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8898416",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-08-06T00:00:00.000Z",
-            "EvictionDate": "2020-08-13T00:00:00.000Z",
+            "PublicationDate": "2020-08-06T01:31:32.476Z",
+            "EvictionDate": "2020-08-06T01:31:32.476Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3236,8 +3236,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-08-06T00:00:00.000Z",
-                "End": "2020-08-06T00:00:00.000Z"
+                "Start": "2020-08-06T01:31:32.476Z",
+                "End": "2020-08-06T01:31:42.476Z"
             },
             "Attributes": [
                 {
@@ -3262,13 +3262,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-08-06T01:31:32.476Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-08-13T00:00:00.000Z"
+                    "Value": "2020-08-06T01:31:42.476Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3296,8 +3296,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9116568",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-09-20T00:00:00.000Z",
-            "EvictionDate": "2020-09-27T00:00:00.000Z",
+            "PublicationDate": "2020-09-20T07:11Z",
+            "EvictionDate": "2020-09-20T07:11Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3306,8 +3306,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-09-20T00:00:00.000Z",
-                "End": "2020-09-20T00:00:00.000Z"
+                "Start": "2020-09-20T07:11Z",
+                "End": "2020-09-20T07:11Z"
             },
             "Attributes": [
                 {
@@ -3332,13 +3332,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-09-20T07:11Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-09-27T00:00:00.000Z"
+                    "Value": "2020-09-20T07:11Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3366,8 +3366,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9594779",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-01-27T00:00:00.000Z",
-            "EvictionDate": "2020-02-03T00:00:00.000Z",
+            "PublicationDate": "2020-01-27T12:37:13.632Z",
+            "EvictionDate": "2020-01-27T12:37:13.632Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3376,8 +3376,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-01-27T00:00:00.000Z",
-                "End": "2020-01-27T00:00:00.000Z"
+                "Start": "2020-01-27T12:37:13.632Z",
+                "End": "2020-01-27T12:37:23.632Z"
             },
             "Attributes": [
                 {
@@ -3402,13 +3402,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-01-27T12:37:13.632Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-02-03T00:00:00.000Z"
+                    "Value": "2020-01-27T12:37:23.632Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3436,8 +3436,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1424363",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-02-25T00:00:00.000Z",
-            "EvictionDate": "2021-03-04T00:00:00.000Z",
+            "PublicationDate": "2021-02-25T19:36:04.041Z",
+            "EvictionDate": "2021-02-25T19:36:04.041Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3446,8 +3446,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-03-03T00:00:00.000Z",
-                "End": "2021-03-03T00:00:00.000Z"
+                "Start": "2021-02-25T19:36:04.041Z",
+                "End": "2021-02-25T19:36:14.041Z"
             },
             "Attributes": [
                 {
@@ -3472,13 +3472,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-02-25T19:36:04.041Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-03-04T00:00:00.000Z"
+                    "Value": "2021-02-25T19:36:14.041Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3506,8 +3506,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8001273",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-07-01T00:00:00.000Z",
-            "EvictionDate": "2021-07-08T00:00:00.000Z",
+            "PublicationDate": "2021-07-01T00:48:35.387Z",
+            "EvictionDate": "2021-07-01T00:48:35.387Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3516,8 +3516,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-07-01T00:00:00.000Z",
-                "End": "2021-07-01T00:00:00.000Z"
+                "Start": "2021-07-01T00:48:35.387Z",
+                "End": "2021-07-01T00:48:45.387Z"
             },
             "Attributes": [
                 {
@@ -3542,13 +3542,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-07-01T00:48:35.387Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-07-08T00:00:00.000Z"
+                    "Value": "2021-07-01T00:48:45.387Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3576,8 +3576,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "2730381",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-12-28T00:00:00.000Z",
-            "EvictionDate": "2021-01-04T00:00:00.000Z",
+            "PublicationDate": "2020-12-28T14:12:49.978Z",
+            "EvictionDate": "2020-12-28T14:12:49.978Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3586,8 +3586,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-12-28T00:00:00.000Z",
-                "End": "2020-12-28T00:00:00.000Z"
+                "Start": "2020-12-28T14:12:49.978Z",
+                "End": "2020-12-28T14:12:59.978Z"
             },
             "Attributes": [
                 {
@@ -3612,13 +3612,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-12-28T14:12:49.978Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-01-04T00:00:00.000Z"
+                    "Value": "2020-12-28T14:12:59.978Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3646,8 +3646,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1954759",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-09-16T00:00:00.000Z",
-            "EvictionDate": "2021-09-23T00:00:00.000Z",
+            "PublicationDate": "2021-09-16T04:15:15.186Z",
+            "EvictionDate": "2021-09-16T04:15:15.186Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3656,8 +3656,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-09-16T00:00:00.000Z",
-                "End": "2021-09-16T00:00:00.000Z"
+                "Start": "2021-09-16T04:15:15.186Z",
+                "End": "2021-09-16T04:15:25.186Z"
             },
             "Attributes": [
                 {
@@ -3682,13 +3682,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-09-16T04:15:15.186Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-09-23T00:00:00.000Z"
+                    "Value": "2021-09-16T04:15:25.186Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3716,8 +3716,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "6956769",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-05-24T00:00:00.000Z",
-            "EvictionDate": "2020-05-31T00:00:00.000Z",
+            "PublicationDate": "2020-05-24T09:18:09.740Z",
+            "EvictionDate": "2020-05-24T09:18:09.740Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3726,8 +3726,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-05-24T00:00:00.000Z",
-                "End": "2020-05-24T00:00:00.000Z"
+                "Start": "2020-05-24T09:18:09.740Z",
+                "End": "2020-05-24T09:18:19.740Z"
             },
             "Attributes": [
                 {
@@ -3752,13 +3752,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-05-24T09:18:09.740Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-05-31T00:00:00.000Z"
+                    "Value": "2020-05-24T09:18:19.740Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3786,8 +3786,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "6897330",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-03-12T00:00:00.000Z",
-            "EvictionDate": "2023-03-19T00:00:00.000Z",
+            "PublicationDate": "2023-03-12T21:30:03.688Z",
+            "EvictionDate": "2023-03-12T21:30:03.688Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3796,8 +3796,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-03-12T00:00:00.000Z",
-                "End": "2023-03-12T00:00:00.000Z"
+                "Start": "2023-03-12T21:30:03.688Z",
+                "End": "2023-03-12T21:30:13.688Z"
             },
             "Attributes": [
                 {
@@ -3822,13 +3822,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-03-12T21:30:03.688Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-03-19T00:00:00.000Z"
+                    "Value": "2023-03-12T21:30:13.688Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3856,8 +3856,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "5426928",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-05-24T00:00:00.000Z",
-            "EvictionDate": "2020-05-31T00:00:00.000Z",
+            "PublicationDate": "2020-05-24T13:50:22.448Z",
+            "EvictionDate": "2020-05-24T13:50:22.448Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3866,8 +3866,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-05-24T00:00:00.000Z",
-                "End": "2020-05-24T00:00:00.000Z"
+                "Start": "2020-05-24T13:50:22.448Z",
+                "End": "2020-05-24T13:50:32.448Z"
             },
             "Attributes": [
                 {
@@ -3892,13 +3892,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-05-24T13:50:22.448Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-05-31T00:00:00.000Z"
+                    "Value": "2020-05-24T13:50:32.448Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3926,8 +3926,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9910731",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-07-08T00:00:00.000Z",
-            "EvictionDate": "2020-07-15T00:00:00.000Z",
+            "PublicationDate": "2020-07-08T15:19:56.990Z",
+            "EvictionDate": "2020-07-08T15:19:56.990Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -3936,8 +3936,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-07-08T00:00:00.000Z",
-                "End": "2020-07-08T00:00:00.000Z"
+                "Start": "2020-07-08T15:19:56.990Z",
+                "End": "2020-07-08T15:20:06.990Z"
             },
             "Attributes": [
                 {
@@ -3962,13 +3962,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-07-08T15:19:56.990Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-07-15T00:00:00.000Z"
+                    "Value": "2020-07-08T15:20:06.990Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -3996,8 +3996,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "6822968",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-07-05T00:00:00.000Z",
-            "EvictionDate": "2023-07-12T00:00:00.000Z",
+            "PublicationDate": "2023-07-05T23:36:04.796Z",
+            "EvictionDate": "2023-07-05T23:36:04.796Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4006,8 +4006,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-07-05T00:00:00.000Z",
-                "End": "2023-07-05T00:00:00.000Z"
+                "Start": "2023-07-05T23:36:04.796Z",
+                "End": "2023-07-05T23:36:14.796Z"
             },
             "Attributes": [
                 {
@@ -4032,13 +4032,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-07-05T23:36:04.796Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-07-12T00:00:00.000Z"
+                    "Value": "2023-07-05T23:36:14.796Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4066,8 +4066,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "7003947",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-10-28T00:00:00.000Z",
-            "EvictionDate": "2020-11-04T00:00:00.000Z",
+            "PublicationDate": "2020-10-28T22:07:04.001Z",
+            "EvictionDate": "2020-10-28T22:07:04.001Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4076,8 +4076,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-11-04T00:00:00.000Z",
-                "End": "2020-11-04T00:00:00.000Z"
+                "Start": "2020-10-28T22:07:04.001Z",
+                "End": "2020-10-28T22:07:14.001Z"
             },
             "Attributes": [
                 {
@@ -4102,13 +4102,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-10-28T22:07:04.001Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-11-04T00:00:00.000Z"
+                    "Value": "2020-10-28T22:07:14.001Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4136,8 +4136,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "2284660",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-11-15T00:00:00.000Z",
-            "EvictionDate": "2021-11-22T00:00:00.000Z",
+            "PublicationDate": "2021-11-15T21:08:07.843Z",
+            "EvictionDate": "2021-11-15T21:08:07.843Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4146,8 +4146,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-11-15T00:00:00.000Z",
-                "End": "2021-11-15T00:00:00.000Z"
+                "Start": "2021-11-15T21:08:07.843Z",
+                "End": "2021-11-15T21:08:17.843Z"
             },
             "Attributes": [
                 {
@@ -4172,13 +4172,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-11-15T21:08:07.843Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-11-22T00:00:00.000Z"
+                    "Value": "2021-11-15T21:08:17.843Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4206,8 +4206,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3087520",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-01-23T00:00:00.000Z",
-            "EvictionDate": "2020-01-30T00:00:00.000Z",
+            "PublicationDate": "2020-01-23T00:05:36.311Z",
+            "EvictionDate": "2020-01-23T00:05:36.311Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4216,8 +4216,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-01-23T00:00:00.000Z",
-                "End": "2020-01-23T00:00:00.000Z"
+                "Start": "2020-01-23T00:05:36.311Z",
+                "End": "2020-01-23T00:05:46.311Z"
             },
             "Attributes": [
                 {
@@ -4242,13 +4242,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-01-23T00:05:36.311Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-01-30T00:00:00.000Z"
+                    "Value": "2020-01-23T00:05:46.311Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4276,8 +4276,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1411195",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-09-11T00:00:00.000Z",
-            "EvictionDate": "2021-09-18T00:00:00.000Z",
+            "PublicationDate": "2021-09-11T12:56:58.044Z",
+            "EvictionDate": "2021-09-11T12:56:58.044Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4286,8 +4286,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-09-11T00:00:00.000Z",
-                "End": "2021-09-11T00:00:00.000Z"
+                "Start": "2021-09-11T12:56:58.044Z",
+                "End": "2021-09-11T12:57:08.044Z"
             },
             "Attributes": [
                 {
@@ -4312,13 +4312,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-09-11T12:56:58.044Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-09-18T00:00:00.000Z"
+                    "Value": "2021-09-11T12:57:08.044Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4346,8 +4346,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "5737558",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-04-18T00:00:00.000Z",
-            "EvictionDate": "2020-04-25T00:00:00.000Z",
+            "PublicationDate": "2020-04-18T16:10:47.216Z",
+            "EvictionDate": "2020-04-18T16:10:47.216Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4356,8 +4356,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-04-18T00:00:00.000Z",
-                "End": "2020-04-18T00:00:00.000Z"
+                "Start": "2020-04-18T16:10:47.216Z",
+                "End": "2020-04-18T16:10:57.216Z"
             },
             "Attributes": [
                 {
@@ -4382,13 +4382,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-04-18T16:10:47.216Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-04-25T00:00:00.000Z"
+                    "Value": "2020-04-18T16:10:57.216Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4416,8 +4416,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1827609",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-10-07T00:00:00.000Z",
-            "EvictionDate": "2023-10-14T00:00:00.000Z",
+            "PublicationDate": "2023-10-07T16:34:01.765Z",
+            "EvictionDate": "2023-10-07T16:34:01.765Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4426,8 +4426,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-10-07T00:00:00.000Z",
-                "End": "2023-10-07T00:00:00.000Z"
+                "Start": "2023-10-07T16:34:01.765Z",
+                "End": "2023-10-07T16:34:11.765Z"
             },
             "Attributes": [
                 {
@@ -4452,13 +4452,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-10-07T16:34:01.765Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-10-14T00:00:00.000Z"
+                    "Value": "2023-10-07T16:34:11.765Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4486,8 +4486,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1305760",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-05-09T00:00:00.000Z",
-            "EvictionDate": "2020-05-16T00:00:00.000Z",
+            "PublicationDate": "2020-05-09T01:39:40.707Z",
+            "EvictionDate": "2020-05-09T01:39:40.707Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4496,8 +4496,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-05-09T00:00:00.000Z",
-                "End": "2020-05-09T00:00:00.000Z"
+                "Start": "2020-05-09T01:39:40.707Z",
+                "End": "2020-05-09T01:39:50.707Z"
             },
             "Attributes": [
                 {
@@ -4522,13 +4522,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-05-09T01:39:40.707Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-05-16T00:00:00.000Z"
+                    "Value": "2020-05-09T01:39:50.707Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4556,8 +4556,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9502061",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-06-23T00:00:00.000Z",
-            "EvictionDate": "2020-06-30T00:00:00.000Z",
+            "PublicationDate": "2020-06-23T02:30:34.926Z",
+            "EvictionDate": "2020-06-23T02:30:34.926Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4566,8 +4566,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-06-23T00:00:00.000Z",
-                "End": "2020-06-23T00:00:00.000Z"
+                "Start": "2020-06-23T02:30:34.926Z",
+                "End": "2020-06-23T02:30:44.926Z"
             },
             "Attributes": [
                 {
@@ -4592,13 +4592,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-06-23T02:30:34.926Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-06-30T00:00:00.000Z"
+                    "Value": "2020-06-23T02:30:44.926Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4626,8 +4626,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3404733",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2022-01-15T00:00:00.000Z",
-            "EvictionDate": "2022-01-22T00:00:00.000Z",
+            "PublicationDate": "2022-01-15T18:39:34.121Z",
+            "EvictionDate": "2022-01-15T18:39:34.121Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4636,8 +4636,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2022-01-15T00:00:00.000Z",
-                "End": "2022-01-15T00:00:00.000Z"
+                "Start": "2022-01-15T18:39:34.121Z",
+                "End": "2022-01-15T18:39:44.121Z"
             },
             "Attributes": [
                 {
@@ -4662,13 +4662,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2022-01-15T18:39:34.121Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2022-01-22T00:00:00.000Z"
+                    "Value": "2022-01-15T18:39:44.121Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4696,8 +4696,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3792150",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-11-25T00:00:00.000Z",
-            "EvictionDate": "2021-12-02T00:00:00.000Z",
+            "PublicationDate": "2021-11-25T00:50:59.342Z",
+            "EvictionDate": "2021-11-25T00:50:59.342Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4706,8 +4706,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-12-02T00:00:00.000Z",
-                "End": "2021-12-02T00:00:00.000Z"
+                "Start": "2021-11-25T00:50:59.342Z",
+                "End": "2021-11-25T00:51:09.342Z"
             },
             "Attributes": [
                 {
@@ -4732,13 +4732,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-11-25T00:50:59.342Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-12-02T00:00:00.000Z"
+                    "Value": "2021-11-25T00:51:09.342Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4766,8 +4766,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "2182853",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2024-05-14T00:00:00.000Z",
-            "EvictionDate": "2024-05-21T00:00:00.000Z",
+            "PublicationDate": "2024-05-14T09:10:52.206Z",
+            "EvictionDate": "2024-05-14T09:10:52.206Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4776,8 +4776,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2024-05-14T00:00:00.000Z",
-                "End": "2024-05-14T00:00:00.000Z"
+                "Start": "2024-05-14T09:10:52.206Z",
+                "End": "2024-05-14T09:11:02.206Z"
             },
             "Attributes": [
                 {
@@ -4802,13 +4802,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2024-05-14T09:10:52.206Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-05-21T00:00:00.000Z"
+                    "Value": "2024-05-14T09:11:02.206Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4836,8 +4836,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "2024009",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-04-15T00:00:00.000Z",
-            "EvictionDate": "2021-04-22T00:00:00.000Z",
+            "PublicationDate": "2021-04-15T01:13:24.085Z",
+            "EvictionDate": "2021-04-15T01:13:24.085Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4846,8 +4846,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-04-15T00:00:00.000Z",
-                "End": "2021-04-15T00:00:00.000Z"
+                "Start": "2021-04-15T01:13:24.085Z",
+                "End": "2021-04-15T01:13:34.085Z"
             },
             "Attributes": [
                 {
@@ -4872,13 +4872,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-04-15T01:13:24.085Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-04-22T00:00:00.000Z"
+                    "Value": "2021-04-15T01:13:34.085Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4906,8 +4906,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "2599455",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2024-02-04T00:00:00.000Z",
-            "EvictionDate": "2024-02-11T00:00:00.000Z",
+            "PublicationDate": "2024-02-04T07:58:06.866Z",
+            "EvictionDate": "2024-02-04T07:58:06.866Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4916,8 +4916,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2024-02-04T00:00:00.000Z",
-                "End": "2024-02-04T00:00:00.000Z"
+                "Start": "2024-02-04T07:58:06.866Z",
+                "End": "2024-02-04T07:58:16.866Z"
             },
             "Attributes": [
                 {
@@ -4942,13 +4942,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2024-02-04T07:58:06.866Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-02-11T00:00:00.000Z"
+                    "Value": "2024-02-04T07:58:16.866Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -4976,8 +4976,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "7932920",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-08-22T00:00:00.000Z",
-            "EvictionDate": "2020-08-29T00:00:00.000Z",
+            "PublicationDate": "2020-08-22T14:23:12.538Z",
+            "EvictionDate": "2020-08-22T14:23:12.538Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -4986,8 +4986,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-08-22T00:00:00.000Z",
-                "End": "2020-08-22T00:00:00.000Z"
+                "Start": "2020-08-22T14:23:12.538Z",
+                "End": "2020-08-22T14:23:22.538Z"
             },
             "Attributes": [
                 {
@@ -5012,13 +5012,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-08-22T14:23:12.538Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-08-29T00:00:00.000Z"
+                    "Value": "2020-08-22T14:23:22.538Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5046,8 +5046,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "8437006",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-10-13T00:00:00.000Z",
-            "EvictionDate": "2023-10-20T00:00:00.000Z",
+            "PublicationDate": "2023-10-13T14:37:05.498Z",
+            "EvictionDate": "2023-10-13T14:37:05.498Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5056,8 +5056,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-10-13T00:00:00.000Z",
-                "End": "2023-10-13T00:00:00.000Z"
+                "Start": "2023-10-13T14:37:05.498Z",
+                "End": "2023-10-13T14:37:15.498Z"
             },
             "Attributes": [
                 {
@@ -5082,13 +5082,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-10-13T14:37:05.498Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-10-20T00:00:00.000Z"
+                    "Value": "2023-10-13T14:37:15.498Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5116,8 +5116,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "4246992",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-05-16T00:00:00.000Z",
-            "EvictionDate": "2020-05-23T00:00:00.000Z",
+            "PublicationDate": "2020-05-16T02:22:59.606Z",
+            "EvictionDate": "2020-05-16T02:22:59.606Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5126,8 +5126,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-05-16T00:00:00.000Z",
-                "End": "2020-05-16T00:00:00.000Z"
+                "Start": "2020-05-16T02:22:59.606Z",
+                "End": "2020-05-16T02:23:09.606Z"
             },
             "Attributes": [
                 {
@@ -5152,13 +5152,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-05-16T02:22:59.606Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-05-23T00:00:00.000Z"
+                    "Value": "2020-05-16T02:23:09.606Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5186,8 +5186,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "7539646",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-06-30T00:00:00.000Z",
-            "EvictionDate": "2020-07-07T00:00:00.000Z",
+            "PublicationDate": "2020-06-30T22:10:31.789Z",
+            "EvictionDate": "2020-06-30T22:10:31.789Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5196,8 +5196,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-06-30T00:00:00.000Z",
-                "End": "2020-06-30T00:00:00.000Z"
+                "Start": "2020-06-30T22:10:31.789Z",
+                "End": "2020-06-30T22:10:41.789Z"
             },
             "Attributes": [
                 {
@@ -5222,13 +5222,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-06-30T22:10:31.789Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-07-07T00:00:00.000Z"
+                    "Value": "2020-06-30T22:10:41.789Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5256,8 +5256,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9320998",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-09-24T00:00:00.000Z",
-            "EvictionDate": "2021-10-01T00:00:00.000Z",
+            "PublicationDate": "2021-09-24T08:10:50.214Z",
+            "EvictionDate": "2021-09-24T08:10:50.214Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5266,8 +5266,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-09-24T00:00:00.000Z",
-                "End": "2021-09-24T00:00:00.000Z"
+                "Start": "2021-09-24T08:10:50.214Z",
+                "End": "2021-09-24T08:11:00.214Z"
             },
             "Attributes": [
                 {
@@ -5292,13 +5292,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-09-24T08:10:50.214Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-10-01T00:00:00.000Z"
+                    "Value": "2021-09-24T08:11:00.214Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5326,8 +5326,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "2137306",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2022-01-26T00:00:00.000Z",
-            "EvictionDate": "2022-02-02T00:00:00.000Z",
+            "PublicationDate": "2022-01-26T23:39:37.240Z",
+            "EvictionDate": "2022-01-26T23:39:37.240Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5336,8 +5336,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2022-02-02T00:00:00.000Z",
-                "End": "2022-02-02T00:00:00.000Z"
+                "Start": "2022-01-26T23:39:37.240Z",
+                "End": "2022-01-26T23:39:47.240Z"
             },
             "Attributes": [
                 {
@@ -5362,13 +5362,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2022-01-26T23:39:37.240Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2022-02-02T00:00:00.000Z"
+                    "Value": "2022-01-26T23:39:47.240Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5396,8 +5396,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "4346434",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-02-06T00:00:00.000Z",
-            "EvictionDate": "2023-02-13T00:00:00.000Z",
+            "PublicationDate": "2023-02-06T11:00:38.984Z",
+            "EvictionDate": "2023-02-06T11:00:38.984Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5406,8 +5406,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-02-06T00:00:00.000Z",
-                "End": "2023-02-06T00:00:00.000Z"
+                "Start": "2023-02-06T11:00:38.984Z",
+                "End": "2023-02-06T11:00:48.984Z"
             },
             "Attributes": [
                 {
@@ -5432,13 +5432,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-02-06T11:00:38.984Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-02-13T00:00:00.000Z"
+                    "Value": "2023-02-06T11:00:48.984Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5466,8 +5466,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "4053522",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-05-29T00:00:00.000Z",
-            "EvictionDate": "2021-06-05T00:00:00.000Z",
+            "PublicationDate": "2021-05-29T16:12:20.481Z",
+            "EvictionDate": "2021-05-29T16:12:20.481Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5476,8 +5476,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-05-29T00:00:00.000Z",
-                "End": "2021-05-29T00:00:00.000Z"
+                "Start": "2021-05-29T16:12:20.481Z",
+                "End": "2021-05-29T16:12:30.481Z"
             },
             "Attributes": [
                 {
@@ -5502,13 +5502,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-05-29T16:12:20.481Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-06-05T00:00:00.000Z"
+                    "Value": "2021-05-29T16:12:30.481Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5536,8 +5536,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "5263435",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-01-06T00:00:00.000Z",
-            "EvictionDate": "2021-01-13T00:00:00.000Z",
+            "PublicationDate": "2021-01-06T20:07:02.066Z",
+            "EvictionDate": "2021-01-06T20:07:02.066Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5546,8 +5546,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-01-06T00:00:00.000Z",
-                "End": "2021-01-06T00:00:00.000Z"
+                "Start": "2021-01-06T20:07:02.066Z",
+                "End": "2021-01-06T20:07:12.066Z"
             },
             "Attributes": [
                 {
@@ -5572,13 +5572,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-01-06T20:07:02.066Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-01-13T00:00:00.000Z"
+                    "Value": "2021-01-06T20:07:12.066Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5606,8 +5606,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "9981408",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2024-05-27T00:00:00.000Z",
-            "EvictionDate": "2024-06-03T00:00:00.000Z",
+            "PublicationDate": "2024-05-27T09:44:09.509Z",
+            "EvictionDate": "2024-05-27T09:44:09.509Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5616,8 +5616,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2024-05-27T00:00:00.000Z",
-                "End": "2024-05-27T00:00:00.000Z"
+                "Start": "2024-05-27T09:44:09.509Z",
+                "End": "2024-05-27T09:44:19.509Z"
             },
             "Attributes": [
                 {
@@ -5642,13 +5642,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2024-05-27T09:44:09.509Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-06-03T00:00:00.000Z"
+                    "Value": "2024-05-27T09:44:19.509Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5676,8 +5676,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3556917",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-02-28T00:00:00.000Z",
-            "EvictionDate": "2020-03-06T00:00:00.000Z",
+            "PublicationDate": "2020-02-28T10:27:59.318Z",
+            "EvictionDate": "2020-02-28T10:27:59.318Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5686,8 +5686,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-02-28T00:00:00.000Z",
-                "End": "2020-02-28T00:00:00.000Z"
+                "Start": "2020-02-28T10:27:59.318Z",
+                "End": "2020-02-28T10:28:09.318Z"
             },
             "Attributes": [
                 {
@@ -5712,13 +5712,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-02-28T10:27:59.318Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-03-06T00:00:00.000Z"
+                    "Value": "2020-02-28T10:28:09.318Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5746,8 +5746,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1332116",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-04-13T00:00:00.000Z",
-            "EvictionDate": "2020-04-20T00:00:00.000Z",
+            "PublicationDate": "2020-04-13T11:39:33.755Z",
+            "EvictionDate": "2020-04-13T11:39:33.755Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5756,8 +5756,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-04-13T00:00:00.000Z",
-                "End": "2020-04-13T00:00:00.000Z"
+                "Start": "2020-04-13T11:39:33.755Z",
+                "End": "2020-04-13T11:39:43.755Z"
             },
             "Attributes": [
                 {
@@ -5782,13 +5782,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-04-13T11:39:33.755Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-04-20T00:00:00.000Z"
+                    "Value": "2020-04-13T11:39:43.755Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5816,8 +5816,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1554558",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-02-16T00:00:00.000Z",
-            "EvictionDate": "2023-02-23T00:00:00.000Z",
+            "PublicationDate": "2023-02-16T09:09:22.404Z",
+            "EvictionDate": "2023-02-16T09:09:22.404Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5826,8 +5826,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-02-16T00:00:00.000Z",
-                "End": "2023-02-16T00:00:00.000Z"
+                "Start": "2023-02-16T09:09:22.404Z",
+                "End": "2023-02-16T09:09:32.404Z"
             },
             "Attributes": [
                 {
@@ -5852,13 +5852,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-02-16T09:09:22.404Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-02-23T00:00:00.000Z"
+                    "Value": "2023-02-16T09:09:32.404Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5886,8 +5886,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "1922340",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-04-09T00:00:00.000Z",
-            "EvictionDate": "2020-04-16T00:00:00.000Z",
+            "PublicationDate": "2020-04-09T19:45:55.673Z",
+            "EvictionDate": "2020-04-09T19:45:55.673Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5896,8 +5896,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-04-16T00:00:00.000Z",
-                "End": "2020-04-16T00:00:00.000Z"
+                "Start": "2020-04-09T19:45:55.673Z",
+                "End": "2020-04-09T19:46:05.673Z"
             },
             "Attributes": [
                 {
@@ -5922,13 +5922,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-04-09T19:45:55.673Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-04-16T00:00:00.000Z"
+                    "Value": "2020-04-09T19:46:05.673Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -5956,8 +5956,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "5003183",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-09-02T00:00:00.000Z",
-            "EvictionDate": "2021-09-09T00:00:00.000Z",
+            "PublicationDate": "2021-09-02T04:35:11.181Z",
+            "EvictionDate": "2021-09-02T04:35:11.181Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -5966,8 +5966,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-09-02T00:00:00.000Z",
-                "End": "2021-09-02T00:00:00.000Z"
+                "Start": "2021-09-02T04:35:11.181Z",
+                "End": "2021-09-02T04:35:21.181Z"
             },
             "Attributes": [
                 {
@@ -5992,13 +5992,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-09-02T04:35:11.181Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-09-09T00:00:00.000Z"
+                    "Value": "2021-09-02T04:35:21.181Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -6026,8 +6026,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "6543813",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-11-27T00:00:00.000Z",
-            "EvictionDate": "2020-12-04T00:00:00.000Z",
+            "PublicationDate": "2020-11-27T08:15:19.717Z",
+            "EvictionDate": "2020-11-27T08:15:19.717Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -6036,8 +6036,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-11-27T00:00:00.000Z",
-                "End": "2020-11-27T00:00:00.000Z"
+                "Start": "2020-11-27T08:15:19.717Z",
+                "End": "2020-11-27T08:15:29.717Z"
             },
             "Attributes": [
                 {
@@ -6062,13 +6062,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-11-27T08:15:19.717Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-12-04T00:00:00.000Z"
+                    "Value": "2020-11-27T08:15:29.717Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -6096,8 +6096,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "2029769",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2021-07-16T00:00:00.000Z",
-            "EvictionDate": "2021-07-23T00:00:00.000Z",
+            "PublicationDate": "2021-07-16T07:50:55.561Z",
+            "EvictionDate": "2021-07-16T07:50:55.561Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -6106,8 +6106,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2021-07-16T00:00:00.000Z",
-                "End": "2021-07-16T00:00:00.000Z"
+                "Start": "2021-07-16T07:50:55.561Z",
+                "End": "2021-07-16T07:51:05.561Z"
             },
             "Attributes": [
                 {
@@ -6132,13 +6132,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2021-07-16T07:50:55.561Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2021-07-23T00:00:00.000Z"
+                    "Value": "2021-07-16T07:51:05.561Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -6166,8 +6166,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "4286659",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-03-25T00:00:00.000Z",
-            "EvictionDate": "2020-04-01T00:00:00.000Z",
+            "PublicationDate": "2020-03-25T01:55:26.547Z",
+            "EvictionDate": "2020-03-25T01:55:26.547Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -6176,8 +6176,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-03-25T00:00:00.000Z",
-                "End": "2020-03-25T00:00:00.000Z"
+                "Start": "2020-03-25T01:55:26.547Z",
+                "End": "2020-03-25T01:55:36.547Z"
             },
             "Attributes": [
                 {
@@ -6202,13 +6202,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-03-25T01:55:26.547Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-04-01T00:00:00.000Z"
+                    "Value": "2020-03-25T01:55:36.547Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -6236,8 +6236,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3702370",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2023-03-14T00:00:00.000Z",
-            "EvictionDate": "2023-03-21T00:00:00.000Z",
+            "PublicationDate": "2023-03-14T03:09:21.261Z",
+            "EvictionDate": "2023-03-14T03:09:21.261Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -6246,8 +6246,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2023-03-14T00:00:00.000Z",
-                "End": "2023-03-14T00:00:00.000Z"
+                "Start": "2023-03-14T03:09:21.261Z",
+                "End": "2023-03-14T03:09:31.261Z"
             },
             "Attributes": [
                 {
@@ -6272,13 +6272,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2023-03-14T03:09:21.261Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2023-03-21T00:00:00.000Z"
+                    "Value": "2023-03-14T03:09:31.261Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -6306,8 +6306,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "4250772",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-02-21T00:00:00.000Z",
-            "EvictionDate": "2020-02-28T00:00:00.000Z",
+            "PublicationDate": "2020-02-21T20:08:11.338Z",
+            "EvictionDate": "2020-02-21T20:08:11.338Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -6316,8 +6316,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-02-21T00:00:00.000Z",
-                "End": "2020-02-21T00:00:00.000Z"
+                "Start": "2020-02-21T20:08:11.338Z",
+                "End": "2020-02-21T20:08:21.338Z"
             },
             "Attributes": [
                 {
@@ -6342,13 +6342,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-02-21T20:08:11.338Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-02-28T00:00:00.000Z"
+                    "Value": "2020-02-21T20:08:21.338Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -6376,8 +6376,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "6060922",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2020-04-06T00:00:00.000Z",
-            "EvictionDate": "2020-04-13T00:00:00.000Z",
+            "PublicationDate": "2020-04-06T17:59:25.023Z",
+            "EvictionDate": "2020-04-06T17:59:25.023Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -6386,8 +6386,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2020-04-06T00:00:00.000Z",
-                "End": "2020-04-06T00:00:00.000Z"
+                "Start": "2020-04-06T17:59:25.023Z",
+                "End": "2020-04-06T17:59:35.023Z"
             },
             "Attributes": [
                 {
@@ -6412,13 +6412,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2020-04-06T17:59:25.023Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2020-04-13T00:00:00.000Z"
+                    "Value": "2020-04-06T17:59:35.023Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -6446,8 +6446,8 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3169203",
             "OriginDate": "2024-04-12T15:16:47.000Z",
-            "PublicationDate": "2024-01-06T00:00:00.000Z",
-            "EvictionDate": "2024-01-13T00:00:00.000Z",
+            "PublicationDate": "2024-01-06T07:20:58.166Z",
+            "EvictionDate": "2024-01-06T07:20:58.166Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
@@ -6456,8 +6456,8 @@
                 }
             ],
             "ContentDate": {
-                "Start": "2024-01-06T00:00:00.000Z",
-                "End": "2024-01-06T00:00:00.000Z"
+                "Start": "2024-01-06T07:20:58.166Z",
+                "End": "2024-01-06T07:21:08.166Z"
             },
             "Attributes": [
                 {
@@ -6482,13 +6482,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-04-12T15:16:47.000Z"
+                    "Value": "2024-01-06T07:20:58.166Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2024-01-13T00:00:00.000Z"
+                    "Value": "2024-01-06T07:21:08.166Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
