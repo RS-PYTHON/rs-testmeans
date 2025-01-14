@@ -249,7 +249,7 @@ def process_products_request(request, headers):
         return (
             Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTP_NOT_FOUND)
+            else Response(status=HTTP_OK, response=json.dumps({"value": []}))
         )
     elif "ContentDate" in request.args["$filter"]:
         pattern = r"Start (\S+) (\S+) and ContentDate/End (\S+) (\S+)"
@@ -280,7 +280,7 @@ def process_products_request(request, headers):
         return (
             Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTP_NOT_FOUND)
+            else Response(status=HTTP_OK, response=json.dumps({"value": []}))
         )
     elif "Attributes" in request.args["$filter"]:
         pass  # WIP
