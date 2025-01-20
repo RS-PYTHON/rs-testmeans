@@ -148,7 +148,7 @@ def prepare_response_odata_v4(resp_body: list | map) -> Any:
     """
     unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
     try:
-        data = json.dumps(dict(value=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0])
+        data = json.dumps(dict(value=unpacked)) # if len(unpacked) > 1 else json.dumps(unpacked[0])
     except IndexError:
         return json.dumps({"value": []})
     return data

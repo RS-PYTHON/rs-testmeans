@@ -132,7 +132,7 @@ def batch_response_odata_v4(resp_body: list | map) -> Any:
     """Docstring to be added."""
     unpacked = list(resp_body) if resp_body and not isinstance(resp_body, list) else resp_body
     try:
-        data = json.dumps(dict(value=unpacked)) if len(unpacked) > 1 else json.dumps(unpacked[0] if unpacked else [])
+        data = json.dumps(dict(value=unpacked)) # if len(unpacked) > 1 else json.dumps(unpacked[0] if unpacked else [])
     except IndexError:
         return json.dumps({"value": []})
     return data
