@@ -115,6 +115,12 @@ def additional_options(func):
             return response
         if "value" not in json_data:
             return json_data
+        if "$orderby" in display_headers:
+            if " " in display_headers["$orderby"]:
+                field, ordering_type = display_headers["$orderby"].split(" ")
+            else:
+                field, ordering_type = display_headers["$orderby"], "desc"
+            json_data = sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
         # ICD extract:
         # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
         skip_value = int(display_headers.get("$skip", 0))
@@ -125,12 +131,6 @@ def additional_options(func):
         if "$top" in display_headers:
             # No slicing if there is only one result
             json_data['value'] = json_data['value'][:top_value]
-        if "$orderby" in display_headers:
-            if " " in display_headers["$orderby"]:
-                field, ordering_type = display_headers["$orderby"].split(" ")
-            else:
-                field, ordering_type = display_headers["$orderby"], "desc"
-            json_data = sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
                 
         return prepare_response_odata_v4(json_data['value'])
 
