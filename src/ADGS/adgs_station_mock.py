@@ -575,7 +575,12 @@ def token():
         logger.error("Unsupported grant_type. The token is not granted")
         return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
     # Return the token in JSON format
-    response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
+    response = {
+        "access_token": config_auth["token"],
+        "refresh_token": config_auth["refresh_token"], 
+        "token_type": "Bearer", 
+        "expires_in": 3600
+    }
     logger.info("Grant type validated. Token sent back")
     return Response(status=HTTP_OK, response=json.dumps(response))
 
