@@ -579,7 +579,7 @@ def token():
         "access_token": config_auth["token"],
         "refresh_token": config_auth["refresh_token"], 
         "token_type": "Bearer", 
-        "expires_in": 3600
+        "expires_in": 10
     }
     logger.info("Grant type validated. Token sent back")
     return Response(status=HTTP_OK, response=json.dumps(response))
