@@ -27,6 +27,17 @@ HTTP_NOT_FOUND = 404
 
 aditional_operators = [" and ", " or ", " in ", " not "]
 
+
+CONFIG_AUTH = {
+	"client_id": "client_id",
+	"client_secret": "client_secret",
+	"username" : "test",
+	"password" : "test",
+	"grant_type" : "password",
+	"token" : "",
+	"refresh_token": ""
+}
+
 def token_required(f):
     """Decorator to enforce token-based authentication for a Flask route.
 
@@ -71,8 +82,8 @@ def token_required(f):
         
 
         auth_path = app.config["configuration_path"] / "auth.json"
-        config_auth = json.loads(open(auth_path).read())        
-        if token != config_auth["token"]:
+        ###config_auth = json.loads(open(auth_path).read())        
+        if token != CONFIG_AUTH["token"]:
             logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
             return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
 
@@ -544,7 +555,7 @@ def token():
     # Get the form data
     logger.info("Endpoint oauth2/token called")
     auth_path = app.config["configuration_path"] / "auth.json"
-    config_auth = json.loads(open(auth_path).read())
+    ###config_auth = json.loads(open(auth_path).read())
     client_id = request.form.get("client_id")
     client_secret = request.form.get("client_secret")
     username = request.form.get("username")
@@ -564,29 +575,29 @@ def token():
         logger.error("Invalid client. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
 
-    if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
+    if client_id != CONFIG_AUTH["client_id"] or client_secret != CONFIG_AUTH["client_secret"]:
         logger.error("Invalid client id and/or secret. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": 
                                                                        f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
-    if username != config_auth["username"] or password != config_auth["password"]:
+    if username != CONFIG_AUTH["username"] or password != CONFIG_AUTH["password"]:
         logger.error("Invalid username and/or password. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
     # Validate the grant_type
-    if grant_type != config_auth["grant_type"]:
+    if grant_type != CONFIG_AUTH["grant_type"]:
         logger.error("Unsupported grant_type. The token is not granted")
         return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
     
     # Return random access and refresh tokens in JSON format
+    CONFIG_AUTH["token"] = ''.join(random.choices(string.ascii_letters, k=59))
+    CONFIG_AUTH["refresh_token"] = ''.join(random.choices(string.ascii_letters, k=59))
     response = {
-        "access_token": ''.join(random.choices(string.ascii_letters, k=59)),###config_auth["token"],
-        "refresh_token":''.join(random.choices(string.ascii_letters, k=59)),###config_auth["refresh_token"], 
+        "access_token": CONFIG_AUTH["token"],###config_auth["token"],
+        "refresh_token": CONFIG_AUTH["refresh_token"],###config_auth["refresh_token"], 
         "token_type": "Bearer", 
-        "expires_in": 10
+        "expires_in": 10,
     }
     logger.info("Grant type validated. Token sent back")
     return Response(status=HTTP_OK, response=json.dumps(response))
-
-
 
 def create_adgs_app():
     """Docstring to be added."""
