@@ -8,7 +8,8 @@ import re
 import sys
 from functools import wraps
 from typing import Any
-
+import random
+import string
 from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
@@ -574,10 +575,11 @@ def token():
     if grant_type != config_auth["grant_type"]:
         logger.error("Unsupported grant_type. The token is not granted")
         return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
-    # Return the token in JSON format
+    
+    # Return random access and refresh tokens in JSON format
     response = {
-        "access_token": config_auth["token"],
-        "refresh_token": config_auth["refresh_token"], 
+        "access_token": ''.join(random.choices(string.ascii_letters, k=59)),###config_auth["token"],
+        "refresh_token":''.join(random.choices(string.ascii_letters, k=59)),###config_auth["refresh_token"], 
         "token_type": "Bearer", 
         "expires_in": 10
     }
