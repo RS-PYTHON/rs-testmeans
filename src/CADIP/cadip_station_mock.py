@@ -298,17 +298,7 @@ def manage_int_querry(op, value, catalog_data, field, headers):
 
 def manage_bool_querry(op, value, catalog_data, field, headers):
     """Docstring to be added."""
-    try:
-        value = bool(value)
-    except ValueError:
-        return Response(status=HTTP_BAD_REQUEST)
-    match op:
-        case "eq":
-            query_result = [product for product in catalog_data["Data"] if value == product[field]]
-        case "lt":
-            query_result = [product for product in catalog_data["Data"] if value < product[field]]
-        case "gt":
-            query_result = [product for product in catalog_data["Data"] if value > product[field]]
+    query_result = [product for product in catalog_data["Data"] if value.lower() == str(product[field]).lower()]
     return (
         Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
