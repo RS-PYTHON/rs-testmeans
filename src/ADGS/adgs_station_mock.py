@@ -28,16 +28,6 @@ HTTP_NOT_FOUND = 404
 aditional_operators = [" and ", " or ", " in ", " not "]
 
 
-CONFIG_AUTH = {
-	"client_id": "client_id",
-	"client_secret": "client_secret",
-	"username" : "test",
-	"password" : "test",
-	"grant_type" : "password",
-	"token" : "",
-	"refresh_token": ""
-}
-
 def token_required(f):
     """Decorator to enforce token-based authentication for a Flask route.
 
@@ -80,9 +70,6 @@ def token_required(f):
             logger.error("Returning HTTP_UNAUTHORIZED. Token is missing")
             return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
         
-
-        auth_path = app.config["configuration_path"] / "auth.json"
-        ###config_auth = json.loads(open(auth_path).read())        
         if token != CONFIG_AUTH["token"]:
             logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
             return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
@@ -179,8 +166,7 @@ def verify_password(username: str, password: str) -> bool:
     :return: True if the password is valid, False otherwise.
     :rtype: Optional[bool]
     """
-    auth_path = app.config["configuration_path"] / "auth.json"
-    users = json.loads(open(auth_path).read())
+    users = json.loads(open(AUTH_PATH).read())
     if username in users.keys():
         return bcrypt.check_password_hash(users.get(username), password)
     return False
@@ -554,8 +540,6 @@ def token():
     """
     # Get the form data
     logger.info("Endpoint oauth2/token called")
-    auth_path = app.config["configuration_path"] / "auth.json"
-    ###config_auth = json.loads(open(auth_path).read())
     client_id = request.form.get("client_id")
     client_secret = request.form.get("client_secret")
     username = request.form.get("username")
@@ -587,14 +571,15 @@ def token():
         logger.error("Unsupported grant_type. The token is not granted")
         return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
     
-    # Return random access and refresh tokens in JSON format
+    # Return a random access token and a refresh token in JSON format
     CONFIG_AUTH["token"] = ''.join(random.choices(string.ascii_letters, k=59))
     CONFIG_AUTH["refresh_token"] = ''.join(random.choices(string.ascii_letters, k=59))
     response = {
-        "access_token": CONFIG_AUTH["token"],###config_auth["token"],
-        "refresh_token": CONFIG_AUTH["refresh_token"],###config_auth["refresh_token"], 
+        "access_token": CONFIG_AUTH["token"],
         "token_type": "Bearer", 
         "expires_in": 70,
+        "refresh_token": CONFIG_AUTH["refresh_token"],
+        "refresh_expires_in": 1800,
     }
     logger.info("Grant type validated. Token sent back")
     return Response(status=HTTP_OK, response=json.dumps(response))
@@ -628,5 +613,8 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             print("Using default config")
     app.config["configuration_path"] = configuration_path
+    AUTH_PATH = app.config["configuration_path"] / "auth.json"
+    CONFIG_AUTH = json.loads(open(AUTH_PATH).read())       
+    
     app.run(debug=True, host=args.host, port=args.port)  # local
     # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN

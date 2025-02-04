@@ -14,7 +14,8 @@ from flask import Flask, Response, request, redirect, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 import multiprocessing
-
+import random
+import string
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -73,10 +74,7 @@ def token_required(f):
             logger.error("Returning HTTP_UNAUTHORIZED. Token is missing")
             return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
         
-
-        auth_path = app.config["configuration_path"] / "auth.json"
-        config_auth = json.loads(open(auth_path).read())        
-        if token != config_auth["token"]:
+        if token != CONFIG_AUTH["token"]:
             logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
             return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
 
@@ -141,8 +139,7 @@ def batch_response_odata_v4(resp_body: list | map) -> Any:
 @auth.verify_password
 def verify_password(username, password) -> bool:
     """Docstring to be added."""
-    auth_path = app.config["configuration_path"] / "auth.json"
-    users = json.loads(open(auth_path).read())
+    users = json.loads(open(AUTH_PATH).read())
     if username in users.keys():
         return bcrypt.check_password_hash(users.get(username), password)
     return False
@@ -637,8 +634,6 @@ def token():
     """
     # Get the form data
     logger.info("Endpoint oauth2/token called")
-    auth_path = app.config["configuration_path"] / "auth.json"
-    config_auth = json.loads(open(auth_path).read())
     client_id = request.form.get("client_id")
     client_secret = request.form.get("client_secret")
     username = request.form.get("username")
@@ -658,19 +653,29 @@ def token():
         logger.error("Invalid client. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
 
-    if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
+    if client_id != CONFIG_AUTH["client_id"] or client_secret != CONFIG_AUTH["client_secret"]:
         logger.error("Invalid client id and/or secret. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": 
                                                                        f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
-    if username != config_auth["username"] or password != config_auth["password"]:
+    if username != CONFIG_AUTH["username"] or password != CONFIG_AUTH["password"]:
         logger.error("Invalid username and/or password. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
     # Validate the grant_type
-    if grant_type != config_auth["grant_type"]:
+    if grant_type != CONFIG_AUTH["grant_type"]:
         logger.error("Unsupported grant_type. The token is not granted")
         return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
-    # Return the token in JSON format
-    response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
+    
+    # Return a random access token and a refresh token in JSON format
+    CONFIG_AUTH["token"] = ''.join(random.choices(string.ascii_letters, k=59))
+    CONFIG_AUTH["refresh_token"] = ''.join(random.choices(string.ascii_letters, k=59))
+    response = {
+        "access_token": CONFIG_AUTH["token"],
+        "token_type": "Bearer", 
+        "expires_in": 70,
+        "refresh_token": CONFIG_AUTH["refresh_token"],
+        "refresh_expires_in": 1800,
+    }
+    
     logger.info("Grant type validated. Token sent back")
     return Response(status=HTTP_OK, response=json.dumps(response))
 
@@ -717,6 +722,8 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
+    AUTH_PATH = app.config["configuration_path"] / "auth.json"
+    CONFIG_AUTH = json.loads(open(AUTH_PATH).read())  
 
     if os.getenv("HTTP_REDIRECTION_HREF", None) and args.redirection_port:
         multiprocessing.set_start_method("fork")
