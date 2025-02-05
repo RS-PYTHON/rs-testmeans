@@ -185,6 +185,7 @@ def query_session() -> Response | list[Any]:
     # accepted_operators = [" and ", " or ", " in ", " not ", "and ", " or ", " in ", " not", "and", "or", "in", "not"]
     # split_request = [req.strip() for req in request.args["$filter"].split('and')]
     # Handle multiple "AND" / "OR" operands
+
     if len(split_request := [req.strip() for req in request.args["$filter"].split("and")]) in [2, 3, 4]:
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         if not all(resp.status_code == 200 for resp in responses):
@@ -387,14 +388,14 @@ SPJ_LUT = {
     "AntennaId": manage_str_querry,
     "FronEndId": manage_str_querry,
     "Retransfer": manage_bool_querry,
-    "AntennaStatusHTTP_OK": manage_bool_querry,
-    "FrontEndStatusHTTP_OK": manage_bool_querry,
+    "AntennaStatusOK": manage_bool_querry,
+    "FrontEndStatusOK": manage_bool_querry,
     "PlannedDataStart": manage_datetime_querry,
     "PlannedDataStop": manage_datetime_querry,
     "DownlinkStart": manage_datetime_querry,
     "DownlinkStop": manage_datetime_querry,
-    "DownlinkStatusHTTP_OK": manage_bool_querry,
-    "DeliveryPushHTTP_OK": manage_bool_querry,
+    "DownlinkStatusOK": manage_bool_querry,
+    "DeliveryPushOK": manage_bool_querry,
     "NumChannels": manage_int_querry,
 }
 
