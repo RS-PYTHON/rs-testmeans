@@ -18,7 +18,7 @@ RUN rm -rf /tmp/whl /root/.cache/pip /var/cache/apt/archives /var/lib/apt/lists/
 # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
 #
 LABEL org.opencontainers.image.source="https://github.com/RS-PYTHON/rs-testmeans"
-LABEL org.opencontainers.image.url="https://github.com/RS-PYTHON/rs-testmeans/blob/develop/src/DPR/Dockerfile"
 LABEL org.opencontainers.image.ref.name="ghcr.io/rs-python/rs-testmeans_dpr-station-mock"
+LABEL dockerfile.url="https://github.com/RS-PYTHON/rs-testmeans/blob/develop/src/DPR/Dockerfile"
 
 ENTRYPOINT [ "poetry", "run", "python3.11", "dpr_simulator_ws.py"]
