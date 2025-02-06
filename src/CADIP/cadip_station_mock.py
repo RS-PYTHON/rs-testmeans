@@ -406,7 +406,7 @@ SPJ_LUT = {
 def process_session_request(request: str, headers: dict, catalog_data: dict) -> Response:
     """Docstring to be added."""
     # Normalize request (lower case / remove ')
-    if match := re.search(r"\(([^()]+)\)", request):
+    if match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request):
         conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
         responses = [process_session_request(cond, headers, catalog_data) for cond in conditions]
         first_response = json.loads(responses[0].data)['value']
