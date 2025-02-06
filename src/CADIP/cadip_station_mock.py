@@ -450,6 +450,36 @@ def query_files() -> Response | list[Any]:
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
 
+    # Deprecated section, to be removed in future
+    if match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args['$filter']):
+        if request.args["$filter"].split(" and ") == 1:
+            conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+            responses = [process_files_request(cond, request.args, catalog_data) for cond in conditions]
+            first_response = json.loads(responses[0].data)['value']
+            second_response = json.loads(responses[1].data)['value']
+            fresp_set = {d.get("Id", None) for d in first_response}
+            sresp_set = {d.get("Id", None) for d in second_response}
+            union_set = fresp_set.union(sresp_set)
+            union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+            return Response(status=HTTP_OK, response=batch_response_odata_v4(union_elements), headers=request.args)
+        else:
+            union_elements = []
+            for op in request.args["$filter"].split(" and "):
+                conditions = re.split(r"\s+or\s+|\s+OR\s+", op)
+                responses = [process_files_request(cond, request.args, catalog_data) for cond in conditions]
+                first_response = json.loads(responses[0].data)['value']
+                second_response = json.loads(responses[1].data)['value']
+                fresp_set = {d.get("Id", None) for d in first_response}
+                sresp_set = {d.get("Id", None) for d in second_response}
+                union_set = fresp_set.union(sresp_set)
+                union_elements.append([d for d in first_response + second_response if d.get("Id") in union_set])
+
+            first_ops_response = {d.get("Id", None) for d in union_elements[0]}
+            second_ops_response = {d.get("Id", None) for d in union_elements[1]}
+            common_response = first_ops_response.intersection(second_ops_response)
+            common_elements = [d for d in first_response if d.get("Id") in common_response]
+            return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+
     accepted_operators = [" and ", " or ", " not "]
     if any(header in request.args["$filter"] for header in accepted_operators):
         pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
@@ -515,6 +545,8 @@ def process_files_request(request, headers, catalog_data):
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
+        field = field.strip("('),")
+        value = value.strip("('),")
         date = datetime.datetime.fromisoformat(value)
         match op:
             case "eq":
