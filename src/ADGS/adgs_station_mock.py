@@ -439,22 +439,19 @@ def query_products():
         ):
             return Response(status=HTTP_BAD_REQUEST)
     else:
-        # handle parantheses
-        conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
-        responses = [process_products_request(cond, request.args) for cond in conditions]
-        first_response = json.loads(responses[0].data)['value']
-        second_response = json.loads(responses[1].data)['value']
-        fresp_set = {d.get("Id", None) for d in first_response}
-        sresp_set = {d.get("Id", None) for d in second_response}
-        union_set = fresp_set.union(sresp_set)
-        union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-        if " and " in  request.args['$filter']:
-            filter = re.sub(r"\(.*?\)\s+and\s+", "", request.args['$filter'])
-            if len(filter.split(" and ")) > 2:
-                msg = "Too complex for adgs sim"
-                logger.error(msg)
-                return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
-            elif len(filter.split(" and ")) == 1:
+        if " and " not in request.args['$filter']:
+            return Response(status=HTTP_OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
+        match len(request.args['$filter'].split(" and ")):
+            case 1:
+                conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+                import pdb
+                responses = [process_products_request(cond, request.args) for cond in conditions]
+                first_response = json.loads(responses[0].data)['value']
+                second_response = json.loads(responses[1].data)['value']
+                fresp_set = {d.get("Id", None) for d in first_response}
+                sresp_set = {d.get("Id", None) for d in second_response}
+                union_set = fresp_set.union(sresp_set)
+                union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
                 responses = json.loads(process_products_request(filter, request.args).data)["value"]
                 fresp_set = {d.get("Id", None) for d in responses}
                 sresp_set = {d.get("Id", None) for d in union_elements}
@@ -467,14 +464,25 @@ def query_products():
                         headers=request.args,
                     )
                 return Response(status=HTTP_OK, response=json.dumps({"value": []}))
-            elif len(filter.split(" and ")) == 2:
-                # To be added
+            case 2:
+                union_elements = []
+                for ops in request.args['$filter'].split(" and "):
+                    conditions = re.split(r"\s+or\s+|\s+OR\s+|\(|\)", ops)
+                    conditions = [p for p in conditions if p.strip()]
+                    responses = [process_products_request(cond, request.args) for cond in conditions]
+                    first_response = json.loads(responses[0].data)['value']
+                    second_response = json.loads(responses[1].data)['value']
+                    fresp_set = {d.get("Id", None) for d in first_response}
+                    sresp_set = {d.get("Id", None) for d in second_response}
+                    union_set = fresp_set.union(sresp_set)
+                    union_elements.extend([d for d in first_response + second_response if d.get("Id") in union_set])
+                response = set()
+                common_response = [d for d in union_elements if d["Id"] not in response and not response.add(d["Id"])]
+                return Response(status=HTTP_OK, response=prepare_response_odata_v4(common_response), headers=request.args)
+            case _:
                 msg = "Too complex for adgs sim"
                 logger.error(msg)
                 return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
-        else:
-            return Response(status=HTTP_OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
-
 
     if len(qs_parser := request.args['$filter'].split(' and ')) > 2:
         outputs = []
