@@ -419,7 +419,7 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
     try:
         field, op, *value = map(
             lambda norm: norm.replace("'", ""),
-            request.strip('"').split(" "),
+            request.strip('"()').split(" "),
         )
     except:
         return Response(status=HTTP_OK, response = json.dumps({"value": []}))
