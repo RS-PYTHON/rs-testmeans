@@ -432,10 +432,50 @@ def query_products():
         catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
         catalog_data = json.loads(open(catalog_path).read())
         return Response(status=HTTP_OK, response=prepare_response_odata_v4(catalog_data['Data']), headers=request.args)
-    if not any(
-        [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes"]],
-    ):
-        return Response(status=HTTP_BAD_REQUEST)
+        # Handle parantheses
+    if not (match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args["$filter"])):
+        if not any(
+            [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes"]],
+        ):
+            return Response(status=HTTP_BAD_REQUEST)
+    else:
+        # handle parantheses
+        conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+        responses = [process_products_request(cond, request.args) for cond in conditions]
+        first_response = json.loads(responses[0].data)['value']
+        second_response = json.loads(responses[1].data)['value']
+        fresp_set = {d.get("Id", None) for d in first_response}
+        sresp_set = {d.get("Id", None) for d in second_response}
+        union_set = fresp_set.union(sresp_set)
+        union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+        if " and " in  request.args['$filter']:
+            filter = re.sub(r"\(.*?\)\s+and\s+", "", request.args['$filter'])
+            if len(filter.split(" and ")) > 2:
+                msg = "Too complex for adgs sim"
+                logger.error(msg)
+                return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
+            elif len(filter.split(" and ")) == 1:
+                responses = json.loads(process_products_request(filter, request.args).data)["value"]
+                fresp_set = {d.get("Id", None) for d in responses}
+                sresp_set = {d.get("Id", None) for d in union_elements}
+                common_response = fresp_set.intersection(sresp_set)
+                common_elements = [d for d in responses if d.get("Id") in common_response]
+                if common_elements:
+                    return Response(
+                        status=HTTP_OK,
+                        response=prepare_response_odata_v4(common_elements),
+                        headers=request.args,
+                    )
+                return Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            elif len(filter.split(" and ")) == 2:
+                # To be added
+                msg = "Too complex for adgs sim"
+                logger.error(msg)
+                return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
+        else:
+            return Response(status=HTTP_OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
+
+
     if len(qs_parser := request.args['$filter'].split(' and ')) > 2:
         outputs = []
         properties_filter = []
