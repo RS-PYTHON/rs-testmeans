@@ -389,7 +389,7 @@ SPJ_LUT = {
     "DownlinkOrbit": manage_int_querry,
     "AcquisitionId": manage_str_querry,
     "AntennaId": manage_str_querry,
-    "FronEndId": manage_str_querry,
+    "FrontEndId": manage_str_querry,
     "Retransfer": manage_bool_querry,
     "AntennaStatusOK": manage_bool_querry,
     "FrontEndStatusOK": manage_bool_querry,
