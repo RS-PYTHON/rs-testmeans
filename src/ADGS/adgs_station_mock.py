@@ -440,11 +440,18 @@ def query_products():
             return Response(status=HTTP_BAD_REQUEST)
     else:
         if " and " not in request.args['$filter']:
+            conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+            responses = [process_products_request(cond, request.args) for cond in conditions]
+            first_response = json.loads(responses[0].data)['value']
+            second_response = json.loads(responses[1].data)['value']
+            fresp_set = {d.get("Id", None) for d in first_response}
+            sresp_set = {d.get("Id", None) for d in second_response}
+            union_set = fresp_set.union(sresp_set)
+            union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
             return Response(status=HTTP_OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
         match len(request.args['$filter'].split(" and ")):
             case 1:
                 conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
-                import pdb
                 responses = [process_products_request(cond, request.args) for cond in conditions]
                 first_response = json.loads(responses[0].data)['value']
                 second_response = json.loads(responses[1].data)['value']
@@ -475,10 +482,12 @@ def query_products():
                     fresp_set = {d.get("Id", None) for d in first_response}
                     sresp_set = {d.get("Id", None) for d in second_response}
                     union_set = fresp_set.union(sresp_set)
-                    union_elements.extend([d for d in first_response + second_response if d.get("Id") in union_set])
-                response = set()
-                common_response = [d for d in union_elements if d["Id"] not in response and not response.add(d["Id"])]
-                return Response(status=HTTP_OK, response=prepare_response_odata_v4(common_response), headers=request.args)
+                    union_elements.append([d for d in first_response + second_response if d.get("Id") in union_set])
+                first_ops_response = {d.get("Id", None) for d in union_elements[0]}
+                second_ops_response = {d.get("Id", None) for d in union_elements[1]}
+                common_response = first_ops_response.intersection(second_ops_response)
+                common_elements = [d for d in first_response + second_response if d.get("Id") in common_response]
+                return Response(status=HTTP_OK, response=prepare_response_odata_v4(common_elements), headers=request.args)
             case _:
                 msg = "Too complex for adgs sim"
                 logger.error(msg)
