@@ -173,11 +173,14 @@ def query_session() -> Response | list[Any]:
     if "$filter" not in request.args:
         return Response(status=HTTP_OK, response=batch_response_odata_v4(catalog_data['Data']), headers=request.args)
         # return Response('Bad Request', Response.status_code(400), None)
+    
+    # Handle parantheses
+    if not (match := re.search(r"\(([^()]+)\)", request.args["$filter"])):
     # Check requested values, filter type can only be json keys
-    if not any(
-        [query_text == request.args["$filter"].strip('"').split(" ")[0] for query_text in SPJ_LUT.keys()],
-    ):
-        return Response(status=HTTP_BAD_REQUEST)
+        if not any(
+            [query_text == request.args["$filter"].strip('"').split(" ")[0] for query_text in SPJ_LUT.keys()],
+        ):
+            return Response(status=HTTP_BAD_REQUEST)
     # Proceed to process request
     catalog_path_files = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data_files = json.loads(open(catalog_path_files).read())
@@ -403,6 +406,16 @@ SPJ_LUT = {
 def process_session_request(request: str, headers: dict, catalog_data: dict) -> Response:
     """Docstring to be added."""
     # Normalize request (lower case / remove ')
+    if match := re.search(r"\(([^()]+)\)", request):
+        conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+        responses = [process_session_request(cond, headers, catalog_data) for cond in conditions]
+        first_response = json.loads(responses[0].data)['value']
+        second_response = json.loads(responses[1].data)['value']
+        fresp_set = {d.get("Id", None) for d in first_response}
+        sresp_set = {d.get("Id", None) for d in second_response}
+        union_set = fresp_set.union(sresp_set)
+        union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+        return Response(status=HTTP_OK, response=batch_response_odata_v4(union_elements), headers=headers)
     try:
         field, op, *value = map(
             lambda norm: norm.replace("'", ""),
