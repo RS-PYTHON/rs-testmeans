@@ -435,7 +435,7 @@ def query_products():
         # Handle parantheses
     if not (match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args["$filter"])):
         if not any(
-            [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes"]],
+            [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes", "ContentDate/Start", "ContentDate/Stop"]],
         ):
             return Response(status=HTTP_BAD_REQUEST)
     else:
