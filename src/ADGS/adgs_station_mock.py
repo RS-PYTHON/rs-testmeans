@@ -582,6 +582,10 @@ def token():
         "refresh_expires_in": 1800,
     }
     logger.info("Grant type validated. Token sent back")
+    
+    logger.info(f"CURRENT DATE: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {CONFIG_AUTH['token']}") ###
+
     return Response(status=HTTP_OK, response=json.dumps(response))
 
 def create_adgs_app():
