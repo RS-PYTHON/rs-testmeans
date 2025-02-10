@@ -251,37 +251,50 @@ def process_products_request(request, headers):
             if resp_body
             else Response(status=HTTP_OK, response=json.dumps({"value": []}))
         )
-    elif "ContentDate" in request.args["$filter"]:
+    elif "ContentDate" in request:
         pattern = r"Start (\S+) (\S+) and ContentDate/End (\S+) (\S+)"
-        regex_match = re.search(pattern, request.args["$filter"])
-        start_oper = regex_match.group(1)
-        start_date = datetime.datetime.fromisoformat(regex_match.group(2))
-        stop_oper = regex_match.group(3)
-        stop_date = datetime.datetime.fromisoformat(regex_match.group(4))
-        match (start_oper, stop_oper):
-            case ("gt", "lt"):
-                resp_body = [
+        if regex_match := re.search(pattern, request):
+            start_oper = regex_match.group(1)
+            start_date = datetime.datetime.fromisoformat(regex_match.group(2))
+            stop_oper = regex_match.group(3)
+            stop_date = datetime.datetime.fromisoformat(regex_match.group(4))
+            match (start_oper, stop_oper):
+                case ("gt", "lt"):
+                    resp_body = [
+                        product
+                        for product in catalog_data["Data"]
+                        if (
+                            start_date < datetime.datetime.fromisoformat(product["ContentDate"]["Start"])
+                            and stop_date > datetime.datetime.fromisoformat(product["ContentDate"]["End"])
+                        )
+                    ]
+                case ("eq", "lt"):
+                    resp_body = [
+                        product
+                        for product in catalog_data["Data"]
+                        if (
+                            start_date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"])
+                            and stop_date > datetime.datetime.fromisoformat(product["ContentDate"]["End"])
+                        )
+                    ]
+            return (
+                Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+                if resp_body
+                else Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            )
+        else:
+            field, op, value = request.split(" ")
+            date = datetime.datetime.fromisoformat(value)
+            resp_body = [
                     product
                     for product in catalog_data["Data"]
-                    if (
-                        start_date < datetime.datetime.fromisoformat(product["ContentDate"]["Start"])
-                        and stop_date > datetime.datetime.fromisoformat(product["ContentDate"]["End"])
-                    )
+                    if date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
                 ]
-            case ("eq", "lt"):
-                resp_body = [
-                    product
-                    for product in catalog_data["Data"]
-                    if (
-                        start_date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"])
-                        and stop_date > datetime.datetime.fromisoformat(product["ContentDate"]["End"])
-                    )
-                ]
-        return (
-            Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
-            if resp_body
-            else Response(status=HTTP_OK, response=json.dumps({"value": []}))
-        )
+            return (
+                Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+                if resp_body
+                else Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            )
     elif "Attributes" in request.args["$filter"]:
         pass  # WIP
     else:
@@ -435,7 +448,7 @@ def query_products():
         # Handle parantheses
     if not (match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args["$filter"])):
         if not any(
-            [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes", "ContentDate/Start", "ContentDate/Stop"]],
+            [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes", "ContentDate/Start", "ContentDate/End"]],
         ):
             return Response(status=HTTP_BAD_REQUEST)
     else:
