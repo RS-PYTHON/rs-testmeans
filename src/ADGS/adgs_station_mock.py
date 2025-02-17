@@ -62,18 +62,29 @@ def token_required(f):
             A Response object with a 403 Forbidden status if the token is missing or invalid.
             Otherwise, the original route function's response is returned.
         """
+        # Remove tokens information if both access_token and refresh_token are expired
+        clean_token_dict(CONFIG_AUTH)
         token = None        
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split()[1]
+            logger.info(f"{request.headers['Authorization']}")
+        else:
+            logger.info("NO AUTHORIZATION IN HEADERS")
 
         if not token:
             logger.error("Returning HTTP_UNAUTHORIZED. Token is missing")
             return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
         
-        if token != CONFIG_AUTH["token"]:
+        # Raise an error if the given token doesn't exist in the token dictionary
+        if token not in CONFIG_AUTH["access_token_list"]:
             logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
             return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
 
+        # Raise an error if the given token exist but is expired
+        token_index = CONFIG_AUTH["access_token_list"].index(token)
+        if (datetime.datetime.now() - CONFIG_AUTH["access_token_creation_date"][token_index]).total_seconds() >= CONFIG_AUTH["expires_in_list"][token_index]:
+            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is valid but is expired!"}))
+        
         return f(*args, **kwargs)
 
     return decorated
@@ -419,7 +430,25 @@ def process_common_elements(first_response, second_response, operator):
                 headers=request.args,
             )
 
-
+def clean_token_dict(config_auth_dict: dict[list]):
+    """
+    Function to remove expired tokens from the list of token dictionaries: for each token, 
+    we check if it is expired by comparing its creation date + its life duration with the 
+    current date. If it is expired, we remove information related to this token from all
+    lists of the dictionary
+    
+    Args:
+        config_auth_dict (dict[list]): token information dictionary
+    Return:
+        config_auth_dict (dict[list]): the updated token information dictionary
+    """
+    current_time = datetime.datetime.now()
+    for i in range(len(config_auth_dict["access_token_list"])):
+        if (current_time - config_auth_dict["access_token_creation_date"][i]).total_seconds() >= config_auth_dict["expires_in_list"][i] \
+        and ((current_time - config_auth_dict["refresh_token_creation_date"][i]).total_seconds() >= config_auth_dict["refresh_expires_in_list"][i]):
+            for key in KEYS_TO_UPDATE:
+                del config_auth_dict[key][i]
+    return config_auth_dict
 
 @app.route("/Products", methods=["GET"])
 @token_required
@@ -538,6 +567,9 @@ def token():
             - An HTTP 400 Bad Request response if the grant type is unsupported or missing 
               required parameters.
     """
+    # Remove tokens information if both access_token and refresh_token are expired
+    clean_token_dict(CONFIG_AUTH)
+    
     # Get the form data
     logger.info("Endpoint oauth2/token called")
     client_id = request.form.get("client_id")
@@ -549,7 +581,7 @@ def token():
 
     # Optional Authorization header check
     # auth_header = request.headers.get('Authorization')
-    # print(f"auth_header {auth_header}")
+    # logger.info(f"auth_header {auth_header}")
     logger.info("Token requested")    
     if request.headers.get("Authorization", None):
         logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
@@ -569,23 +601,32 @@ def token():
     # Validate the grant_type
     if grant_type != CONFIG_AUTH["grant_type"]:
         logger.error("Unsupported grant_type. The token is not granted")
-        return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
+        return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST
     
     # Return a random access token and a refresh token in JSON format
-    CONFIG_AUTH["token"] = ''.join(random.choices(string.ascii_letters, k=59))
-    CONFIG_AUTH["refresh_token"] = ''.join(random.choices(string.ascii_letters, k=59))
-    response = {
-        "access_token": CONFIG_AUTH["token"],
-        "token_type": "Bearer", 
-        "expires_in": 70,
-        "refresh_token": CONFIG_AUTH["refresh_token"],
-        "refresh_expires_in": 1800,
-    }
-    logger.info("Grant type validated. Token sent back")
+    expires_in = 70
+    refresh_expires_in = 1800
     
+    # Add new access token and refresh token to the token dictionary
+    CONFIG_AUTH["access_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
+    CONFIG_AUTH["access_token_creation_date"].append(datetime.datetime.now())
+    CONFIG_AUTH["expires_in_list"].append(expires_in)
+    CONFIG_AUTH["refresh_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
+    CONFIG_AUTH["refresh_token_creation_date"].append(datetime.datetime.now())
+    CONFIG_AUTH["refresh_expires_in_list"].append(refresh_expires_in)
+
+    # Send back the last created token to the the client
+    response = {
+        "access_token": CONFIG_AUTH["access_token_list"][-1],
+        "token_type": "Bearer", 
+        "expires_in": CONFIG_AUTH["expires_in_list"][-1],
+        "refresh_token": CONFIG_AUTH["refresh_token_list"][-1],
+        "refresh_expires_in": CONFIG_AUTH["refresh_expires_in_list"][-1],
+    }
+    
+    logger.info("Grant type validated. Token sent back")
     logger.info(f"CURRENT DATE: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {CONFIG_AUTH['token']}") ###
-
     return Response(status=HTTP_OK, response=json.dumps(response))
 
 def create_adgs_app():
@@ -615,10 +656,20 @@ if __name__ == "__main__":
         if not all((configuration_path / file_name).exists() for file_name in config_signature):
             # use default config if given structure doesn't match
             configuration_path = default_config_path
-            print("Using default config")
+            logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
     AUTH_PATH = app.config["configuration_path"] / "auth.json"
-    CONFIG_AUTH = json.loads(open(AUTH_PATH).read())       
     
+    # Load and initialize the dictionary to handle authentification and tokens
+    CONFIG_AUTH = json.loads(open(AUTH_PATH).read())
+    KEYS_TO_UPDATE = [
+        "access_token_list", 
+        "access_token_creation_date", 
+        "expires_in_list", 
+        "refresh_token_list", 
+        "refresh_token_creation_date", 
+        "refresh_expires_in_list"
+    ]
+    CONFIG_AUTH.update({key: [] for key in KEYS_TO_UPDATE})
     app.run(debug=True, host=args.host, port=args.port)  # local
     # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
