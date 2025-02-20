@@ -178,11 +178,14 @@ def query_session() -> Response | list[Any]:
     if "$filter" not in request.args:
         return Response(status=HTTP_OK, response=batch_response_odata_v4(catalog_data['Data']), headers=request.args)
         # return Response('Bad Request', Response.status_code(400), None)
+    
+    # Handle parantheses
+    if not (match := re.search(r"\(([^()]+)\)", request.args["$filter"])):
     # Check requested values, filter type can only be json keys
-    if not any(
-        [query_text == request.args["$filter"].strip('"').split(" ")[0] for query_text in SPJ_LUT.keys()],
-    ):
-        return Response(status=HTTP_BAD_REQUEST)
+        if not any(
+            [query_text == request.args["$filter"].strip('"').split(" ")[0] for query_text in SPJ_LUT.keys()],
+        ):
+            return Response(status=HTTP_BAD_REQUEST)
     # Proceed to process request
     catalog_path_files = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data_files = json.loads(open(catalog_path_files).read())
@@ -190,6 +193,7 @@ def query_session() -> Response | list[Any]:
     # accepted_operators = [" and ", " or ", " in ", " not ", "and ", " or ", " in ", " not", "and", "or", "in", "not"]
     # split_request = [req.strip() for req in request.args["$filter"].split('and')]
     # Handle multiple "AND" / "OR" operands
+
     if len(split_request := [req.strip() for req in request.args["$filter"].split("and")]) in [2, 3, 4]:
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         if not all(resp.status_code == 200 for resp in responses):
@@ -390,16 +394,16 @@ SPJ_LUT = {
     "DownlinkOrbit": manage_int_querry,
     "AcquisitionId": manage_str_querry,
     "AntennaId": manage_str_querry,
-    "FronEndId": manage_str_querry,
+    "FrontEndId": manage_str_querry,
     "Retransfer": manage_bool_querry,
-    "AntennaStatusHTTP_OK": manage_bool_querry,
-    "FrontEndStatusHTTP_OK": manage_bool_querry,
+    "AntennaStatusOK": manage_bool_querry,
+    "FrontEndStatusOK": manage_bool_querry,
     "PlannedDataStart": manage_datetime_querry,
     "PlannedDataStop": manage_datetime_querry,
     "DownlinkStart": manage_datetime_querry,
     "DownlinkStop": manage_datetime_querry,
-    "DownlinkStatusHTTP_OK": manage_bool_querry,
-    "DeliveryPushHTTP_OK": manage_bool_querry,
+    "DownlinkStatusOK": manage_bool_querry,
+    "DeliveryPushOK": manage_bool_querry,
     "NumChannels": manage_int_querry,
 }
 
@@ -407,10 +411,20 @@ SPJ_LUT = {
 def process_session_request(request: str, headers: dict, catalog_data: dict) -> Response:
     """Docstring to be added."""
     # Normalize request (lower case / remove ')
+    if match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request):
+        conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+        responses = [process_session_request(cond, headers, catalog_data) for cond in conditions]
+        first_response = json.loads(responses[0].data)['value']
+        second_response = json.loads(responses[1].data)['value']
+        fresp_set = {d.get("Id", None) for d in first_response}
+        sresp_set = {d.get("Id", None) for d in second_response}
+        union_set = fresp_set.union(sresp_set)
+        union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+        return Response(status=HTTP_OK, response=batch_response_odata_v4(union_elements), headers=headers)
     try:
         field, op, *value = map(
             lambda norm: norm.replace("'", ""),
-            request.strip('"').split(" "),
+            request.strip('"()').split(" "),
         )
     except:
         return Response(status=HTTP_OK, response = json.dumps({"value": []}))
@@ -440,6 +454,36 @@ def query_files() -> Response | list[Any]:
         return Response(status=HTTP_BAD_REQUEST)
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
+
+    # Deprecated section, to be removed in future
+    if match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args['$filter']):
+        if request.args["$filter"].split(" and ") == 1:
+            conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+            responses = [process_files_request(cond, request.args, catalog_data) for cond in conditions]
+            first_response = json.loads(responses[0].data)['value']
+            second_response = json.loads(responses[1].data)['value']
+            fresp_set = {d.get("Id", None) for d in first_response}
+            sresp_set = {d.get("Id", None) for d in second_response}
+            union_set = fresp_set.union(sresp_set)
+            union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+            return Response(status=HTTP_OK, response=batch_response_odata_v4(union_elements), headers=request.args)
+        else:
+            union_elements = []
+            for op in request.args["$filter"].split(" and "):
+                conditions = re.split(r"\s+or\s+|\s+OR\s+", op)
+                responses = [process_files_request(cond, request.args, catalog_data) for cond in conditions]
+                first_response = json.loads(responses[0].data)['value']
+                second_response = json.loads(responses[1].data)['value']
+                fresp_set = {d.get("Id", None) for d in first_response}
+                sresp_set = {d.get("Id", None) for d in second_response}
+                union_set = fresp_set.union(sresp_set)
+                union_elements.append([d for d in first_response + second_response if d.get("Id") in union_set])
+
+            first_ops_response = {d.get("Id", None) for d in union_elements[0]}
+            second_ops_response = {d.get("Id", None) for d in union_elements[1]}
+            common_response = first_ops_response.intersection(second_ops_response)
+            common_elements = [d for d in first_response if d.get("Id") in common_response]
+            return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
 
     accepted_operators = [" and ", " or ", " not "]
     if any(header in request.args["$filter"] for header in accepted_operators):
@@ -506,6 +550,8 @@ def process_files_request(request, headers, catalog_data):
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
+        field = field.strip("('),")
+        value = value.strip("('),")
         date = datetime.datetime.fromisoformat(value)
         match op:
             case "eq":

@@ -260,37 +260,50 @@ def process_products_request(request, headers):
             if resp_body
             else Response(status=HTTP_OK, response=json.dumps({"value": []}))
         )
-    elif "ContentDate" in request.args["$filter"]:
+    elif "ContentDate" in request:
         pattern = r"Start (\S+) (\S+) and ContentDate/End (\S+) (\S+)"
-        regex_match = re.search(pattern, request.args["$filter"])
-        start_oper = regex_match.group(1)
-        start_date = datetime.datetime.fromisoformat(regex_match.group(2))
-        stop_oper = regex_match.group(3)
-        stop_date = datetime.datetime.fromisoformat(regex_match.group(4))
-        match (start_oper, stop_oper):
-            case ("gt", "lt"):
-                resp_body = [
+        if regex_match := re.search(pattern, request):
+            start_oper = regex_match.group(1)
+            start_date = datetime.datetime.fromisoformat(regex_match.group(2))
+            stop_oper = regex_match.group(3)
+            stop_date = datetime.datetime.fromisoformat(regex_match.group(4))
+            match (start_oper, stop_oper):
+                case ("gt", "lt"):
+                    resp_body = [
+                        product
+                        for product in catalog_data["Data"]
+                        if (
+                            start_date < datetime.datetime.fromisoformat(product["ContentDate"]["Start"])
+                            and stop_date > datetime.datetime.fromisoformat(product["ContentDate"]["End"])
+                        )
+                    ]
+                case ("eq", "lt"):
+                    resp_body = [
+                        product
+                        for product in catalog_data["Data"]
+                        if (
+                            start_date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"])
+                            and stop_date > datetime.datetime.fromisoformat(product["ContentDate"]["End"])
+                        )
+                    ]
+            return (
+                Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+                if resp_body
+                else Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            )
+        else:
+            field, op, value = request.split(" ")
+            date = datetime.datetime.fromisoformat(value)
+            resp_body = [
                     product
                     for product in catalog_data["Data"]
-                    if (
-                        start_date < datetime.datetime.fromisoformat(product["ContentDate"]["Start"])
-                        and stop_date > datetime.datetime.fromisoformat(product["ContentDate"]["End"])
-                    )
+                    if date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
                 ]
-            case ("eq", "lt"):
-                resp_body = [
-                    product
-                    for product in catalog_data["Data"]
-                    if (
-                        start_date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"])
-                        and stop_date > datetime.datetime.fromisoformat(product["ContentDate"]["End"])
-                    )
-                ]
-        return (
-            Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
-            if resp_body
-            else Response(status=HTTP_OK, response=json.dumps({"value": []}))
-        )
+            return (
+                Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+                if resp_body
+                else Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            )
     elif "Attributes" in request.args["$filter"]:
         pass  # WIP
     else:
@@ -459,10 +472,67 @@ def query_products():
         catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
         catalog_data = json.loads(open(catalog_path).read())
         return Response(status=HTTP_OK, response=prepare_response_odata_v4(catalog_data['Data']), headers=request.args)
-    if not any(
-        [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes"]],
-    ):
-        return Response(status=HTTP_BAD_REQUEST)
+        # Handle parantheses
+    if not (match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args["$filter"])):
+        if not any(
+            [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes", "ContentDate/Start", "ContentDate/End"]],
+        ):
+            return Response(status=HTTP_BAD_REQUEST)
+    else:
+        if " and " not in request.args['$filter']:
+            conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+            responses = [process_products_request(cond, request.args) for cond in conditions]
+            first_response = json.loads(responses[0].data)['value']
+            second_response = json.loads(responses[1].data)['value']
+            fresp_set = {d.get("Id", None) for d in first_response}
+            sresp_set = {d.get("Id", None) for d in second_response}
+            union_set = fresp_set.union(sresp_set)
+            union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+            return Response(status=HTTP_OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
+        match len(request.args['$filter'].split(" and ")):
+            case 1:
+                conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+                responses = [process_products_request(cond, request.args) for cond in conditions]
+                first_response = json.loads(responses[0].data)['value']
+                second_response = json.loads(responses[1].data)['value']
+                fresp_set = {d.get("Id", None) for d in first_response}
+                sresp_set = {d.get("Id", None) for d in second_response}
+                union_set = fresp_set.union(sresp_set)
+                union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+                responses = json.loads(process_products_request(filter, request.args).data)["value"]
+                fresp_set = {d.get("Id", None) for d in responses}
+                sresp_set = {d.get("Id", None) for d in union_elements}
+                common_response = fresp_set.intersection(sresp_set)
+                common_elements = [d for d in responses if d.get("Id") in common_response]
+                if common_elements:
+                    return Response(
+                        status=HTTP_OK,
+                        response=prepare_response_odata_v4(common_elements),
+                        headers=request.args,
+                    )
+                return Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            case 2:
+                union_elements = []
+                for ops in request.args['$filter'].split(" and "):
+                    conditions = re.split(r"\s+or\s+|\s+OR\s+|\(|\)", ops)
+                    conditions = [p for p in conditions if p.strip()]
+                    responses = [process_products_request(cond, request.args) for cond in conditions]
+                    first_response = json.loads(responses[0].data)['value']
+                    second_response = json.loads(responses[1].data)['value']
+                    fresp_set = {d.get("Id", None) for d in first_response}
+                    sresp_set = {d.get("Id", None) for d in second_response}
+                    union_set = fresp_set.union(sresp_set)
+                    union_elements.append([d for d in first_response + second_response if d.get("Id") in union_set])
+                first_ops_response = {d.get("Id", None) for d in union_elements[0]}
+                second_ops_response = {d.get("Id", None) for d in union_elements[1]}
+                common_response = first_ops_response.intersection(second_ops_response)
+                common_elements = [d for d in first_response + second_response if d.get("Id") in common_response]
+                return Response(status=HTTP_OK, response=prepare_response_odata_v4(common_elements), headers=request.args)
+            case _:
+                msg = "Too complex for adgs sim"
+                logger.error(msg)
+                return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
+
     if len(qs_parser := request.args['$filter'].split(' and ')) > 2:
         outputs = []
         properties_filter = []
