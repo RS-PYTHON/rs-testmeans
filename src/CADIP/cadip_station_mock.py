@@ -765,7 +765,7 @@ def token():
     
     logger.info("Grant type validated. Token sent back")
     logger.info(f"CURRENT DATE: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {CONFIG_AUTH['token']}") ###
+    logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {CONFIG_AUTH['access_token_list'][-1]}") ###
     return Response(status=HTTP_OK, response=json.dumps(response))
 
 def create_cadip_app():
