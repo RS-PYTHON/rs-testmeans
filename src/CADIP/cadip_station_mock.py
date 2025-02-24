@@ -618,16 +618,22 @@ def clean_token_dict(config_auth_dict: dict[list]):
     Return:
         config_auth_dict (dict[list]): the updated token information dictionary
     """
+    index_to_delete = []
     current_time = datetime.datetime.now()
+    
     logger.info(f"------------ access_token_list vaut : {config_auth_dict['access_token_list']}")
     logger.info(f"------------ access_token_creation_date vaut : {config_auth_dict['access_token_creation_date']}")
     logger.info(f"------------ expires_in_list vaut : {config_auth_dict['expires_in_list']}")
 
+    # Get index of elements from the dictionary to delete
     for i in range(len(config_auth_dict["access_token_list"])):
         if (current_time - config_auth_dict["access_token_creation_date"][i]).total_seconds() >= config_auth_dict["expires_in_list"][i] \
         and ((current_time - config_auth_dict["refresh_token_creation_date"][i]).total_seconds() >= config_auth_dict["refresh_expires_in_list"][i]):
-            for key in KEYS_TO_UPDATE:
-                del config_auth_dict[key][i]
+            index_to_delete.append(i)
+    # Delete elements with selected indexes
+    for key in KEYS_TO_UPDATE:
+        config_auth_dict[key] = [value for index, value in enumerate(config_auth_dict[key]) if index not in index_to_delete]
+    
     return config_auth_dict
 
 # This is implemented to simulate the behavior of the real stations like Neustrelitz CADIP station (ngs):
