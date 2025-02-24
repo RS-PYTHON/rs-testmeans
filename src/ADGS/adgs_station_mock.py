@@ -456,6 +456,9 @@ def clean_token_dict(config_auth_dict: dict[list]):
         config_auth_dict (dict[list]): the updated token information dictionary
     """
     current_time = datetime.datetime.now()
+    logger.info(f"------------ access_token_list vaut : {config_auth_dict['access_token_list']}")
+    logger.info(f"------------ access_token_creation_date vaut : {config_auth_dict['access_token_creation_date']}")
+    logger.info(f"------------ expires_in_list vaut : {config_auth_dict['expires_in_list']}")
     for i in range(len(config_auth_dict["access_token_list"])):
         if (current_time - config_auth_dict["access_token_creation_date"][i]).total_seconds() >= config_auth_dict["expires_in_list"][i] \
         and ((current_time - config_auth_dict["refresh_token_creation_date"][i]).total_seconds() >= config_auth_dict["refresh_expires_in_list"][i]):
