@@ -194,12 +194,16 @@ def adgs_client_with_auth(adgs_client, adgs_token):
 
 
 @pytest.fixture(name="cadip_client_with_auth")
-def cadip_client_with_auth(cadip_client, cadip_token):
+def cadip_client_with_auth(cadip_client, cadip_token, auth_config, app_header):
     """Fixture to return a client with automatic auth header handling."""
     # Create a session from the test client
     client = cadip_client
 
-    # Attach token to session so it persists across requests
-    client.environ_base["HTTP_AUTHORIZATION"] = cadip_token["Authorization"]
+    # Get new credentials by providing valid authentication configuration
+    # and then use these credentials for the following data requests
+    data_to_send = auth_config
+    token_response = client.post("/oauth2/token", data=data_to_send, headers = app_header)
+    token_info = json.loads(token_response.text)
+    client.environ_base["HTTP_AUTHORIZATION"] = f"Token {token_info['access_token']}"
 
     return client
