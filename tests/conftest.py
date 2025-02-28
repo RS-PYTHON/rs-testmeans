@@ -11,13 +11,34 @@ from src.ADGS.adgs_station_mock import create_adgs_app
 from src.CADIP.cadip_station_mock import create_cadip_app
 from src.LTA.lta_station_mock import create_lta_app
 
+@pytest.fixture(name="auth_config")
+def get_auth_config():
+    return {
+        "client_id": "client_id",
+        "client_secret": "client_secret",
+        "grant_type": "password",
+        "username": "test",
+        "password": "test",
+    }
+    
+@pytest.fixture(name="app_header")
+def get_station_request_headers():
+    return{"Content-Type": "application/x-www-form-urlencoded"}
 
 @pytest.fixture
 def cadip_client():
     """Docstring to be added."""
     app = create_cadip_app()
+    
+    # We create and activate an application context to keep the application running 
+    # during all requests of the current pytest
+    ctx = app.app_context()  
+    ctx.push() 
+    app.testing = True
     with app.test_client() as client:
         yield client
+    # Deactivate the application context
+    ctx.pop() 
 
 
 @pytest.fixture

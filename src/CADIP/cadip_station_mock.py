@@ -1,6 +1,6 @@
 """Docstring to be added."""
 import argparse
-import datetime
+from datetime import datetime
 import json
 import logging
 import os
@@ -28,6 +28,30 @@ HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
 HTTP_UNAUTHORIZED = 401
 HTTP_NOT_FOUND = 404
+
+EMPTY_AUTH_CONFIG = {
+    "client_id": "client_id",
+    "client_secret": "client_secret",
+    "username" : "test",
+    "password" : "test",
+    "grant_type" : "password",
+    "access_token_list": [],
+    "access_token_creation_date": [],
+    "expires_in_list": [],
+    "refresh_token_list": [],
+    "refresh_token_creation_date": [],
+    "refresh_expires_in_list": []
+}
+
+KEYS_TO_UPDATE = [
+    "access_token_list", 
+    "access_token_creation_date", 
+    "expires_in_list", 
+    "refresh_token_list", 
+    "refresh_token_creation_date", 
+    "refresh_expires_in_list"
+]
+PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
 def token_required(f):
     """Decorator to enforce token-based authentication for a Flask route.
@@ -64,7 +88,9 @@ def token_required(f):
             Otherwise, the original route function's response is returned.
         """
         # Remove tokens information if both access_token and refresh_token are expired
-        clean_token_dict(CONFIG_AUTH)
+        auth_path = str(app.config["configuration_path"] / "auth.json")
+        config_auth = json.loads(open(auth_path).read())    
+        clean_token_dict(config_auth, auth_path)
         token = None        
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split()[1]
@@ -77,13 +103,13 @@ def token_required(f):
             return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
         
         # Raise an error if the given token doesn't exist in the token dictionary
-        if token not in CONFIG_AUTH["access_token_list"]:
+        if token not in config_auth["access_token_list"]:
             logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
             return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
 
-        # Raise an error if the given token exist but is expired
-        token_index = CONFIG_AUTH["access_token_list"].index(token)
-        if (datetime.datetime.now() - CONFIG_AUTH["access_token_creation_date"][token_index]).total_seconds() >= CONFIG_AUTH["expires_in_list"][token_index]:
+        # Raise an error if the given access token is expired
+        token_index = config_auth["access_token_list"].index(token)
+        if (datetime.now() - datetime.fromisoformat(config_auth["access_token_creation_date"][token_index])).total_seconds() >= config_auth["expires_in_list"][token_index]:
             return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is valid but is expired!"}))
         
         return f(*args, **kwargs)
@@ -147,7 +173,8 @@ def batch_response_odata_v4(resp_body: list | map) -> Any:
 @auth.verify_password
 def verify_password(username, password) -> bool:
     """Docstring to be added."""
-    users = json.loads(open(AUTH_PATH).read())
+    auth_path = app.config["configuration_path"] / "auth.json"
+    users = json.loads(open(auth_path).read())
     if username in users.keys():
         return bcrypt.check_password_hash(users.get(username), password)
     return False
@@ -351,27 +378,27 @@ def manage_str_querry(op, value, catalog_data, field, headers):
 
 def manage_datetime_querry(op, value, catalog_data, field, headers):
     """Docstring to be added."""
-    date = datetime.datetime.fromisoformat(value)
+    date = datetime.fromisoformat(value)
     match op:
         case "eq":
             resp_body = [
-                product for product in catalog_data["Data"] if date == datetime.datetime.fromisoformat(product[field])
+                product for product in catalog_data["Data"] if date == datetime.fromisoformat(product[field])
             ]
         case "gt":
             resp_body = [
-                product for product in catalog_data["Data"] if date < datetime.datetime.fromisoformat(product[field])
+                product for product in catalog_data["Data"] if date < datetime.fromisoformat(product[field])
             ]
         case "lt":
             resp_body = [
-                product for product in catalog_data["Data"] if date > datetime.datetime.fromisoformat(product[field])
+                product for product in catalog_data["Data"] if date > datetime.fromisoformat(product[field])
             ]
         case "gte":
             resp_body = [
-                product for product in catalog_data["Data"] if date < datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                product for product in catalog_data["Data"] if date < datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
             ]
         case "lte":
             resp_body = [
-                product for product in catalog_data["Data"] if date > datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                product for product in catalog_data["Data"] if date > datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
             ]
         case _:
             # If the operation is not recognized, return a 404 NOT FOUND response
@@ -552,38 +579,38 @@ def process_files_request(request, headers, catalog_data):
         field, op, value = request.split(" ")
         field = field.strip("('),")
         value = value.strip("('),")
-        date = datetime.datetime.fromisoformat(value)
+        date = datetime.fromisoformat(value)
         match op:
             case "eq":
                 # map inside map, to be reviewed?
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
-                    if date == datetime.datetime.fromisoformat(product[field])
+                    if date == datetime.fromisoformat(product[field])
                 ]
             case "gt":
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
-                    if date < datetime.datetime.fromisoformat(product[field])
+                    if date < datetime.fromisoformat(product[field])
                 ]
             case "lt":
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
-                    if date > datetime.datetime.fromisoformat(product[field])
+                    if date > datetime.fromisoformat(product[field])
                 ]
             case "gte":
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
-                    if date < datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                    if date < datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
                 ]
             case "lte":
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
-                    if date > datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                    if date > datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
                 ]
         return (
             Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
@@ -606,7 +633,7 @@ def process_files_request(request, headers, catalog_data):
             else Response(status=HTTP_OK, response = json.dumps({"value": []}))
         )
 
-def clean_token_dict(config_auth_dict: dict[list]):
+def clean_token_dict(config_auth_dict: dict[list], auth_path: str):
     """
     Function to remove expired tokens from the list of token dictionaries: for each token, 
     we check if it is expired by comparing its creation date + its life duration with the 
@@ -619,12 +646,12 @@ def clean_token_dict(config_auth_dict: dict[list]):
         config_auth_dict (dict[list]): the updated token information dictionary
     """
     index_to_delete = []
-    current_time = datetime.datetime.now()
+    current_time = datetime.now()
 
     # Get index of elements from the dictionary to delete
     for i in range(len(config_auth_dict["access_token_list"])):
-        if (current_time - config_auth_dict["access_token_creation_date"][i]).total_seconds() >= config_auth_dict["expires_in_list"][i] \
-        and ((current_time - config_auth_dict["refresh_token_creation_date"][i]).total_seconds() >= config_auth_dict["refresh_expires_in_list"][i]):
+        if (current_time - datetime.fromisoformat(config_auth_dict["access_token_creation_date"][i])).total_seconds() >= config_auth_dict["expires_in_list"][i] \
+        and ((current_time - datetime.fromisoformat(config_auth_dict["refresh_token_creation_date"][i])).total_seconds() >= config_auth_dict["refresh_expires_in_list"][i]):
             index_to_delete.append(i)
     # Delete elements with selected indexes
     if index_to_delete:
@@ -632,8 +659,10 @@ def clean_token_dict(config_auth_dict: dict[list]):
         for key in KEYS_TO_UPDATE:
             config_auth_dict[key] = [value for index, value in enumerate(config_auth_dict[key]) if index not in index_to_delete]
     
-    return config_auth_dict
-
+    # Write the new token dictionary in the auth.json file
+    with open(auth_path, "w", encoding="utf-8") as f:
+        json.dump(config_auth_dict, f, indent=4, ensure_ascii=False) 
+    
 # This is implemented to simulate the behavior of the real stations like Neustrelitz CADIP station (ngs):
 # Requests to “https://<service-root-uri>/odata/v1/Files(Id)/$value” results in a 307 Temporary Redirect
 # response containing a “Location: <url>” header. When following the location URL all headers from the initial
@@ -715,7 +744,9 @@ def token():
               required parameters.
     """
     # Remove tokens information if both access_token and refresh_token are expired
-    clean_token_dict(CONFIG_AUTH)
+    auth_path = str(app.config["configuration_path"] / "auth.json")
+    config_auth = json.loads(open(auth_path).read())    
+    clean_token_dict(config_auth, auth_path)
     
     # Get the form data
     logger.info("Endpoint oauth2/token called")
@@ -738,15 +769,15 @@ def token():
         logger.error("Invalid client. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
 
-    if client_id != CONFIG_AUTH["client_id"] or client_secret != CONFIG_AUTH["client_secret"]:
+    if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
         logger.error("Invalid client id and/or secret. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": 
                                                                        f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
-    if username != CONFIG_AUTH["username"] or password != CONFIG_AUTH["password"]:
+    if username != config_auth["username"] or password != config_auth["password"]:
         logger.error("Invalid username and/or password. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
     # Validate the grant_type
-    if grant_type != CONFIG_AUTH["grant_type"]:
+    if grant_type != config_auth["grant_type"]:
         logger.error("Unsupported grant_type. The token is not granted")
         return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST
     
@@ -755,31 +786,35 @@ def token():
     refresh_expires_in = 1800
     
     # Add new access token and refresh token to the token dictionary
-    CONFIG_AUTH["access_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
-    CONFIG_AUTH["access_token_creation_date"].append(datetime.datetime.now())
-    CONFIG_AUTH["expires_in_list"].append(expires_in)
-    CONFIG_AUTH["refresh_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
-    CONFIG_AUTH["refresh_token_creation_date"].append(datetime.datetime.now())
-    CONFIG_AUTH["refresh_expires_in_list"].append(refresh_expires_in)
+    config_auth["access_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
+    config_auth["access_token_creation_date"].append(datetime.now().isoformat())
+    config_auth["expires_in_list"].append(expires_in)
+    config_auth["refresh_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
+    config_auth["refresh_token_creation_date"].append(datetime.now().isoformat())
+    config_auth["refresh_expires_in_list"].append(refresh_expires_in)
 
+    # Update the authentification configuration file with 
+    with open(auth_path, "w", encoding="utf-8") as f:
+        json.dump(config_auth, f, indent=4, ensure_ascii=False) 
+    
     # Send back the last created token to the the client
     response = {
-        "access_token": CONFIG_AUTH["access_token_list"][-1],
+        "access_token": config_auth["access_token_list"][-1],
         "token_type": "Bearer", 
-        "expires_in": CONFIG_AUTH["expires_in_list"][-1],
-        "refresh_token": CONFIG_AUTH["refresh_token_list"][-1],
-        "refresh_expires_in": CONFIG_AUTH["refresh_expires_in_list"][-1],
+        "expires_in": config_auth["expires_in_list"][-1],
+        "refresh_token": config_auth["refresh_token_list"][-1],
+        "refresh_expires_in": config_auth["refresh_expires_in_list"][-1],
     }
     
     logger.info("Grant type validated. Token sent back")
-    logger.info(f"CURRENT DATE: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {CONFIG_AUTH['access_token_list'][-1]}") ###
+    logger.info(f"CURRENT DATE: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {config_auth['access_token_list'][-1]}") ###
     return Response(status=HTTP_OK, response=json.dumps(response))
 
 def create_cadip_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
-    app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
+    app.config["configuration_path"] = PATH_TO_CONFIG
     app.config["expand"] = True
     return app
 
@@ -787,6 +822,15 @@ def run_app_on_port(host, port):
     """Run the Flask app on a specific port."""
     logger.info(f"Starting server on {host}:{port}")
     app.run(debug=True, host=host, port=port)
+
+
+@app.teardown_appcontext
+def reset_json_auth_config_file(exception=None):
+    """Reset json authentication configuration file to its default value when the application stops"""  
+    # At the end of the pytest, reset the configuration file
+    auth_path = str(PATH_TO_CONFIG / "auth.json")
+    with open(auth_path, "w") as f:
+        json.dump(EMPTY_AUTH_CONFIG, f, indent=4)
 
 if __name__ == "__main__":
     """Docstring to be added."""
@@ -819,19 +863,12 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
-    AUTH_PATH = app.config["configuration_path"] / "auth.json"
     
-    # Load and initialize the dictionary to handle authentification and tokens
-    CONFIG_AUTH = json.loads(open(AUTH_PATH).read())
-    KEYS_TO_UPDATE = [
-        "access_token_list", 
-        "access_token_creation_date", 
-        "expires_in_list", 
-        "refresh_token_list", 
-        "refresh_token_creation_date", 
-        "refresh_expires_in_list"
-    ]
-    CONFIG_AUTH.update({key: [] for key in KEYS_TO_UPDATE})
+    # Create a json file containing the authentification configuration
+    # this file will be deleted at the shutdown of the application
+    auth_path =  str(app.config["configuration_path"] / "auth.json")
+    with open(auth_path, "w", encoding="utf-8") as f:
+        json.dump(EMPTY_AUTH_CONFIG, f, indent=4, ensure_ascii=False)  # `indent=4` 
     
     if os.getenv("HTTP_REDIRECTION_HREF", None) and args.redirection_port:
         multiprocessing.set_start_method("fork")

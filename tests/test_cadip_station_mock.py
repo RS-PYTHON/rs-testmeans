@@ -5,6 +5,7 @@ import json
 import os
 
 import pytest
+from src.CADIP.cadip_station_mock import PATH_TO_CONFIG, EMPTY_AUTH_CONFIG
 
 OK = 200
 BAD_REQUEST = 400
@@ -12,15 +13,43 @@ UNAUTHORIZED = 401
 FORBIDDEN = 403
 NOT_FOUND = 404
 
-@pytest.mark.unit
-def test_basic_auth(cadip_client, cadip_token):
-    """Method used to test endpoint access with token."""
-    # test credentials on get methods with auth required.
-    assert cadip_client.get("/", headers=cadip_token).status_code == OK
-    assert cadip_client.get("/", headers={"Authorization": "Token invalid_value"}).status_code == UNAUTHORIZED
-    # test a broken endpoint route
-    assert cadip_client.get("incorrectRoute/").status_code == NOT_FOUND
 
+@pytest.fixture(scope="function", autouse=True)
+def reset_json():
+    """ Fixture to reset the authentication configuration file at the end of each pytest"""
+    
+    # First execute the pytest
+    yield  
+    
+    # At the end of the pytest, reset the configuration file
+    auth_path = str(PATH_TO_CONFIG / "auth.json")
+    with open(auth_path, "w") as f:
+        json.dump(EMPTY_AUTH_CONFIG, f, indent=4)
+
+
+@pytest.mark.unit
+def test_basic_auth(cadip_client, auth_config, app_header):
+    """Method used to test endpoint access with token."""
+    data_to_send = auth_config
+
+    # ----------- Test if we can get new credentials by providing valid authentication configuration
+    token_response = cadip_client.post("/oauth2/token", data=data_to_send, headers = app_header)
+    assert token_response.status_code == OK
+    token_info = json.loads(token_response.text)
+    assert token_info["access_token"]
+    
+    # ----------- Test if the new credentials are valid on get method
+    # test credentials on get methods with auth required.
+    hello_response = cadip_client.get("/", headers={"Authorization": f"Token {token_info['access_token']}"})
+    assert hello_response.status_code == OK
+    
+    # ----------- Test if the new credentials are valid on get method
+    wrong_token_info = token_info.copy()
+    wrong_token_info["access_token"] = "WrongAccessToken"
+    assert cadip_client.get("/", headers={"Authorization": f"Token {wrong_token_info['access_token']}"}).status_code == UNAUTHORIZED
+    
+    # ----------- Test a broken endpoint route
+    assert cadip_client.get("incorrectRoute/").status_code == NOT_FOUND
 
 
 @pytest.mark.unit
@@ -52,80 +81,89 @@ def test_basic_auth(cadip_client, cadip_token):
         ),
     ],
 )
-def test_query_sessions(cadip_client_with_auth, session_response20230216):
+def test_query_sessions(cadip_client, session_response20230216, auth_config, app_header):
     """Docstring to be added."""
+    
+    # Get new credentials by providing valid authentication configuration
+    # and then use these credentials for the following data requests
+    data_to_send = auth_config
+    token_response = cadip_client.post("/oauth2/token", data=data_to_send, headers = app_header)
+    token_info = json.loads(token_response.text)
+    assert token_response.status_code == OK
+    cadip_client.environ_base["HTTP_AUTHORIZATION"] = f"Token {token_info['access_token']}"
+    
     # test without args
-    assert cadip_client_with_auth.get("Sessions").status_code == OK # Should return all sessions
+    assert cadip_client.get("Sessions").status_code == OK # Should return all sessions
     # test with an incorrect filter
-    assert cadip_client_with_auth.get("Sessions?$filter=Incorrect_filter").status_code == BAD_REQUEST
+    assert cadip_client.get("Sessions?$filter=Incorrect_filter").status_code == BAD_REQUEST
     # Response containing more than 1 result, since there are more products matching
-    response = cadip_client_with_auth.get("Sessions?$filter=PublicationDate gt 2019-01-01T12:00:00.000Z")
+    response = cadip_client.get("Sessions?$filter=PublicationDate gt 2019-01-01T12:00:00.000Z")
     assert len(json.loads(response.text)["value"]) > 1
     # Response containing exactly one item, since explicit date is mentioned.
-    response = cadip_client_with_auth.get("Sessions?$filter=PublicationDate eq 2020-01-05T18:52:26.165Z")
+    response = cadip_client.get("Sessions?$filter=PublicationDate eq 2020-01-05T18:52:26.165Z")
     assert isinstance(json.loads(response.text), dict)
     # Check response content with test-defined one.
-    response = cadip_client_with_auth.get("Sessions?$filter=PublicationDate eq 2020-01-05T18:52:26.165Z")
+    response = cadip_client.get("Sessions?$filter=PublicationDate eq 2020-01-05T18:52:26.165Z")
     assert json.loads(response.text).keys() == session_response20230216.keys()
     assert json.loads(response.text) == session_response20230216
     # Empty json response since there are no products older than 1999.
-    response = cadip_client_with_auth.get("Sessions?$filter=PublicationDate lt 1999-01-01T12:00:00.000Z")
+    response = cadip_client.get("Sessions?$filter=PublicationDate lt 1999-01-01T12:00:00.000Z")
     assert bool(response.text)
     # Test with sattelite - pos
     # Test status code - 200 OK, test that reponse exists and it's not empty
-    assert cadip_client_with_auth.get("Sessions?$filter=Satellite eq S1A").status_code == OK
-    assert len(cadip_client_with_auth.get("Sessions?$filter=Satellite eq 'S1A'").get_data().decode())
+    assert cadip_client.get("Sessions?$filter=Satellite eq S1A").status_code == OK
+    assert len(cadip_client.get("Sessions?$filter=Satellite eq 'S1A'").get_data().decode())
     # Test with sattelite - neg
     # Test status code - 200 OK, test that reponse is empty as per ICD
-    assert cadip_client_with_auth.get("Sessions?$filter=Satellite eq INCORRECT").status_code == OK
-    assert cadip_client_with_auth.get("Sessions?$filter=Satellite eq INCORRECT").get_data() == b'[]'
+    assert cadip_client.get("Sessions?$filter=Satellite eq INCORRECT").status_code == OK
+    assert cadip_client.get("Sessions?$filter=Satellite eq INCORRECT").get_data() == b'[]'
     # Test with Downlink - pos - status 200 and valid content
-    assert cadip_client_with_auth.get("Sessions?$filter=DownlinkOrbit eq 53186").status_code == OK
-    assert len(cadip_client_with_auth.get("Sessions?$filter=DownlinkOrbit eq 53186").get_data().decode())
+    assert cadip_client.get("Sessions?$filter=DownlinkOrbit eq 53186").status_code == OK
+    assert len(cadip_client.get("Sessions?$filter=DownlinkOrbit eq 53186").get_data().decode())
     # Test with Downlink - neg - status 200 and invalid content
-    assert cadip_client_with_auth.get("Sessions?$filter=DownlinkOrbit eq INCORRECT").status_code == BAD_REQUEST
-    assert not len(cadip_client_with_auth.get("Sessions?$filter=DownlinkOrbit eq INCORRECT").get_data().decode())
+    assert cadip_client.get("Sessions?$filter=DownlinkOrbit eq INCORRECT").status_code == BAD_REQUEST
+    assert not len(cadip_client.get("Sessions?$filter=DownlinkOrbit eq INCORRECT").get_data().decode())
     # Test with aditional filtering operator <<AND>>
     query = (
         "Sessions?$filter=PublicationDate gt 2020-02-11T12:00:00.000Z and PublicationDate lt 2020-02-20T12:00:00.000Z"
     )
-    assert cadip_client_with_auth.get(query).status_code == OK
-    assert len(cadip_client_with_auth.get(query).get_data().decode())
+    assert cadip_client.get(query).status_code == OK
+    assert len(cadip_client.get(query).get_data().decode())
     # Test with aditional filtering operator <<OR>>
     query = "Sessions?$filter=PublicationDate gt 2020-02-11T12:00:00.000Z or Satellite eq S1A"
-    assert cadip_client_with_auth.get(query).status_code == OK
-    assert len(cadip_client_with_auth.get(query).get_data().decode())
+    assert cadip_client.get(query).status_code == OK
+    assert len(cadip_client.get(query).get_data().decode())
     # Test with 3 valid filters
     query = "Sessions?$filter=Satellite in ('S1A', 'S2B') and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
-    assert cadip_client_with_auth.get(query).status_code == OK
+    assert cadip_client.get(query).status_code == OK
     # Incorrect downlink, status OK but empty result
     query = "Sessions?$filter=DownlinkOrbit eq '53186' and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
-    assert cadip_client_with_auth.get(query).status_code == OK
+    assert cadip_client.get(query).status_code == OK
     #@@@assert not json.loads(cadip_client.get(query, headers=auth_header).text)
     # Test with 2 valid filters and 1 invalid, should raise 404 not found
     query = "Sessions?$filter=Satellite eq 'S3' and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
-    assert cadip_client_with_auth.get(query).status_code == OK
-    assert cadip_client_with_auth.get(query).text == '[]'
+    assert cadip_client.get(query).status_code == OK
+    assert cadip_client.get(query).text == '[]'
     # Test with sattelite in (invalid, valid) and 2 other filters valid
     query = "Sessions?$filter=Satellite in ('S1', invalid) and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
-    assert cadip_client_with_auth.get(query).status_code == OK
-    assert cadip_client_with_auth.get(query).text == '[]'
+    assert cadip_client.get(query).status_code == OK
+    assert cadip_client.get(query).text == '[]'
     query = "Sessions?$filter=Satellite in ('invalid', invalid) and PublicationDate gt 2014-03-12T08:00:00.000Z and PublicationDate lt 2024-03-12T12:00:00.000Z"
-    assert cadip_client_with_auth.get(query).status_code == OK
-    assert cadip_client_with_auth.get(query).text == '[]'
+    assert cadip_client.get(query).status_code == OK
+    assert cadip_client.get(query).text == '[]'
     # Test with 2 invalid date filters
     query = "Sessions?$filter=Satellite in ('S1', invalid) and PublicationDate gt 2025-03-12T08:00:00.000Z and PublicationDate lt 2030-03-12T12:00:00.000Z"
-    assert cadip_client_with_auth.get(query).status_code == OK
-    assert not json.loads(cadip_client_with_auth.get(query).text)
+    assert cadip_client.get(query).status_code == OK
+    assert not json.loads(cadip_client.get(query).text)
     # Test with incorrect filter
     query = "Sessions?$filter=IncorrectField eq true"
-    assert cadip_client_with_auth.get(query).status_code == BAD_REQUEST
+    assert cadip_client.get(query).status_code == BAD_REQUEST
     query = "Sessions?$filter=NumChannels eq 2"
-    assert cadip_client_with_auth.get(query).status_code == OK
+    assert cadip_client.get(query).status_code == OK
     query = "Sessions?$filter=NumChannels gt 1"
-    assert cadip_client_with_auth.get(query).status_code == OK
+    assert cadip_client.get(query).status_code == OK
     query = "Sessions?$filter=NumChannels lt 0"
-    assert cadip_client_with_auth.get(query).status_code == OK
+    assert cadip_client.get(query).status_code == OK
     # Eodagspecific request tests
     dag_filter = [
         "SessionId%20in%20('S2B_20231117033237234567,%20S1A_20231120061537234567%20&$top=20",
@@ -135,8 +173,8 @@ def test_query_sessions(cadip_client_with_auth, session_response20230216):
     ] 
     for query in dag_filter:
         endpoint = f"Sessions?$filter={query}"
-        assert cadip_client_with_auth.get(endpoint).status_code == OK
-        assert json.loads(cadip_client_with_auth.get(endpoint).text)
+        assert cadip_client.get(endpoint).status_code == OK
+        assert json.loads(cadip_client.get(endpoint).text)
 
     time_filters = [
         "Sessions?$filter=PublicationDate eq 2020-01-05T18:52:26.165Z",
@@ -144,7 +182,7 @@ def test_query_sessions(cadip_client_with_auth, session_response20230216):
         "Sessions?$filter=PublicationDate gte 2020-01-05T18:52:26.165Z"
     ]
     for query in time_filters:
-        resp = cadip_client_with_auth.get(query)
+        resp = cadip_client.get(query)
         assert resp.status_code == OK
         resp_data = json.loads(resp.text)
         assert ("value" in resp_data and session_response20230216 in resp_data["value"]) or resp_data == json.loads(resp.text)
