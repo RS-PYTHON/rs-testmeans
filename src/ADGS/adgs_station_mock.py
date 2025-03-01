@@ -14,6 +14,15 @@ from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from http import HTTPStatus
+from src.COMMON.common_routes import (
+    token_required,
+    register_token_route, 
+    register_app_teardown,
+    KEYS_TO_UPDATE,
+    EMPTY_AUTH_CONFIG
+)
+PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -23,67 +32,11 @@ auth = HTTPBasicAuth()
 
 aditional_operators = [" and ", " or ", " in ", " not "]
 
-
-def token_required(f):
-    """Decorator to enforce token-based authentication for a Flask route.
-
-    This decorator checks for the presence of a valid authorization token in the 
-    request headers. It ensures that the incoming request contains a valid token, 
-    which is compared against a pre-configured value stored in the auth.json file. If the 
-    token is missing or invalid, the request is denied with a 403 Forbidden response.
-
-    Args:
-        f: The Flask route function being decorated.
-
-    Returns:
-        The decorated function that performs token validation before executing the original 
-        route logic.
-    """
-
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        """Inner function that performs token validation for the decorated route.
-
-        This function:
-        - Retrieves the token from the "Authorization" header.
-        - If no token is found or the token is invalid, it logs the error and returns a 403 
-          Forbidden response.
-        - If the token is valid, it allows the original route logic to proceed.
-
-        Args:
-            *args: Positional arguments passed to the original route function.
-            **kwargs: Keyword arguments passed to the original route function.
-
-        Returns:
-            A Response object with a 403 Forbidden status if the token is missing or invalid.
-            Otherwise, the original route function's response is returned.
-        """
-        # Remove tokens information if both access_token and refresh_token are expired
-        clean_token_dict(CONFIG_AUTH)
-        token = None        
-        if "Authorization" in request.headers:
-            token = request.headers["Authorization"].split()[1]
-            logger.info(f"{request.headers['Authorization']}")
-        else:
-            logger.info("NO AUTHORIZATION IN HEADERS")
-
-        if not token:
-            logger.error("Returning HTTPStatus.UNAUTHORIZED. Token is missing")
-            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
-        
-        # Raise an error if the given token doesn't exist in the token dictionary
-        if token not in CONFIG_AUTH["access_token_list"]:
-            logger.error("Returning HTTPStatus.UNAUTHORIZED. Token is invalid!")
-            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
-
-        # Raise an error if the given token exist but is expired
-        token_index = CONFIG_AUTH["access_token_list"].index(token)
-        if (datetime.datetime.now() - CONFIG_AUTH["access_token_creation_date"][token_index]).total_seconds() >= CONFIG_AUTH["expires_in_list"][token_index]:
-            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is valid but is expired!"}))
-        
-        return f(*args, **kwargs)
-
-    return decorated
+#Register route (common to CADIP AND ADGS) to register a new token
+register_token_route(app)
+# Register the method to reset the Json authentication configuration file at 
+# the shutdown of the application
+register_app_teardown(app, PATH_TO_CONFIG)
 
 def additional_options(func):
     """Docstring to be added."""
@@ -173,7 +126,8 @@ def verify_password(username: str, password: str) -> bool:
     :return: True if the password is valid, False otherwise.
     :rtype: Optional[bool]
     """
-    users = json.loads(open(AUTH_PATH).read())
+    auth_path = app.config["configuration_path"] / "auth.json"
+    users = json.loads(open(auth_path).read())
     if username in users.keys():
         return bcrypt.check_password_hash(users.get(username), password)
     return False
@@ -620,89 +574,6 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         send_args = f'config/Storage/{files[0]["Name"]}'
         return send_file(send_args)
 
-@app.route("/oauth2/token", methods=["POST"])
-def token():
-    """OAuth 2.0 token endpoint for issuing an access token based on client credentials.
-
-    It is intended to be used for tests only.
-    This function handles the OAuth 2.0 token request by validating the incoming client 
-    credentials, username, password, and grant type against the pre-configured values 
-    stored in an authentication file (`auth.json`). If the request is valid, an access 
-    token (fake string) is returned in JSON format; otherwise, appropriate error responses are sent.
-
-    The supported grant type is validated against the `grant_type` stored in the configuration.
-
-    Returns:
-        Response: 
-            - A JSON response with the access token and other token-related information 
-              if the client credentials and other parameters are valid.
-            - An HTTP 401 Unauthorized response if the client credentials, username, or 
-              password are invalid.
-            - An HTTP 400 Bad Request response if the grant type is unsupported or missing 
-              required parameters.
-    """
-    # Remove tokens information if both access_token and refresh_token are expired
-    clean_token_dict(CONFIG_AUTH)
-    
-    # Get the form data
-    logger.info("Endpoint oauth2/token called")
-    client_id = request.form.get("client_id")
-    client_secret = request.form.get("client_secret")
-    username = request.form.get("username")
-    password = request.form.get("password")
-    grant_type = request.form.get("grant_type")
-    scope = request.form.get("scope")    
-
-    # Optional Authorization header check
-    # auth_header = request.headers.get('Authorization')
-    # logger.info(f"auth_header {auth_header}")
-    logger.info("Token requested")    
-    if request.headers.get("Authorization", None):
-        logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
-    
-    # Validate required fields
-    if not client_id or not client_secret or not username or not password:
-        logger.error("Invalid client. The token is not granted")
-        return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
-
-    if client_id != CONFIG_AUTH["client_id"] or client_secret != CONFIG_AUTH["client_secret"]:
-        logger.error("Invalid client id and/or secret. The token is not granted")
-        return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": 
-                                                                       f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
-    if username != CONFIG_AUTH["username"] or password != CONFIG_AUTH["password"]:
-        logger.error("Invalid username and/or password. The token is not granted")
-        return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
-    # Validate the grant_type
-    if grant_type != CONFIG_AUTH["grant_type"]:
-        logger.error("Unsupported grant_type. The token is not granted")
-        return json.dumps({"error": "Unsupported grant_type"}), HTTPStatus.BAD_REQUEST
-    
-    # Return a random access token and a refresh token in JSON format
-    expires_in = 70
-    refresh_expires_in = 1800
-    
-    # Add new access token and refresh token to the token dictionary
-    CONFIG_AUTH["access_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
-    CONFIG_AUTH["access_token_creation_date"].append(datetime.datetime.now())
-    CONFIG_AUTH["expires_in_list"].append(expires_in)
-    CONFIG_AUTH["refresh_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
-    CONFIG_AUTH["refresh_token_creation_date"].append(datetime.datetime.now())
-    CONFIG_AUTH["refresh_expires_in_list"].append(refresh_expires_in)
-
-    # Send back the last created token to the the client
-    response = {
-        "access_token": CONFIG_AUTH["access_token_list"][-1],
-        "token_type": "Bearer", 
-        "expires_in": CONFIG_AUTH["expires_in_list"][-1],
-        "refresh_token": CONFIG_AUTH["refresh_token_list"][-1],
-        "refresh_expires_in": CONFIG_AUTH["refresh_expires_in_list"][-1],
-    }
-    
-    logger.info("Grant type validated. Token sent back")
-    logger.info(f"CURRENT DATE: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {CONFIG_AUTH['access_token_list'][-1]}") ###
-    return Response(status=HTTPStatus.OK, response=json.dumps(response))
-
 def create_adgs_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
@@ -732,18 +603,13 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
-    AUTH_PATH = app.config["configuration_path"] / "auth.json"
     
-    # Load and initialize the dictionary to handle authentification and tokens
-    CONFIG_AUTH = json.loads(open(AUTH_PATH).read())
-    KEYS_TO_UPDATE = [
-        "access_token_list", 
-        "access_token_creation_date", 
-        "expires_in_list", 
-        "refresh_token_list", 
-        "refresh_token_creation_date", 
-        "refresh_expires_in_list"
-    ]
-    CONFIG_AUTH.update({key: [] for key in KEYS_TO_UPDATE})
+    # Create a json file containing the authentification configuration
+    # this file will be deleted at the shutdown of the application
+    auth_path =  str(app.config["configuration_path"] / "auth.json")
+    with open(auth_path, "w", encoding="utf-8") as f:
+        json.dump(EMPTY_AUTH_CONFIG, f, indent=4, ensure_ascii=False)  # `indent=4` 
+    
+    
     app.run(debug=True, host=args.host, port=args.port)  # local
     # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN

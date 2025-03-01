@@ -11,13 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from flask import Flask, request, Response
+from flask import Flask, request, Response, current_app
 import json
 import random
 import string
 from datetime import datetime
 import pathlib
 import logging
+from functools import wraps
 from http import HTTPStatus
 logger = logging.getLogger(__name__)
 
@@ -74,6 +75,71 @@ def clean_token_dict(config_auth_dict: dict[list], auth_path: str):
     with open(auth_path, "w", encoding="utf-8") as f:
         json.dump(config_auth_dict, f, indent=4, ensure_ascii=False) 
 
+
+def token_required(f):
+    """Decorator to enforce token-based authentication for a Flask route.
+
+    This decorator checks for the presence of a valid authorization token in the 
+    request headers. It ensures that the incoming request contains a valid token, 
+    which is compared against a pre-configured value stored in the auth.json file. If the 
+    token is missing or invalid, the request is denied with a 403 Forbidden response.
+
+    Args:
+        f: The Flask route function being decorated.
+
+    Returns:
+        The decorated function that performs token validation before executing the original 
+        route logic.
+    """
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        """Inner function that performs token validation for the decorated route.
+
+        This function:
+        - Retrieves the token from the "Authorization" header.
+        - If no token is found or the token is invalid, it logs the error and returns a 403 
+          Forbidden response.
+        - If the token is valid, it allows the original route logic to proceed.
+
+        Args:
+            *args: Positional arguments passed to the original route function.
+            **kwargs: Keyword arguments passed to the original route function.
+
+        Returns:
+            A Response object with a 403 Forbidden status if the token is missing or invalid.
+            Otherwise, the original route function's response is returned.
+        """
+        # Remove tokens information if both access_token and refresh_token are expired
+        # Here we use "current_app" variable because we cannot directly pass the current application
+        # as a parameter to the decorator
+        auth_path = str(current_app.config["configuration_path"] / "auth.json")
+        config_auth = json.loads(open(auth_path).read())    
+        clean_token_dict(config_auth, auth_path)
+        token = None        
+        if "Authorization" in request.headers:
+            token = request.headers["Authorization"].split()[1]
+            logger.info(f"{request.headers['Authorization']}")
+        else:
+            logger.info("NO AUTHORIZATION IN HEADERS")
+
+        if not token:
+            logger.error("Returning HTTP_UNAUTHORIZED. Token is missing")
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
+        
+        # Raise an error if the given token doesn't exist in the token dictionary
+        if token not in config_auth["access_token_list"]:
+            logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
+
+        # Raise an error if the given access token is expired
+        token_index = config_auth["access_token_list"].index(token)
+        if (datetime.now() - datetime.fromisoformat(config_auth["access_token_creation_date"][token_index])).total_seconds() >= config_auth["expires_in_list"][token_index]:
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is valid but is expired!"}))
+        
+        return f(*args, **kwargs)
+
+    return decorated
 
 def register_token_route(app: Flask):
     """Register route /oauth2/token on a Flask instance"""

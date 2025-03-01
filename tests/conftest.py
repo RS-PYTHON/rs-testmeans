@@ -45,8 +45,15 @@ def cadip_client():
 def adgs_client():
     """Docstring to be added."""
     app = create_adgs_app()
+    
+    # We create and activate an application context to keep the application running 
+    # during all requests of the current pytest
+    ctx = app.app_context()  
+    ctx.push() 
     with app.test_client() as client:
         yield client
+    # Deactivate the application context
+    ctx.pop() 
 
 
 @pytest.fixture
@@ -182,19 +189,23 @@ def valid_cadip_header_with_token():
 
 
 @pytest.fixture(name="adgs_client_with_auth")
-def adgs_client_with_auth(adgs_client, adgs_token):
+def adgs_client_with_auth(adgs_client, adgs_token, auth_config, app_header):
     """Fixture to return a client with automatic auth header handling."""
     # Create a session from the test client
     client = adgs_client
 
-    # Attach token to session so it persists across requests
-    client.environ_base["HTTP_AUTHORIZATION"] = adgs_token["Authorization"]
-
+    # Get new credentials by providing valid authentication configuration
+    # and then use these credentials for the following data requests
+    data_to_send = auth_config
+    token_response = client.post("/oauth2/token", data=data_to_send, headers = app_header)
+    token_info = json.loads(token_response.text)
+    client.environ_base["HTTP_AUTHORIZATION"] = f"Token {token_info['access_token']}"
+    
     return client
 
 
 @pytest.fixture(name="cadip_client_with_auth")
-def cadip_client_with_auth(cadip_client, cadip_token, auth_config, app_header):
+def cadip_client_with_auth(cadip_client, auth_config, app_header):
     """Fixture to return a client with automatic auth header handling."""
     # Create a session from the test client
     client = cadip_client

@@ -7,13 +7,30 @@ import pytest
 from http import HTTPStatus
 
 @pytest.mark.unit
-def test_basic_auth(adgs_client, adgs_token):
+def test_basic_auth(adgs_client, auth_config, app_header):
     """Method used to test endpoint access with token."""
+    data_to_send = auth_config
+
+    # ----------- Test if we can get new credentials by providing valid authentication configuration
+    token_response = adgs_client.post("/oauth2/token", data=data_to_send, headers = app_header)
+    assert token_response.status_code == HTTPStatus.OK
+    token_info = json.loads(token_response.text)
+    assert token_info["access_token"]
+    
+    # ----------- Test if the new credentials are valid on get method
     # test credentials on get methods with auth required.
-    assert adgs_client.get("/", headers=adgs_token).status_code == HTTPStatus.OK
-    assert adgs_client.get("/", headers={"Authorization": "Token invalid_value"}).status_code == HTTPStatus.UNAUTHORIZED
-    # test a broken endpoint route
+    hello_response = adgs_client.get("/", headers={"Authorization": f"Token {token_info['access_token']}"})
+    assert hello_response.status_code == HTTPStatus.OK
+    
+    # ----------- Test if the new credentials are valid on get method
+    wrong_token_info = token_info.copy()
+    wrong_token_info["access_token"] = "WrongAccessToken"
+    assert adgs_client.get("/", headers={"Authorization": f"Token {wrong_token_info['access_token']}"}).status_code == HTTPStatus.UNAUTHORIZED
+    
+    # ----------- Test a broken endpoint route
     assert adgs_client.get("incorrectRoute/").status_code == HTTPStatus.NOT_FOUND
+    import time
+    time.sleep(5)
 
 
 @pytest.mark.unit
