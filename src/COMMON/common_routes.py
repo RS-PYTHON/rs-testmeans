@@ -1,0 +1,180 @@
+# Copyright 2024 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+from flask import Flask, request, Response
+import json
+import random
+import string
+from datetime import datetime
+import pathlib
+import logging
+from http import HTTPStatus
+logger = logging.getLogger(__name__)
+
+EMPTY_AUTH_CONFIG = {
+    "client_id": "client_id",
+    "client_secret": "client_secret",
+    "username" : "test",
+    "password" : "test",
+    "grant_type" : "password",
+    "access_token_list": [],
+    "access_token_creation_date": [],
+    "expires_in_list": [],
+    "refresh_token_list": [],
+    "refresh_token_creation_date": [],
+    "refresh_expires_in_list": []
+}
+
+KEYS_TO_UPDATE = [
+    "access_token_list", 
+    "access_token_creation_date", 
+    "expires_in_list", 
+    "refresh_token_list", 
+    "refresh_token_creation_date", 
+    "refresh_expires_in_list"
+]
+
+def clean_token_dict(config_auth_dict: dict[list], auth_path: str):
+    """
+    Function to remove expired tokens from the list of token dictionaries: for each token, 
+    we check if it is expired by comparing its creation date + its life duration with the 
+    current date. If it is expired, we remove information related to this token from all
+    lists of the dictionary
+    
+    Args:
+        config_auth_dict (dict[list]): token information dictionary
+    Return:
+        config_auth_dict (dict[list]): the updated token information dictionary
+    """
+    index_to_delete = []
+    current_time = datetime.now()
+
+    # Get index of elements from the dictionary to delete
+    for i in range(len(config_auth_dict["access_token_list"])):
+        if (current_time - datetime.fromisoformat(config_auth_dict["access_token_creation_date"][i])).total_seconds() >= config_auth_dict["expires_in_list"][i] \
+        and ((current_time - datetime.fromisoformat(config_auth_dict["refresh_token_creation_date"][i])).total_seconds() >= config_auth_dict["refresh_expires_in_list"][i]):
+            index_to_delete.append(i)
+    # Delete elements with selected indexes
+    if index_to_delete:
+        logger.info(f"{len(index_to_delete)} tokens have expired. Deleting them ...")
+        for key in KEYS_TO_UPDATE:
+            config_auth_dict[key] = [value for index, value in enumerate(config_auth_dict[key]) if index not in index_to_delete]
+    
+    # Write the new token dictionary in the auth.json file
+    with open(auth_path, "w", encoding="utf-8") as f:
+        json.dump(config_auth_dict, f, indent=4, ensure_ascii=False) 
+
+
+def register_token_route(app: Flask):
+    """Register route /oauth2/token on a Flask instance"""
+    @app.route("/oauth2/token", methods=["POST"])
+    def token():
+        """OAuth 2.0 token endpoint for issuing an access token based on client credentials.
+
+        It is intended to be used for tests only.
+        This function handles the OAuth 2.0 token request by validating the incoming client 
+        credentials, username, password, and grant type against the pre-configured values 
+        stored in an authentication file (`auth.json`). If the request is valid, an access 
+        token (fake string) is returned in JSON format; otherwise, appropriate error responses are sent.
+
+        The supported grant type is validated against the `grant_type` stored in the configuration.
+
+        Returns:
+            Response: 
+                - A JSON response with the access token and other token-related information 
+                if the client credentials and other parameters are valid.
+                - An HTTP 401 Unauthorized response if the client credentials, username, or 
+                password are invalid.
+                - An HTTP 400 Bad Request response if the grant type is unsupported or missing 
+                required parameters.
+        """
+        # Remove tokens information if both access_token and refresh_token are expired
+        auth_path = str(app.config["configuration_path"] / "auth.json")
+        config_auth = json.loads(open(auth_path).read())    
+        clean_token_dict(config_auth, auth_path)
+        
+        # Get the form data
+        logger.info("Endpoint oauth2/token called")
+        client_id = request.form.get("client_id")
+        client_secret = request.form.get("client_secret")
+        username = request.form.get("username")
+        password = request.form.get("password")
+        grant_type = request.form.get("grant_type")
+        scope = request.form.get("scope")    
+
+        # Optional Authorization header check
+        # auth_header = request.headers.get('Authorization')
+        # logger.info(f"auth_header {auth_header}")
+        logger.info("Token requested")    
+        if request.headers.get("Authorization", None):
+            logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
+        
+        # Validate required fields
+        if not client_id or not client_secret or not username or not password:
+            logger.error("Invalid client. The token is not granted")
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
+
+        if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
+            logger.error("Invalid client id and/or secret. The token is not granted")
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": 
+                                                                        f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
+        if username != config_auth["username"] or password != config_auth["password"]:
+            logger.error("Invalid username and/or password. The token is not granted")
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
+        # Validate the grant_type
+        if grant_type != config_auth["grant_type"]:
+            logger.error("Unsupported grant_type. The token is not granted")
+            return json.dumps({"error": "Unsupported grant_type"}), HTTPStatus.BAD_REQUEST
+        
+        # Return a random access token and a refresh token in JSON format
+        expires_in = 70
+        refresh_expires_in = 1800
+        
+        # Add new access token and refresh token to the token dictionary
+        config_auth["access_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
+        config_auth["access_token_creation_date"].append(datetime.now().isoformat())
+        config_auth["expires_in_list"].append(expires_in)
+        config_auth["refresh_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
+        config_auth["refresh_token_creation_date"].append(datetime.now().isoformat())
+        config_auth["refresh_expires_in_list"].append(refresh_expires_in)
+
+        # Update the authentification configuration file with 
+        with open(auth_path, "w", encoding="utf-8") as f:
+            json.dump(config_auth, f, indent=4, ensure_ascii=False) 
+        
+        # Send back the last created token to the the client
+        response = {
+            "access_token": config_auth["access_token_list"][-1],
+            "token_type": "Bearer", 
+            "expires_in": config_auth["expires_in_list"][-1],
+            "refresh_token": config_auth["refresh_token_list"][-1],
+            "refresh_expires_in": config_auth["refresh_expires_in_list"][-1],
+        }
+        
+        logger.info("Grant type validated. Token sent back")
+        logger.info(f"CURRENT DATE: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {config_auth['access_token_list'][-1]}") ###
+        return Response(status=HTTPStatus.OK, response=json.dumps(response))
+
+def register_app_teardown(app: Flask, path_to_config):
+    """ 
+    Register the method to reset the Json authentication configuration file at 
+    the shutdown of the application
+    """
+    @app.teardown_appcontext
+    def reset_json_auth_config_file(exception=None):
+        """Reset json authentication configuration file to its default value when the application stops"""  
+        # At the end of the pytest, reset the configuration file
+        auth_path = str(path_to_config / "auth.json")
+        with open(auth_path, "w") as f:
+            json.dump(EMPTY_AUTH_CONFIG, f, indent=4)

@@ -4,22 +4,16 @@ import filecmp
 import json
 from pathlib import Path
 import pytest
-
-OK = 200
-BAD_REQUEST = 400
-UNAUTHORIZED = 401
-FORBIDDEN = 403
-NOT_FOUND = 404
-
+from http import HTTPStatus
 
 @pytest.mark.unit
 def test_basic_auth(adgs_client, adgs_token):
     """Method used to test endpoint access with token."""
     # test credentials on get methods with auth required.
-    assert adgs_client.get("/", headers=adgs_token).status_code == OK
-    assert adgs_client.get("/", headers={"Authorization": "Token invalid_value"}).status_code == UNAUTHORIZED
+    assert adgs_client.get("/", headers=adgs_token).status_code == HTTPStatus.OK
+    assert adgs_client.get("/", headers={"Authorization": "Token invalid_value"}).status_code == HTTPStatus.UNAUTHORIZED
     # test a broken endpoint route
-    assert adgs_client.get("incorrectRoute/").status_code == NOT_FOUND
+    assert adgs_client.get("incorrectRoute/").status_code == HTTPStatus.NOT_FOUND
 
 
 @pytest.mark.unit
@@ -50,9 +44,9 @@ def test_basic_auth(adgs_client, adgs_token):
 def test_query_products(adgs_client_with_auth, products_response):
     """Docstring to be added."""
     # test without args
-    assert adgs_client_with_auth.get("Products").status_code == OK # Should return all products
+    assert adgs_client_with_auth.get("Products").status_code == HTTPStatus.OK # Should return all products
     # test with an incorrect filter
-    assert adgs_client_with_auth.get("Products?$filter=Incorrect_filter").status_code == BAD_REQUEST
+    assert adgs_client_with_auth.get("Products?$filter=Incorrect_filter").status_code == HTTPStatus.BAD_REQUEST
     # Response containing more than 1 result, since there are more products matching
     response = adgs_client_with_auth.get("Products?$filter=PublicationDate gt 2019-01-01T00:00:00.000Z")
     assert len(json.loads(response.text)["value"]) > 1
@@ -103,7 +97,7 @@ def test_query_products(adgs_client_with_auth, products_response):
     ]
     for query in time_filters:
         resp = adgs_client_with_auth.get(query)
-        assert resp.status_code == OK
+        assert resp.status_code == HTTPStatus.OK
         resp_data = json.loads(resp.text)
         assert ("value" in resp_data and products_response in resp_data["value"]) or resp_data == json.loads(resp.text)
 
@@ -163,7 +157,7 @@ def test_query_products(adgs_client_with_auth, products_response):
 def test_complex_query(adgs_client_with_auth, query, is_valid):
     # Name and attrs
     resp = adgs_client_with_auth.get(query)
-    assert resp.status_code == OK
+    assert resp.status_code == HTTPStatus.OK
     if is_valid:
         assert json.loads(resp.data)
     else:
@@ -202,12 +196,12 @@ def test_download_file(adgs_client_with_auth, local_path, download_path):
 
     # Test download for a nonexistent file (404 expected)
     api_route = "Products(some_inexistent_ID)/$value"
-    assert adgs_client_with_auth.get(api_route).status_code == NOT_FOUND
+    assert adgs_client_with_auth.get(api_route).status_code == HTTPStatus.NOT_FOUND
 
     # Test existing file download
     api_route = "Products(2b17b57d-fff4-4645-b539-91f305c27c69)/$value"
     response = adgs_client_with_auth.get(api_route)
-    assert response.status_code == OK
+    assert response.status_code == HTTPStatus.OK
 
     # Dump response to file
     with download_file_path.open("wb+") as df:

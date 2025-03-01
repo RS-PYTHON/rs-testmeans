@@ -16,6 +16,16 @@ from flask_httpauth import HTTPBasicAuth
 import multiprocessing
 import random
 import string
+from http import HTTPStatus
+
+from src.COMMON.common_routes import (
+    register_token_route, 
+    register_app_teardown,
+    KEYS_TO_UPDATE,
+    EMPTY_AUTH_CONFIG
+)
+
+PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -24,34 +34,11 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 
-HTTP_OK = 200
-HTTP_BAD_REQUEST = 400
-HTTP_UNAUTHORIZED = 401
-HTTP_NOT_FOUND = 404
-
-EMPTY_AUTH_CONFIG = {
-    "client_id": "client_id",
-    "client_secret": "client_secret",
-    "username" : "test",
-    "password" : "test",
-    "grant_type" : "password",
-    "access_token_list": [],
-    "access_token_creation_date": [],
-    "expires_in_list": [],
-    "refresh_token_list": [],
-    "refresh_token_creation_date": [],
-    "refresh_expires_in_list": []
-}
-
-KEYS_TO_UPDATE = [
-    "access_token_list", 
-    "access_token_creation_date", 
-    "expires_in_list", 
-    "refresh_token_list", 
-    "refresh_token_creation_date", 
-    "refresh_expires_in_list"
-]
-PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
+#Register route (common to CADIP AND ADGS) to register a new token
+register_token_route(app)
+# Register the method to reset the Json authentication configuration file at 
+# the shutdown of the application
+register_app_teardown(app, PATH_TO_CONFIG)
 
 def token_required(f):
     """Decorator to enforce token-based authentication for a Flask route.
@@ -100,17 +87,17 @@ def token_required(f):
 
         if not token:
             logger.error("Returning HTTP_UNAUTHORIZED. Token is missing")
-            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
         
         # Raise an error if the given token doesn't exist in the token dictionary
         if token not in config_auth["access_token_list"]:
             logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
-            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
 
         # Raise an error if the given access token is expired
         token_index = config_auth["access_token_list"].index(token)
         if (datetime.now() - datetime.fromisoformat(config_auth["access_token_creation_date"][token_index])).total_seconds() >= config_auth["expires_in_list"][token_index]:
-            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is valid but is expired!"}))
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is valid but is expired!"}))
         
         return f(*args, **kwargs)
 
@@ -183,7 +170,7 @@ def verify_password(username, password) -> bool:
 @app.route("/health", methods=["GET"])
 def ready_live_status():
     """Docstring to be added."""
-    return Response(status=HTTP_OK)
+    return Response(status=HTTPStatus.OK)
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -191,7 +178,7 @@ def ready_live_status():
 def hello():
     """Docstring to be added."""
     # Used only for auth, if reached here, return HTTP_OK.
-    return Response(status=HTTP_OK)
+    return Response(status=HTTPStatus.OK)
 
 
 # 3.3 (PSD)
@@ -203,7 +190,7 @@ def query_session() -> Response | list[Any]:
     catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
     catalog_data = json.loads(open(catalog_path).read())
     if "$filter" not in request.args:
-        return Response(status=HTTP_OK, response=batch_response_odata_v4(catalog_data['Data']), headers=request.args)
+        return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(catalog_data['Data']), headers=request.args)
         # return Response('Bad Request', Response.status_code(400), None)
     
     # Handle parantheses
@@ -212,7 +199,7 @@ def query_session() -> Response | list[Any]:
         if not any(
             [query_text == request.args["$filter"].strip('"').split(" ")[0] for query_text in SPJ_LUT.keys()],
         ):
-            return Response(status=HTTP_BAD_REQUEST)
+            return Response(status=HTTPStatus.BAD_REQUEST)
     # Proceed to process request
     catalog_path_files = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data_files = json.loads(open(catalog_path_files).read())
@@ -224,10 +211,10 @@ def query_session() -> Response | list[Any]:
     if len(split_request := [req.strip() for req in request.args["$filter"].split("and")]) in [2, 3, 4]:
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
         if not all(resp.status_code == 200 for resp in responses):
-            return Response(response=json.dumps([]), status=HTTP_OK)
+            return Response(response=json.dumps([]), status=HTTPStatus.OK)
         if any(not resp.response for resp in responses):
             # Case where an response is empty or not dict => the query is empty
-            return Response(status=HTTP_OK, response = json.dumps({"value": []}))
+            return Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
         try:
             responses_json = [json.loads(resp.data).get("value", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
@@ -246,17 +233,17 @@ def query_session() -> Response | list[Any]:
                     )
                     files = files["value"] if "value" in files else [files]
                     session.update({"Files": [file for file in files]})
-                return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+                return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(common_elements), headers=request.args)
             else:
                 # If expand is enabled with -e and request contains &$expand
                 # Do not expand
                 return (
-                    Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+                    Response(status=HTTPStatus.OK, response=batch_response_odata_v4(common_elements), headers=request.args)
                     if common_elements
-                    else (Response(response=json.dumps([]), status=HTTP_OK))
+                    else (Response(response=json.dumps([]), status=HTTPStatus.OK))
                 )
         except (json.JSONDecodeError, AttributeError):  # if a response is empty, whole querry is empty
-            return Response(status=HTTP_OK, response = json.dumps({"value": []}))
+            return Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
     elif len(split_request := [req.strip() for req in request.args["$filter"].split("or")]) in [2, 3, 4]:
         # add test when a response is empty, and other not.
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
@@ -281,12 +268,12 @@ def query_session() -> Response | list[Any]:
                 )
                 files = files["value"] if "value" in files else [files]
                 session.update({"Files": [file for file in files]})
-            return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+            return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(common_elements), headers=request.args)
         else:
             return (
-                Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements))
+                Response(status=HTTPStatus.OK, response=batch_response_odata_v4(common_elements))
                 if common_elements
-                else Response(status=HTTP_OK, response = json.dumps({"value": []}))
+                else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
             )
 
     if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
@@ -307,7 +294,7 @@ def query_session() -> Response | list[Any]:
             files = files["value"] if "value" in files else [files]
             session.update({"Files": [file for file in files]})
         session_response = batch_response_odata_v4(session_response) if session_response else json.dumps([])
-        return Response(status=HTTP_OK, response=session_response, headers=request.args)
+        return Response(status=HTTPStatus.OK, response=session_response, headers=request.args)
     else:
         return process_session_request(request.args["$filter"], request.args, catalog_data)
 
@@ -317,7 +304,7 @@ def manage_int_querry(op, value, catalog_data, field, headers):
     try:
         value = int(value)
     except ValueError:
-        return Response(status=HTTP_BAD_REQUEST)
+        return Response(status=HTTPStatus.BAD_REQUEST)
     match op:
         case "eq":
             query_result = [product for product in catalog_data["Data"] if value == int(product[field])]
@@ -326,9 +313,9 @@ def manage_int_querry(op, value, catalog_data, field, headers):
         case "gt":
             query_result = [product for product in catalog_data["Data"] if value < int(product[field])]
     return (
-        Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
+        Response(status=HTTPStatus.OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=HTTP_OK, response = json.dumps({"value": []}))
+        else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
     )
 
 
@@ -336,9 +323,9 @@ def manage_bool_querry(op, value, catalog_data, field, headers):
     """Docstring to be added."""
     query_result = [product for product in catalog_data["Data"] if value.lower() == str(product[field]).lower()]
     return (
-        Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
+        Response(status=HTTPStatus.OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=HTTP_OK, response = json.dumps({"value": []}))
+        else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
     )
 
 
@@ -355,10 +342,10 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
             ]
             query_result = [product for sublist in query_result for product in sublist]
     return (
-        Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
+        Response(status=HTTPStatus.OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
         # as per ICD response is HTTP_OK even if empty
-        else Response(status=HTTP_OK, response=json.dumps([]))
+        else Response(status=HTTPStatus.OK, response=json.dumps([]))
     )
 
 
@@ -370,9 +357,9 @@ def manage_str_querry(op, value, catalog_data, field, headers):
         case "in":
             query_result = [product for product in catalog_data["Data"] if value in product[field]]
     return (
-        Response(status=HTTP_OK, response=batch_response_odata_v4(query_result), headers=headers)
+        Response(status=HTTPStatus.OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=HTTP_OK, response = json.dumps({"value": []}))
+        else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
     )
 
 
@@ -402,12 +389,12 @@ def manage_datetime_querry(op, value, catalog_data, field, headers):
             ]
         case _:
             # If the operation is not recognized, return a 404 NOT FOUND response
-            return Response(status=HTTP_OK, response = json.dumps({"value": []}))
+            return Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
     # Return the response with the processed results or a 404 NOT FOUND if no results are found
     return (
-        Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
+        Response(status=HTTPStatus.OK, response=batch_response_odata_v4(resp_body), headers=headers)
         if resp_body
-        else Response(status=HTTP_OK, response = json.dumps({"value": []}))
+        else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
     )
 
 
@@ -447,19 +434,19 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
         sresp_set = {d.get("Id", None) for d in second_response}
         union_set = fresp_set.union(sresp_set)
         union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-        return Response(status=HTTP_OK, response=batch_response_odata_v4(union_elements), headers=headers)
+        return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(union_elements), headers=headers)
     try:
         field, op, *value = map(
             lambda norm: norm.replace("'", ""),
             request.strip('"()').split(" "),
         )
     except:
-        return Response(status=HTTP_OK, response = json.dumps({"value": []}))
+        return Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
     # field, op, *value = request.split(" ")
     value = " ".join(value)
     # return results or the 200HTTP_OK code is returned with an empty response (PSD)
     return (
-        SPJ_LUT[field](op, value, catalog_data, field, headers) if field in SPJ_LUT else Response(status=HTTP_OK, response = json.dumps({"value": []}))
+        SPJ_LUT[field](op, value, catalog_data, field, headers) if field in SPJ_LUT else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
     )
 
 
@@ -470,7 +457,7 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
 def query_files() -> Response | list[Any]:
     """Docstring to be added."""
     if not request.args:
-        return Response(status=HTTP_BAD_REQUEST)
+        return Response(status=HTTPStatus.BAD_REQUEST)
 
     if not any(
         [
@@ -478,7 +465,7 @@ def query_files() -> Response | list[Any]:
             for query_text in ["Id", "Orbit", "Name", "PublicationDate", "SessionID"]
         ],
     ):
-        return Response(status=HTTP_BAD_REQUEST)
+        return Response(status=HTTPStatus.BAD_REQUEST)
     catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
 
@@ -493,7 +480,7 @@ def query_files() -> Response | list[Any]:
             sresp_set = {d.get("Id", None) for d in second_response}
             union_set = fresp_set.union(sresp_set)
             union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-            return Response(status=HTTP_OK, response=batch_response_odata_v4(union_elements), headers=request.args)
+            return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(union_elements), headers=request.args)
         else:
             union_elements = []
             for op in request.args["$filter"].split(" and "):
@@ -510,7 +497,7 @@ def query_files() -> Response | list[Any]:
             second_ops_response = {d.get("Id", None) for d in union_elements[1]}
             common_response = first_ops_response.intersection(second_ops_response)
             common_elements = [d for d in first_response if d.get("Id") in common_response]
-            return Response(status=HTTP_OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+            return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(common_elements), headers=request.args)
 
     accepted_operators = [" and ", " or ", " not "]
     if any(header in request.args["$filter"] for header in accepted_operators):
@@ -542,15 +529,15 @@ def query_files() -> Response | list[Any]:
                 common_elements = [d for d in first_response if d.get("Id") in common_response]
                 if common_elements:
                     return Response(
-                        status=HTTP_OK,
+                        status=HTTPStatus.OK,
                         response=batch_response_odata_v4(common_elements),
                         headers=request.args,
                     )
-                return Response(status=HTTP_OK, response=json.dumps([]))
+                return Response(status=HTTPStatus.OK, response=json.dumps([]))
             case "or":  # union
                 union_set = fresp_set.union(sresp_set)
                 union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-                return Response(status=HTTP_OK, response=batch_response_odata_v4(union_elements), headers=request.args)
+                return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(union_elements), headers=request.args)
     return process_files_request(request.args["$filter"], request.args, catalog_data)
 
 
@@ -571,9 +558,9 @@ def process_files_request(request, headers, catalog_data):
             case "endswith":
                 resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)]
         return (
-            Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTPStatus.OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTP_OK, response = json.dumps({"value": []}))
+            else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
@@ -613,9 +600,9 @@ def process_files_request(request, headers, catalog_data):
                     if date > datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
                 ]
         return (
-            Response(status=HTTP_OK, response=batch_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTPStatus.OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTP_OK, response = json.dumps({"value": []}))
+            else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
         )
     else:  # SessionId / Orbit
         request = request.replace('"', "")
@@ -628,9 +615,9 @@ def process_files_request(request, headers, catalog_data):
                 for idx in value:
                     matching += [product for product in catalog_data["Data"] if idx.strip("('),") in product[field]]
         return (
-            Response(response=batch_response_odata_v4(matching), status=HTTP_OK, headers=headers)
+            Response(response=batch_response_odata_v4(matching), status=HTTPStatus.OK, headers=headers)
             if matching
-            else Response(status=HTTP_OK, response = json.dumps({"value": []}))
+            else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
         )
 
 def clean_token_dict(config_auth_dict: dict[list], auth_path: str):
@@ -718,98 +705,9 @@ def quality_info(Id) -> Response | list[Any]:  # noqa: N803
                 json.dumps,
                 [QIData for QIData in catalog_data["Data"] if Id.replace("'", "") == QIData["Id"]],
             )
-            return Response(status=HTTP_OK, response=QIData)
+            return Response(status=HTTPStatus.OK, response=QIData)
     return Response(status="405 Request denied, need qualityInfo")
 
-
-@app.route("/oauth2/token", methods=["POST"])
-def token():
-    """OAuth 2.0 token endpoint for issuing an access token based on client credentials.
-
-    It is intended to be used for tests only.
-    This function handles the OAuth 2.0 token request by validating the incoming client 
-    credentials, username, password, and grant type against the pre-configured values 
-    stored in an authentication file (`auth.json`). If the request is valid, an access 
-    token (fake string) is returned in JSON format; otherwise, appropriate error responses are sent.
-
-    The supported grant type is validated against the `grant_type` stored in the configuration.
-
-    Returns:
-        Response: 
-            - A JSON response with the access token and other token-related information 
-              if the client credentials and other parameters are valid.
-            - An HTTP 401 Unauthorized response if the client credentials, username, or 
-              password are invalid.
-            - An HTTP 400 Bad Request response if the grant type is unsupported or missing 
-              required parameters.
-    """
-    # Remove tokens information if both access_token and refresh_token are expired
-    auth_path = str(app.config["configuration_path"] / "auth.json")
-    config_auth = json.loads(open(auth_path).read())    
-    clean_token_dict(config_auth, auth_path)
-    
-    # Get the form data
-    logger.info("Endpoint oauth2/token called")
-    client_id = request.form.get("client_id")
-    client_secret = request.form.get("client_secret")
-    username = request.form.get("username")
-    password = request.form.get("password")
-    grant_type = request.form.get("grant_type")
-    scope = request.form.get("scope")    
-
-    # Optional Authorization header check
-    # auth_header = request.headers.get('Authorization')
-    # logger.info(f"auth_header {auth_header}")
-    logger.info("Token requested")    
-    if request.headers.get("Authorization", None):
-        logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
-    
-    # Validate required fields
-    if not client_id or not client_secret or not username or not password:
-        logger.error("Invalid client. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
-
-    if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
-        logger.error("Invalid client id and/or secret. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": 
-                                                                       f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
-    if username != config_auth["username"] or password != config_auth["password"]:
-        logger.error("Invalid username and/or password. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
-    # Validate the grant_type
-    if grant_type != config_auth["grant_type"]:
-        logger.error("Unsupported grant_type. The token is not granted")
-        return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST
-    
-    # Return a random access token and a refresh token in JSON format
-    expires_in = 70
-    refresh_expires_in = 1800
-    
-    # Add new access token and refresh token to the token dictionary
-    config_auth["access_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
-    config_auth["access_token_creation_date"].append(datetime.now().isoformat())
-    config_auth["expires_in_list"].append(expires_in)
-    config_auth["refresh_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
-    config_auth["refresh_token_creation_date"].append(datetime.now().isoformat())
-    config_auth["refresh_expires_in_list"].append(refresh_expires_in)
-
-    # Update the authentification configuration file with 
-    with open(auth_path, "w", encoding="utf-8") as f:
-        json.dump(config_auth, f, indent=4, ensure_ascii=False) 
-    
-    # Send back the last created token to the the client
-    response = {
-        "access_token": config_auth["access_token_list"][-1],
-        "token_type": "Bearer", 
-        "expires_in": config_auth["expires_in_list"][-1],
-        "refresh_token": config_auth["refresh_token_list"][-1],
-        "refresh_expires_in": config_auth["refresh_expires_in_list"][-1],
-    }
-    
-    logger.info("Grant type validated. Token sent back")
-    logger.info(f"CURRENT DATE: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {config_auth['access_token_list'][-1]}") ###
-    return Response(status=HTTP_OK, response=json.dumps(response))
 
 def create_cadip_app():
     """Docstring to be added."""
@@ -823,14 +721,6 @@ def run_app_on_port(host, port):
     logger.info(f"Starting server on {host}:{port}")
     app.run(debug=True, host=host, port=port)
 
-
-@app.teardown_appcontext
-def reset_json_auth_config_file(exception=None):
-    """Reset json authentication configuration file to its default value when the application stops"""  
-    # At the end of the pytest, reset the configuration file
-    auth_path = str(PATH_TO_CONFIG / "auth.json")
-    with open(auth_path, "w") as f:
-        json.dump(EMPTY_AUTH_CONFIG, f, indent=4)
 
 if __name__ == "__main__":
     """Docstring to be added."""

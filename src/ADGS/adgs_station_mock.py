@@ -13,17 +13,13 @@ import string
 from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
+from http import HTTPStatus
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
-
-HTTP_OK = 200
-HTTP_BAD_REQUEST = 400
-HTTP_UNAUTHORIZED = 401
-HTTP_NOT_FOUND = 404
 
 aditional_operators = [" and ", " or ", " in ", " not "]
 
@@ -72,18 +68,18 @@ def token_required(f):
             logger.info("NO AUTHORIZATION IN HEADERS")
 
         if not token:
-            logger.error("Returning HTTP_UNAUTHORIZED. Token is missing")
-            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
+            logger.error("Returning HTTPStatus.UNAUTHORIZED. Token is missing")
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
         
         # Raise an error if the given token doesn't exist in the token dictionary
         if token not in CONFIG_AUTH["access_token_list"]:
-            logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
-            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
+            logger.error("Returning HTTPStatus.UNAUTHORIZED. Token is invalid!")
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
 
         # Raise an error if the given token exist but is expired
         token_index = CONFIG_AUTH["access_token_list"].index(token)
         if (datetime.datetime.now() - CONFIG_AUTH["access_token_creation_date"][token_index]).total_seconds() >= CONFIG_AUTH["expires_in_list"][token_index]:
-            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is valid but is expired!"}))
+            return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"message": "Token is valid but is expired!"}))
         
         return f(*args, **kwargs)
 
@@ -186,14 +182,14 @@ def verify_password(username: str, password: str) -> bool:
 @app.route("/health", methods=["GET"])
 def ready_live_status():
     """Docstring to be added."""
-    return Response(status=HTTP_OK)
+    return Response(status=HTTPStatus.OK)
 
 
 @app.route("/", methods=["GET", "POST"])
 @token_required
 def hello():
     """Docstring to be added."""
-    return Response(status=HTTP_OK)
+    return Response(status=HTTPStatus.OK)
 
 
 def process_products_request(request, headers):
@@ -213,9 +209,9 @@ def process_products_request(request, headers):
             case "endswith":
                 resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)]
         return (
-            Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTP_NOT_FOUND)
+            else Response(status=HTTPStatus.NOT_FOUND)
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
@@ -254,11 +250,11 @@ def process_products_request(request, headers):
                 ]
             case _:
                 # If the operation is not recognized, return a 404 NOT FOUND response
-                return Response(status=HTTP_NOT_FOUND)
+                return Response(status=HTTPStatus.NOT_FOUND)
         return (
-            Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         )
     elif "ContentDate" in request:
         pattern = r"Start (\S+) (\S+) and ContentDate/End (\S+) (\S+)"
@@ -287,9 +283,9 @@ def process_products_request(request, headers):
                         )
                     ]
             return (
-                Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+                Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
                 if resp_body
-                else Response(status=HTTP_OK, response=json.dumps({"value": []}))
+                else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
             )
         else:
             field, op, value = request.split(" ")
@@ -300,14 +296,14 @@ def process_products_request(request, headers):
                     if date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
                 ]
             return (
-                Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+                Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
                 if resp_body
-                else Response(status=HTTP_OK, response=json.dumps({"value": []}))
+                else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
             )
     elif "Attributes" in request.args["$filter"]:
         pass  # WIP
     else:
-        return Response(status=HTTP_BAD_REQUEST)
+        return Response(status=HTTPStatus.BAD_REQUEST)
 
 def process_query(query):
     # Step 1: Remove the part before "any("
@@ -353,7 +349,7 @@ def process_attributes_search(query, headers):
     elif len(results) == 4:
         part1 = process_individual_query_part(process_query(query)[:2], headers)
         part2 = process_individual_query_part(process_query(query)[2:], headers)
-        return Response(status=HTTP_OK, response=prepare_response_odata_v4(process_response(part1, part2)), headers=headers)
+        return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(process_response(part1, part2)), headers=headers)
 
 def process_response(query_resp1, query_resp2):
     response1 = json.loads(query_resp1.response[0].decode('utf-8')).get("value", json.loads(query_resp1.response[0].decode('utf-8')))
@@ -398,7 +394,7 @@ def process_individual_query_part(query_parts, headers):
                         resp.append(product)
                 except KeyError:
                     continue
-    return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else []), headers=headers)
+    return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp if resp else []), headers=headers)
 
 def process_common_elements(first_response, second_response, operator):
     try:
@@ -429,16 +425,16 @@ def process_common_elements(first_response, second_response, operator):
             common_elements = [d for d in first_response if d.get("Id") in common_response]
             if common_elements:
                 return Response(
-                    status=HTTP_OK,
+                    status=HTTPStatus.OK,
                     response=prepare_response_odata_v4(common_elements),
                     headers=request.args,
                 )
-            return Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         case "or":  # union
             union_set = fresp_set.union(sresp_set)
             union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
             return Response(
-                status=HTTP_OK,
+                status=HTTPStatus.OK,
                 response=prepare_response_odata_v4(union_elements),
                 headers=request.args,
             )
@@ -479,13 +475,13 @@ def query_products():
     if "$filter" not in request.args:
         catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
         catalog_data = json.loads(open(catalog_path).read())
-        return Response(status=HTTP_OK, response=prepare_response_odata_v4(catalog_data['Data']), headers=request.args)
+        return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(catalog_data['Data']), headers=request.args)
         # Handle parantheses
     if not (match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args["$filter"])):
         if not any(
             [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes", "ContentDate/Start", "ContentDate/End"]],
         ):
-            return Response(status=HTTP_BAD_REQUEST)
+            return Response(status=HTTPStatus.BAD_REQUEST)
     else:
         if " and " not in request.args['$filter']:
             conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
@@ -496,7 +492,7 @@ def query_products():
             sresp_set = {d.get("Id", None) for d in second_response}
             union_set = fresp_set.union(sresp_set)
             union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-            return Response(status=HTTP_OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
+            return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
         match len(request.args['$filter'].split(" and ")):
             case 1:
                 conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
@@ -514,11 +510,11 @@ def query_products():
                 common_elements = [d for d in responses if d.get("Id") in common_response]
                 if common_elements:
                     return Response(
-                        status=HTTP_OK,
+                        status=HTTPStatus.OK,
                         response=prepare_response_odata_v4(common_elements),
                         headers=request.args,
                     )
-                return Response(status=HTTP_OK, response=json.dumps({"value": []}))
+                return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
             case 2:
                 union_elements = []
                 for ops in request.args['$filter'].split(" and "):
@@ -535,11 +531,11 @@ def query_products():
                 second_ops_response = {d.get("Id", None) for d in union_elements[1]}
                 common_response = first_ops_response.intersection(second_ops_response)
                 common_elements = [d for d in first_response + second_response if d.get("Id") in common_response]
-                return Response(status=HTTP_OK, response=prepare_response_odata_v4(common_elements), headers=request.args)
+                return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(common_elements), headers=request.args)
             case _:
                 msg = "Too complex for adgs sim"
                 logger.error(msg)
-                return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
+                return Response ("Too complex for adgs sim", status=HTTPStatus.BAD_REQUEST)
 
     if len(qs_parser := request.args['$filter'].split(' and ')) > 2:
         outputs = []
@@ -554,7 +550,7 @@ def query_products():
         if len(properties_filter) > 4 or len(attributes_filter) > 4:
             msg = "Too complex for adgs sim"
             logger.error(msg)
-            return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
+            return Response ("Too complex for adgs sim", status=HTTPStatus.BAD_REQUEST)
 
         # Process each property in the filter
         processed_requests = [
@@ -584,7 +580,7 @@ def query_products():
         try:
             return process_common_elements(outputs[0], outputs[1], "and")
         except IndexError:
-            return Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
 
     if "Attributes" in request.args['$filter'] or "OData.CSC" in request.args['$filter']:
         return process_attributes_search(request.args['$filter'], request.args)
@@ -667,19 +663,19 @@ def token():
     # Validate required fields
     if not client_id or not client_secret or not username or not password:
         logger.error("Invalid client. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
+        return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
 
     if client_id != CONFIG_AUTH["client_id"] or client_secret != CONFIG_AUTH["client_secret"]:
         logger.error("Invalid client id and/or secret. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": 
+        return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": 
                                                                        f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
     if username != CONFIG_AUTH["username"] or password != CONFIG_AUTH["password"]:
         logger.error("Invalid username and/or password. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
+        return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
     # Validate the grant_type
     if grant_type != CONFIG_AUTH["grant_type"]:
         logger.error("Unsupported grant_type. The token is not granted")
-        return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST
+        return json.dumps({"error": "Unsupported grant_type"}), HTTPStatus.BAD_REQUEST
     
     # Return a random access token and a refresh token in JSON format
     expires_in = 70
@@ -705,7 +701,7 @@ def token():
     logger.info("Grant type validated. Token sent back")
     logger.info(f"CURRENT DATE: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {CONFIG_AUTH['access_token_list'][-1]}") ###
-    return Response(status=HTTP_OK, response=json.dumps(response))
+    return Response(status=HTTPStatus.OK, response=json.dumps(response))
 
 def create_adgs_app():
     """Docstring to be added."""
