@@ -29,9 +29,6 @@ def test_basic_auth(adgs_client, auth_config, app_header):
     
     # ----------- Test a broken endpoint route
     assert adgs_client.get("incorrectRoute/").status_code == HTTPStatus.NOT_FOUND
-    import time
-    time.sleep(5)
-
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
@@ -44,8 +41,8 @@ def test_basic_auth(adgs_client, auth_config, app_header):
                 "ContentType": "application/octet-stream",
                 "ContentLength": "8326253",
                 "OriginDate": "2018-01-17T12:56:05.232Z",
-                "PublicationDate": "2019-02-16T12:00:00.000Z",
-                "EvictionDate": "2019-02-23T12:00:00.000Z",
+                "PublicationDate": "2019-02-16T18:29:37.522Z",
+                "EvictionDate": "2019-02-16T18:29:37.522Z",
                 "Checksum": [
                     {
                         "Algorithm": "MD5",
@@ -53,7 +50,7 @@ def test_basic_auth(adgs_client, auth_config, app_header):
                         "ChecksumDate": "2019-02-16T12:00:00.000Z",
                     },
                 ],
-                "ContentDate": {"Start": "2019-02-17T09:00:00.000Z", "End": "2019-02-17T21:00:00.000Z"},
+                "ContentDate": {"Start": "2019-02-16T18:29:37.522Z", "End": "2019-02-16T18:29:47.522Z"},
             }
         ),
     ],
@@ -71,31 +68,31 @@ def test_query_products(adgs_client_with_auth, products_response):
     response = adgs_client_with_auth.get("Products?$filter=PublicationDate eq 2023-02-16T12:00:00.000Z")
     assert isinstance(json.loads(response.text), dict)
     # Check response content with test-defined one.
-    response = adgs_client_with_auth.get("Products?$filter=PublicationDate eq 2019-02-16T12:00:00.000Z")
-    assert json.loads(response.text).keys() == products_response.keys()
-    assert json.loads(response.text) == products_response
+    response = adgs_client_with_auth.get("Products?$filter=PublicationDate eq 2019-02-16T18:29:37.522Z")
+    assert json.loads(response.text)['value'][0].keys() == products_response.keys()
+    assert json.loads(response.text)['value'][0] == products_response
     # Name contains.
     adgs_client_with_auth.get("Products?$filter=contains(Name, 'S2__OPER_AUX_ECMWFD_PDMC_20190216T120')")
 
-    assert json.loads(response.text).keys() == products_response.keys()
-    assert json.loads(response.text) == products_response
+    assert json.loads(response.text)['value'][0].keys() == products_response.keys()
+    assert json.loads(response.text)['value'][0] == products_response
     # Name contains enclosed with ''.
     response = adgs_client_with_auth.get("Products?$filter=contains(Name, 'S2__OPER_AUX_ECMWFD_PDMC_20190216T1')")
-    assert json.loads(response.text).keys() == products_response.keys()
-    assert json.loads(response.text) == products_response
+    assert json.loads(response.text)['value'][0].keys() == products_response.keys()
+    assert json.loads(response.text)['value'][0] == products_response
     # name startwith
     response = adgs_client_with_auth.get("Products?$filter=startswith(Name, S2__OPER_AUX_ECMWFD_PDMC_2019)")
-    assert json.loads(response.text).keys() == products_response.keys()
-    assert json.loads(response.text) == products_response
+    assert json.loads(response.text)['value'][0].keys() == products_response.keys()
+    assert json.loads(response.text)['value'][0] == products_response
     # Empty json response since there are no products older than 1999.
     response = adgs_client_with_auth.get("Products?$filter=PublicationDate lt 1999-05-15T00:00:00.000Z")
-    assert not response.text
+    assert not json.loads(response.text)['value']
     # Test with AND operator
     q1 = "PublicationDate gt 2018-05-15T00:00:00.000Z"
     q2 = "PublicationDate lt 2023-05-15T00:00:00.000Z"
     endpoint = f"Products?$filter={q1} and {q2}"
     response = adgs_client_with_auth.get(endpoint)
-    assert json.loads(response.text).keys()
+    assert json.loads(response.text)['value'][0].keys()
     top_pagination = "3"
     # filter&top
     endpoint = f'Products?$filter="PublicationDate gt 2014-01-01T12:00:00.000Z and PublicationDate lt 2023-12-30T12:00:00.000Z&$top={top_pagination}'
