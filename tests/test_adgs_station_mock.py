@@ -7,9 +7,9 @@ import pytest
 from http import HTTPStatus
 
 @pytest.mark.unit
-def test_basic_auth(adgs_client, auth_config, app_header):
+def test_basic_auth(adgs_client, external_auth_config, app_header):
     """Method used to test endpoint access with token."""
-    data_to_send = auth_config
+    data_to_send = external_auth_config
 
     # ----------- Test if we can get new credentials by providing valid authentication configuration
     token_response = adgs_client.post("/oauth2/token", data=data_to_send, headers = app_header)

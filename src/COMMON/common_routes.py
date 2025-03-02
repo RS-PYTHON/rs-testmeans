@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 from flask import Flask, request, Response, current_app
 import json
 import random
@@ -36,6 +37,20 @@ EMPTY_AUTH_CONFIG = {
     "refresh_expires_in_list": []
 }
 
+EMPTY_TOKEN_DICT = {
+    "client_id": str,
+    "client_secret": str,
+    "username": str,
+    "password": str,
+    "grant_type": str,
+    "access_token_list": list,
+    "access_token_creation_date": list,
+    "expires_in_list": list,
+    "refresh_token_list": list,
+    "refresh_token_creation_date": list,
+    "refresh_expires_in_list": list,
+}
+
 KEYS_TO_UPDATE = [
     "access_token_list", 
     "access_token_creation_date", 
@@ -59,6 +74,19 @@ def clean_token_dict(config_auth_dict: dict[list], auth_path: str):
     """
     index_to_delete = []
     current_time = datetime.now()
+    
+    # Check that the file containing the token information exist
+    if not os.path.isfile(auth_path):
+        raise FileNotFoundError(f"The file {auth_path} does not exist")
+        
+    # Check that the token dictionary contains all mandatory keys
+    # And the right value types
+    for key, value in EMPTY_TOKEN_DICT.items():
+        if key not in config_auth_dict:
+            raise KeyError(f"Mandatory key {key} is missing from the json token dictionary")
+        if not isinstance(config_auth_dict[key], EMPTY_TOKEN_DICT[key]):
+            raise TypeError(f"""Value from key {key} doesn't have the right type:""" 
+                            f"""got {type(config_auth_dict[key])}, expected {value}""")
 
     # Get index of elements from the dictionary to delete
     for i in range(len(config_auth_dict["access_token_list"])):
@@ -67,13 +95,18 @@ def clean_token_dict(config_auth_dict: dict[list], auth_path: str):
             index_to_delete.append(i)
     # Delete elements with selected indexes
     if index_to_delete:
-        logger.info(f"{len(index_to_delete)} tokens have expired. Deleting them ...")
+        logger.info(f"{len(index_to_delete)} token(s) have expired. Deleting them ...")
         for key in KEYS_TO_UPDATE:
             config_auth_dict[key] = [value for index, value in enumerate(config_auth_dict[key]) if index not in index_to_delete]
     
     # Write the new token dictionary in the auth.json file
-    with open(auth_path, "w", encoding="utf-8") as f:
-        json.dump(config_auth_dict, f, indent=4, ensure_ascii=False) 
+    try:
+        with open(auth_path, "w", encoding="utf-8") as f:
+            json.dump(config_auth_dict, f, indent=4, ensure_ascii=False)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"The file '{auth_path}' cannot be found.")
+    except json.JSONDecodeError:
+        raise ValueError(f"The file '{auth_path}' is not valid Json.")
 
 
 def token_required(f):

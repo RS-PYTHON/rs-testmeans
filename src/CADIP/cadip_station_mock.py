@@ -557,36 +557,6 @@ def process_files_request(request, headers, catalog_data):
             if matching
             else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
         )
-
-def clean_token_dict(config_auth_dict: dict[list], auth_path: str):
-    """
-    Function to remove expired tokens from the list of token dictionaries: for each token, 
-    we check if it is expired by comparing its creation date + its life duration with the 
-    current date. If it is expired, we remove information related to this token from all
-    lists of the dictionary
-    
-    Args:
-        config_auth_dict (dict[list]): token information dictionary
-    Return:
-        config_auth_dict (dict[list]): the updated token information dictionary
-    """
-    index_to_delete = []
-    current_time = datetime.now()
-
-    # Get index of elements from the dictionary to delete
-    for i in range(len(config_auth_dict["access_token_list"])):
-        if (current_time - datetime.fromisoformat(config_auth_dict["access_token_creation_date"][i])).total_seconds() >= config_auth_dict["expires_in_list"][i] \
-        and ((current_time - datetime.fromisoformat(config_auth_dict["refresh_token_creation_date"][i])).total_seconds() >= config_auth_dict["refresh_expires_in_list"][i]):
-            index_to_delete.append(i)
-    # Delete elements with selected indexes
-    if index_to_delete:
-        logger.info(f"{len(index_to_delete)} tokens have expired. Deleting them ...")
-        for key in KEYS_TO_UPDATE:
-            config_auth_dict[key] = [value for index, value in enumerate(config_auth_dict[key]) if index not in index_to_delete]
-    
-    # Write the new token dictionary in the auth.json file
-    with open(auth_path, "w", encoding="utf-8") as f:
-        json.dump(config_auth_dict, f, indent=4, ensure_ascii=False) 
     
 # This is implemented to simulate the behavior of the real stations like Neustrelitz CADIP station (ngs):
 # Requests to “https://<service-root-uri>/odata/v1/Files(Id)/$value” results in a 307 Temporary Redirect

@@ -393,34 +393,6 @@ def process_common_elements(first_response, second_response, operator):
                 headers=request.args,
             )
 
-def clean_token_dict(config_auth_dict: dict[list]):
-    """
-    Function to remove expired tokens from the list of token dictionaries: for each token, 
-    we check if it is expired by comparing its creation date + its life duration with the 
-    current date. If it is expired, we remove information related to this token from all
-    lists of the dictionary
-    
-    Args:
-        config_auth_dict (dict[list]): token information dictionary
-    Return:
-        config_auth_dict (dict[list]): the updated token information dictionary
-    """
-    index_to_delete = []
-    current_time = datetime.datetime.now()
-
-    # Get index of elements from the dictionary to delete
-    for i in range(len(config_auth_dict["access_token_list"])):
-        if (current_time - config_auth_dict["access_token_creation_date"][i]).total_seconds() >= config_auth_dict["expires_in_list"][i] \
-        and ((current_time - config_auth_dict["refresh_token_creation_date"][i]).total_seconds() >= config_auth_dict["refresh_expires_in_list"][i]):
-            index_to_delete.append(i)
-    # Delete elements with selected indexes
-    if index_to_delete:
-        logger.info(f"{len(index_to_delete)} tokens have expired. Deleting them ...")
-        for key in KEYS_TO_UPDATE:
-            config_auth_dict[key] = [value for index, value in enumerate(config_auth_dict[key]) if index not in index_to_delete]
-    
-    return config_auth_dict
-
 @app.route("/Products", methods=["GET"])
 @token_required
 @additional_options
