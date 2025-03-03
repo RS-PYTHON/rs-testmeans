@@ -4,6 +4,7 @@ LABEL description="This docker allow to run a ADGS mockup server."
 
 WORKDIR /opt/adgs
 COPY ./adgs_station_mock.py /opt/adgs
+COPY ./common /opt/adgs/common
 COPY ./pyproject.toml /opt/adgs
 COPY ./config /opt/adgs/config
 

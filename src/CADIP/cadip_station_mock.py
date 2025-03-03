@@ -18,7 +18,7 @@ import random
 import string
 from http import HTTPStatus
 
-from src.COMMON.common_routes import (
+from common.common_routes import (
     token_required,
     register_token_route, 
     register_app_teardown,

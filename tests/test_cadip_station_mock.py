@@ -4,23 +4,7 @@ import filecmp
 import json
 import os
 import pytest
-from src.CADIP.cadip_station_mock import PATH_TO_CONFIG
-from src.COMMON.common_routes import EMPTY_AUTH_CONFIG
 from http import HTTPStatus
-
-
-@pytest.fixture(scope="function", autouse=True)
-def reset_json():
-    """ Fixture to reset the authentication configuration file at the end of each pytest"""
-    
-    # First execute the pytest
-    yield  
-    
-    # At the end of the pytest, reset the configuration file
-    auth_path = str(PATH_TO_CONFIG / "auth.json")
-    with open(auth_path, "w") as f:
-        json.dump(EMPTY_AUTH_CONFIG, f, indent=4)
-
 
 @pytest.mark.unit
 def test_basic_auth(cadip_client, external_auth_config, app_header):

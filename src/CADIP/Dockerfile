@@ -4,6 +4,7 @@ LABEL description="This docker allow to run a CADIP mockup server."
 
 WORKDIR /opt/cadip
 COPY ./cadip_station_mock.py /opt/cadip
+COPY ./common /opt/cadip/common
 COPY ./pyproject.toml /opt/cadip
 COPY ./config /opt/cadip/config
 

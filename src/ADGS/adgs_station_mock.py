@@ -14,7 +14,7 @@ from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from http import HTTPStatus
-from src.COMMON.common_routes import (
+from common.common_routes import (
     token_required,
     register_token_route, 
     register_app_teardown,
