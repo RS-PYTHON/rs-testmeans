@@ -17,13 +17,9 @@ import multiprocessing
 import random
 import string
 from http import HTTPStatus
-
 from common.common_routes import (
     token_required,
     register_token_route, 
-    register_app_teardown,
-    KEYS_TO_UPDATE,
-    EMPTY_AUTH_CONFIG
 )
 
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
@@ -37,9 +33,6 @@ auth = HTTPBasicAuth()
 
 #Register route (common to CADIP AND ADGS) to register a new token
 register_token_route(app)
-# Register the method to reset the Json authentication configuration file at 
-# the shutdown of the application
-register_app_teardown(app, PATH_TO_CONFIG)
 
 def additional_options(func):
     """Docstring to be added."""
@@ -664,9 +657,14 @@ if __name__ == "__main__":
     
     # Create a json file containing the authentification configuration
     # this file will be deleted at the shutdown of the application
+    auth_tmp_path =  str(app.config["configuration_path"] / "auth_tmp.json")
     auth_path =  str(app.config["configuration_path"] / "auth.json")
-    with open(auth_path, "w", encoding="utf-8") as f:
-        json.dump(EMPTY_AUTH_CONFIG, f, indent=4, ensure_ascii=False)  # `indent=4` 
+
+    # Copy data from the authentification template file (auth_tmp.json) to the authentification file (auth.json)
+    with open(auth_tmp_path, "r", encoding="utf-8") as src:
+        auth_tmp_dict = json.load(src)
+    with open(auth_path, "w", encoding="utf-8") as dest:
+        json.dump(auth_tmp_dict, dest, indent=4, ensure_ascii=False)
     
     if os.getenv("HTTP_REDIRECTION_HREF", None) and args.redirection_port:
         multiprocessing.set_start_method("fork")

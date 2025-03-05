@@ -21,7 +21,12 @@ import pathlib
 import logging
 from functools import wraps
 from http import HTTPStatus
+import multiprocessing
+
 logger = logging.getLogger(__name__)
+
+# Create a global lock to synchronize the access to the json authentication file between the different processes
+lock = multiprocessing.Lock()
 
 EMPTY_AUTH_CONFIG = {
     "client_id": "client_id",
@@ -101,8 +106,9 @@ def clean_token_dict(config_auth_dict: dict[list], auth_path: str):
     
     # Write the new token dictionary in the auth.json file
     try:
-        with open(auth_path, "w", encoding="utf-8") as f:
-            json.dump(config_auth_dict, f, indent=4, ensure_ascii=False)
+        with lock:
+            with open(auth_path, "w", encoding="utf-8") as f:
+                json.dump(config_auth_dict, f, indent=4, ensure_ascii=False)
     except FileNotFoundError:
         raise FileNotFoundError(f"The file '{auth_path}' cannot be found.")
     except json.JSONDecodeError:
@@ -147,7 +153,8 @@ def token_required(f):
         # Here we use "current_app" variable because we cannot directly pass the current application
         # as a parameter to the decorator
         auth_path = str(current_app.config["configuration_path"] / "auth.json")
-        config_auth = json.loads(open(auth_path).read())    
+        with lock:        
+            config_auth = json.loads(open(auth_path).read())  
         clean_token_dict(config_auth, auth_path)
         token = None        
         if "Authorization" in request.headers:
@@ -199,8 +206,9 @@ def register_token_route(app: Flask):
         """
         # Remove tokens information if both access_token and refresh_token are expired
         auth_path = str(app.config["configuration_path"] / "auth.json")
-        config_auth = json.loads(open(auth_path).read())    
-        clean_token_dict(config_auth, auth_path)
+        with lock:        
+            config_auth = json.loads(open(auth_path).read())    
+            clean_token_dict(config_auth, auth_path)
         
         # Get the form data
         logger.info("Endpoint oauth2/token called")
@@ -248,8 +256,9 @@ def register_token_route(app: Flask):
         config_auth["refresh_expires_in_list"].append(refresh_expires_in)
 
         # Update the authentification configuration file with 
-        with open(auth_path, "w", encoding="utf-8") as f:
-            json.dump(config_auth, f, indent=4, ensure_ascii=False) 
+        with lock:
+            with open(auth_path, "w", encoding="utf-8") as f:
+                json.dump(config_auth, f, indent=4, ensure_ascii=False) 
         
         # Send back the last created token to the the client
         response = {
@@ -264,16 +273,3 @@ def register_token_route(app: Flask):
         logger.info(f"CURRENT DATE: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {config_auth['access_token_list'][-1]}") ###
         return Response(status=HTTPStatus.OK, response=json.dumps(response))
-
-def register_app_teardown(app: Flask, path_to_config):
-    """ 
-    Register the method to reset the Json authentication configuration file at 
-    the shutdown of the application
-    """
-    @app.teardown_appcontext
-    def reset_json_auth_config_file(exception=None):
-        """Reset json authentication configuration file to its default value when the application stops"""  
-        # At the end of the pytest, reset the configuration file
-        auth_path = str(path_to_config / "auth.json")
-        with open(auth_path, "w") as f:
-            json.dump(EMPTY_AUTH_CONFIG, f, indent=4)
