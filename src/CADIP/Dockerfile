@@ -7,7 +7,7 @@ COPY ./CADIP/cadip_station_mock.py /opt/cadip
 COPY ./CADIP/pyproject.toml /opt/cadip
 COPY ./CADIP/config /opt/cadip/config
 # Copy common folder and associated symbolic link
-COPY ./COMMON /opt/COMMON
+COPY ./common /opt/common
 COPY ./CADIP/common /opt/cadip/common
 
 # Install poetry

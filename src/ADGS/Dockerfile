@@ -7,7 +7,7 @@ COPY ./ADGS/adgs_station_mock.py /opt/adgs
 COPY ./ADGS/pyproject.toml /opt/adgs
 COPY ./ADGS/config /opt/adgs/config
 # Copy common folder and associated symbolic link
-COPY ./COMMON /opt/COMMON
+COPY ./common /opt/common
 COPY ./ADGS/common /opt/adgs/common
 
 # Install poetry

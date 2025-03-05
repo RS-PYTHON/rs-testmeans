@@ -11,7 +11,7 @@ import yaml
 from src.ADGS.adgs_station_mock import create_adgs_app
 from src.CADIP.cadip_station_mock import create_cadip_app
 from src.LTA.lta_station_mock import create_lta_app
-from src.COMMON.common_routes import EMPTY_AUTH_CONFIG
+from src.common.common_routes import EMPTY_AUTH_CONFIG
 
 @pytest.fixture(name="empty_token_dict")
 def get_empty_token_dict():
