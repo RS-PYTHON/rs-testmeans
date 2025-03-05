@@ -208,7 +208,7 @@ def register_token_route(app: Flask):
         auth_path = str(app.config["configuration_path"] / "auth.json")
         with lock:        
             config_auth = json.loads(open(auth_path).read())    
-            clean_token_dict(config_auth, auth_path)
+        clean_token_dict(config_auth, auth_path)
         
         # Get the form data
         logger.info("Endpoint oauth2/token called")
