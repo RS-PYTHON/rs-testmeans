@@ -1,6 +1,6 @@
 import pytest
 import json
-from src.COMMON.common_routes import clean_token_dict
+from src.common.common_routes import clean_token_dict
 from datetime import datetime
 
 @pytest.mark.unit
@@ -115,5 +115,4 @@ def test_clean_token_dict(path_to_config, empty_token_dict):
     with open(path_to_config, "r", encoding="utf-8") as fichier:
         file_token_fict = json.load(fichier)
     assert file_token_fict == new_token_dict
-    
     
