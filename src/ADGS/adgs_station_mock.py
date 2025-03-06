@@ -107,26 +107,6 @@ def prepare_response_odata_v4(resp_body: list | map) -> Any:
     return data
 
 
-@auth.verify_password
-def verify_password(username: str, password: str) -> bool:
-    """Verify the password for a given username.
-
-    :param username: The username for which the password is being verified.
-    :type username: str
-
-    :param password: The password to be verified.
-    :type password: str
-
-    :return: True if the password is valid, False otherwise.
-    :rtype: Optional[bool]
-    """
-    auth_path = app.config["configuration_path"] / "auth.json"
-    users = json.loads(open(auth_path).read())
-    if username in users.keys():
-        return bcrypt.check_password_hash(users.get(username), password)
-    return False
-
-
 @app.route("/health", methods=["GET"])
 def ready_live_status():
     """Docstring to be added."""
