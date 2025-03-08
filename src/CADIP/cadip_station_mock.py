@@ -33,7 +33,6 @@ auth = HTTPBasicAuth()
 
 #Register route (common to CADIP AND ADGS) to register a new token
 register_token_route(app)
-
 def additional_options(func):
     """Docstring to be added."""
 
@@ -86,16 +85,6 @@ def batch_response_odata_v4(resp_body: list | map) -> Any:
     except IndexError:
         return json.dumps({"value": []})
     return data
-
-
-@auth.verify_password
-def verify_password(username, password) -> bool:
-    """Docstring to be added."""
-    auth_path = app.config["configuration_path"] / "auth.json"
-    users = json.loads(open(auth_path).read())
-    if username in users.keys():
-        return bcrypt.check_password_hash(users.get(username), password)
-    return False
 
 
 @app.route("/health", methods=["GET"])
