@@ -251,7 +251,7 @@ def register_token_route(app: Flask):
             
             # Return a random access token and a refresh token in JSON format
             expires_in = 70
-            refresh_expires_in = 1800
+            refresh_expires_in = 120
             
             # Add new access token and refresh token to the token dictionary
             config_auth["access_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
