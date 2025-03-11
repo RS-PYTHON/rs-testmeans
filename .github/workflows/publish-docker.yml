@@ -20,6 +20,15 @@ env:
 
 jobs:
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          set -x
+          docker compose up &
+          sleep 10
+          exit 2
+
   # Calculate variables for this workflow
   set-env:
     if: github.actor != 'dependabot[bot]' # ignore pull requests by github bot

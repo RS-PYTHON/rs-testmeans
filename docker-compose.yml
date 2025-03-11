@@ -1,0 +1,23 @@
+services:
+
+  prefect-server:
+    image: ghcr.io/rs-python/prefect/rs-client-libraries/local:latest
+    ports:
+      - 4200:4200
+    command: ["prefect", "server", "start"]
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import requests; assert requests.get('http://127.0.0.1:4201/api/health').ok\""]
+      interval: 1s
+      retries: 5
+
+  prefect-worker-staging:
+    image: ghcr.io/rs-python/prefect/rs-client-libraries/local:latest
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    environment:
+      - PREFECT_API_URL=http://prefect-server:4200/api
+    command: ["prefect", "worker", "start", "--pool", "$PREFECT_WORK_POOL_STAGING", "--type", "process"]
+    deploy:
+      mode: replicated
+      replicas: 1
