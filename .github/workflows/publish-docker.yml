@@ -54,7 +54,7 @@ jobs:
           # ./test-docker-tag.sh "$docker_tag"
           # docker compose -f docker-compose-test-tag.yml up -d          
           # ./run-notebooks.sh "$docker_tag"
-          docker compose up prefect-worker-staging
+          docker compose up
 
         shell: bash
 
