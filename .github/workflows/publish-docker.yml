@@ -26,9 +26,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           set -x
-          docker compose up &
-          sleep 10
-          exit 2
+          docker compose pull
+          docker compose up
 
   # # Calculate variables for this workflow
   # set-env:
