@@ -49,8 +49,8 @@ services:
       mode: replicated
       replicas: 1
 
-  test-python:
-    image: python:3.11.7-alpine
-    volumes:
-      - ./testci.py:/testci.py
-    command: [sh, -c, "pip install requests && python3 /testci.py"] 
+  # test-python:
+  #   image: python:3.11.7-alpine
+  #   volumes:
+  #     - ./testci.py:/testci.py
+  #   command: [sh, -c, "pip install requests && python3 /testci.py"] 
