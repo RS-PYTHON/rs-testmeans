@@ -43,6 +43,7 @@ jobs:
           # Try to checkout in rs-demo the same branch name than in rs-server.
           # If the branch doesn't exist, it's ok, we stay on the default branch.
           cd rs-demo
+          ls -al
           # git checkout ${{ needs.set-env.outputs.branch_name }} || true
           # git status
 
