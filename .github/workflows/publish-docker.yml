@@ -44,7 +44,7 @@ jobs:
           # If the branch doesn't exist, it's ok, we stay on the default branch.
           cd rs-demo
           ls -al
-          # git checkout ${{ needs.set-env.outputs.branch_name }} || true
+          git checkout fix/increase-healthcheck-tries
           # git status
 
           # Run the rs-demo local mode using the newly created docker images
