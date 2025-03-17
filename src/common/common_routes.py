@@ -69,6 +69,11 @@ KEYS_TO_UPDATE = [
     "refresh_expires_in_list"
 ]
 
+# Set validity period (in seconds) for access and refresh tokens
+EXPIRES_IN = 1200
+REFRESH_EXPIRES_IN = 3600
+
+
 def clean_token_dict(config_auth_dict: dict[list], auth_path: str):
     """
     Function to remove expired tokens from the list of token dictionaries: for each token, 
@@ -249,17 +254,13 @@ def register_token_route(app: Flask):
                 logger.error("Unsupported grant_type. The token is not granted")
                 return json.dumps({"error": "Unsupported grant_type"}), HTTPStatus.BAD_REQUEST
             
-            # Return a random access token and a refresh token in JSON format
-            expires_in = 70
-            refresh_expires_in = 90
-            
             # Add new access token and refresh token to the token dictionary
             config_auth["access_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
             config_auth["access_token_creation_date"].append(datetime.now().isoformat())
-            config_auth["expires_in_list"].append(expires_in)
+            config_auth["expires_in_list"].append(EXPIRES_IN)
             config_auth["refresh_token_list"].append(''.join(random.choices(string.ascii_letters, k=59)))
             config_auth["refresh_token_creation_date"].append(datetime.now().isoformat())
-            config_auth["refresh_expires_in_list"].append(refresh_expires_in)
+            config_auth["refresh_expires_in_list"].append(REFRESH_EXPIRES_IN)
 
             # Update the authentification configuration file with 
             with open(auth_path, "w", encoding="utf-8") as f:
