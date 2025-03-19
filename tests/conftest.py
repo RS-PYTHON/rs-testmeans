@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 from io import StringIO
+import pathlib
 
 import pytest
 import yaml
@@ -10,22 +11,87 @@ import yaml
 from src.ADGS.adgs_station_mock import create_adgs_app
 from src.CADIP.cadip_station_mock import create_cadip_app
 from src.LTA.lta_station_mock import create_lta_app
+from src.common.common_routes import EMPTY_AUTH_CONFIG
 
+@pytest.fixture(name="empty_token_dict")
+def get_empty_token_dict():
+    return {
+        "client_id": "client_id",
+        "client_secret": "client_secret",
+        "username": "test",
+        "password": "test",
+        "grant_type": "password",
+        "access_token_list": [],
+        "access_token_creation_date": [],
+        "expires_in_list": [],
+        "refresh_token_list": [],
+        "refresh_token_creation_date": [],
+        "refresh_expires_in_list": []
+    }
+
+@pytest.fixture(scope="session", name="path_to_config")
+def get_path_to_config():
+    return pathlib.Path(__file__).parent.resolve() / "resources" / "auth.json"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def reset_json_after_tests(path_to_config):
+    """Fixture to reset the json file containing the token dictionary at the end of the tests"""
+    
+    def reset_file():
+        """Réinitialise auth.json après la fin des tests."""
+        with open(path_to_config, "w") as f:
+            json.dump(EMPTY_AUTH_CONFIG, f, indent=4)
+    
+    yield 
+    reset_file()
+
+
+
+@pytest.fixture(name="external_auth_config")
+def get_external_auth_config():
+    return {
+        "client_id": "client_id",
+        "client_secret": "client_secret",
+        "grant_type": "password",
+        "username": "test",
+        "password": "test",
+    }
+    
+@pytest.fixture(name="app_header")
+def get_station_request_headers():
+    return{"Content-Type": "application/x-www-form-urlencoded"}
 
 @pytest.fixture
 def cadip_client():
     """Docstring to be added."""
     app = create_cadip_app()
+    
+    # We create and activate an application context to keep the application running 
+    # during all requests of the current pytest
+    ctx = app.app_context()  
+    ctx.push() 
+    app.testing = True
     with app.test_client() as client:
         yield client
+    # Deactivate the application context
+    ctx.pop() 
+
 
 
 @pytest.fixture
 def adgs_client():
     """Docstring to be added."""
     app = create_adgs_app()
+    
+    # We create and activate an application context to keep the application running 
+    # during all requests of the current pytest
+    ctx = app.app_context()  
+    ctx.push() 
     with app.test_client() as client:
         yield client
+    # Deactivate the application context
+    ctx.pop() 
 
 
 @pytest.fixture
@@ -161,24 +227,32 @@ def valid_cadip_header_with_token():
 
 
 @pytest.fixture(name="adgs_client_with_auth")
-def adgs_client_with_auth(adgs_client, adgs_token):
+def adgs_client_with_auth(adgs_client, adgs_token, external_auth_config, app_header):
     """Fixture to return a client with automatic auth header handling."""
     # Create a session from the test client
     client = adgs_client
 
-    # Attach token to session so it persists across requests
-    client.environ_base["HTTP_AUTHORIZATION"] = adgs_token["Authorization"]
-
+    # Get new credentials by providing valid authentication configuration
+    # and then use these credentials for the following data requests
+    data_to_send = external_auth_config
+    token_response = client.post("/oauth2/token", data=data_to_send, headers = app_header)
+    token_info = json.loads(token_response.text)
+    client.environ_base["HTTP_AUTHORIZATION"] = f"Token {token_info['access_token']}"
+    
     return client
 
 
 @pytest.fixture(name="cadip_client_with_auth")
-def cadip_client_with_auth(cadip_client, cadip_token):
+def cadip_client_with_auth(cadip_client, external_auth_config, app_header):
     """Fixture to return a client with automatic auth header handling."""
     # Create a session from the test client
     client = cadip_client
 
-    # Attach token to session so it persists across requests
-    client.environ_base["HTTP_AUTHORIZATION"] = cadip_token["Authorization"]
+    # Get new credentials by providing valid authentication configuration
+    # and then use these credentials for the following data requests
+    data_to_send = external_auth_config
+    token_response = client.post("/oauth2/token", data=data_to_send, headers = app_header)
+    token_info = json.loads(token_response.text)
+    client.environ_base["HTTP_AUTHORIZATION"] = f"Token {token_info['access_token']}"
 
     return client

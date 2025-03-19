@@ -5,7 +5,7 @@
 To add data into the CADIP simulator, follow these steps to populate the **config** folder for each station.
 The required files for the CADIP simulator should be structured as follows:
 
-- "auth.json" - File containing the basic auth credentials.
+- "auth_tmp.json" - File containing the basic auth credentials.
 - "Catalogue/FileResponse.json" - File containing the JSON response with metadata for each file.
 - "Catalogue/QualityInfoResponse.json" - File containing the JSON response with quality info for each session.
 - "Catalogue/SPJ.json" - File containing the JSON response for each session added.
@@ -99,7 +99,7 @@ sessions as needed.
 
 In the similar way, your custom data directory should have the following signature:
 
-- "auth.json" - File containing the basic auth credentials.
+- "auth_tmp.json" - File containing the basic auth credentials.
 - "Catalog/GETFileResponse.json" - File containing JSON metadata for each AUX.
 
 Files should be placed in **Storage** directory.
@@ -205,7 +205,7 @@ There are 4 configuration files managed as ConfigMap :
 - Catalogue/SPJ.json
 - Catalogue/FileResponse.json
 - Catalogue/QualityInfoResponse.json
-- auth.json
+- auth_tmp.json
 
 Refer to [Add data into RS testmeans CADIP simulator](#add-data-into-rs-testmeans-cadip-simulator)
 
@@ -274,7 +274,7 @@ Note: If you have many files, you can create an archive, copy it on the pod and 
 There are 2 configuration files managed as ConfigMap :
 
 - Catalog/GETFileResponse.json
-- auth.json
+- auth_tmp.json
 
 Refer to [Add data into RS testmeans ADGS simulator](#add-data-into-rs-testmeans-adgs-simulator)
 

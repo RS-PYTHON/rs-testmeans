@@ -3,9 +3,12 @@ FROM ghcr.io/rs-python/python:3.11.7-slim-bookworm
 LABEL description="This docker allow to run a CADIP mockup server."
 
 WORKDIR /opt/cadip
-COPY ./cadip_station_mock.py /opt/cadip
-COPY ./pyproject.toml /opt/cadip
-COPY ./config /opt/cadip/config
+COPY ./CADIP/cadip_station_mock.py /opt/cadip
+COPY ./CADIP/pyproject.toml /opt/cadip
+COPY ./CADIP/config /opt/cadip/config
+# Copy common folder and associated symbolic link
+COPY ./common /opt/common
+COPY ./CADIP/common /opt/cadip/common
 
 # Install poetry
 RUN python3.11 -m pip install --no-cache-dir poetry
