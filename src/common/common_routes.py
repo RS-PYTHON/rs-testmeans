@@ -276,8 +276,6 @@ def register_token_route(app: Flask):
         }
         
         logger.info("Grant type validated. Token sent back")
-        logger.info(f"CURRENT DATE: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        logger.info(f"-------------------- ACCESS TOKEN SENT BACK: {config_auth['access_token_list'][-1]}")
         return Response(status=HTTPStatus.OK, response=json.dumps(response))
 
 @auth.verify_password
