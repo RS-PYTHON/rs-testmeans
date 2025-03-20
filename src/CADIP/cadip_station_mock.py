@@ -632,12 +632,15 @@ def download_file(Id) -> Response:  # noqa: N803
     catalog_data = json.loads(open(catalog_path).read())    
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
-    
-    return (
-        send_file("config/S3Mock/" + files[0]["Name"])
-        if len(files) == 1
-        else Response(status="404 None/Multiple files found")
-    )
+    if len(files) == 1:
+        file_info = files[0]
+        if "S3_path" in file_info:
+            return Response(status=509)
+        else:
+            send_file("config/S3Mock/" + file_info["Name"])
+
+
+    return Response(status="404 None/Multiple files found")
     # if files:
     #    return send_file("S3Mock/" + files[0]["Name"]) if len(files) == 1 else Response(status="200 not implemented")
     # else:
