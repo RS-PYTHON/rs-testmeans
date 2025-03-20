@@ -8,10 +8,18 @@ import re
 import sys
 from functools import wraps
 from typing import Any
-
+import random
+import string
 from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
+from http import HTTPStatus
+from common.common_routes import (
+    token_required,
+    register_token_route, 
+)
+PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -19,65 +27,10 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 
-HTTP_OK = 200
-HTTP_BAD_REQUEST = 400
-HTTP_UNAUTHORIZED = 401
-HTTP_NOT_FOUND = 404
-
 aditional_operators = [" and ", " or ", " in ", " not "]
 
-def token_required(f):
-    """Decorator to enforce token-based authentication for a Flask route.
-
-    This decorator checks for the presence of a valid authorization token in the 
-    request headers. It ensures that the incoming request contains a valid token, 
-    which is compared against a pre-configured value stored in the auth.json file. If the 
-    token is missing or invalid, the request is denied with a 403 Forbidden response.
-
-    Args:
-        f: The Flask route function being decorated.
-
-    Returns:
-        The decorated function that performs token validation before executing the original 
-        route logic.
-    """
-
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        """Inner function that performs token validation for the decorated route.
-
-        This function:
-        - Retrieves the token from the "Authorization" header.
-        - If no token is found or the token is invalid, it logs the error and returns a 403 
-          Forbidden response.
-        - If the token is valid, it allows the original route logic to proceed.
-
-        Args:
-            *args: Positional arguments passed to the original route function.
-            **kwargs: Keyword arguments passed to the original route function.
-
-        Returns:
-            A Response object with a 403 Forbidden status if the token is missing or invalid.
-            Otherwise, the original route function's response is returned.
-        """
-        token = None        
-        if "Authorization" in request.headers:
-            token = request.headers["Authorization"].split()[1]
-
-        if not token:
-            logger.error("Returning HTTP_UNAUTHORIZED. Token is missing")
-            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is missing!"}))
-        
-
-        auth_path = app.config["configuration_path"] / "auth.json"
-        config_auth = json.loads(open(auth_path).read())        
-        if token != config_auth["token"]:
-            logger.error("Returning HTTP_UNAUTHORIZED. Token is invalid!")
-            return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"message": "Token is invalid!"}))
-
-        return f(*args, **kwargs)
-
-    return decorated
+#Register route (common to CADIP AND ADGS) to register a new token
+register_token_route(app)
 
 def additional_options(func):
     """Docstring to be added."""
@@ -154,37 +107,17 @@ def prepare_response_odata_v4(resp_body: list | map) -> Any:
     return data
 
 
-@auth.verify_password
-def verify_password(username: str, password: str) -> bool:
-    """Verify the password for a given username.
-
-    :param username: The username for which the password is being verified.
-    :type username: str
-
-    :param password: The password to be verified.
-    :type password: str
-
-    :return: True if the password is valid, False otherwise.
-    :rtype: Optional[bool]
-    """
-    auth_path = app.config["configuration_path"] / "auth.json"
-    users = json.loads(open(auth_path).read())
-    if username in users.keys():
-        return bcrypt.check_password_hash(users.get(username), password)
-    return False
-
-
 @app.route("/health", methods=["GET"])
 def ready_live_status():
     """Docstring to be added."""
-    return Response(status=HTTP_OK)
+    return Response(status=HTTPStatus.OK)
 
 
 @app.route("/", methods=["GET", "POST"])
 @token_required
 def hello():
     """Docstring to be added."""
-    return Response(status=HTTP_OK)
+    return Response(status=HTTPStatus.OK)
 
 
 def process_products_request(request, headers):
@@ -204,9 +137,9 @@ def process_products_request(request, headers):
             case "endswith":
                 resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)]
         return (
-            Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTP_NOT_FOUND)
+            else Response(status=HTTPStatus.NOT_FOUND)
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
@@ -245,11 +178,11 @@ def process_products_request(request, headers):
                 ]
             case _:
                 # If the operation is not recognized, return a 404 NOT FOUND response
-                return Response(status=HTTP_NOT_FOUND)
+                return Response(status=HTTPStatus.NOT_FOUND)
         return (
-            Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         )
     elif "ContentDate" in request:
         pattern = r"Start (\S+) (\S+) and ContentDate/End (\S+) (\S+)"
@@ -278,9 +211,9 @@ def process_products_request(request, headers):
                         )
                     ]
             return (
-                Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+                Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
                 if resp_body
-                else Response(status=HTTP_OK, response=json.dumps({"value": []}))
+                else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
             )
         else:
             field, op, value = request.split(" ")
@@ -291,14 +224,14 @@ def process_products_request(request, headers):
                     if date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
                 ]
             return (
-                Response(status=HTTP_OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+                Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
                 if resp_body
-                else Response(status=HTTP_OK, response=json.dumps({"value": []}))
+                else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
             )
     elif "Attributes" in request.args["$filter"]:
         pass  # WIP
     else:
-        return Response(status=HTTP_BAD_REQUEST)
+        return Response(status=HTTPStatus.BAD_REQUEST)
 
 def process_query(query):
     # Step 1: Remove the part before "any("
@@ -344,7 +277,7 @@ def process_attributes_search(query, headers):
     elif len(results) == 4:
         part1 = process_individual_query_part(process_query(query)[:2], headers)
         part2 = process_individual_query_part(process_query(query)[2:], headers)
-        return Response(status=HTTP_OK, response=prepare_response_odata_v4(process_response(part1, part2)), headers=headers)
+        return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(process_response(part1, part2)), headers=headers)
 
 def process_response(query_resp1, query_resp2):
     response1 = json.loads(query_resp1.response[0].decode('utf-8')).get("value", json.loads(query_resp1.response[0].decode('utf-8')))
@@ -389,7 +322,7 @@ def process_individual_query_part(query_parts, headers):
                         resp.append(product)
                 except KeyError:
                     continue
-    return Response(status=HTTP_OK, response=prepare_response_odata_v4(resp if resp else []), headers=headers)
+    return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp if resp else []), headers=headers)
 
 def process_common_elements(first_response, second_response, operator):
     try:
@@ -420,21 +353,19 @@ def process_common_elements(first_response, second_response, operator):
             common_elements = [d for d in first_response if d.get("Id") in common_response]
             if common_elements:
                 return Response(
-                    status=HTTP_OK,
+                    status=HTTPStatus.OK,
                     response=prepare_response_odata_v4(common_elements),
                     headers=request.args,
                 )
-            return Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         case "or":  # union
             union_set = fresp_set.union(sresp_set)
             union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
             return Response(
-                status=HTTP_OK,
+                status=HTTPStatus.OK,
                 response=prepare_response_odata_v4(union_elements),
                 headers=request.args,
             )
-
-
 
 @app.route("/Products", methods=["GET"])
 @token_required
@@ -444,13 +375,13 @@ def query_products():
     if "$filter" not in request.args:
         catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
         catalog_data = json.loads(open(catalog_path).read())
-        return Response(status=HTTP_OK, response=prepare_response_odata_v4(catalog_data['Data']), headers=request.args)
+        return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(catalog_data['Data']), headers=request.args)
         # Handle parantheses
     if not (match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args["$filter"])):
         if not any(
             [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes", "ContentDate/Start", "ContentDate/End"]],
         ):
-            return Response(status=HTTP_BAD_REQUEST)
+            return Response(status=HTTPStatus.BAD_REQUEST)
     else:
         if " and " not in request.args['$filter']:
             conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
@@ -461,7 +392,7 @@ def query_products():
             sresp_set = {d.get("Id", None) for d in second_response}
             union_set = fresp_set.union(sresp_set)
             union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-            return Response(status=HTTP_OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
+            return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
         match len(request.args['$filter'].split(" and ")):
             case 1:
                 conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
@@ -479,11 +410,11 @@ def query_products():
                 common_elements = [d for d in responses if d.get("Id") in common_response]
                 if common_elements:
                     return Response(
-                        status=HTTP_OK,
+                        status=HTTPStatus.OK,
                         response=prepare_response_odata_v4(common_elements),
                         headers=request.args,
                     )
-                return Response(status=HTTP_OK, response=json.dumps({"value": []}))
+                return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
             case 2:
                 union_elements = []
                 for ops in request.args['$filter'].split(" and "):
@@ -500,11 +431,11 @@ def query_products():
                 second_ops_response = {d.get("Id", None) for d in union_elements[1]}
                 common_response = first_ops_response.intersection(second_ops_response)
                 common_elements = [d for d in first_response + second_response if d.get("Id") in common_response]
-                return Response(status=HTTP_OK, response=prepare_response_odata_v4(common_elements), headers=request.args)
+                return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(common_elements), headers=request.args)
             case _:
                 msg = "Too complex for adgs sim"
                 logger.error(msg)
-                return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
+                return Response ("Too complex for adgs sim", status=HTTPStatus.BAD_REQUEST)
 
     if len(qs_parser := request.args['$filter'].split(' and ')) > 2:
         outputs = []
@@ -519,7 +450,7 @@ def query_products():
         if len(properties_filter) > 4 or len(attributes_filter) > 4:
             msg = "Too complex for adgs sim"
             logger.error(msg)
-            return Response ("Too complex for adgs sim", status=HTTP_BAD_REQUEST)
+            return Response ("Too complex for adgs sim", status=HTTPStatus.BAD_REQUEST)
 
         # Process each property in the filter
         processed_requests = [
@@ -549,7 +480,7 @@ def query_products():
         try:
             return process_common_elements(outputs[0], outputs[1], "and")
         except IndexError:
-            return Response(status=HTTP_OK, response=json.dumps({"value": []}))
+            return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
 
     if "Attributes" in request.args['$filter'] or "OData.CSC" in request.args['$filter']:
         return process_attributes_search(request.args['$filter'], request.args)
@@ -589,68 +520,6 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         send_args = f'config/Storage/{files[0]["Name"]}'
         return send_file(send_args)
 
-@app.route("/oauth2/token", methods=["POST"])
-def token():
-    """OAuth 2.0 token endpoint for issuing an access token based on client credentials.
-
-    It is intended to be used for tests only.
-    This function handles the OAuth 2.0 token request by validating the incoming client 
-    credentials, username, password, and grant type against the pre-configured values 
-    stored in an authentication file (`auth.json`). If the request is valid, an access 
-    token (fake string) is returned in JSON format; otherwise, appropriate error responses are sent.
-
-    The supported grant type is validated against the `grant_type` stored in the configuration.
-
-    Returns:
-        Response: 
-            - A JSON response with the access token and other token-related information 
-              if the client credentials and other parameters are valid.
-            - An HTTP 401 Unauthorized response if the client credentials, username, or 
-              password are invalid.
-            - An HTTP 400 Bad Request response if the grant type is unsupported or missing 
-              required parameters.
-    """
-    # Get the form data
-    logger.info("Endpoint oauth2/token called")
-    auth_path = app.config["configuration_path"] / "auth.json"
-    config_auth = json.loads(open(auth_path).read())
-    client_id = request.form.get("client_id")
-    client_secret = request.form.get("client_secret")
-    username = request.form.get("username")
-    password = request.form.get("password")
-    grant_type = request.form.get("grant_type")
-    scope = request.form.get("scope")    
-
-    # Optional Authorization header check
-    # auth_header = request.headers.get('Authorization')
-    # print(f"auth_header {auth_header}")
-    logger.info("Token requested")    
-    if request.headers.get("Authorization", None):
-        logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
-    
-    # Validate required fields
-    if not client_id or not client_secret or not username or not password:
-        logger.error("Invalid client. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
-
-    if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
-        logger.error("Invalid client id and/or secret. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": 
-                                                                       f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
-    if username != config_auth["username"] or password != config_auth["password"]:
-        logger.error("Invalid username and/or password. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
-    # Validate the grant_type
-    if grant_type != config_auth["grant_type"]:
-        logger.error("Unsupported grant_type. The token is not granted")
-        return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
-    # Return the token in JSON format
-    response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
-    logger.info("Grant type validated. Token sent back")
-    return Response(status=HTTP_OK, response=json.dumps(response))
-
-
-
 def create_adgs_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
@@ -678,7 +547,19 @@ if __name__ == "__main__":
         if not all((configuration_path / file_name).exists() for file_name in config_signature):
             # use default config if given structure doesn't match
             configuration_path = default_config_path
-            print("Using default config")
+            logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
+    
+    # Create a json file containing the authentification configuration
+    # this file will be deleted at the shutdown of the application
+    auth_tmp_path =  str(app.config["configuration_path"] / "auth_tmp.json")
+    auth_path =  str(app.config["configuration_path"] / "auth.json")
+
+    # Copy data from the authentification template file (auth_tmp.json) to the authentification file (auth.json)
+    with open(auth_tmp_path, "r", encoding="utf-8") as src:
+        auth_tmp_dict = json.load(src)
+    with open(auth_path, "w", encoding="utf-8") as dest:
+        json.dump(auth_tmp_dict, dest, indent=4, ensure_ascii=False)
+    
     app.run(debug=True, host=args.host, port=args.port)  # local
     # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN

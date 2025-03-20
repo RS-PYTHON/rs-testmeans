@@ -3,9 +3,12 @@ FROM ghcr.io/rs-python/python:3.11.7-slim-bookworm
 LABEL description="This docker allow to run a ADGS mockup server."
 
 WORKDIR /opt/adgs
-COPY ./adgs_station_mock.py /opt/adgs
-COPY ./pyproject.toml /opt/adgs
-COPY ./config /opt/adgs/config
+COPY ./ADGS/adgs_station_mock.py /opt/adgs
+COPY ./ADGS/pyproject.toml /opt/adgs
+COPY ./ADGS/config /opt/adgs/config
+# Copy common folder and associated symbolic link
+COPY ./common /opt/common
+COPY ./ADGS/common /opt/adgs/common
 
 # Install poetry
 RUN python3.11 -m pip install --no-cache-dir poetry

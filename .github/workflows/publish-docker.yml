@@ -94,7 +94,7 @@ jobs:
         uses: ./.github/actions/publish-docker
         with:
           dockerfile: ./src/ADGS/Dockerfile
-          build_context_path: ./src/ADGS
+          build_context_path: ./src
           image_suffix: _adgs-station-mock
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -115,7 +115,7 @@ jobs:
         uses: ./.github/actions/publish-docker
         with:
           dockerfile: ./src/CADIP/Dockerfile
-          build_context_path: ./src/CADIP
+          build_context_path: ./src
           image_suffix: _cadip-station-mock
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
