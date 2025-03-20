@@ -10,7 +10,7 @@ from functools import wraps
 from typing import Any
 import random
 import string
-from flask import Flask, Response, request, send_file
+from flask import Flask, Response, request, send_file, after_this_request
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from http import HTTPStatus
@@ -18,6 +18,9 @@ from common.common_routes import (
     token_required,
     register_token_route, 
 )
+from common.s3_handler import S3StorageHandler, GetKeysFromS3Config
+import os
+
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
 
@@ -508,17 +511,37 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
     if len(files) != 1:
         return Response(status="404 None/Multiple files found")
-    # Send bytes of gzip files in order to avoid auto-decompress feature from application/gzip headers
-    if any(gzip_extension in files[0]["Name"] for gzip_extension in [".TGZ", ".gz", ".zip", ".tar"]):
-        import io
+    
+    if len(files) == 1:
+        file_info = files[0]
+        if "S3_path" in file_info:
+            handler = S3StorageHandler(
+                os.environ["S3_ACCESSKEY"],
+                os.environ["S3_SECRETKEY"],
+                os.environ["S3_ENDPOINT"],
+                os.environ["S3_REGION"],  # "sbg",
+            )
+            parts = file_info["S3_path"].replace("s3://", "").split("/", 1)
+            handler.get_keys_from_s3(GetKeysFromS3Config([parts[1]], parts[0], "/tmp/auxip"))
+            file_path = f"/tmp/auxip/{file_info['Name']}"
+            @after_this_request
+            def remove_file(response):
+                try:
+                    os.remove(file_path)
+                except Exception as e:
+                    app.logger.error(f"Failed to delete {file_path}: {e}")
+                return response
+        # Send bytes of gzip files in order to avoid auto-decompress feature from application/gzip headers
+        if any(gzip_extension in files[0]["Name"] for gzip_extension in [".TGZ", ".gz", ".zip", ".tar"]):
+            import io
 
-        fpath = app.config["configuration_path"] / "Storage" / files[0]["Name"]
-        send_args = io.BytesIO(open(fpath, "rb").read())
-        return send_file(send_args, download_name=files[0]["Name"], as_attachment=True)
-    else:
-        # Nominal case.
-        send_args = f'config/Storage/{files[0]["Name"]}'
-        return send_file(send_args)
+            fpath = app.config["configuration_path"] / "Storage" / files[0]["Name"]
+            send_args = io.BytesIO(open(fpath if "S3_path" not in file_info else file_path, "rb").read())
+            return send_file(send_args, download_name=files[0]["Name"], as_attachment=True)
+        else:
+            # Nominal case.
+            send_args = f'config/Storage/{files[0]["Name"]}'
+            return send_file(send_args)
 
 def create_adgs_app():
     """Docstring to be added."""
