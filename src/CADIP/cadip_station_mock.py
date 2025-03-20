@@ -10,7 +10,7 @@ import sys
 from functools import wraps
 from typing import Any
 
-from flask import Flask, Response, request, redirect, send_file
+from flask import Flask, Response, request, redirect, send_file, after_this_request
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 import multiprocessing
@@ -21,6 +21,7 @@ from common.common_routes import (
     token_required,
     register_token_route, 
 )
+from common.s3_handler import S3StorageHandler, GetKeysFromS3Config
 
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
@@ -574,7 +575,23 @@ def download_file(Id) -> Response:  # noqa: N803
     if len(files) == 1:
         file_info = files[0]
         if "S3_path" in file_info:
-            return Response(status=509)
+            handler = S3StorageHandler(
+                os.environ["S3_ACCESSKEY"],
+                os.environ["S3_SECRETKEY"],
+                os.environ["S3_ENDPOINT"],
+                os.environ["S3_REGION"],  # "sbg",
+            )
+            parts = file_info["S3_path"].replace("s3://", "").split("/", 1)
+            handler.get_keys_from_s3(GetKeysFromS3Config([parts[1]], parts[0], "/tmp/cadip"))
+            file_path = f"/tmp/cadip/{file_info['Name']}"
+            @after_this_request
+            def remove_file(response):
+                try:
+                    os.remove(file_path)
+                except Exception as e:
+                    app.logger.error(f"Failed to delete {file_path}: {e}")
+                return response
+            return send_file(file_path)
         else:
             send_file("config/S3Mock/" + file_info["Name"])
 
@@ -671,5 +688,5 @@ if __name__ == "__main__":
         port_redirection.join()
         port_download.join()
     else:
-        app.run(debug=False, host=args.host, port=args.port)
+        app.run(debug=True, host=args.host, port=args.port)
     logger.info("Exiting")

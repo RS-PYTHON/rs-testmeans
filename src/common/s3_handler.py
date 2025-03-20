@@ -210,6 +210,7 @@ class S3StorageHandler:
         list_with_files = []
         # for each key, identify it as a file or a folder
         # in the case of a folder, the files will be recursively gathered
+
         for key in paths:
             path = key.strip().lstrip("/")
             s3_files = self.list_s3_files_obj(bucket, path)
@@ -217,19 +218,9 @@ class S3StorageHandler:
                 self.logger.warning("No key %s found.", path)
                 continue
             self.logger.debug("total: %s | s3_files = %s", len(s3_files), s3_files)
-            basename_part = self.get_basename(path)
 
-            # check if it's a file or a dir
-            if len(s3_files) == 1 and path == s3_files[0]:
-                # the current key is a file, append it to the list
-                list_with_files.append(("", s3_files[0]))
-                self.logger.debug("Append files: list_with_files = %s", list_with_files)
-            else:
-                # the current key is a folder, append all its files (reursively gathered) to the list
-                for s3_file in s3_files:
-                    split = s3_file.split("/")
-                    split_idx = split.index(basename_part)
-                    list_with_files.append((os.path.join(*split[split_idx:-1]), s3_file.strip("/")))
+            list_with_files.append(("", s3_files[0]))
+            self.logger.debug("Append files: list_with_files = %s", list_with_files)
 
         return list_with_files
 
@@ -245,7 +236,6 @@ class S3StorageHandler:
         Returns:
             list: List of tuples (s3_path, absolute_local_file_path).
         """
-
         list_with_files = []
         for local in paths:
             path = local.strip()
@@ -400,7 +390,6 @@ class S3StorageHandler:
         It returns a list of S3 keys that couldn't be downloaded successfully.
 
         """
-
         # collection_files: list of files to be downloaded
         #                   the list contains pair objects with the following
         #                   syntax: (local_path_to_be_added_to_the_local_prefix, s3_key)
