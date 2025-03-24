@@ -6588,18 +6588,18 @@
             "ContentType": "application/octet-stream",
             "ContentLength": "3169203",
             "OriginDate": "2016-02-16T15:16:47.000Z",
-            "PublicationDate": "2016-02-16T07:20:58.166Z",
-            "EvictionDate": "2016-02-16T07:20:58.166Z",
+            "PublicationDate": "2016-02-16T19:24:04.804Z",
+            "EvictionDate": "2016-02-16T19:24:04.804Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
                     "Value": "cFeaFeAe20df52651743FC8CDdba02DB",
-                    "ChecksumDate": "2016-02-16T00:00:00.000Z"
+                    "ChecksumDate": "2016-02-16T19:24:04.804Z"
                 }
             ],
             "ContentDate": {
-                "Start": "2016-02-16T07:20:58.166Z",
-                "End": "2016-02-16T07:21:08.166Z"
+                "Start": "2016-02-16T19:24:04.804Z",
+                "End": "2016-02-16T19:24:04.804Z"
             },
             "Attributes": [
                 {
@@ -6624,13 +6624,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2016-02-16T07:20:58.166Z"
+                    "Value": "2016-02-16T19:24:04.804Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2016-02-16T07:21:08.166Z"
+                    "Value": "2016-02-16T19:24:04.804Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -6648,7 +6648,7 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "processingDate",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2016-02-16T00:00:00.000Z"
+                    "Value": "2016-02-16T19:24:04.804Z"
                 }
             ]
         },
@@ -6658,19 +6658,19 @@
             "S3_path": "s3://test-data/AUX/S3/S3B_AX___OSF_AX_20180425T191855_99991231T235959_20221110T110324___________________EUM_O_AL_001.SEN3.zip",
             "ContentType": "application/octet-stream",
             "ContentLength": "3169203",
-            "OriginDate": "2018-04-25T15:16:47.000Z",
-            "PublicationDate": "2018-04-25T07:20:58.166Z",
-            "EvictionDate": "2018-04-25T07:20:58.166Z",
+            "OriginDate": "2018-04-25T15:20:11.003Z",
+            "PublicationDate": "2018-04-25T15:20:11.003Z",
+            "EvictionDate": "2018-04-25T15:20:11.003Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
                     "Value": "cFeaFeAe20df52651743FC8CDdba02DB",
-                    "ChecksumDate": "2018-04-25T00:00:00.000Z"
+                    "ChecksumDate": "2018-04-25T15:20:11.003Z"
                 }
             ],
             "ContentDate": {
-                "Start": "2018-04-25T07:20:58.166Z",
-                "End": "2018-04-25T07:21:08.166Z"
+                "Start": "2018-04-25T15:20:11.003Z",
+                "End": "2018-04-25T15:20:11.003Z"
             },
             "Attributes": [
                 {
@@ -6695,13 +6695,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2018-04-25T07:20:58.166Z"
+                    "Value": "2018-04-25T15:20:11.003Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2018-04-25T07:21:08.166Z"
+                    "Value": "2018-04-25T15:20:11.003Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -6719,7 +6719,7 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "processingDate",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2018-04-25T00:00:00.000Z"
+                    "Value": "2018-04-25T15:20:11.003Z"
                 }
             ]
         },
@@ -6729,19 +6729,19 @@
             "S3_path": "s3://test-data/AUX/S3/S3B_AX___OSF_AX_20180425T191855_99991231T235959_20240507T090659___________________EUM_O_AL_001.SEN3.zip",
             "ContentType": "application/octet-stream",
             "ContentLength": "3169203",
-            "OriginDate": "2018-04-25T15:16:47.000Z",
-            "PublicationDate": "2018-04-25T07:20:58.166Z",
-            "EvictionDate": "2018-04-25T07:20:58.166Z",
+            "OriginDate": "2018-04-25T19:18:55.003Z",
+            "PublicationDate": "2018-04-25T19:18:55.003Z",
+            "EvictionDate": "2018-04-25T19:18:55.003Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
                     "Value": "cFeaFeAe20df52651743FC8CDdba02DB",
-                    "ChecksumDate": "2018-04-25T00:00:00.000Z"
+                    "ChecksumDate": "2018-04-25T19:18:55.003Z"
                 }
             ],
             "ContentDate": {
-                "Start": "2018-04-25T07:20:58.166Z",
-                "End": "2018-04-25T07:21:08.166Z"
+                "Start": "2018-04-25T19:18:55.003Z",
+                "End": "2018-04-25T19:18:55.003Z"
             },
             "Attributes": [
                 {
@@ -6766,13 +6766,13 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "beginningDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2018-04-25T07:20:58.166Z"
+                    "Value": "2018-04-25T19:18:55.003Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "endingDateTime",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2018-01-06T07:21:08.166Z"
+                    "Value": "2018-04-25T19:18:55.003Z"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
@@ -6790,7 +6790,7 @@
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
                     "Name": "processingDate",
                     "ValueType": "DateTimeOffset",
-                    "Value": "2018-04-25T00:00:00.000Z"
+                    "Value": "2018-04-25T19:18:55.003Z"
                 }
             ]
         }
