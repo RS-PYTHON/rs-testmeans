@@ -593,7 +593,7 @@ def download_file(Id) -> Response:  # noqa: N803
                 return response
             return send_file(file_path)
         else:
-            send_file("config/S3Mock/" + file_info["Name"])
+            return send_file("config/S3Mock/" + file_info["Name"])
 
 
     return Response(status="404 None/Multiple files found")
