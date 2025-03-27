@@ -19,7 +19,7 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<4"
 flask-bcrypt = "^1.0.1"
 flask-httpauth = "^4.8.0"
 
