@@ -371,6 +371,7 @@ def process_common_elements(first_response, second_response, operator):
             )
 
 @app.route("/Products", methods=["GET"])
+@token_required
 @additional_options
 def query_products():
     """Docstring to be added."""
