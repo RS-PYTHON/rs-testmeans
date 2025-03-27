@@ -371,7 +371,6 @@ def process_common_elements(first_response, second_response, operator):
             )
 
 @app.route("/Products", methods=["GET"])
-@token_required
 @additional_options
 def query_products():
     """Docstring to be added."""
@@ -435,6 +434,11 @@ def query_products():
                 common_response = first_ops_response.intersection(second_ops_response)
                 common_elements = [d for d in first_response + second_response if d.get("Id") in common_response]
                 return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(common_elements), headers=request.args)
+            case 4:
+                conditions = request.args['$filter'].split(" and ")
+
+                if any("PublicationDate" in cond for cond in conditions):
+                    pass  # Do nothing if at least one condition contains "PublicationDate"
             case _:
                 msg = "Too complex for adgs sim"
                 logger.error(msg)
@@ -454,7 +458,8 @@ def query_products():
             msg = "Too complex for adgs sim"
             logger.error(msg)
             return Response ("Too complex for adgs sim", status=HTTPStatus.BAD_REQUEST)
-
+        # Tempfix, when filter is very complex, use only GT / LT
+        properties_filter = [f.split(" or ")[0].strip("'\"()") if " or " in f else f for f in properties_filter]
         # Process each property in the filter
         processed_requests = [
             process_products_request(prop.strip("'\""), request.args)
