@@ -668,5 +668,5 @@ if __name__ == "__main__":
         port_redirection.join()
         port_download.join()
     else:
-        app.run(debug=False, host=args.host, port=args.port)
+        app.run(debug=True, host=args.host, port=args.port)
     logger.info("Exiting")
