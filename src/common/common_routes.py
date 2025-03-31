@@ -70,9 +70,8 @@ KEYS_TO_UPDATE = [
 ]
 
 # Set validity period (in seconds) for access and refresh tokens
-EXPIRES_IN = 1200
-REFRESH_EXPIRES_IN = 3600
-
+EXPIRES_IN = int(os.getenv("RSPY_EXPIRES_IN", "1200"))
+REFRESH_EXPIRES_IN = int(os.getenv("RSPY_REFRESH_EXPIRES_IN", "3600"))
 
 def clean_token_dict(config_auth_dict: dict[list], auth_path: str):
     """
