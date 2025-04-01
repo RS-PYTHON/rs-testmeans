@@ -575,10 +575,8 @@ def download_file(Id) -> Response:  # noqa: N803
     if len(files) == 1:
         file_info = files[0]
         if "S3_path" in file_info:
-            if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("~/.s3cfg"))):
-                raise Exception(
-                    "You must have a s3cmd config file under '~/.s3cfg'",
-                )
+            if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("/.s3cfg"))):
+                return Response(status=HTTPStatus.BAD_REQUEST, response="You must have a s3cmd config file under '~/.s3cfg'")
             handler = S3StorageHandler(
                 s3_credentials["access_key"],
                 s3_credentials["secret_key"],
