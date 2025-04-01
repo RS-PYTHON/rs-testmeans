@@ -10,7 +10,8 @@ dependencies = [
     "Flask-HTTPAuth == 4.8.0",
     "Flask-Bcrypt == 1.0.1",
     "boto3 == 1.28.85",
-    "botocore == 1.31.85"
+    "botocore == 1.31.85",
+    "dotenv == 0.9.9"
     ]
 
 
@@ -24,6 +25,7 @@ authors = ["Your Name <you@example.com>"]
 python = "^3.11"
 flask-bcrypt = "^1.0.1"
 flask-httpauth = "^4.8.0"
+dotenv = "^0.9.9"
 
 [build-system]
 requires = ["poetry-core"]
