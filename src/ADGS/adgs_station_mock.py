@@ -18,6 +18,7 @@ from common.common_routes import (
     token_required,
     register_token_route, 
 )
+import dotenv
 from common.s3_handler import S3StorageHandler, GetKeysFromS3Config
 import os
 
@@ -521,11 +522,15 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     if len(files) == 1:
         file_info = files[0]
         if "S3_path" in file_info:
+            if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("~/.s3cfg"))):
+                raise Exception(
+                    "You must have a s3cmd config file under '~/.s3cfg'",
+                )
             handler = S3StorageHandler(
-                os.environ["S3_ACCESSKEY"],
-                os.environ["S3_SECRETKEY"],
-                os.environ["S3_ENDPOINT"],
-                os.environ["S3_REGION"],  # "sbg",
+                s3_credentials["access_key"],
+                s3_credentials["secret_key"],
+                s3_credentials["host_bucket"],
+                s3_credentials["bucket_location"],  # "sbg",
             )
             parts = file_info["S3_path"].replace("s3://", "").split("/", 1)
             handler.get_keys_from_s3(GetKeysFromS3Config([parts[1]], parts[0], "/tmp/auxip"))
