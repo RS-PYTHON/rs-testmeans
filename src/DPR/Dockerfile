@@ -3,6 +3,7 @@ LABEL description="This docker allow to run a DPR Processor mockup."
 
 WORKDIR /src/DPR
 COPY ./. /src/DPR/
+COPY ./common /src/common
 
 RUN python3.11 -m pip install --upgrade pip
 # Install poetry
