@@ -86,9 +86,6 @@ class DPRProcessor:
         if "workflow" not in self.payload_data.keys():
             logger.error("Payload configuration is missing workflow.")
             raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Invalid payload")
-        if "parameters" not in self.payload_data["workflow"][0].keys():
-            logger.error("Payload configuration is missing workflow parameters.")
-            raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Invalid payload")
 
         payload_parameters = self.payload_data["workflow"][0].get("outputs", None)
         requested_ptypes = payload_parameters.values()
