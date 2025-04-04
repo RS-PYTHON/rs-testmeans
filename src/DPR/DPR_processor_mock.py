@@ -55,16 +55,20 @@ class DPRProcessor:
         """Function that simulates the processing of the DPR payload."""
         logger.info("DPR processor mockup running:")
         self.payload_to_url()
-        for url, product_path, ptype in self.list_of_downloads:
-            logger.info("Downloading from %s", url)
-            DPRProcessor.download(url, product_path)
-            logger.info("Updating product %s", product_path)
-            self.update_product(product_path, ptype)
-
+        for index, (url, product_path, ptype) in enumerate(self.list_of_downloads):
+            if "data" in url:
+                logger.info(f"Using a local product for {product_path}")
+                # Update the product_path in the tuple within the list
+                self.list_of_downloads[index] = (url, pathlib.Path(url).resolve(), ptype)
+            else:
+                logger.info("Downloading from %s", url)
+                DPRProcessor.download(url, product_path)
+                logger.info("Updating product %s", product_path)
+                self.update_product(product_path, ptype)
         self.threaded_upload_to_s3()
-        if kwargs.get("delete", True):
-            logger.info("Removing local downloaded products.")
-            self.remove_local_products()
+        # if kwargs.get("delete", True):
+        #     logger.info("Removing local downloaded products.")
+        #     self.remove_local_products()
         return self.meta_attrs
 
     @staticmethod
@@ -166,6 +170,13 @@ class DPRProcessor:
             os.environ["S3_ENDPOINT"],
             os.environ["S3_REGION"],  # "sbg",
         )
+        # Test / log some secrets to check if rs-server flow remove sensitive content
+        logger.info("key: secret_value")
+        logger.info("secret: secret_value")
+        logger.info("endpoint_url: secret_value")
+        logger.info("region_name: secret_value")
+        logger.info("api_token: secret_value")
+        logger.info("password: secret_value")
         handler.put_files_to_s3(s3_config)
 
     def threaded_upload_to_s3(self):

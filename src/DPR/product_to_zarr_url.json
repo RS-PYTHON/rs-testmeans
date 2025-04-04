@@ -46,10 +46,10 @@
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3ALTL0__20221101T092457_3029_A307__483.zarr.zip"
     },
     "S3MWRL0_": {
-        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3MWRL0__20221101T092439_6037_A307_T522.zarr.zip"
+        "zarr": "data/S03MWRL0__20221101T092439_6037_A307_T677.zarr.zip"
     },
     "S3OLCL0_": {
-        "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3MWRL0__20221101T092439_6037_A307_T522.zarr.zip"
+        "zarr": "data/S03OLCL0__20210629T044945_0119_A247_T219.zarr.zip"
     },
     "S3OLCEFR": {
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCEFR_20220116T092821_0180_A036_S418.zarr.zip",
