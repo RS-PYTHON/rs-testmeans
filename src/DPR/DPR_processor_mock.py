@@ -64,11 +64,12 @@ class DPRProcessor:
                 logger.info("Downloading from %s", url)
                 DPRProcessor.download(url, product_path)
                 logger.info("Updating product %s", product_path)
-                self.update_product(product_path, ptype)
+            self.update_product(product_path, ptype)
         self.threaded_upload_to_s3()
         # if kwargs.get("delete", True):
         #     logger.info("Removing local downloaded products.")
         #     self.remove_local_products()
+        logger.info(self.meta_attrs)
         return self.meta_attrs
 
     @staticmethod
@@ -150,8 +151,8 @@ class DPRProcessor:
                     json.dump(data, f)
         logger.info("Processing stamp added: %s", default_processing_stamp)
         logger.info("Computed CRC for %s is %s", path, DPRProcessor.crc_stamp(data))
-        new_product_id = self.update_product_name(path, DPRProcessor.crc_stamp(data))
-        data['stac_discovery']['id'] = new_product_id
+        #new_product_id = self.update_product_name(path, DPRProcessor.crc_stamp(data))
+        #data['stac_discovery']['id'] = new_product_id
         self.meta_attrs.append(data)
 
     def upload_to_s3(self, path: pathlib.Path, ptype):

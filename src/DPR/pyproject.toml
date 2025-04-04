@@ -20,6 +20,7 @@ pyyaml = "6.0.1"
 crcmod = "^1.7"
 fastapi = "^0.109.2"
 uvicorn = "^0.27.1"
+source = "^1.2.0"
 
 [build-system]
 requires = ["poetry-core"]
