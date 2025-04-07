@@ -1,0 +1,239 @@
+{
+    "other_metadata": {
+        "absolute_pass_number": 55880,
+        "cycle_number": 73,
+        "dump_granule_number": 17,
+        "dump_granule_position": "NONE",
+        "dump_start": "2021-06-29T04:20:20.048488Z",
+        "eopf_category": "eoproduct",
+        "ephemeris": {
+            "start": {
+                "TAI": "2021-06-29T04:01:14.851228",
+                "UT1": "2021-06-29T04:00:37.682110",
+                "UTC": "2021-06-29T04:00:37.851228Z",
+                "position": {
+                    "x": -9679.471,
+                    "y": -7184042.589,
+                    "z": -0.002
+                },
+                "velocity": {
+                    "x": -1640.00946,
+                    "y": 10.907833,
+                    "z": 7366.179881
+                }
+            },
+            "stop": {
+                "TAI": "2021-06-29T05:42:14.161246",
+                "UT1": "2021-06-29T05:41:36.992178",
+                "UTC": "2021-06-29T05:41:37.161246Z",
+                "position": {
+                    "x": -3072759.321,
+                    "y": -6493594.231,
+                    "z": -0.003
+                },
+                "velocity": {
+                    "x": -1478.678686,
+                    "y": 709.431144,
+                    "z": 7366.304589
+                }
+            }
+        },
+        "header_flag": true,
+        "history": [
+            {
+                "output": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                "processingCentre": "MAR, European Organisation for the Exploitation of Meteorological Satellites",
+                "processor": "ADC",
+                "type": "FOS Orbit File (Restituted)",
+                "version": "2.0"
+            },
+            {
+                "output": "S3A_AX___OSF_AX_20160216T192404_99991231T235959_20200826T081958___________________EUM_O_AL_001.SEN3",
+                "processingCentre": "MAR, European Organisation for the Exploitation of Meteorological Satellites",
+                "processor": "ADC",
+                "type": "Reference Orbit Scenario File",
+                "version": "2.0"
+            },
+            {
+                "inputs": {
+                    "FOS Orbit File (Restituted)1": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "FOS Orbit File (Restituted)2": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "L0PP Granule": "S3A_TM_0_NAT__G_20210629T042404_20210629T060617_20210629T061654_6133______________SVL_O_NR_OPE.ISIP",
+                    "Product Data Format Specification - Level 0": "S3IPF PDS 001 - i1r8 - Product Data Format Specification - Level 0",
+                    "Reference Orbit Scenario File": "S3A_AX___OSF_AX_20160216T192404_99991231T235959_20200826T081958___________________EUM_O_AL_001.SEN3",
+                    "Time Correlation File1": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "Time Correlation File2": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3"
+                },
+                "output": "S3A_TM_0_NAT____20210629T042346_20210629T060559_20210629T061722_6132_073_247______LN1_O_AL_002.SEN3",
+                "processingCentre": "Land OLCI Processing and Archiving Centre [LN1], European Space Agency",
+                "processingTime": "2021-06-29T06:17:30.769783Z",
+                "processor": "IPF-0",
+                "type": "L0 Product",
+                "version": "06.13"
+            },
+            {
+                "inputs": {
+                    "FOS Orbit File (Restituted)1": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "FOS Orbit File (Restituted)2": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "L0PP Granule": "S3A_TM_0_NAT__G_20210629T042404_20210629T060615_20210629T060901_6131______________SVL_O_NR_OPE.ISIP",
+                    "Product Data Format Specification - Level 0": "S3IPF PDS 001 - i1r8 - Product Data Format Specification - Level 0",
+                    "Reference Orbit Scenario File": "S3A_AX___OSF_AX_20160216T192404_99991231T235959_20200826T081958___________________EUM_O_AL_001.SEN3",
+                    "Time Correlation File1": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "Time Correlation File2": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3"
+                },
+                "output": "S3A_TM_0_NAT____20210629T042346_20210629T060557_20210629T060923_6130_073_247______LN1_O_AL_002.SEN3",
+                "processingCentre": "Land OLCI Processing and Archiving Centre [LN1], European Space Agency",
+                "processingTime": "2021-06-29T06:09:33.604151Z",
+                "processor": "IPF-0",
+                "type": "L0 Product",
+                "version": "06.13"
+            },
+            {
+                "inputs": {
+                    "FOS Orbit File (Restituted)1": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "FOS Orbit File (Restituted)2": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "L0PP Granule": "S3A_TM_0_NAT__G_20210629T042404_20210629T060617_20210629T061654_6133______________SVL_O_NR_OPE.ISIP",
+                    "Product Data Format Specification - Level 0": "S3IPF PDS 001 - i1r8 - Product Data Format Specification - Level 0",
+                    "Reference Orbit Scenario File": "S3A_AX___OSF_AX_20160216T192404_99991231T235959_20200826T081958___________________EUM_O_AL_001.SEN3",
+                    "Time Correlation File1": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "Time Correlation File2": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3"
+                },
+                "output": "S3A_TM_0_NAT____20210629T042346_20210629T060559_20210629T061722_6132_073_247______LN1_O_AL_002.SEN3",
+                "processingCentre": "Land OLCI Processing and Archiving Centre [LN1], European Space Agency",
+                "processingTime": "2021-06-29T06:17:30.769783Z",
+                "processor": "IPF-0",
+                "type": "L0 Product",
+                "version": "06.13"
+            },
+            {
+                "inputs": {
+                    "FOS Orbit File (Restituted)1": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "FOS Orbit File (Restituted)2": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "L0PP Granule": "S3A_TM_0_NAT__G_20210629T042404_20210629T060615_20210629T060901_6131______________SVL_O_NR_OPE.ISIP",
+                    "Product Data Format Specification - Level 0": "S3IPF PDS 001 - i1r8 - Product Data Format Specification - Level 0",
+                    "Reference Orbit Scenario File": "S3A_AX___OSF_AX_20160216T192404_99991231T235959_20200826T081958___________________EUM_O_AL_001.SEN3",
+                    "Time Correlation File1": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "Time Correlation File2": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3"
+                },
+                "output": "S3A_TM_0_NAT____20210629T042346_20210629T060557_20210629T060923_6130_073_247______LN1_O_AL_002.SEN3",
+                "processingCentre": "Land OLCI Processing and Archiving Centre [LN1], European Space Agency",
+                "processingTime": "2021-06-29T06:09:33.604151Z",
+                "processor": "IPF-0",
+                "type": "L0 Product",
+                "version": "06.13"
+            },
+            {
+                "inputs": {
+                    "FOS Orbit File (Restituted)": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3",
+                    "L0 Product1": "S3A_TM_0_NAT____20210629T042346_20210629T060559_20210629T061722_6132_073_247______LN1_O_AL_002.SEN3",
+                    "L0 Product2": "S3A_TM_0_NAT____20210629T042346_20210629T060557_20210629T060923_6130_073_247______LN1_O_AL_002.SEN3",
+                    "L0 Product3": "S3A_TM_0_NAT____20210629T042346_20210629T060559_20210629T061722_6132_073_247______LN1_O_AL_002.SEN3",
+                    "L0 Product4": "S3A_TM_0_NAT____20210629T042346_20210629T060557_20210629T060923_6130_073_247______LN1_O_AL_002.SEN3",
+                    "L0PP Granule": "S3A_OL_0_EFR__G_20210629T045003_20210629T045203_20210629T061735_0120______________SVL_O_NR_OPE.ISIP",
+                    "Orbit File1": "S3A_TM_0_NAT____20210629T042346_20210629T060559_20210629T061722_6132_073_247______LN1_O_AL_002.SEN3",
+                    "Orbit File2": "S3A_TM_0_NAT____20210629T042346_20210629T060559_20210629T061722_6132_073_247______LN1_O_AL_002.SEN3",
+                    "Product Data Format Specification - Level 0": "S3IPF PDS 001 - i1r8 - Product Data Format Specification - Level 0",
+                    "Reference Orbit Scenario File": "S3A_AX___OSF_AX_20160216T192404_99991231T235959_20200826T081958___________________EUM_O_AL_001.SEN3",
+                    "Time Correlation File": "S3A_AX___FRO_AX_20210625T000000_20210705T000000_20210628T065158___________________EUM_O_AL_001.SEN3"
+                },
+                "output": "",
+                "processingCentre": "Land OLCI Processing and Archiving Centre [LN1], European Space Agency",
+                "processingTime": "2021-06-29T06:19:53.845255Z",
+                "processor": "IPF-0",
+                "type": "L0",
+                "version": "06.13"
+            }
+        ],
+        "packet_category": 16,
+        "packet_count": 13635,
+        "packet_type": 0,
+        "packet_version": 0,
+        "phase_identifier": 1,
+        "product_unit": {
+            "duration": 119,
+            "type": "STRIPE"
+        },
+        "receiving_ground_station": "CGS",
+        "receiving_start_time": "2021-06-29T06:10:21.181317Z",
+        "receiving_stop_time": "2021-06-29T06:10:35.278233Z",
+        "relative_pass_number": 494,
+        "sequence_flag": 3
+    },
+    "stac_discovery": {
+        "assets": {"zarr": {"href": "path", "roles": ["data"]}},
+        "bbox": [
+            78.3367,
+            -2.49414,
+            76.7633,
+            4.59634
+        ],
+        "collection": "002",
+        "geometry": {
+            "coordinates": [
+                [
+                  [6.843285, 41.496895],
+                  [4.213456, 41.875223],
+                  [4.843787, 43.148529],
+                  [7.584300, 42.987234],
+                  [6.843285, 41.496895]
+                ]
+              ],
+            "type": "Polygon"
+        },
+        "id": "S3A_OL_0_EFR____20210629T044945_20210629T045145_20210629T061945_0119_073_247______LN1_O_NR_002.SEN3",
+        "links": [
+            {
+                "href": "./.zattrs.json",
+                "rel": "collection",
+                "type": "application/json"
+            }
+        ],
+        "properties": {
+            "constellation": "sentinel-3",
+            "created": "2021-06-29T06:19:45+00:00",
+            "datetime": "2021-06-29T06:19:45+00:00",
+            "end_datetime": "2021-06-29T04:51:45.192805+00:00",
+            "eopf:instrument_mode": "Earth Observation",
+            "instrument": "olci",
+            "platform": "sentinel-3a",
+            "processing:expression": "systematic",
+            "processing:software": {
+                "IPF-0": "06.13"
+            },
+            "processing:version": "TODO",
+            "product:timeliness": "PT3H",
+            "product:timeliness_category": "NRT",
+            "product:type": "S03OLCL0_",
+            "providers": [
+                {
+                    "name": "Land OLCI Processing and Archiving Centre [LN1]",
+                    "roles": [
+                        "processor"
+                    ]
+                },
+                {
+                    "name": "European Space Agency",
+                    "roles": [
+                        "producer"
+                    ]
+                }
+            ],
+            "sat:absolute_orbit": 27940,
+            "sat:orbit_state": "descending",
+            "sat:platform_international_designator": "2016-011A",
+            "sat:relative_orbit": 247,
+            "start_datetime": "2021-06-29T04:49:45.245435+00:00"
+        },
+        "stac_extensions": [
+            "https://stac-extensions.github.io/eopf/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
+            "https://stac-extensions.github.io/sat/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/view/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/scientific/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/processing/v1.2.0/schema.json",
+            "https://stac-extensions.github.io/product/v0.1.0/schema.json"
+        ],
+        "stac_version": "1.0.0",
+        "type": "Feature"
+    }
+}

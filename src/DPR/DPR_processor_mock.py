@@ -69,6 +69,7 @@ class DPRProcessor:
         # if kwargs.get("delete", True):
         #     logger.info("Removing local downloaded products.")
         #     self.remove_local_products()
+        self.prepare_catalog_data()
         logger.info(self.meta_attrs)
         return self.meta_attrs
 

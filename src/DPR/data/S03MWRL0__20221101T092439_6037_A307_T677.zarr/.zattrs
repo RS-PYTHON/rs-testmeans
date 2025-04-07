@@ -1,0 +1,166 @@
+{
+    "other_metadata": {
+        "absolute_pass_number": 69859,
+        "cycle_number": 91,
+        "dump_granule_number": 1,
+        "dump_granule_position": "BOTH",
+        "dump_start": "2022-11-01T09:24:39.695148Z",
+        "eopf_category": "eoproduct",
+        "ephemeris": {
+            "start": {
+                "TAI": "2022-11-01T09:00:21.541371",
+                "UT1": "2022-11-01T08:59:44.530896",
+                "UTC": "2022-11-01T08:59:44.541371Z",
+                "position": {
+                    "x": -6934755.474,
+                    "y": -1874237.936,
+                    "z": 0.001
+                },
+                "velocity": {
+                    "x": -419.757925,
+                    "y": 1585.733524,
+                    "z": 7366.641354
+                }
+            },
+            "stop": {
+                "TAI": "2022-11-01T10:41:20.721021",
+                "UT1": "2022-11-01T10:40:43.710533",
+                "UTC": "2022-11-01T10:40:43.721021Z",
+                "position": {
+                    "x": -7071743.316,
+                    "y": 1262647.898,
+                    "z": 0.004
+                },
+                "velocity": {
+                    "x": 296.686861,
+                    "y": 1613.381499,
+                    "z": 7366.62655
+                }
+            }
+        },
+        "header_flag": true,
+        "history": [
+            {
+                "output": "S3A_AX___FRO_AX_20221029T000000_20221108T000000_20221101T065455___________________EUM_O_AL_001.SEN3",
+                "processingCentre": "MAR, European Organisation for the Exploitation of Meteorological Satellites",
+                "processor": "ADC",
+                "type": "FOS Orbit File (Restituted)",
+                "version": "2.0"
+            },
+            {
+                "output": "S3A_AX___OSF_AX_20160216T192404_99991231T235959_20220330T090651___________________EUM_O_AL_001.SEN3",
+                "processingCentre": "MAR, European Organisation for the Exploitation of Meteorological Satellites",
+                "processor": "ADC",
+                "type": "Reference Orbit Scenario File",
+                "version": "2.0"
+            },
+            {
+                "inputs": {
+                    "FOS Orbit File (Restituted)": "S3A_AX___FRO_AX_20221029T000000_20221108T000000_20221101T065455___________________EUM_O_AL_001.SEN3",
+                    "L0PP Granule": "S3A_MW_0_MWR__G_20221101T092458_20221101T110536_20221101T111706_6038______________SVL_O_NR_OPE.ISIP",
+                    "Orbit File": "S3A_AX___FRO_AX_20221029T000000_20221108T000000_20221101T065455___________________EUM_O_AL_001.SEN3",
+                    "Product Data Format Specification - Level 0": "S3IPF PDS 001 - i1r8 - Product Data Format Specification - Level 0",
+                    "Reference Orbit Scenario File": "S3A_AX___OSF_AX_20160216T192404_99991231T235959_20220330T090651___________________EUM_O_AL_001.SEN3",
+                    "Time Correlation File": "S3A_AX___FRO_AX_20221029T000000_20221108T000000_20221101T065455___________________EUM_O_AL_001.SEN3"
+                },
+                "output": "",
+                "processingCentre": "S3A Processing Service [PS1], ACRI-ST",
+                "processingTime": "2022-11-01T11:21:49.823914Z",
+                "processor": "IPF-0",
+                "type": "L0",
+                "version": "06.14"
+            }
+        ],
+        "packet_category": 16,
+        "packet_count": "39477",
+        "packet_type": 0,
+        "packet_version": 0,
+        "phase_identifier": 1,
+        "product_unit": {
+            "duration": 6037,
+            "type": "STRIPE"
+        },
+        "receiving_ground_station": "CGS",
+        "receiving_start_time": "2022-11-01T11:05:15.635157Z",
+        "receiving_stop_time": "2022-11-01T11:11:19.289447Z",
+        "relative_pass_number": 613,
+        "sequence_flag": 3
+    },
+    "stac_discovery": {
+        "assets": {"zarr": {"href": "path", "roles": ["data"]}},
+        "bbox": [
+            172.157,
+            -73.1833,
+            -179.191,
+            81.3627
+        ],
+        "collection": "004",
+        "geometry": {
+            "coordinates": [
+                [
+                  [6.843285, 41.496895],
+                  [4.213456, 41.875223],
+                  [4.843787, 43.148529],
+                  [7.584300, 42.987234],
+                  [6.843285, 41.496895]
+                ]
+              ],
+            "type": "Polygon"
+        },
+        "id": "S3A_MW_0_MWR____20221101T092440_20221101T110518_20221101T112141_6037_091_307______PS1_O_NR_004.SEN3",
+        "links": [
+            {
+                "href": "./.zattrs.json",
+                "rel": "collection",
+                "type": "application/json"
+            }
+        ],
+        "properties": {
+            "constellation": "sentinel-3",
+            "created": "2022-04-12T06:51:59.109790+00:00",
+            "datetime": "2022-04-12T06:51:59.109790+00:00",
+            "end_datetime": "2022-11-01T11:05:17.581942+00:00",
+            "eopf:instrument_mode": "Earth Observation",
+            "instrument": "MWR",
+            "platform": "sentinel-3a",
+            "processing:expression": "systematic",
+            "processing:software": {
+                "IPF-0": "06.14"
+            },
+            "processing:version": "TODO",
+            "product:timeliness": "PT3H",
+            "product:timeliness_category": "NRT",
+            "product:type": "S03MWRL0_",
+            "providers": [
+                {
+                    "name": "S3A Processing Service [PS1]",
+                    "roles": [
+                        "processor"
+                    ]
+                },
+                {
+                    "name": "ACRI-ST",
+                    "roles": [
+                        "producer"
+                    ]
+                }
+            ],
+            "sat:absolute_orbit": 34930,
+            "sat:orbit_state": "ascending",
+            "sat:platform_international_designator": "2016-011A",
+            "sat:relative_orbit": 307,
+            "start_datetime": "2022-11-01T09:24:39.695148+00:00"
+        },
+        "stac_extensions": [
+            "https://stac-extensions.github.io/eopf/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
+            "https://stac-extensions.github.io/sat/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/view/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/scientific/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/product/v0.1.0/schema.json",
+            "https://stac-extensions.github.io/processing/v1.2.0/schema.json"
+        ],
+        "stac_version": "1.0.0",
+        "type": "Feature"
+    }
+}
