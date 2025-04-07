@@ -221,7 +221,8 @@ def register_token_route(app: Flask):
         username = request.form.get("username")
         password = request.form.get("password")
         grant_type = request.form.get("grant_type")
-        scope = request.form.get("scope")    
+        scope = request.form.get("scope")
+        refresh_token = request.form.get("refresh_token")
 
         # Optional Authorization header check
         # auth_header = request.headers.get('Authorization')
@@ -237,7 +238,10 @@ def register_token_route(app: Flask):
                 logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
             
             # Validate required fields
-            if not client_id or not client_secret or not username or not password:
+            check_credentials = bool(client_id and client_secret)
+            if not refresh_token: # username and password are not required for the refresh token
+                check_credentials &= bool(username and password)
+            if not check_credentials:
                 logger.error("Invalid client. The token is not granted")
                 return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": "Invalid client"}))
 
@@ -245,11 +249,14 @@ def register_token_route(app: Flask):
                 logger.error("Invalid client id and/or secret. The token is not granted")
                 return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": 
                                                                             f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
-            if username != config_auth["username"] or password != config_auth["password"]:
-                logger.error("Invalid username and/or password. The token is not granted")
-                return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
+            
+            if not refresh_token:
+                if username != config_auth["username"] or password != config_auth["password"]:
+                    logger.error("Invalid username and/or password. The token is not granted")
+                    return Response(status=HTTPStatus.UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
+
             # Validate the grant_type
-            if grant_type != config_auth["grant_type"]:
+            if grant_type != ("refresh_token" if refresh_token else config_auth["grant_type"]):
                 logger.error("Unsupported grant_type. The token is not granted")
                 return json.dumps({"error": "Unsupported grant_type"}), HTTPStatus.BAD_REQUEST
             
