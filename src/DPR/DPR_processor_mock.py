@@ -115,7 +115,7 @@ class DPRProcessor:
     @staticmethod
     def read_attrs(path: pathlib.Path):
         """Read zarr attributes from zip or folder."""
-        data = zipfile.ZipFile(path, "r").read(".zattrs") if path.suffix == ".zip" else open(path / ".zattrs").read()
+        data = zipfile.ZipFile(path, "r").read(f"{path.stem}/.zattrs") if path.suffix == ".zip" else open(path / ".zattrs").read()
         return json.loads(data)
 
     def update_product(self, path: pathlib.Path, ptype):
