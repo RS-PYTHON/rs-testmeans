@@ -522,14 +522,24 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     if len(files) == 1:
         file_info = files[0]
         if "S3_path" in file_info:
-            if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("/.s3cfg"))):
-                return Response(status=HTTPStatus.BAD_REQUEST, response="You must have a s3cmd config file under '~/.s3cfg'")
-            handler = S3StorageHandler(
-                s3_credentials["access_key"],
-                s3_credentials["secret_key"],
-                s3_credentials["host_bucket"],
-                s3_credentials["bucket_location"],  # "sbg",
-            )
+            try:
+                # Try to create s3 connector using env variables
+                handler = S3StorageHandler(
+                    os.environ["S3_ACCESSKEY"],
+                    os.environ["S3_SECRETKEY"],
+                    os.environ["S3_ENDPOINT"],
+                    os.environ["S3_REGION"],  # "sbg",
+                )
+            except KeyError:
+                # If env variables are not set, check if /.s3cfg is there, and map the values.
+                if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("/.s3cfg"))):
+                    return Response(status=HTTPStatus.BAD_REQUEST, response="You must have a s3cmd config file under '~/.s3cfg'")
+                handler = S3StorageHandler(
+                    s3_credentials["access_key"],
+                    s3_credentials["secret_key"],
+                    s3_credentials["host_bucket"],
+                    s3_credentials["bucket_location"],  # "sbg",
+                )
             parts = file_info["S3_path"].replace("s3://", "").split("/", 1)
             handler.get_keys_from_s3(GetKeysFromS3Config([parts[1]], parts[0], "/tmp/auxip"))
             file_path = f"/tmp/auxip/{file_info['Name']}"
