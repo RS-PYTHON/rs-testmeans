@@ -2424,7 +2424,7 @@
 		{
 			"Id": "bb02813a-17f4-48ce-a4a4-ca22ac7b0ee4",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00001.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00001.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00001.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2437,7 +2437,7 @@
 		{
 			"Id": "56c5314c-9356-406e-9683-2046b216287c",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00002.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00002.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00002.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2450,7 +2450,7 @@
 		{
 			"Id": "8bf9e319-57a9-4afc-b58c-bc83bd623f42",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00003.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00003.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00003.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2463,7 +2463,7 @@
 		{
 			"Id": "52f444dd-9067-4a0d-bcdb-6594dcc45048",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00004.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00004.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00004.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2476,7 +2476,7 @@
 		{
 			"Id": "48f541f0-74b7-4ae7-9487-bf8b2cbc7513",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00005.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00005.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00005.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2489,7 +2489,7 @@
 		{
 			"Id": "bf8a8474-ef16-4d1d-ba13-7b6bb66c4a0d",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00006.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00006.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00006.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2502,7 +2502,7 @@
 		{
 			"Id": "b0010e67-21e9-4b66-b260-ab3d8eff583f",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00007.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00007.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00007.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2515,7 +2515,7 @@
 		{
 			"Id": "ddd62d3b-156c-434b-8474-81199cf5cb6c",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00008.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00008.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00008.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2528,7 +2528,7 @@
 		{
 			"Id": "cd20a1b2-04e1-4c16-94c3-d9cb52fe28b5",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00009.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00009.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00009.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2541,7 +2541,7 @@
 		{
 			"Id": "9f506d21-f3ce-4c24-a5a2-ebe39aeb2fa5",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00010.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00010.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00010.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2554,7 +2554,7 @@
 		{
 			"Id": "93ce9510-9e96-47fb-9671-63d0fd4cbdac",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00011.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00011.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00011.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2567,7 +2567,7 @@
 		{
 			"Id": "7b8049d7-551d-47bf-9bcb-ba3314c0ade6",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00012.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00012.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00012.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2580,7 +2580,7 @@
 		{
 			"Id": "27a11e7e-7285-49d1-8cbe-b298f8cc8c5c",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00013.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00013.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00013.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2593,7 +2593,7 @@
 		{
 			"Id": "705d37d4-9c85-4417-8965-3e97b507d12a",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00014.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00014.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00014.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2606,7 +2606,7 @@
 		{
 			"Id": "284c6ebe-58ea-4cf4-812d-18fde0ba781d",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00015.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00015.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00015.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2619,7 +2619,7 @@
 		{
 			"Id": "082714ed-2fb6-4699-9217-ac342050bd45",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00016.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00016.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00016.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2632,7 +2632,7 @@
 		{
 			"Id": "1f590675-49e7-4934-a5c9-0ee2c94ee181",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00017.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00017.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00017.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2645,7 +2645,7 @@
 		{
 			"Id": "4eea8bae-7ef5-47d3-9120-6b94e827349a",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00018.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00018.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00018.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2658,7 +2658,7 @@
 		{
 			"Id": "792b2985-73ca-4ece-a42c-a231b0a759b9",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00019.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00019.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00019.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2671,7 +2671,7 @@
 		{
 			"Id": "687b3c1c-815e-4479-ac2a-22868e9cd3cb",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00020.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00020.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00020.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2684,7 +2684,7 @@
 		{
 			"Id": "ff23f6c8-abe1-4825-95a3-8e6e5caa3db4",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00021.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00021.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00021.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2697,7 +2697,7 @@
 		{
 			"Id": "74517e8f-4bdb-4ece-b6e8-62999f03d16a",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00022.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00022.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00022.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2710,7 +2710,7 @@
 		{
 			"Id": "f843cb10-4b87-4a83-81a9-dee0d07aa5f2",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00023.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00023.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00023.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2723,7 +2723,7 @@
 		{
 			"Id": "155e76a5-566f-465f-aa1d-ad9d5b570bd0",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00024.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00024.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00024.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2736,7 +2736,7 @@
 		{
 			"Id": "3ff3ffa1-aa8b-4abd-91e5-6ae7c3694a91",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00025.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00025.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00025.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2749,7 +2749,7 @@
 		{
 			"Id": "42cc434b-7e03-470a-bc0e-acf8adcb571a",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00026.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00026.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00026.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2762,7 +2762,7 @@
 		{
 			"Id": "a1eb3202-e1a1-40e5-970e-475e46d3058b",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00027.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00027.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00027.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2775,7 +2775,7 @@
 		{
 			"Id": "db3a4d90-3177-4626-afd4-1e0fc124e28b",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00028.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00028.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00028.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2788,7 +2788,7 @@
 		{
 			"Id": "c14c8a02-7d8f-40a1-a579-4f80a6e1f873",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00029.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00029.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00029.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2801,7 +2801,7 @@
 		{
 			"Id": "90d86096-f314-472e-a715-ac1ca9a1250f",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00030.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00030.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00030.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2814,7 +2814,7 @@
 		{
 			"Id": "f6b7ea67-be54-4b6e-884c-776f426cecb8",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00031.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00031.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00031.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2827,7 +2827,7 @@
 		{
 			"Id": "0e6e629e-af70-49f9-8900-43e47fdfcc21",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00032.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00032.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00032.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2840,7 +2840,7 @@
 		{
 			"Id": "9887aa84-7ce3-4488-9511-9cedea09b237",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00033.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00033.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00033.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2853,7 +2853,7 @@
 		{
 			"Id": "e35a7432-1ba6-4e4d-a0d1-104b14cadc2d",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00034.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00034.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00034.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2866,7 +2866,7 @@
 		{
 			"Id": "10e71284-3463-4328-8f75-8fc872935b6d",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00035.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00035.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00035.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2879,7 +2879,7 @@
 		{
 			"Id": "7c60ef1d-43a1-42c4-bf16-f981e377b379",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00036.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00036.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00036.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2892,7 +2892,7 @@
 		{
 			"Id": "7d71f6da-f51b-425e-a5d5-218a7500ba10",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00037.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00037.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00037.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2905,7 +2905,7 @@
 		{
 			"Id": "c1dfdca6-8a5f-4d01-969c-21691be39c1c",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00038.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00038.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00038.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2918,7 +2918,7 @@
 		{
 			"Id": "0f2a5682-81e3-4a31-a7d8-965132e2c166",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00039.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00039.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00039.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2931,7 +2931,7 @@
 		{
 			"Id": "657e9e0d-e823-4885-a589-ca3f97531b6c",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00040.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00040.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00040.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2944,7 +2944,7 @@
 		{
 			"Id": "370d2140-e4d8-436a-97f6-5e1fc1d53842",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00041.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00041.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00041.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2957,7 +2957,7 @@
 		{
 			"Id": "98ebed78-6961-4df3-972a-34e2a45ed4b1",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00042.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00042.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00042.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2970,7 +2970,7 @@
 		{
 			"Id": "7ae3d5cd-c3bf-4df5-b972-d4ee9980bdca",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00043.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00043.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00043.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2983,7 +2983,7 @@
 		{
 			"Id": "e5663b32-892c-4dc0-88f6-9b03845558aa",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00044.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00044.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00044.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -2996,7 +2996,7 @@
 		{
 			"Id": "1e2b1048-7edf-4a56-93db-2adc86110338",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00045.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00045.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00045.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -3009,7 +3009,7 @@
 		{
 			"Id": "3a205b87-e295-46ad-8caa-fcc19ea0d227",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00046.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00046.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00046.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -3022,7 +3022,7 @@
 		{
 			"Id": "7a7c036e-8e01-4e26-be02-8d5c21615261",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00047.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00047.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00047.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -3035,7 +3035,7 @@
 		{
 			"Id": "6e9aa5ba-0491-4929-b49d-f01c9169fe79",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00048.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00048.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00048.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -3048,7 +3048,7 @@
 		{
 			"Id": "52360b7d-706e-4966-be4f-2d8a742fa616",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00049.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00049.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00049.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -3061,7 +3061,7 @@
 		{
 			"Id": "2483dde7-2f1b-46aa-8090-747f6731e809",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00050.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00050.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00050.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -3074,7 +3074,7 @@
 		{
 			"Id": "89c5ff28-472e-4c79-973f-42c64f6b840a",
 			"Name": "DCS_06_S3A_20250109134406046340_ch1_DSDB_00051.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch1_DSDB_00051.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_1/DCS_06_S3A_20250109134406046340_ch1_DSDB_00051.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 1,
 			"BlockNumber": 1,
@@ -3087,7 +3087,7 @@
 		{
 			"Id": "a1a94518-d785-4528-8369-b242ad76007b",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00001.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00001.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00001.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3100,7 +3100,7 @@
 		{
 			"Id": "be985438-97cb-4dd4-8476-e7b870caed08",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00002.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00002.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00002.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3113,7 +3113,7 @@
 		{
 			"Id": "53b572f6-7b63-4744-b982-5545fd2ef90f",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00003.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00003.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00003.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3126,7 +3126,7 @@
 		{
 			"Id": "b65a93cc-ae23-4285-9456-68fe33ce4a0e",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00004.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00004.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00004.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3139,7 +3139,7 @@
 		{
 			"Id": "a3e3aa37-8f1f-4979-babc-86b561fae0a0",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00005.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00005.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00005.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3152,7 +3152,7 @@
 		{
 			"Id": "ddc8657d-289e-438a-9df5-a8f882c4a7c8",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00006.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00006.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00006.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3165,7 +3165,7 @@
 		{
 			"Id": "dd416a4d-d059-4cd4-9277-b42f926f5370",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00007.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00007.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00007.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3178,7 +3178,7 @@
 		{
 			"Id": "4f3c5f46-a5fc-40b3-8fdf-6455c33c30ac",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00008.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00008.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00008.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3191,7 +3191,7 @@
 		{
 			"Id": "023390d8-8a60-4778-a981-8f09dc94ae78",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00009.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00009.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00009.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3204,7 +3204,7 @@
 		{
 			"Id": "28f34d42-2a6d-4674-9fc5-da478704c8ae",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00010.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00010.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00010.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3217,7 +3217,7 @@
 		{
 			"Id": "7a385583-821d-456f-ba0a-1e163cb998b9",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00011.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00011.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00011.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3230,7 +3230,7 @@
 		{
 			"Id": "6159c1f2-7ce9-4fd5-acfb-1a49beec4f50",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00012.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00012.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00012.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3243,7 +3243,7 @@
 		{
 			"Id": "2d9e6a10-e9a4-47cf-a1af-5719253d6c7d",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00013.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00013.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00013.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3256,7 +3256,7 @@
 		{
 			"Id": "be467404-aa23-4940-8ae7-9299ba8eaa2c",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00014.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00014.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00014.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3269,7 +3269,7 @@
 		{
 			"Id": "9df3d84d-37db-41f2-9fb1-ef4b0348aeca",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00015.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00015.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00015.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3282,7 +3282,7 @@
 		{
 			"Id": "888dca07-8e20-4021-be09-941a893223f0",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00016.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00016.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00016.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3295,7 +3295,7 @@
 		{
 			"Id": "788ec305-9ce5-4a5e-9228-5a8902948549",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00017.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00017.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00017.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3308,7 +3308,7 @@
 		{
 			"Id": "233b0b9e-d797-425b-ad28-a4cff2eb1c70",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00018.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00018.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00018.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3321,7 +3321,7 @@
 		{
 			"Id": "63e789a5-676c-4099-b994-6dffab887a79",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00019.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00019.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00019.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3334,7 +3334,7 @@
 		{
 			"Id": "b0f7e9f5-cf8e-4c6e-8563-115978621c0f",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00020.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00020.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00020.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3347,7 +3347,7 @@
 		{
 			"Id": "4af400fc-0ec5-4e77-89db-8a95d3ad95c6",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00021.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00021.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00021.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3360,7 +3360,7 @@
 		{
 			"Id": "8c25e27b-5c3d-4154-b88d-2712ed1af1b6",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00022.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00022.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00022.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3373,7 +3373,7 @@
 		{
 			"Id": "8aa8ae3a-aa7a-414d-b6c2-c61adcc4b4d5",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00023.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00023.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00023.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3386,7 +3386,7 @@
 		{
 			"Id": "37b3be00-1823-4aa4-88ce-4009942e7d25",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00024.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00024.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00024.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3399,7 +3399,7 @@
 		{
 			"Id": "14c578ef-d1bd-4c79-a443-6ea5c1125d48",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00025.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00025.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00025.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3412,7 +3412,7 @@
 		{
 			"Id": "e20a6f17-b4fa-4f30-8eef-fb8f624dee29",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00026.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00026.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00026.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3425,7 +3425,7 @@
 		{
 			"Id": "c3d25a2b-8a7b-4049-9e0c-d339e87fcdf7",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00027.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00027.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00027.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3438,7 +3438,7 @@
 		{
 			"Id": "ba5377dd-9641-4666-9199-6a9e102186d0",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00028.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00028.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00028.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3451,7 +3451,7 @@
 		{
 			"Id": "cc8a0377-4b82-491e-9fe4-0b762b53a26f",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00029.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00029.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00029.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3464,7 +3464,7 @@
 		{
 			"Id": "c6e3cc4d-4937-4db2-ad88-8c9ea0593ad7",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00030.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00030.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00030.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3477,7 +3477,7 @@
 		{
 			"Id": "5104ce1b-4c00-4cb1-b0a2-b4c96f1315cd",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00031.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00031.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00031.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3490,7 +3490,7 @@
 		{
 			"Id": "1a7fa2f1-0626-4b3e-bea6-14fc58819f2d",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00032.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00032.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00032.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3503,7 +3503,7 @@
 		{
 			"Id": "a17b3969-e5d8-4320-aceb-ee73e4ce27df",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00033.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00033.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00033.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3516,7 +3516,7 @@
 		{
 			"Id": "f66fc1f8-88d5-4849-bd6d-05366c84234f",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00034.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00034.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00034.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3529,7 +3529,7 @@
 		{
 			"Id": "c1cf907d-a708-4cd5-98e8-e9060dced0a3",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00035.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00035.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00035.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3542,7 +3542,7 @@
 		{
 			"Id": "e07d4ac3-2255-41e9-833d-b51ab7140251",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00036.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00036.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00036.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3555,7 +3555,7 @@
 		{
 			"Id": "6d030553-7119-4f96-a335-a4ecd20bdcf4",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00037.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00037.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00037.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3568,7 +3568,7 @@
 		{
 			"Id": "63c4b619-a365-4425-b93f-68b3f4a33544",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00038.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00038.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00038.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3581,7 +3581,7 @@
 		{
 			"Id": "d89e0c95-9149-4afd-9699-1df31f527e0b",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00039.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00039.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00039.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3594,7 +3594,7 @@
 		{
 			"Id": "32b90cce-a2d5-487c-9487-0e153ac2b4f7",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00040.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00040.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00040.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3607,7 +3607,7 @@
 		{
 			"Id": "3473a8ee-e821-410e-85a0-2731b2f5912b",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00041.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00041.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00041.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3620,7 +3620,7 @@
 		{
 			"Id": "8fcd1bda-f655-4030-8af5-9a6ee2cb1f89",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00042.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00042.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00042.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3633,7 +3633,7 @@
 		{
 			"Id": "b5d2728c-8c22-4b63-bf5b-5ba8e9635193",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00043.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00043.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00043.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3646,7 +3646,7 @@
 		{
 			"Id": "faac5352-6679-4eea-8a5e-67a617f12285",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00044.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00044.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00044.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3659,7 +3659,7 @@
 		{
 			"Id": "d480ca0b-df6f-459e-8ee0-560576905a9d",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00045.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00045.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00045.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3672,7 +3672,7 @@
 		{
 			"Id": "936645cb-ddd6-4cb0-becc-230f26c185a6",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00046.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00046.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00046.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3685,7 +3685,7 @@
 		{
 			"Id": "04e11df9-f3b9-44cf-94bb-5a49f977d321",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00047.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00047.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00047.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3698,7 +3698,7 @@
 		{
 			"Id": "f0c92271-ffbc-4c29-aa76-b8d3a996d3a3",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00048.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00048.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00048.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3711,7 +3711,7 @@
 		{
 			"Id": "axxe47070-0271-42cc-9269-eaf2221d1cf11",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00049.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00049.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00049.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3724,7 +3724,7 @@
 		{
 			"Id": "qweee47070-0271-42cc-9269-ea1321a1d1cf11",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00050.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00050.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00050.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
@@ -3737,7 +3737,7 @@
 		{
 			"Id": "t24312370-0271-42cc-9269-eaf5a1d1cf11",
 			"Name": "DCS_06_S3A_20250109134406046340_ch2_DSDB_00051.raw",
-			"S3_path": "s3://test-data/chunk/S3/S3A_20250109134406046340/DCS_06_S3A_20250109134406046340_ch2_DSDB_00051.raw",
+			"S3_path": "s3://rs-dev-cluster-temp/stations/CADIP/S3A_20250109134406046340/ch_2/DCS_06_S3A_20250109134406046340_ch2_DSDB_00051.raw",
 			"SessionId": "S3A_20250109134406046340",
 			"Channel": 2,
 			"BlockNumber": 1,
