@@ -6513,7 +6513,7 @@
         {
             "Id": "a1c3b98d-49f9-4f4b-bc9f-33d68d8c02cf",
             "Name": "S3A_AX___OSF_AX_20160216T192404_99991231T235959_20220330T090651___________________EUM_O_AL_001.SEN3.zip",
-            "S3_path": "s3://test-data/AUX/S3/S3A_AX___OSF_AX_20160216T192404_99991231T235959_20220330T090651___________________EUM_O_AL_001.SEN3.zip",
+            "S3_path": "s3://rs-dev-cluster-temp/stations/ADGS/S3A_AX___OSF_AX_20160216T192404_99991231T235959_20220330T090651___________________EUM_O_AL_001.SEN3.zip",
             "ContentType": "application/octet-stream",
             "ContentLength": "3169203",
             "OriginDate": "2016-02-16T15:16:47.000Z",
@@ -6584,7 +6584,7 @@
         {
             "Id": "f3d6e957-7ff2-44e5-a0cf-d7d2e7f3887f",
             "Name": "S3A_AX___OSF_AX_20160216T192404_99991231T235959_20240624T085540___________________EUM_O_AL_001.SEN3.zip",
-            "S3_path": "s3://test-data/AUX/S3/S3A_AX___OSF_AX_20160216T192404_99991231T235959_20240624T085540___________________EUM_O_AL_001.SEN3.zip",
+            "S3_path": "s3://rs-dev-cluster-temp/stations/ADGS/S3A_AX___OSF_AX_20160216T192404_99991231T235959_20240624T085540___________________EUM_O_AL_001.SEN3.zip",
             "ContentType": "application/octet-stream",
             "ContentLength": "3169203",
             "OriginDate": "2016-02-16T15:16:47.000Z",
@@ -6655,7 +6655,7 @@
         {
             "Id": "9bcdfe80-e3c0-4d71-b8f5-013da6d457d3",
             "Name": "S3B_AX___OSF_AX_20180425T191855_99991231T235959_20221110T110324___________________EUM_O_AL_001.SEN3.zip",
-            "S3_path": "s3://test-data/AUX/S3/S3B_AX___OSF_AX_20180425T191855_99991231T235959_20221110T110324___________________EUM_O_AL_001.SEN3.zip",
+            "S3_path": "s3://rs-dev-cluster-temp/stations/ADGS/S3B_AX___OSF_AX_20180425T191855_99991231T235959_20221110T110324___________________EUM_O_AL_001.SEN3.zip",
             "ContentType": "application/octet-stream",
             "ContentLength": "3169203",
             "OriginDate": "2018-04-25T15:20:11.003Z",
@@ -6726,7 +6726,7 @@
         {
             "Id": "2dcb4eb1-d8cd-49a9-9c62-f831d477f607",
             "Name": "S3B_AX___OSF_AX_20180425T191855_99991231T235959_20240507T090659___________________EUM_O_AL_001.SEN3.zip",
-            "S3_path": "s3://test-data/AUX/S3/S3B_AX___OSF_AX_20180425T191855_99991231T235959_20240507T090659___________________EUM_O_AL_001.SEN3.zip",
+            "S3_path": "s3://rs-dev-cluster-temp/stations/ADGS/S3B_AX___OSF_AX_20180425T191855_99991231T235959_20240507T090659___________________EUM_O_AL_001.SEN3.zip",
             "ContentType": "application/octet-stream",
             "ContentLength": "3169203",
             "OriginDate": "2018-04-25T19:18:55.003Z",
