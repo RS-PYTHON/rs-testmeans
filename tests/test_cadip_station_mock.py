@@ -44,7 +44,7 @@ def test_basic_auth(cadip_client, external_auth_config, app_header):
                 "Satellite": "S1A",
                 "StationUnitId": "01",
                 "DownlinkOrbit": 53186,
-                "AcquisitionId": "53186_1",
+                "AcquisitionId": "53186_A1",
                 "AntennaId": "MSP21",
                 "FrontEndId": "01",
                 "Retransfer": False,
