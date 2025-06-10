@@ -1,4 +1,20 @@
+# Copyright 2024 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Docstring to be added."""
+
+import logging
 import ntpath
 import os
 import time
@@ -9,7 +25,7 @@ from typing import Any
 import boto3
 import botocore
 from botocore.exceptions import ClientError
-import logging
+
 # seconds
 DWN_S3FILE_RETRY_TIMEOUT = 6
 DWN_S3FILE_RETRIES = 20
@@ -31,6 +47,7 @@ class S3StorageHandler:
         endpoint_url (str): The endpoint URL for the S3 service.
         region_name (str): The region name.
         s3_client (boto3.client): The s3 client to interact with the s3 storage
+
     """
 
     def __init__(self, access_key_id, secret_access_key, endpoint_url, region_name):
@@ -44,6 +61,7 @@ class S3StorageHandler:
 
         Raises:
             RuntimeError: If the connection to the S3 storage cannot be established.
+
         """
         self.logger = logging.getLogger(__name__)
         self.logger.debug("S3StorageHandler created !")
@@ -66,6 +84,7 @@ class S3StorageHandler:
 
         Returns:
             boto3.client: An S3 client instance.
+
         """
         if self.s3_client:
             return self.s3_client
@@ -113,6 +132,7 @@ class S3StorageHandler:
         Args:
             bucket (str): The S3 bucket name.
             s3_obj (str): The S3 object key.
+
         """
         if self.s3_client is None or bucket is None or s3_obj is None:
             raise RuntimeError("Input error for deleting the file")
@@ -136,6 +156,7 @@ class S3StorageHandler:
             secrets (dict): Dictionary to store retrieved secrets.
             secret_file (str): Path to the file containing secrets.
             logger (Logger, optional): Logger instance for error logging.
+
         """
         dict_filled = 0
         with open(secret_file, "r", encoding="utf-8") as aws_credentials_file:
@@ -164,20 +185,21 @@ class S3StorageHandler:
 
         Returns:
             str: The filename.
+
         """
         path, filename = ntpath.split(input_path)
         return filename or ntpath.basename(path)
 
     @staticmethod
     def get_s3_data(s3_url):
-        """
-        Parses S3 URL to extract bucket, prefix, and file.
+        """Parses S3 URL to extract bucket, prefix, and file.
 
         Args:
             s3_url (str): The S3 URL.
 
         Returns:
             tuple: Tuple containing bucket, prefix, and file.
+
         """
         s3_data = s3_url.replace("s3://", "").split("/")
         bucket = ""
@@ -205,6 +227,7 @@ class S3StorageHandler:
 
         Returns:
             list: List of tuples (local_prefix, full_s3_key_path).
+
         """
         # declaration of the list
         list_with_files = []
@@ -235,6 +258,7 @@ class S3StorageHandler:
 
         Returns:
             list: List of tuples (s3_path, absolute_local_file_path).
+
         """
         list_with_files = []
         for local in paths:
@@ -278,8 +302,8 @@ class S3StorageHandler:
 
         Returns:
             list: List containing S3 object keys.
-        """
 
+        """
         s3_files = []
 
         self.logger.debug("prefix = %s", prefix)
@@ -303,6 +327,7 @@ class S3StorageHandler:
 
         Raises:
             RuntimeError: If an error occurs during the bucket access check.
+
         """
         self.connect_s3()
         try:
@@ -317,8 +342,7 @@ class S3StorageHandler:
                 raise RuntimeError(f"{bucket} bucket does not exist!") from error
 
     def wait_timeout(self, timeout):
-        """
-        Wait for a specified timeout duration (minimum 200 ms).
+        """Wait for a specified timeout duration (minimum 200 ms).
 
         This function implements a simple timeout mechanism, where it sleeps for 0.2 seconds
         in each iteration until the cumulative sleep time reaches the specified timeout duration.
@@ -331,6 +355,7 @@ class S3StorageHandler:
 
         Raises:
             None
+
         """
         time_cnt = 0.0
         while time_cnt < timeout:
@@ -340,12 +365,14 @@ class S3StorageHandler:
     def check_file_overwriting(self, local_file, overwrite):
         """Check whether a file already exists at the specified local path and handles overwriting.
 
-        Parameters:
+        Parameters
+        ----------
         - local_file (str): The local file path to check.
         - overwrite (bool): A flag indicating whether to overwrite the existing file if found.
         - logger (Logger): The logger object for logging messages.
 
-        Returns:
+        Returns
+        -------
         bool: True if overwriting is allowed or if the file doesn't exist, False otherwise.
 
         Note:
@@ -488,7 +515,6 @@ class S3StorageHandler:
         It returns a list of local files that couldn't be uploaded successfully.
 
         """
-
         failed_files = []
         self.logger.debug("locals = %s", locals())
 
@@ -578,6 +604,7 @@ class GetKeysFromS3Config:
 
     Methods:
         None
+
     """
 
     s3_files: list
@@ -600,6 +627,7 @@ class PutFilesToS3Config:
 
     Methods:
         None
+
     """
 
     files: list

@@ -1,28 +1,43 @@
+# Copyright 2024 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Docstring to be added."""
+
 import argparse
-from datetime import datetime
 import json
 import logging
+import multiprocessing
 import os
 import pathlib
 import re
 import sys
+from datetime import datetime
 from functools import wraps
+from http import HTTPStatus
 from typing import Any
 
-from flask import Flask, Response, request, redirect, send_file, after_this_request
+import dotenv
+from flask import Flask, Response, after_this_request, redirect, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
-import multiprocessing
-import random
-import string
-from http import HTTPStatus
+
 from common.common_routes import (
+    register_token_route,
     token_required,
-    register_token_route, 
 )
-from common.s3_handler import S3StorageHandler, GetKeysFromS3Config
-import dotenv
+from common.s3_handler import GetKeysFromS3Config, S3StorageHandler
+
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
 logger = logging.getLogger(__name__)
@@ -32,8 +47,10 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 
-#Register route (common to CADIP AND ADGS) to register a new token
+# Register route (common to CADIP AND ADGS) to register a new token
 register_token_route(app)
+
+
 def additional_options(func):
     """Docstring to be added."""
 
@@ -61,19 +78,20 @@ def additional_options(func):
                 field, ordering_type = display_headers["$orderby"].split(" ")
             else:
                 field, ordering_type = display_headers["$orderby"], "desc"
-            json_data = sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
+            json_data = sort_responses_by_field(json_data, field, reverse=ordering_type == "desc")
         # ICD extract:
-        # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
+        # $top and $skip are often applied together;
+        # in this case $skip is always applied first regardless of the order in which they appear in the query.
         skip_value = int(display_headers.get("$skip", 0))
         top_value = int(display_headers.get("$top", 1000))
         if "$skip" in display_headers:
             # No slicing if there is only one result
-            json_data['value'] = json_data['value'][skip_value:]
+            json_data["value"] = json_data["value"][skip_value:]
         if "$top" in display_headers:
             # No slicing if there is only one result
-            json_data['value'] = json_data['value'][:top_value]
-                
-        return batch_response_odata_v4(json_data['value'])
+            json_data["value"] = json_data["value"][:top_value]
+
+        return batch_response_odata_v4(json_data["value"])
 
     return wrapper
 
@@ -82,7 +100,7 @@ def batch_response_odata_v4(resp_body: list | map) -> Any:
     """Docstring to be added."""
     unpacked = list(resp_body) if resp_body and not isinstance(resp_body, list) else resp_body
     try:
-        data = json.dumps(dict(value=unpacked)) # if len(unpacked) > 1 else json.dumps(unpacked[0] if unpacked else [])
+        data = json.dumps(dict(value=unpacked))  # if len(unpacked) > 1 else json.dumps(unpacked[0] if unpacked else [])
     except IndexError:
         return json.dumps({"value": []})
     return data
@@ -111,15 +129,17 @@ def query_session() -> Response | list[Any]:
     catalog_path = app.config["configuration_path"] / "Catalogue/SPJ.json"
     catalog_data = json.loads(open(catalog_path).read())
     if "$filter" not in request.args:
-        return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(catalog_data['Data']), headers=request.args)
+        return Response(
+            status=HTTPStatus.OK,
+            response=batch_response_odata_v4(catalog_data["Data"]),
+            headers=request.args,
+        )
         # return Response('Bad Request', Response.status_code(400), None)
-    
-    # Handle parantheses
-    if not (match := re.search(r"\(([^()]+)\)", request.args["$filter"])):
-    # Check requested values, filter type can only be json keys
-        if not any(
-            [query_text == request.args["$filter"].strip('"').split(" ")[0] for query_text in SPJ_LUT.keys()],
-        ):
+
+    # Handle parentheses
+    if not re.search(r"\(([^()]+)\)", request.args["$filter"]):
+        # Check requested values, filter type can only be json keys
+        if not any(query_text == request.args["$filter"].strip('"').split(" ")[0] for query_text in SPJ_LUT):
             return Response(status=HTTPStatus.BAD_REQUEST)
     # Proceed to process request
     catalog_path_files = app.config["configuration_path"] / "Catalogue/FileResponse.json"
@@ -135,7 +155,7 @@ def query_session() -> Response | list[Any]:
             return Response(response=json.dumps([]), status=HTTPStatus.OK)
         if any(not resp.response for resp in responses):
             # Case where an response is empty or not dict => the query is empty
-            return Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+            return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         try:
             responses_json = [json.loads(resp.data).get("value", json.loads(resp.data)) for resp in responses]
             responses_norm = [resp if isinstance(resp, list) else [resp] for resp in responses_json]
@@ -154,17 +174,25 @@ def query_session() -> Response | list[Any]:
                     )
                     files = files["value"] if "value" in files else [files]
                     session.update({"Files": [file for file in files]})
-                return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+                return Response(
+                    status=HTTPStatus.OK,
+                    response=batch_response_odata_v4(common_elements),
+                    headers=request.args,
+                )
             else:
                 # If expand is enabled with -e and request contains &$expand
                 # Do not expand
                 return (
-                    Response(status=HTTPStatus.OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+                    Response(
+                        status=HTTPStatus.OK,
+                        response=batch_response_odata_v4(common_elements),
+                        headers=request.args,
+                    )
                     if common_elements
                     else (Response(response=json.dumps([]), status=HTTPStatus.OK))
                 )
         except (json.JSONDecodeError, AttributeError):  # if a response is empty, whole querry is empty
-            return Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+            return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
     elif len(split_request := [req.strip() for req in request.args["$filter"].split("or")]) in [2, 3, 4]:
         # add test when a response is empty, and other not.
         responses = [process_session_request(req, request.args, catalog_data) for req in split_request]
@@ -189,12 +217,16 @@ def query_session() -> Response | list[Any]:
                 )
                 files = files["value"] if "value" in files else [files]
                 session.update({"Files": [file for file in files]})
-            return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+            return Response(
+                status=HTTPStatus.OK,
+                response=batch_response_odata_v4(common_elements),
+                headers=request.args,
+            )
         else:
             return (
                 Response(status=HTTPStatus.OK, response=batch_response_odata_v4(common_elements))
                 if common_elements
-                else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+                else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
             )
 
     if app.config.get("expand", None) and request.args.get("$expand", None) in ["Files", "files"]:
@@ -236,7 +268,7 @@ def manage_int_querry(op, value, catalog_data, field, headers):
     return (
         Response(status=HTTPStatus.OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+        else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
     )
 
 
@@ -246,7 +278,7 @@ def manage_bool_querry(op, value, catalog_data, field, headers):
     return (
         Response(status=HTTPStatus.OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+        else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
     )
 
 
@@ -258,8 +290,7 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
         case "in":
             sat_sid_match = re.sub(r"[()]", "", value).split(", ")
             query_result = [
-                [product for product in catalog_data["Data"] if product[field] == sat_sid.strip()]
-                for sat_sid in sat_sid_match
+                [product for product in catalog_data["Data"] if product[field] == sat_sid.strip()] for sat_sid in sat_sid_match
             ]
             query_result = [product for sublist in query_result for product in sublist]
     return (
@@ -280,7 +311,7 @@ def manage_str_querry(op, value, catalog_data, field, headers):
     return (
         Response(status=HTTPStatus.OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
-        else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+        else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
     )
 
 
@@ -289,33 +320,31 @@ def manage_datetime_querry(op, value, catalog_data, field, headers):
     date = datetime.fromisoformat(value)
     match op:
         case "eq":
-            resp_body = [
-                product for product in catalog_data["Data"] if date == datetime.fromisoformat(product[field])
-            ]
+            resp_body = [product for product in catalog_data["Data"] if date == datetime.fromisoformat(product[field])]
         case "gt":
-            resp_body = [
-                product for product in catalog_data["Data"] if date < datetime.fromisoformat(product[field])
-            ]
+            resp_body = [product for product in catalog_data["Data"] if date < datetime.fromisoformat(product[field])]
         case "lt":
-            resp_body = [
-                product for product in catalog_data["Data"] if date > datetime.fromisoformat(product[field])
-            ]
+            resp_body = [product for product in catalog_data["Data"] if date > datetime.fromisoformat(product[field])]
         case "gte":
             resp_body = [
-                product for product in catalog_data["Data"] if date < datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
+                product
+                for product in catalog_data["Data"]
+                if date < datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
             ]
         case "lte":
             resp_body = [
-                product for product in catalog_data["Data"] if date > datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
+                product
+                for product in catalog_data["Data"]
+                if date > datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
             ]
         case _:
             # If the operation is not recognized, return a 404 NOT FOUND response
-            return Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+            return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
     # Return the response with the processed results or a 404 NOT FOUND if no results are found
     return (
         Response(status=HTTPStatus.OK, response=batch_response_odata_v4(resp_body), headers=headers)
         if resp_body
-        else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+        else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
     )
 
 
@@ -349,8 +378,8 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
     if match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request):
         conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
         responses = [process_session_request(cond, headers, catalog_data) for cond in conditions]
-        first_response = json.loads(responses[0].data)['value']
-        second_response = json.loads(responses[1].data)['value']
+        first_response = json.loads(responses[0].data)["value"]
+        second_response = json.loads(responses[1].data)["value"]
         fresp_set = {d.get("Id", None) for d in first_response}
         sresp_set = {d.get("Id", None) for d in second_response}
         union_set = fresp_set.union(sresp_set)
@@ -361,13 +390,15 @@ def process_session_request(request: str, headers: dict, catalog_data: dict) -> 
             lambda norm: norm.replace("'", ""),
             request.strip('"()').split(" "),
         )
-    except:
-        return Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+    except:  # noqa: E722
+        return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
     # field, op, *value = request.split(" ")
     value = " ".join(value)
     # return results or the 200HTTP_OK code is returned with an empty response (PSD)
     return (
-        SPJ_LUT[field](op, value, catalog_data, field, headers) if field in SPJ_LUT else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+        SPJ_LUT[field](op, value, catalog_data, field, headers)
+        if field in SPJ_LUT
+        else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
     )
 
 
@@ -391,24 +422,28 @@ def query_files() -> Response | list[Any]:
     catalog_data = json.loads(open(catalog_path).read())
 
     # Deprecated section, to be removed in future
-    if match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args['$filter']):
+    if match := re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args["$filter"]):
         if request.args["$filter"].split(" and ") == 1:
             conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
             responses = [process_files_request(cond, request.args, catalog_data) for cond in conditions]
-            first_response = json.loads(responses[0].data)['value']
-            second_response = json.loads(responses[1].data)['value']
+            first_response = json.loads(responses[0].data)["value"]
+            second_response = json.loads(responses[1].data)["value"]
             fresp_set = {d.get("Id", None) for d in first_response}
             sresp_set = {d.get("Id", None) for d in second_response}
             union_set = fresp_set.union(sresp_set)
             union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-            return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(union_elements), headers=request.args)
+            return Response(
+                status=HTTPStatus.OK,
+                response=batch_response_odata_v4(union_elements),
+                headers=request.args,
+            )
         else:
             union_elements = []
             for op in request.args["$filter"].split(" and "):
                 conditions = re.split(r"\s+or\s+|\s+OR\s+", op)
                 responses = [process_files_request(cond, request.args, catalog_data) for cond in conditions]
-                first_response = json.loads(responses[0].data)['value']
-                second_response = json.loads(responses[1].data)['value']
+                first_response = json.loads(responses[0].data)["value"]
+                second_response = json.loads(responses[1].data)["value"]
                 fresp_set = {d.get("Id", None) for d in first_response}
                 sresp_set = {d.get("Id", None) for d in second_response}
                 union_set = fresp_set.union(sresp_set)
@@ -418,7 +453,11 @@ def query_files() -> Response | list[Any]:
             second_ops_response = {d.get("Id", None) for d in union_elements[1]}
             common_response = first_ops_response.intersection(second_ops_response)
             common_elements = [d for d in first_response if d.get("Id") in common_response]
-            return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(common_elements), headers=request.args)
+            return Response(
+                status=HTTPStatus.OK,
+                response=batch_response_odata_v4(common_elements),
+                headers=request.args,
+            )
 
     accepted_operators = [" and ", " or ", " not "]
     if any(header in request.args["$filter"] for header in accepted_operators):
@@ -458,7 +497,11 @@ def query_files() -> Response | list[Any]:
             case "or":  # union
                 union_set = fresp_set.union(sresp_set)
                 union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-                return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(union_elements), headers=request.args)
+                return Response(
+                    status=HTTPStatus.OK,
+                    response=batch_response_odata_v4(union_elements),
+                    headers=request.args,
+                )
     return process_files_request(request.args["$filter"], request.args, catalog_data)
 
 
@@ -481,7 +524,7 @@ def process_files_request(request, headers, catalog_data):
         return (
             Response(status=HTTPStatus.OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+            else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
@@ -491,23 +534,11 @@ def process_files_request(request, headers, catalog_data):
         match op:
             case "eq":
                 # map inside map, to be reviewed?
-                resp_body = [
-                    product
-                    for product in catalog_data["Data"]
-                    if date == datetime.fromisoformat(product[field])
-                ]
+                resp_body = [product for product in catalog_data["Data"] if date == datetime.fromisoformat(product[field])]
             case "gt":
-                resp_body = [
-                    product
-                    for product in catalog_data["Data"]
-                    if date < datetime.fromisoformat(product[field])
-                ]
+                resp_body = [product for product in catalog_data["Data"] if date < datetime.fromisoformat(product[field])]
             case "lt":
-                resp_body = [
-                    product
-                    for product in catalog_data["Data"]
-                    if date > datetime.fromisoformat(product[field])
-                ]
+                resp_body = [product for product in catalog_data["Data"] if date > datetime.fromisoformat(product[field])]
             case "gte":
                 resp_body = [
                     product
@@ -523,7 +554,7 @@ def process_files_request(request, headers, catalog_data):
         return (
             Response(status=HTTPStatus.OK, response=batch_response_odata_v4(resp_body), headers=headers)
             if resp_body
-            else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+            else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         )
     else:  # SessionId / Orbit
         request = request.replace('"', "")
@@ -538,9 +569,10 @@ def process_files_request(request, headers, catalog_data):
         return (
             Response(response=batch_response_odata_v4(matching), status=HTTPStatus.OK, headers=headers)
             if matching
-            else Response(status=HTTPStatus.OK, response = json.dumps({"value": []}))
+            else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         )
-    
+
+
 # This is implemented to simulate the behavior of the real stations like Neustrelitz CADIP station (ngs):
 # Requests to “https://<service-root-uri>/odata/v1/Files(Id)/$value” results in a 307 Temporary Redirect
 # response containing a “Location: <url>” header. When following the location URL all headers from the initial
@@ -551,7 +583,7 @@ def process_files_request(request, headers, catalog_data):
 def redirection(Id) -> Response | list[Any]:
     """Docstring to be added."""
     # Extract the port from the host
-    # Redirect to the final destination with a 307 Temporary Redirect only if 
+    # Redirect to the final destination with a 307 Temporary Redirect only if
     # the request came on port 10000
     port_number = request.host.split(":")[-1]
     if port_number == app.config.get("redirection_port", 1000) and app.config.get("redirection_href", None):
@@ -559,7 +591,8 @@ def redirection(Id) -> Response | list[Any]:
         logger.info(f"Request redirected to {target_url}")
         return redirect(f"{target_url}", code=307)
     else:
-        return(download_file(Id))
+        return download_file(Id)
+
 
 # 3.5
 # v1.0.0 takes id from route GET and filters FPJ (json outputs of file query) in order to download a file
@@ -567,9 +600,9 @@ def redirection(Id) -> Response | list[Any]:
 @app.route("/Redirect/Files(<Id>)/$value", methods=["GET"])
 @token_required
 def download_file(Id) -> Response:  # noqa: N803
-    """Docstring to be added."""    
-    catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"    
-    catalog_data = json.loads(open(catalog_path).read())    
+    """Docstring to be added."""
+    catalog_path = app.config["configuration_path"] / "Catalogue/FileResponse.json"
+    catalog_data = json.loads(open(catalog_path).read())
 
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
     if len(files) == 1:
@@ -586,7 +619,10 @@ def download_file(Id) -> Response:  # noqa: N803
             except KeyError:
                 # If env variables are not set, check if /.s3cfg is there, and map the values.
                 if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("/.s3cfg"))):
-                    return Response(status=HTTPStatus.BAD_REQUEST, response="You must have a s3cmd config file under '~/.s3cfg'")
+                    return Response(
+                        status=HTTPStatus.BAD_REQUEST,
+                        response="You must have a s3cmd config file under '~/.s3cfg'",
+                    )
                 handler = S3StorageHandler(
                     s3_credentials["access_key"],
                     s3_credentials["secret_key"],
@@ -596,6 +632,7 @@ def download_file(Id) -> Response:  # noqa: N803
             parts = file_info["S3_path"].replace("s3://", "").split("/", 1)
             handler.get_keys_from_s3(GetKeysFromS3Config([parts[1]], parts[0], "/tmp/cadip"))
             file_path = f"/tmp/cadip/{file_info['Name']}"
+
             @after_this_request
             def remove_file(response):
                 try:
@@ -603,10 +640,10 @@ def download_file(Id) -> Response:  # noqa: N803
                 except Exception as e:
                     app.logger.error(f"Failed to delete {file_path}: {e}")
                 return response
+
             return send_file(file_path)
         else:
             return send_file("config/S3Mock/" + file_info["Name"])
-
 
     return Response(status="404 None/Multiple files found")
     # if files:
@@ -638,6 +675,7 @@ def create_cadip_app():
     app.config["expand"] = True
     return app
 
+
 def run_app_on_port(host, port):
     """Run the Flask app on a specific port."""
     logger.info(f"Starting server on {host}:{port}")
@@ -650,9 +688,13 @@ if __name__ == "__main__":
 
     default_config_path = pathlib.Path(__file__).parent.resolve() / "config"
     parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
-    parser.add_argument("-r", "--redirection-port", type=int, 
-                        required=False, 
-                        help="Port for redirection. This is needed to simulate real stations like nsg")
+    parser.add_argument(
+        "-r",
+        "--redirection-port",
+        type=int,
+        required=False,
+        help="Port for redirection. This is needed to simulate real stations like nsg",
+    )
     parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
     parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
 
@@ -675,24 +717,30 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
-    
+
     # Create a json file containing the authentification configuration
     # this file will be deleted at the shutdown of the application
-    auth_tmp_path =  str(app.config["configuration_path"] / "auth_tmp.json")
-    auth_path =  str(app.config["configuration_path"] / "auth.json")
+    auth_tmp_path = str(app.config["configuration_path"] / "auth_tmp.json")
+    auth_path = str(app.config["configuration_path"] / "auth.json")
 
     # Copy data from the authentification template file (auth_tmp.json) to the authentification file (auth.json)
     with open(auth_tmp_path, "r", encoding="utf-8") as src:
         auth_tmp_dict = json.load(src)
     with open(auth_path, "w", encoding="utf-8") as dest:
         json.dump(auth_tmp_dict, dest, indent=4, ensure_ascii=False)
-    
+
     if os.getenv("HTTP_REDIRECTION_HREF", None) and args.redirection_port:
         multiprocessing.set_start_method("fork")
         app.config["redirection_href"] = os.getenv("HTTP_REDIRECTION_HREF", None)
         app.config["redirection_port"] = args.redirection_port
-        
-        port_redirection = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.redirection_port,))
+
+        port_redirection = multiprocessing.Process(
+            target=run_app_on_port,
+            args=(
+                args.host,
+                args.redirection_port,
+            ),
+        )
         port_download = multiprocessing.Process(target=run_app_on_port, args=(args.host, args.port))
         port_redirection.start()
         port_download.start()

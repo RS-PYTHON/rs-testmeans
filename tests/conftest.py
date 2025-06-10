@@ -1,17 +1,33 @@
+# Copyright 2024 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Docstring to be added."""
+
 import datetime
 import json
 import os
-from io import StringIO
 import pathlib
+from io import StringIO
 
 import pytest
 import yaml
 
 from src.ADGS.adgs_station_mock import create_adgs_app
 from src.CADIP.cadip_station_mock import create_cadip_app
-from src.LTA.lta_station_mock import create_lta_app
 from src.common.common_routes import EMPTY_AUTH_CONFIG
+from src.LTA.lta_station_mock import create_lta_app
+
 
 @pytest.fixture(name="empty_token_dict")
 def get_empty_token_dict():
@@ -26,8 +42,9 @@ def get_empty_token_dict():
         "expires_in_list": [],
         "refresh_token_list": [],
         "refresh_token_creation_date": [],
-        "refresh_expires_in_list": []
+        "refresh_expires_in_list": [],
     }
+
 
 @pytest.fixture(scope="session", name="path_to_config")
 def get_path_to_config():
@@ -37,15 +54,14 @@ def get_path_to_config():
 @pytest.fixture(scope="session", autouse=True)
 def reset_json_after_tests(path_to_config):
     """Fixture to reset the json file containing the token dictionary at the end of the tests"""
-    
+
     def reset_file():
         """Réinitialise auth.json après la fin des tests."""
         with open(path_to_config, "w") as f:
             json.dump(EMPTY_AUTH_CONFIG, f, indent=4)
-    
-    yield 
-    reset_file()
 
+    yield
+    reset_file()
 
 
 @pytest.fixture(name="external_auth_config")
@@ -57,41 +73,42 @@ def get_external_auth_config():
         "username": "test",
         "password": "test",
     }
-    
+
+
 @pytest.fixture(name="app_header")
 def get_station_request_headers():
-    return{"Content-Type": "application/x-www-form-urlencoded"}
+    return {"Content-Type": "application/x-www-form-urlencoded"}
+
 
 @pytest.fixture
 def cadip_client():
     """Docstring to be added."""
     app = create_cadip_app()
-    
-    # We create and activate an application context to keep the application running 
+
+    # We create and activate an application context to keep the application running
     # during all requests of the current pytest
-    ctx = app.app_context()  
-    ctx.push() 
+    ctx = app.app_context()
+    ctx.push()
     app.testing = True
     with app.test_client() as client:
         yield client
     # Deactivate the application context
-    ctx.pop() 
-
+    ctx.pop()
 
 
 @pytest.fixture
 def adgs_client():
     """Docstring to be added."""
     app = create_adgs_app()
-    
-    # We create and activate an application context to keep the application running 
+
+    # We create and activate an application context to keep the application running
     # during all requests of the current pytest
-    ctx = app.app_context()  
-    ctx.push() 
+    ctx = app.app_context()
+    ctx.push()
     with app.test_client() as client:
         yield client
     # Deactivate the application context
-    ctx.pop() 
+    ctx.pop()
 
 
 @pytest.fixture
@@ -124,7 +141,7 @@ def lta_response():  # noqa: D103
     }
 
 
-## Fixture to mock internal LTA orders.json file.
+# Fixture to mock internal LTA orders.json file.
 
 
 mock_queued_order_data = {
@@ -221,6 +238,7 @@ def mock_open_completed_feature(monkeypatch):
 def valid_adgs_header_with_token():
     return {"Authorization": "Token P4JSuo3gfQxKo0gfbQTb7nDn5OkzWP3umdGvy7G3CcI"}
 
+
 @pytest.fixture(name="cadip_token")
 def valid_cadip_header_with_token():
     return {"Authorization": "Token P4JSuo3gfQxKo0gfbQTb7nDn5OkzWP3umdGvy7G3CcI"}
@@ -235,10 +253,10 @@ def adgs_client_with_auth(adgs_client, adgs_token, external_auth_config, app_hea
     # Get new credentials by providing valid authentication configuration
     # and then use these credentials for the following data requests
     data_to_send = external_auth_config
-    token_response = client.post("/oauth2/token", data=data_to_send, headers = app_header)
+    token_response = client.post("/oauth2/token", data=data_to_send, headers=app_header)
     token_info = json.loads(token_response.text)
     client.environ_base["HTTP_AUTHORIZATION"] = f"Token {token_info['access_token']}"
-    
+
     return client
 
 
@@ -251,7 +269,7 @@ def cadip_client_with_auth(cadip_client, external_auth_config, app_header):
     # Get new credentials by providing valid authentication configuration
     # and then use these credentials for the following data requests
     data_to_send = external_auth_config
-    token_response = client.post("/oauth2/token", data=data_to_send, headers = app_header)
+    token_response = client.post("/oauth2/token", data=data_to_send, headers=app_header)
     token_info = json.loads(token_response.text)
     client.environ_base["HTTP_AUTHORIZATION"] = f"Token {token_info['access_token']}"
 

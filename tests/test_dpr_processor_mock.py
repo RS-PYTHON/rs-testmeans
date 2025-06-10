@@ -1,5 +1,19 @@
+# Copyright 2024 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import asyncio
 import json
-import os
 import pathlib
 import shutil
 
@@ -7,7 +21,7 @@ import boto3
 import pytest
 import yaml
 from moto.server import ThreadedMotoServer
-import asyncio
+
 from src.DPR.DPR_processor_mock import DPRProcessor
 
 from .conftest import export_aws_credentials
@@ -80,12 +94,12 @@ def test_list_of_downloadableable_products():
     "input_data_path, expected_new_product_name",
     [
         (
-                "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
-                "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr",
+            "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
+            "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr",
         ),
         (
-                "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr.zip",
-                "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr.zip",
+            "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr.zip",
+            "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr.zip",
         ),
     ],
 )
@@ -119,8 +133,8 @@ def test_dpr_product_rename(mocker, input_data_path, expected_new_product_name):
     "input_data_path, expected_processing_stamp",
     [
         (
-                "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
-                "RSPY_DprMockupProcessor",
+            "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
+            "RSPY_DprMockupProcessor",
         ),
     ],
 )
@@ -162,10 +176,12 @@ def test_dpr_attrs_update(mocker, input_data_path, expected_processing_stamp):
     "product_type, s3_outputpath",
     [
         (
-                "S1SSMOCN",
-                ["S1SSMOCN_20220708T000110_0019_S004__***.zarr.zip",
-                 "S1SSMOCN_20220708T000110_0019_S004__***.cog.zip",
-                 "S1SSMOCN_20220708T000110_0019_S004__***.nc"]
+            "S1SSMOCN",
+            [
+                "S1SSMOCN_20220708T000110_0019_S004__***.zarr.zip",
+                "S1SSMOCN_20220708T000110_0019_S004__***.cog.zip",
+                "S1SSMOCN_20220708T000110_0019_S004__***.nc",
+            ],
         ),
     ],
 )
@@ -219,14 +235,12 @@ def test_s1_l2_ocn_process(product_type, s3_outputpath):
 #  TC-003: Call the mockup with same arguments as previous test. Check that the difference between the outputs of TC-002
 #  and TC-003 concern the datetime fields and the CRC in the product name.
 
+
 # Test overlapping products in the same s3 folder.
 @pytest.mark.unit
 @pytest.mark.parametrize(
     "product_type, bucket",
-    [
-        ("S1SSMOCN", "test-data-reprocessing-first"),
-        ("S1SSMOCN", "test-data-reprocessing-second")
-    ],
+    [("S1SSMOCN", "test-data-reprocessing-first"), ("S1SSMOCN", "test-data-reprocessing-second")],
 )
 def test_s1_l2_ocn_reprocessing(product_type, bucket):
     yamlstr = f"""
@@ -258,7 +272,7 @@ def test_s1_l2_ocn_reprocessing(product_type, bucket):
     s3_client.create_bucket(Bucket=bucket)
     for _ in range(5):
         # Run the test 5 times, to make sure that new products are created each time, and no overlaps occur
-        attrs = asyncio.run(run_processor())
+        asyncio.run(run_processor())
     # 5 runs with 3 generated files each time
     assert len([file["Key"] for file in s3_client.list_objects(Bucket=bucket)["Contents"]]) == 5 * 3
     server.stop()

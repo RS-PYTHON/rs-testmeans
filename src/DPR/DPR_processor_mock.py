@@ -1,4 +1,19 @@
+# Copyright 2024 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Docstring."""
+
 import argparse
 import asyncio
 import json
@@ -16,8 +31,9 @@ import crcmod
 import requests
 import yaml
 from fastapi import HTTPException
-from common.s3_handler import PutFilesToS3Config, S3StorageHandler
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+
+from common.s3_handler import PutFilesToS3Config, S3StorageHandler
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -45,7 +61,7 @@ class DPRProcessor:
                 logger.info("Triggering string yaml-like loaded into processor.")
             except yaml.YAMLError:
                 logger.error("Payload configuration cannot be loaded.")
-                raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Bad payload")
+                raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR, "Bad payload")
         logger.info("Successfully loaded payload file")
         # if not self.check_inputs(self.payload_data["I/O"]["inputs_products"]):
         #     logger.error("Bad payload file")
@@ -91,7 +107,7 @@ class DPRProcessor:
         """Use json to map product_type to s3 public download url."""
         if "workflow" not in self.payload_data.keys():
             logger.error("Payload configuration is missing workflow.")
-            raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Invalid payload")
+            raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR, "Invalid payload")
 
         payload_parameters = self.payload_data["workflow"][0].get("outputs", None)
         requested_ptypes = payload_parameters.values()
@@ -99,13 +115,15 @@ class DPRProcessor:
 
         for ptype in requested_ptypes:
             if ptype not in existing_ptypes:
-                raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , 
-                    f"Unrecognized product type: {ptype!r}, "
-                    "it should be one of: " + ", ".join(existing_ptypes),
+                raise HTTPException(
+                    HTTP_500_INTERNAL_SERVER_ERROR,
+                    f"Unrecognized product type: {ptype!r}, " "it should be one of: " + ", ".join(existing_ptypes),
                 )
-        
-        for ptype, output_dir in zip(filter(lambda x: x in existing_ptypes, requested_ptypes),
-                                     [out['path'] for out in self.payload_data["I/O"]["output_products"]]):
+
+        for ptype, output_dir in zip(
+            filter(lambda x: x in existing_ptypes, requested_ptypes),
+            [out["path"] for out in self.payload_data["I/O"]["output_products"]],
+        ):
             for store_type in self.mapped_data[ptype]:
                 url = self.mapped_data[ptype][store_type]
                 output_path = pathlib.Path(output_dir) / url.split("/")[-1]
@@ -131,7 +149,7 @@ class DPRProcessor:
             # IF zipped zarr, update attrs without extracting
             with open(self.default_zattrs_path) as default_attr:
                 data = json.loads(default_attr.read())
-                data['stac_discovery']['properties']['eopf:type'] = ptype
+                data["stac_discovery"]["properties"]["eopf:type"] = ptype
             if "other_metadata" not in data.keys():
                 data.update({"other_metadata": {"history": default_processing_stamp}})
             else:
@@ -152,13 +170,13 @@ class DPRProcessor:
                     json.dump(data, f)
         logger.info("Processing stamp added: %s", default_processing_stamp)
         logger.info("Computed CRC for %s is %s", path, DPRProcessor.crc_stamp(data))
-        #new_product_id = self.update_product_name(path, DPRProcessor.crc_stamp(data))
-        #data['stac_discovery']['id'] = new_product_id
+        # new_product_id = self.update_product_name(path, DPRProcessor.crc_stamp(data))
+        # data['stac_discovery']['id'] = new_product_id
         self.meta_attrs.append(data)
 
     def upload_to_s3(self, path: pathlib.Path, ptype):
         """To be added. Should update products to a given s3 storage."""
-        bucket_path = [out['path'] for out in self.payload_data["I/O"]["output_products"] if ptype == out['id']][0].split("/")
+        bucket_path = [out["path"] for out in self.payload_data["I/O"]["output_products"] if ptype == out["id"]][0].split("/")
         logger.info("Bucket path where files will be uploaded %s", bucket_path)
         s3_config = PutFilesToS3Config(
             [str(path.absolute().resolve())],
@@ -184,7 +202,14 @@ class DPRProcessor:
     def threaded_upload_to_s3(self):
         logger.info("Uploading products to S3")
         thread_array = [
-            Thread(target=self.upload_to_s3, args=(product_path, ptype, )) for _, product_path, ptype in self.list_of_downloads
+            Thread(
+                target=self.upload_to_s3,
+                args=(
+                    product_path,
+                    ptype,
+                ),
+            )
+            for _, product_path, ptype in self.list_of_downloads
         ]
 
         list(map(Thread.start, thread_array))

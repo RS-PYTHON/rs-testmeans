@@ -1,22 +1,38 @@
-import pytest
+# Copyright 2024 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
-from src.common.common_routes import clean_token_dict
 from datetime import datetime
+
+import pytest
+
+from src.common.common_routes import clean_token_dict
+
 
 @pytest.mark.unit
 def test_clean_token_dict(path_to_config, empty_token_dict):
-    """ Test the method to clean the dictionary containing the token information"""
-    
+    """Test the method to clean the dictionary containing the token information"""
     # ----- Test that an exception is raised if the path to the json authentification file doesn't exist
     wrong_path_to_config = "/this/path/does/not/exist"
     with pytest.raises(FileNotFoundError) as exc:
         clean_token_dict(empty_token_dict, wrong_path_to_config)
-    
+
     # ----- Test that an exception is raised when we pass an empty dictionary to the function
     token_dict = {}
-    with  pytest.raises(KeyError) as excinfo:
+    with pytest.raises(KeyError):
         clean_token_dict(token_dict, path_to_config)
-      
+
     # ----- Test that an exception is raised when we pass a dictionary with missing keys to the function
     token_dict = {
         "client_id": "client_id",
@@ -29,15 +45,15 @@ def test_clean_token_dict(path_to_config, empty_token_dict):
         "expires_in_list": [],
         "refresh_token_list": [],
         "refresh_token_creation_date": [],
-        #"refresh_expires_in_list": []
+        # "refresh_expires_in_list": []
     }
-    with  pytest.raises(KeyError) as exc:
+    with pytest.raises(KeyError) as exc:
         clean_token_dict(token_dict, path_to_config)
-    assert "Mandatory key refresh_expires_in_list is missing from the json token dictionary" in str(exc.value)   
-    
-     # ----- Test that an exception is raised when we pass a dictionary with wrong type for a given key
+    assert "Mandatory key refresh_expires_in_list is missing from the json token dictionary" in str(exc.value)
+
+    # ----- Test that an exception is raised when we pass a dictionary with wrong type for a given key
     token_dict = {
-        "client_id": [], # Here the "client" key should be a string
+        "client_id": [],  # Here the "client" key should be a string
         "client_secret": "client_secret",
         "username": "test",
         "password": "test",
@@ -47,17 +63,18 @@ def test_clean_token_dict(path_to_config, empty_token_dict):
         "expires_in_list": [],
         "refresh_token_list": [],
         "refresh_token_creation_date": [],
-        "refresh_expires_in_list": []
+        "refresh_expires_in_list": [],
     }
-    with  pytest.raises(TypeError) as exc:
+    with pytest.raises(TypeError) as exc:
         clean_token_dict(token_dict, path_to_config)
-    assert "Value from key client_id doesn't have the right type:got <class 'list'>, expected <class 'str'>" in str(exc.value)
-    
-    
+    assert "Value from key client_id doesn't have the right type:got <class 'list'>, expected <class 'str'>" in str(
+        exc.value,
+    )
+
     # ----- Test that nothing special is done if we pass a token dictionary with valid tokens and
     # a valid json file where to write the token dictionary
     old_token_dict = {
-        "client_id": "client_id", # Here the "client" key should be a string
+        "client_id": "client_id",  # Here the "client" key should be a string
         "client_secret": "client_secret",
         "username": "test",
         "password": "test",
@@ -67,16 +84,16 @@ def test_clean_token_dict(path_to_config, empty_token_dict):
         "expires_in_list": [70],
         "refresh_token_list": ["RefreshToken1"],
         "refresh_token_creation_date": [datetime.now().isoformat()],
-        "refresh_expires_in_list": [3600]
+        "refresh_expires_in_list": [3600],
     }
     new_token_dict = old_token_dict.copy()
     clean_token_dict(new_token_dict, path_to_config)
     assert new_token_dict["access_token_list"] == old_token_dict["access_token_list"]
-    
+
     # ----- Test that token information are not eleted if the access token is expried
     # but its refresh token is not expired yet
     old_token_dict = {
-        "client_id": "client_id", # Here the "client" key should be a string
+        "client_id": "client_id",  # Here the "client" key should be a string
         "client_secret": "client_secret",
         "username": "test",
         "password": "test",
@@ -86,16 +103,16 @@ def test_clean_token_dict(path_to_config, empty_token_dict):
         "expires_in_list": [70],
         "refresh_token_list": ["RefreshToken1"],
         "refresh_token_creation_date": [datetime.now().isoformat()],
-        "refresh_expires_in_list": [3600]
+        "refresh_expires_in_list": [3600],
     }
     new_token_dict = old_token_dict.copy()
     clean_token_dict(new_token_dict, path_to_config)
     assert new_token_dict["access_token_list"] == old_token_dict["access_token_list"]
-    
-    # ----- Test that all information related to the token are removed if we pass a dictionary 
+
+    # ----- Test that all information related to the token are removed if we pass a dictionary
     # with both an expired token and an expired refresh token
     old_token_dict = {
-        "client_id": "client_id", # Here the "client" key should be a string
+        "client_id": "client_id",  # Here the "client" key should be a string
         "client_secret": "client_secret",
         "username": "test",
         "password": "test",
@@ -105,14 +122,13 @@ def test_clean_token_dict(path_to_config, empty_token_dict):
         "expires_in_list": [70],
         "refresh_token_list": ["RefreshToken1"],
         "refresh_token_creation_date": ["2023-01-01T00:00:00.000000"],
-        "refresh_expires_in_list": [3600]
+        "refresh_expires_in_list": [3600],
     }
     new_token_dict = old_token_dict.copy()
     clean_token_dict(new_token_dict, path_to_config)
-    assert new_token_dict["access_token_list"] == []
-    
+    assert not new_token_dict["access_token_list"]
+
     # Check that the json file have been correctly updated
     with open(path_to_config, "r", encoding="utf-8") as fichier:
         file_token_fict = json.load(fichier)
     assert file_token_fict == new_token_dict
-    

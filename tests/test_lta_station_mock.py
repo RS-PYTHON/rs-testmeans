@@ -1,3 +1,17 @@
+# Copyright 2024 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import base64
 import json
 
@@ -24,11 +38,8 @@ def test_basic_auth(lta_client, correct_login: str, incorrect_login: str):
     # test credentials on get methods with auth required.
     correct_login = base64.b64encode(str.encode(correct_login)).decode("utf-8")
     incorrect_login = base64.b64encode(str.encode(incorrect_login)).decode("utf-8")
-    assert lta_client.get("/", headers={"Authorization": "Basic {}".format(correct_login)}).status_code == HTTP_OK
-    assert (
-            lta_client.get("/", headers={
-                "Authorization": "Basic {}".format(incorrect_login)}).status_code == HTTP_UNAUTHORIZED
-    )
+    assert lta_client.get("/", headers={"Authorization": f"Basic {correct_login}"}).status_code == HTTP_OK
+    assert lta_client.get("/", headers={"Authorization": f"Basic {incorrect_login}"}).status_code == HTTP_UNAUTHORIZED
     # test a broken endpoint route
     assert lta_client.get("incorrectRoute/").status_code == HTTP_NOT_FOUND
 
@@ -42,8 +53,8 @@ def test_basic_auth(lta_client, correct_login: str, incorrect_login: str):
         ("Products?$filter=startswith(Name,'S1A')", HTTP_OK, True),
         ("Products?$filter=startswith(Name,'S2B')", HTTP_NOT_FOUND, False),
         ("Products?$filter=endswith(Name,'SAFE.zip')", HTTP_OK, True),
-        ("Products?$filter=endswith(Name,'.txt')", HTTP_NOT_FOUND, False)
-    ]
+        ("Products?$filter=endswith(Name,'.txt')", HTTP_NOT_FOUND, False),
+    ],
 )
 def test_query_products_by_name(lta_client, lta_response, query, expected_status, check_in_response):
     """Test query (name based) LTA products."""
@@ -65,12 +76,18 @@ def test_query_products_by_name(lta_client, lta_response, query, expected_status
 @pytest.mark.parametrize(
     "query, expected_status, check_in_response",
     [
-        ("Products?$filter=PublicationDate gt 2018-01-15T00:00:00.000Z and PublicationDate lt 2018-01-19T00:00:00.000Z",
-         HTTP_OK, True),
+        (
+            "Products?$filter=PublicationDate gt 2018-01-15T00:00:00.000Z and PublicationDate lt 2018-01-19T00:00:00.000Z",
+            HTTP_OK,
+            True,
+        ),
         ("Products?$filter=PublicationDate eq 2018-01-17T14:46:03.788Z", HTTP_OK, True),
-        ("Products?$filter=PublicationDate gt 2024-01-15T00:00:00.000Z and PublicationDate lt 2025-01-19T00:00:00.000Z",
-         HTTP_OK, False)  # 200ok status but empty response as per ICD.
-    ]
+        (
+            "Products?$filter=PublicationDate gt 2024-01-15T00:00:00.000Z and PublicationDate lt 2025-01-19T00:00:00.000Z",
+            HTTP_OK,
+            False,
+        ),  # 200ok status but empty response as per ICD.
+    ],
 )
 def test_query_products_by_publication_date(lta_client, lta_response, query, expected_status, check_in_response):
     """Test query (publication date intervals based) LTA products."""
@@ -102,9 +119,9 @@ def test_queued_order_endpoint_by_id(lta_client, mock_open_queued_feature):
     # Test that returned json order is not empty
     assert order
     # Test that mock modified the order by chaging status from queued to in_progress
-    assert order != mock_queued_order_data['orders'][0]
-    assert order['Status'] != 'queued' and order['Status'] == "in_progress"
-    assert order['StatusMessage'] != 'request is queued' and order['StatusMessage'] == "request is under processing"
+    assert order != mock_queued_order_data["orders"][0]
+    assert order["Status"] != "queued" and order["Status"] == "in_progress"
+    assert order["StatusMessage"] != "request is queued" and order["StatusMessage"] == "request is under processing"
 
 
 @pytest.mark.unit
@@ -118,9 +135,9 @@ def test_queued_order_endpoint_by_status(lta_client, mock_open_queued_feature):
     order = json.loads(correct_order_by_status.text)
     # Test that returned json order is not empty
     assert order
-    assert order != mock_queued_order_data['orders'][0]
-    assert order['Status'] != 'queued' and order['Status'] == "in_progress"
-    assert order['StatusMessage'] != 'request is queued' and order['StatusMessage'] == "request is under processing"
+    assert order != mock_queued_order_data["orders"][0]
+    assert order["Status"] != "queued" and order["Status"] == "in_progress"
+    assert order["StatusMessage"] != "request is queued" and order["StatusMessage"] == "request is under processing"
 
 
 def test_completed_order_endpoint_by_id(lta_client, mock_open_completed_feature):
@@ -130,10 +147,10 @@ def test_completed_order_endpoint_by_id(lta_client, mock_open_completed_feature)
     order = json.loads(correct_order_by_status.text)
     # Test that returned json order is not empty
     assert order
-    assert order != mock_queued_order_data['orders'][0]
+    assert order != mock_queued_order_data["orders"][0]
     # Make sure that this order status was not changed.
-    assert order['Status'] == "completed"
-    assert order['StatusMessage'] == "requested product is available"
+    assert order["Status"] == "completed"
+    assert order["StatusMessage"] == "requested product is available"
 
 
 @pytest.mark.unit
