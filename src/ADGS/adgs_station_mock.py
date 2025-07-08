@@ -221,6 +221,7 @@ def process_products_request(request, headers):
             )
         else:
             field, op, value = request.split(" ")
+            value = value.strip("()")
             date = datetime.datetime.fromisoformat(value)
             resp_body = [
                     product
