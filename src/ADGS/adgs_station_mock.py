@@ -256,7 +256,100 @@ def process_query(query):
                 results.append(part.strip())
     
     return results
+
+
+def is_operator_next(expression: str, position: int) -> str:
+    """Check in the expression if there is an operator from the list at the given position
+    and returns it if so.
+    """
+    for operator in aditional_operators:
+        if position<len(expression)-len(operator) and expression[position:position+len(operator)] == operator:
+            return operator
+    return ""
+
+
+def split_composite_filter(filter_to_split: str) -> tuple[list[str], list[str]]:
+    """Function to split a filter made of two or more filters separated with an operator.
+    The split is done at the first level of the filter only.
     
+    Examples:
+      - used on "(field1 or condition1) and (field2 or condition2)" it will return
+        ["field1 or condition1", "field2 or condition2"] with operators = ["and"]
+      - used on "field1 or condition1" it will return ["field1", "condition1"] with operators = ["or"]
+
+    Note that if the input filter is like "(field1 and condition1)" the parenthesis will be removed and
+    it will be considered as "field1 and condition1", but if it's like "SomeInfo(field1 and condition1)"
+    then it won't be considered as a composite filter and won't be splitted.
+    """
+    splitted_filter: list[str] = []
+    current = []
+    operators = []
+    depth = 0
+    i = 0
+
+    # Remove parenthesis if useless (ex: "(ex1 and ex2)" but not "(ex1) and (ex2)")
+    if re.fullmatch(r'\([^()]*\)', filter_to_split.strip()):
+        filter_to_split = filter_to_split.removeprefix("(")
+        filter_to_split = filter_to_split.removesuffix(")")
+
+    # Split filter at depth 0 based on operators (anything outside parenthesis basically)
+    while i < len(filter_to_split):
+        if filter_to_split[i] == '(':
+            depth += 1
+            current.append(filter_to_split[i])
+            i += 1
+        elif filter_to_split[i] == ')':
+            depth -= 1
+            current.append(filter_to_split[i])
+            i += 1
+        elif depth == 0 and (operator := is_operator_next(filter_to_split, i)):
+            splitted_filter.append(''.join(current).strip())
+            current = []
+            operators.append(operator.strip())
+            i += len(operator)
+        else:
+            current.append(filter_to_split[i])
+            i += 1
+
+    if current:
+        splitted_filter.append(''.join(current).strip())
+
+    # Return subfilters and operators found
+    return splitted_filter, operators
+
+
+def process_filter(request, input_filter):
+    """Recursive function to go through any filter (composite or not) and return
+    the result of the full filter.
+    """
+    # Split the filter
+    splitted_filters, operators = split_composite_filter(input_filter)
+
+    # If there is only one filter, apply it and gather results
+    if len(splitted_filters)==1:
+        end_filter = splitted_filters[0]
+        if "Attributes" in end_filter or "OData.CSC" in end_filter:
+            return process_attributes_search(end_filter, request.args)
+        return process_products_request(str(end_filter), request.args)
+    
+    # If there are two filters, repeat operation on both of them and combine their
+    # results with the operator retrieved
+    # elif len(splitted_filters)==2:
+    #     result_filter_1 = process_filter(request, splitted_filters[0])
+    #     result_filter_2 = process_filter(request, splitted_filters[1])
+    #     return process_common_elements(result_filter_1, result_filter_2, operators[0])
+    
+    # If there are more than two filters, repeat operation on each one and combine its
+    # results with the ones of the previous one using the correct operator
+    else:
+        i=1
+        final_results = process_filter(request, splitted_filters[0])
+        while i < len(splitted_filters):
+            current_filter_results = process_filter(request, splitted_filters[i])
+            final_results = process_common_elements(final_results, current_filter_results, operators[i-1])
+            return final_results
+
+
 def extract_values_and_operation(part1, part2):
     # Regular expression to capture the operation and value between single quotes
     pattern = r"(\b(eq|gt|lt)\b)\s+'(.*?)'"
@@ -447,66 +540,7 @@ def query_products():
                 logger.error(msg)
                 return Response ("Too complex for adgs sim", status=HTTPStatus.BAD_REQUEST)
 
-    if len(qs_parser := request.args['$filter'].split(' and ')) > 2:
-        outputs = []
-        properties_filter = []
-        attributes_filter = []
-        for filter in qs_parser:
-            if any(property in filter for property in ["contains", "PublicationDate"]):
-                properties_filter.append(filter)
-            elif "OData.CSC.StringAttribute" in filter:
-                attributes_filter.append(filter)
-
-        if len(properties_filter) > 4 or len(attributes_filter) > 4:
-            msg = "Too complex for adgs sim"
-            logger.error(msg)
-            return Response ("Too complex for adgs sim", status=HTTPStatus.BAD_REQUEST)
-        # Tempfix, when filter is very complex, use only GT / LT
-        properties_filter = [f.split(" or ")[0].strip("'\"()") if " or " in f else f for f in properties_filter]
-        # Process each property in the filter
-        processed_requests = [
-            process_products_request(prop.strip("'\""), request.args)
-            for prop in properties_filter
-        ]
-
-        # Combine the processed requests based on the number of filters
-        if len(processed_requests) in {1, 2, 3}:
-            if len(processed_requests) == 1:
-                outputs.append(processed_requests[0])
-            else:
-                common_elements = processed_requests[0]
-                for req in processed_requests[1:]:
-                    common_elements = process_common_elements(common_elements, req, "and")
-                outputs.append(common_elements)
-                if not attributes_filter:
-                    # If there are no attributes to process, just return this
-                    return Response(status=outputs[0].status, response=outputs[0].data, headers=request.args)
-
-
-        # Handle attributes_filter processing
-        if len(attributes_filter) in {2, 4}:
-            for i in range(0, len(attributes_filter), 2):
-                outputs.append(process_attributes_search(f"{attributes_filter[i]} and {attributes_filter[i + 1]}", request.args))
-
-        try:
-            return process_common_elements(outputs[0], outputs[1], "and")
-        except IndexError:
-            return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
-
-    if "Attributes" in request.args['$filter'] or "OData.CSC" in request.args['$filter']:
-        return process_attributes_search(request.args['$filter'], request.args)
-    if any(header in request.args["$filter"] for header in aditional_operators):
-        pattern = r"(\S+ \S+ \S+) (\S+) (\S+ \S+ \S+)"
-        groups = re.search(pattern, request.args["$filter"])
-        if groups:
-            first_request, operator, second_request = groups.group(1), groups.group(2), groups.group(3)
-            # split and processes the requests
-            first_response = process_products_request(first_request.replace('"', ""), request.args)
-            second_response = process_products_request(second_request.replace('"', ""), request.args)
-            # Load response data to a json dict
-            return process_common_elements(first_response, second_response, operator)
-
-    return process_products_request(str(request.args["$filter"]), request.args)
+    return process_filter(request, request.args['$filter'])
 
 
 @app.route("/Products(<Id>)/$value", methods=["GET"])
