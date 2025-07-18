@@ -332,14 +332,7 @@ def process_filter(request, input_filter):
             return process_attributes_search(end_filter, request.args)
         return process_products_request(str(end_filter), request.args)
     
-    # If there are two filters, repeat operation on both of them and combine their
-    # results with the operator retrieved
-    # elif len(splitted_filters)==2:
-    #     result_filter_1 = process_filter(request, splitted_filters[0])
-    #     result_filter_2 = process_filter(request, splitted_filters[1])
-    #     return process_common_elements(result_filter_1, result_filter_2, operators[0])
-    
-    # If there are more than two filters, repeat operation on each one and combine its
+    # If there is more than one filter, repeat operation on each one and combine its
     # results with the ones of the previous one using the correct operator
     else:
         i=1
