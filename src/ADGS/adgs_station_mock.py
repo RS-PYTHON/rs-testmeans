@@ -124,7 +124,7 @@ def hello():
     return Response(status=HTTPStatus.OK)
 
 
-def process_products_request(request, headers):
+def process_products_request(request, headers) -> Response:
     """Docstring to be added."""
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
@@ -241,9 +241,9 @@ def process_products_request(request, headers):
 def process_query(query):
     # Step 1: Remove the part before "any("
     queries = query.split("any(")
-    
+
     results = []
-    
+
     # Step 2: Process each part individually
     for q in queries:
         if ")" in q:
@@ -254,7 +254,7 @@ def process_query(query):
             # Collect and clean up each part
             for part in parts:
                 results.append(part.strip())
-    
+
     return results
 
 
@@ -318,7 +318,7 @@ def split_composite_filter(filter_to_split: str) -> tuple[list[str], list[str]]:
     return splitted_filter, operators
 
 
-def process_filter(request, input_filter):
+def process_filter(request, input_filter: str) -> Response:
     """Recursive function to go through any filter (composite or not) and return
     the result of the full filter.
     """
@@ -331,7 +331,7 @@ def process_filter(request, input_filter):
         if "Attributes" in end_filter or "OData.CSC" in end_filter:
             return process_attributes_search(end_filter, request.args)
         return process_products_request(str(end_filter), request.args)
-    
+
     # If there is more than one filter, repeat operation on each one and combine its
     # results with the ones of the previous one using the correct operator
     else:
@@ -360,7 +360,7 @@ def extract_values_and_operation(part1, part2):
 
     return value1, operation, value2
     
-def process_attributes_search(query, headers):
+def process_attributes_search(query, headers) -> Response:
     # Don;t touch this, it just works
     results = process_query(query)
     if len(results) == 2:
@@ -473,65 +473,65 @@ def query_products():
             [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes", "ContentDate/Start", "ContentDate/End"]],
         ):
             return Response(status=HTTPStatus.BAD_REQUEST)
-    else:
-        if " and " not in request.args['$filter']:
-            conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
-            responses = [process_products_request(cond, request.args) for cond in conditions]
-            first_response = json.loads(responses[0].data)['value']
-            second_response = json.loads(responses[1].data)['value']
-            fresp_set = {d.get("Id", None) for d in first_response}
-            sresp_set = {d.get("Id", None) for d in second_response}
-            union_set = fresp_set.union(sresp_set)
-            union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-            return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
-        match len(request.args['$filter'].split(" and ")):
-            case 1:
-                conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
-                responses = [process_products_request(cond, request.args) for cond in conditions]
-                first_response = json.loads(responses[0].data)['value']
-                second_response = json.loads(responses[1].data)['value']
-                fresp_set = {d.get("Id", None) for d in first_response}
-                sresp_set = {d.get("Id", None) for d in second_response}
-                union_set = fresp_set.union(sresp_set)
-                union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
-                responses = json.loads(process_products_request(filter, request.args).data)["value"]
-                fresp_set = {d.get("Id", None) for d in responses}
-                sresp_set = {d.get("Id", None) for d in union_elements}
-                common_response = fresp_set.intersection(sresp_set)
-                common_elements = [d for d in responses if d.get("Id") in common_response]
-                if common_elements:
-                    return Response(
-                        status=HTTPStatus.OK,
-                        response=prepare_response_odata_v4(common_elements),
-                        headers=request.args,
-                    )
-                return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
-            case 2:
-                union_elements = []
-                for ops in request.args['$filter'].split(" and "):
-                    conditions = re.split(r"\s+or\s+|\s+OR\s+|\(|\)", ops)
-                    conditions = [p for p in conditions if p.strip()]
-                    responses = [process_products_request(cond, request.args) for cond in conditions]
-                    first_response = json.loads(responses[0].data)['value']
-                    second_response = json.loads(responses[1].data)['value']
-                    fresp_set = {d.get("Id", None) for d in first_response}
-                    sresp_set = {d.get("Id", None) for d in second_response}
-                    union_set = fresp_set.union(sresp_set)
-                    union_elements.append([d for d in first_response + second_response if d.get("Id") in union_set])
-                first_ops_response = {d.get("Id", None) for d in union_elements[0]}
-                second_ops_response = {d.get("Id", None) for d in union_elements[1]}
-                common_response = first_ops_response.intersection(second_ops_response)
-                common_elements = [d for d in first_response + second_response if d.get("Id") in common_response]
-                return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(common_elements), headers=request.args)
-            case 4:
-                conditions = request.args['$filter'].split(" and ")
+    # else:
+    #     if " and " not in request.args['$filter']:
+    #         conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+    #         responses = [process_products_request(cond, request.args) for cond in conditions]
+    #         first_response = json.loads(responses[0].data)['value']
+    #         second_response = json.loads(responses[1].data)['value']
+    #         fresp_set = {d.get("Id", None) for d in first_response}
+    #         sresp_set = {d.get("Id", None) for d in second_response}
+    #         union_set = fresp_set.union(sresp_set)
+    #         union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+    #         return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(union_elements), headers=request.args)
+    #     match len(request.args['$filter'].split(" and ")):
+    #         case 1:
+    #             conditions = re.split(r"\s+or\s+|\s+OR\s+", match.group(1))
+    #             responses = [process_products_request(cond, request.args) for cond in conditions]
+    #             first_response = json.loads(responses[0].data)['value']
+    #             second_response = json.loads(responses[1].data)['value']
+    #             fresp_set = {d.get("Id", None) for d in first_response}
+    #             sresp_set = {d.get("Id", None) for d in second_response}
+    #             union_set = fresp_set.union(sresp_set)
+    #             union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+    #             responses = json.loads(process_products_request(filter, request.args).data)["value"]
+    #             fresp_set = {d.get("Id", None) for d in responses}
+    #             sresp_set = {d.get("Id", None) for d in union_elements}
+    #             common_response = fresp_set.intersection(sresp_set)
+    #             common_elements = [d for d in responses if d.get("Id") in common_response]
+    #             if common_elements:
+    #                 return Response(
+    #                     status=HTTPStatus.OK,
+    #                     response=prepare_response_odata_v4(common_elements),
+    #                     headers=request.args,
+    #                 )
+    #             return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+    #         case 2:
+    #             union_elements = []
+    #             for ops in request.args['$filter'].split(" and "):
+    #                 conditions = re.split(r"\s+or\s+|\s+OR\s+|\(|\)", ops)
+    #                 conditions = [p for p in conditions if p.strip()]
+    #                 responses = [process_products_request(cond, request.args) for cond in conditions]
+    #                 first_response = json.loads(responses[0].data)['value']
+    #                 second_response = json.loads(responses[1].data)['value']
+    #                 fresp_set = {d.get("Id", None) for d in first_response}
+    #                 sresp_set = {d.get("Id", None) for d in second_response}
+    #                 union_set = fresp_set.union(sresp_set)
+    #                 union_elements.append([d for d in first_response + second_response if d.get("Id") in union_set])
+    #             first_ops_response = {d.get("Id", None) for d in union_elements[0]}
+    #             second_ops_response = {d.get("Id", None) for d in union_elements[1]}
+    #             common_response = first_ops_response.intersection(second_ops_response)
+    #             common_elements = [d for d in first_response + second_response if d.get("Id") in common_response]
+    #             return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(common_elements), headers=request.args)
+    #         case 4:
+    #             conditions = request.args['$filter'].split(" and ")
 
-                if any("PublicationDate" in cond for cond in conditions):
-                    pass  # Do nothing if at least one condition contains "PublicationDate"
-            case _:
-                msg = "Too complex for adgs sim"
-                logger.error(msg)
-                return Response ("Too complex for adgs sim", status=HTTPStatus.BAD_REQUEST)
+    #             if any("PublicationDate" in cond for cond in conditions):
+    #                 pass  # Do nothing if at least one condition contains "PublicationDate"
+    #         case _:
+    #             msg = "Too complex for adgs sim"
+    #             logger.error(msg)
+    #             return Response ("Too complex for adgs sim", status=HTTPStatus.BAD_REQUEST)
 
     return process_filter(request, request.args['$filter'])
 
