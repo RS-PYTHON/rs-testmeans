@@ -3,6 +3,9 @@ from sqlalchemy.orm import declarative_base
 from datetime import datetime
 import json
 import pathlib
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+
 
 Base = declarative_base()
 
@@ -83,5 +86,11 @@ data_path = PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config" 
 with open(data_path) as df:
     data = json.loads(df.read())['Data']
 
-for dict_product in data:
-    product = dict_to_product(dict_product)
+engine = create_engine("sqlite:///produse.db")
+Base.metadata.create_all(engine)
+
+with Session(engine) as session:
+    for dict_product in data:
+        product = dict_to_product(dict_product)
+        session.add(product)
+        session.commit()
