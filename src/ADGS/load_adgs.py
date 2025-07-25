@@ -21,7 +21,6 @@ class Product(Base):
     contentdate_start = Column(DateTime)
     contentdate_end = Column(DateTime)
 
-    # Atribute extrase individual
     attributes_platformShortName = Column(String)
     attributes_platformSerialIdentifier = Column(String)
     attributes_productType = Column(String)
@@ -31,7 +30,6 @@ class Product(Base):
     attributes_endingDateTime = Column(DateTime)
     attributes_processingDate = Column(DateTime)
 
-    # Checksum (păstrăm doar primul checksum ca exemplu)
     checksum_algorithm = Column(String)
     checksum_value = Column(String)
     checksum_date = Column(DateTime)
