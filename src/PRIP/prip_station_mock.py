@@ -15,6 +15,8 @@ from common.common_routes import (
 )
 from common.pagination import additional_options, prepare_response_odata_v4
 import re
+from odata_lexer import parse_odata_filter
+
 
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
@@ -44,57 +46,83 @@ def ready_live_status():
 # @token_required to be activated later
 #@additional_options
 def query_products():
-    return process_products(request.args["$filter"], request.args)
+    # use lexer to parse request, split it into field: {op, value}
+    processed_filters = parse_odata_filter(request.args["$filter"])
+    # XAND?
+    all_id_sets = []
+
+    for filter_key in processed_filters:
+        # process individual filter
+        products = process_products(
+            filter_key,
+            processed_filters[filter_key]['op'],
+            processed_filters[filter_key]['value']
+        )
+        # store only id of the result
+        ids = {p['Id'] for p in products}
+        all_id_sets.append(ids)
+    # create set intersection, XAND, exclusive and beetween requests
+    if not all_id_sets:
+        common_ids = set()
+    else:
+        common_ids = set.intersection(*all_id_sets) if all_id_sets else set()
+    # filter data and return all items that match ids from common_ids
+    return (
+        Response(
+            status=HTTPStatus.OK,
+            response=json.dumps({"value": [item for item in data if item['Id'] in common_ids]}),
+            headers=request.args
+        ) if common_ids else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+    )
 
 
-def process_products(request, headers) -> Response:
-    if "Name" in request:
-        pattern = r"(\w+)\((\w+),\s*'([^']+)'\)"
-        op = re.search(pattern, request).group(1)
-        filter_by = re.search(pattern, request).group(2)
-        filter_value = re.search(pattern, request).group(3)
-        match op:
-            case "contains":
-                resp_body = [product for product in data if filter_value in product[filter_by]]
-            case "startswith":
-                resp_body = [product for product in data if product[filter_by].startswith(filter_value)]
-            case "endswith":
-                resp_body = [product for product in data if product[filter_by].endswith(filter_value)]
-        return (
-            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
-            if resp_body
-            else Response(status=HTTPStatus.NOT_FOUND)
-        )
-    elif any(field in request for field in ["PublicationDate", "EvictionDate", "ModificationDate", "OriginDate"]):
-        field, op, value = request.split(" ")
-        date = datetime.datetime.fromisoformat(value)
-        match op:
-            case "eq":
-                resp_body = [
-                    product
-                    for product in data
-                    if date == datetime.datetime.fromisoformat(product[field])
-                ]
-            case "gt":
-                resp_body = [
-                    product
-                    for product in data
-                    if date < datetime.datetime.fromisoformat(product[field])
-                ]
-            case "lt":
-                resp_body = [
-                    product
-                    for product in data
-                    if date > datetime.datetime.fromisoformat(product[field])
-                ]
-            case _:
-                # If the operation is not recognized, return a 404 NOT FOUND response
-                return Response(status=HTTPStatus.NOT_FOUND)
-        return (
-            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
-            if resp_body
-            else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
-        )
+def process_products(field, op, value) -> Response:
+    # handle special case:
+    match field:
+        case "Name":
+            match op.lower():
+                case "contains":
+                    results = [product for product in data if value in product[field]]
+                case "startswith":
+                    results = [product for product in data if product[field].startswith(value)]
+                case "endswith":
+                    results = [product for product in data if product[field].endswith(value)]
+                case _:
+                    return []
+            return results
+        case "PublicationDate" | "EvictionDate" | "ModificationDate" | "OriginDate" | "ContentDate/Start" | "ContentDate/End":
+            # Special case of ContentDate/Start
+            if "/" in field:
+                top_key, sub_key = field.split("/")
+                get_field = lambda product: datetime.datetime.fromisoformat(product[top_key][sub_key])
+            else:
+                get_field = lambda product: datetime.datetime.fromisoformat(product[field])
+            date = datetime.datetime.fromisoformat(value)
+            match op.lower():
+                case "eq":
+                    results = [
+                        product
+                        for product in data
+                        if date == get_field(product)
+                    ]
+                case "gt":
+                    results = [
+                        product
+                        for product in data
+                        if date < get_field(product)
+                    ]
+                case "lt":
+                    results = [
+                        product
+                        for product in data
+                        if date > get_field(product)
+                    ]
+                case _:
+                    # If the operation is not recognized, return a 404 NOT FOUND response
+                    return []
+        case _:
+            raise NotImplemented
+    return results
 
 if __name__ == "__main__":
     """Docstring to be added."""
