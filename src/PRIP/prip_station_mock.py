@@ -2,6 +2,7 @@
 import argparse
 import pathlib
 import logging
+import datetime
 import json
 from flask import Flask, Response, request, send_file, after_this_request
 from flask_bcrypt import Bcrypt
@@ -12,10 +13,13 @@ from common.common_routes import (
     token_required,
     register_token_route, 
 )
-from common.pagination import additional_options
+from common.pagination import additional_options, prepare_response_odata_v4
+import re
 
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
+with open(PATH_TO_CONFIG / "Catalog" / "GETFileResponse.json") as bdata:
+    data = json.loads(bdata.read())['Data']
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -38,13 +42,59 @@ def ready_live_status():
 
 @app.route("/Products", methods=["GET"])
 # @token_required to be activated later
-@additional_options
+#@additional_options
 def query_products():
-    return process_products()
+    return process_products(request.args["$filter"], request.args)
 
 
-def process_products():
-    pass
+def process_products(request, headers) -> Response:
+    if "Name" in request:
+        pattern = r"(\w+)\((\w+),\s*'([^']+)'\)"
+        op = re.search(pattern, request).group(1)
+        filter_by = re.search(pattern, request).group(2)
+        filter_value = re.search(pattern, request).group(3)
+        match op:
+            case "contains":
+                resp_body = [product for product in data if filter_value in product[filter_by]]
+            case "startswith":
+                resp_body = [product for product in data if product[filter_by].startswith(filter_value)]
+            case "endswith":
+                resp_body = [product for product in data if product[filter_by].endswith(filter_value)]
+        return (
+            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            if resp_body
+            else Response(status=HTTPStatus.NOT_FOUND)
+        )
+    elif any(field in request for field in ["PublicationDate", "EvictionDate", "ModificationDate", "OriginDate"]):
+        field, op, value = request.split(" ")
+        date = datetime.datetime.fromisoformat(value)
+        match op:
+            case "eq":
+                resp_body = [
+                    product
+                    for product in data
+                    if date == datetime.datetime.fromisoformat(product[field])
+                ]
+            case "gt":
+                resp_body = [
+                    product
+                    for product in data
+                    if date < datetime.datetime.fromisoformat(product[field])
+                ]
+            case "lt":
+                resp_body = [
+                    product
+                    for product in data
+                    if date > datetime.datetime.fromisoformat(product[field])
+                ]
+            case _:
+                # If the operation is not recognized, return a 404 NOT FOUND response
+                return Response(status=HTTPStatus.NOT_FOUND)
+        return (
+            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            if resp_body
+            else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+        )
 
 if __name__ == "__main__":
     """Docstring to be added."""
