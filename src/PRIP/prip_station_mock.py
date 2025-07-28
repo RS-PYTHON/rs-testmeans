@@ -22,6 +22,7 @@ PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
 with open(PATH_TO_CONFIG / "Catalog" / "GETFileResponse.json") as bdata:
     data = json.loads(bdata.read())['Data']
+    ATTRS = [attr["Name"] for attr in data[0]['Attributes']]
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -120,9 +121,20 @@ def process_products(field, op, value) -> Response:
                 case _:
                     # If the operation is not recognized, return a 404 NOT FOUND response
                     return []
+        case _ if field in ATTRS:
+            results = [
+                item for item in data
+                if op == 'Eq' and any(attr.get("Name") == field and str(attr.get("Value")) == value for attr in item.get("Attributes", []))
+            ]
         case _:
             raise NotImplemented
     return results
+
+
+def create_prip_app():
+    """Used to pass instance to conftest."""
+    app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
+    return app
 
 if __name__ == "__main__":
     """Docstring to be added."""
