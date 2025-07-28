@@ -1,0 +1,166 @@
+{
+    "Data": [
+        {
+            "Id": "06c91249-b275-4811-9a55-a8d11b534945",
+            "Name": "S1A_IW_RAW__0NSH_20220626T050533_20220626T051038_043829_053B7F_203C.SAFE.zip",
+            "EvictionDate": "9999-12-31T23:59:59.999Z",
+            "ModificationDate": "2022-06-26T06:30:34.558Z",
+            "OriginDate": "2022-06-26T06:14:55.468Z",
+            "PublicationDate": "2022-06-26T06:30:34.558Z",
+            "ContentLength": 47649797,
+            "Online": true,
+            "ContentType": "application/zip",
+            "ContentDate": {
+                "Start": "2022-06-26T05:05:33.863Z",
+                "End": "2022-06-26T05:10:38.849Z"
+            },
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "235f8cac56705aee78b4c8bbb45c7604",
+                    "ChecksumDate": "2022-06-26T06:14:55.468Z"
+                }
+            ],
+            "Footprint": "geography'SRID=4326;POLYGON((-59.3169 2.6367,-63.105 -14.0539,-60.8506 -14.4245,-57.1309 2.3269,-59.3169 2.6367))",
+            "GeoFootprint": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -59.3169,
+                            2.6367
+                        ],
+                        [
+                            -63.105,
+                            -14.0539
+                        ],
+                        [
+                            -60.8506,
+                            -14.4245
+                        ],
+                        [
+                            -57.1309,
+                            2.3269
+                        ],
+                        [
+                            -59.3169,
+                            2.6367
+                        ]
+                    ]
+                ]
+            },
+            "Attributes": [
+                {
+                    "Name": "polarisationChannels",
+                    "ValueType": "String",
+                    "Value": "HH"
+                },
+                {
+                    "Name": "productType",
+                    "ValueType": "String",
+                    "Value": "IW_RAW__0N"
+                },
+                {
+                    "Name": "cycleNumber",
+                    "ValueType": "Integer",
+                    "Value": 265
+                },
+                {
+                    "Name": "relativeOrbitNumber",
+                    "ValueType": "Integer",
+                    "Value": 43829
+                },
+                {
+                    "Name": "processingCenter",
+                    "ValueType": "String",
+                    "Value": "S1 Production Service-SERCO"
+                },
+                {
+                    "Name": "completionTimeFromAscendingNode",
+                    "ValueType": "Double",
+                    "Value": 4646455.264
+                },
+                {
+                    "Name": "processingDate",
+                    "ValueType": "DateTimeOffset",
+                    "Value": "2022-06-26T06:11:22.535Z"
+                },
+                {
+                    "Name": "datatakeID",
+                    "ValueType": "Integer",
+                    "Value": 342911
+                },
+                {
+                    "Name": "orbitNumber",
+                    "ValueType": "Integer",
+                    "Value": 43829
+                },
+                {
+                    "Name": "productConsolidation",
+                    "ValueType": "String",
+                    "Value": "FULL"
+                },
+                {
+                    "Name": "endingDateTime",
+                    "ValueType": "DateTimeOffset",
+                    "Value": "2022-06-26T05:10:38.849Z"
+                },
+                {
+                    "Name": "qualityDataObjectID",
+                    "ValueType": "String",
+                    "Value": "measurementData"
+                },
+                {
+                    "Name": "coordinates",
+                    "ValueType": "String",
+                    "Value": "-59.3169 2.6367,-63.105 -14.0539,-60.8506 -14.4245,-57.13092.3269,-59.3169 2.6367'"
+                },
+                {
+                    "Name": "orbitDirection",
+                    "ValueType": "String",
+                    "Value": "ASCENDING"
+                },
+                {
+                    "Name": "sliceProductFlag",
+                    "ValueType": "Boolean",
+                    "Value": false
+                },
+                {
+                    "Name": "beginningDateTime",
+                    "ValueType": "DateTimeOffset",
+                    "Value": "2022-06-26T05:05:33.863Z"
+                },
+                {
+                    "Name": "instrumentConfigurationID",
+                    "ValueType": "Integer",
+                    "Value": 7
+                },
+                {
+                    "Name": "startTimeFromAscendingNode",
+                    "ValueType": "Double",
+                    "Value": 4341469.328
+                },
+                {
+                    "Name": "instrumentShortName",
+                    "ValueType": "String",
+                    "Value": "SAR"
+                },
+                {
+                    "Name": "productClass",
+                    "ValueType": "String",
+                    "Value": "N"
+                },
+                {
+                    "Name": "platformShortName",
+                    "ValueType": "String",
+                    "Value": "SENTINEL-1"
+                },
+                {
+                    "Name": "platformSerialIdentifier",
+                    "ValueType": "String",
+                    "Value": "A"
+                }
+            ]
+        }
+    ]
+}
