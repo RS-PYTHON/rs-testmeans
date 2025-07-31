@@ -16,7 +16,7 @@ from common.common_routes import (
 from common.pagination import additional_options, prepare_response_odata_v4
 import re
 from odata_lexer import parse_odata_filter
-
+from shapely.geometry import Polygon, shape
 
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
@@ -47,10 +47,18 @@ def ready_live_status():
 # @token_required to be activated later
 @additional_options
 def query_products():
-    # use lexer to parse request, split it into field: {op, value}
-    processed_filters = parse_odata_filter(request.args["$filter"])
-    # XAND?
+    odata_filter = request.args["$filter"]
+    geo_products = []
     all_id_sets = []
+    if "OData.CSC.Intersects" in request.args['$filter']:
+        geo_products = filter_items_by_polygon(data, odata_filter=request.args['$filter'])
+        # Remove odata.csc.intersects after processed, and then continue with normal queries
+        odata_filter = remove_intersects(request.args['$filter'])
+        ids = {p['Id'] for p in geo_products}
+        all_id_sets.append(ids)
+    # use lexer to parse request, split it into field: {op, value}
+    processed_filters = parse_odata_filter(odata_filter)
+    # XAND?
     for filter_key, conditions in processed_filters.items():
         for cond in (conditions if isinstance(conditions, list) else [conditions]):
             products = process_products(
@@ -153,7 +161,28 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         # Nominal case.
         send_args = f'config/Storage/{files[0]["Name"]}'
     return send_file(send_args)
-        
+
+def extract_polygon_from_odata_filter(odata_filter: str) -> Polygon:
+    match = re.search(r"POLYGON\s*\(\((.*?)\)\)", odata_filter)
+    if not match:
+        raise ValueError("No valid POLYGON found in the OData filter string.")
+
+    coords_str = match.group(1)
+    coords = [tuple(map(float, c.strip().split())) for c in coords_str.split(",")]
+    return Polygon(coords)
+
+def filter_items_by_polygon(data: list[dict], odata_filter: str) -> list[dict]:
+    request_polygon = extract_polygon_from_odata_filter(odata_filter)
+
+    return [
+        item for item in data
+        if 'GeoFootprint' in item and request_polygon.intersects(shape(item['GeoFootprint']))
+    ]
+
+def remove_intersects(filter_str: str) -> str:
+    pattern = r"OData\.CSC\.Intersects\s*\(\s*area=geography'[^']+'\s*\)\s*and\s*"
+    return re.sub(pattern, '', filter_str, flags=re.IGNORECASE)
+
 if __name__ == "__main__":
     """Docstring to be added."""
     parser = argparse.ArgumentParser(
