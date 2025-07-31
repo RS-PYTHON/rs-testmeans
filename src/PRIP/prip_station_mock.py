@@ -4,7 +4,7 @@ import pathlib
 import logging
 import datetime
 import json
-from flask import Flask, Response, request, send_file, after_this_request
+from flask import Flask, Response, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from http import HTTPStatus
@@ -15,7 +15,7 @@ from common.common_routes import (
 )
 from common.pagination import additional_options, prepare_response_odata_v4
 import re
-from odata_lexer import parse_odata_filter
+from common.odata_lexer import parse_odata_filter
 from shapely.geometry import Polygon, shape
 
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
