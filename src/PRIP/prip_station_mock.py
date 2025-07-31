@@ -51,7 +51,7 @@ def query_products():
     geo_products = []
     all_id_sets = []
     if "OData.CSC.Intersects" in request.args['$filter']:
-        geo_products = filter_items_by_polygon(data, odata_filter=request.args['$filter'])
+        geo_products = filter_items_by_polygon(data, odata_filter)
         # Remove odata.csc.intersects after processed, and then continue with normal queries
         odata_filter = remove_intersects(request.args['$filter'])
         ids = {p['Id'] for p in geo_products}
@@ -180,8 +180,9 @@ def filter_items_by_polygon(data: list[dict], odata_filter: str) -> list[dict]:
     ]
 
 def remove_intersects(filter_str: str) -> str:
-    pattern = r"OData\.CSC\.Intersects\s*\(\s*area=geography'[^']+'\s*\)\s*and\s*"
-    return re.sub(pattern, '', filter_str, flags=re.IGNORECASE)
+    pattern = r"(\s*OData\.CSC\.Intersects\s*\(\s*area=geography'[^']+'\s*\)\s*and\s*)|(\s*and\s*OData\.CSC\.Intersects\s*\(\s*area=geography'[^']+'\s*\))|(^OData\.CSC\.Intersects\s*\(\s*area=geography'[^']+'\s*\)$)"
+    result = re.sub(pattern, "", filter_str, flags=re.IGNORECASE)
+    return result.strip()
 
 if __name__ == "__main__":
     """Docstring to be added."""
