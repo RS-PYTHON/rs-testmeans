@@ -69,7 +69,9 @@ def query_products():
                     cond['op'],
                     cond['value']
                 )
-
+                if not products:
+                    # If a search doesn't return products, then the whole search result is empty
+                    return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
             # store only id of the result
             ids = {p['Id'] for p in products}
             all_id_sets.append(ids)
@@ -91,7 +93,7 @@ def query_products():
 def process_products(field, op, value) -> Response:
     # handle special case:
     match field:
-        case "Name":
+        case "Name" | "Online":
             match op.lower():
                 case "contains":
                     results = [product for product in data if value in product[field]]
@@ -99,6 +101,8 @@ def process_products(field, op, value) -> Response:
                     results = [product for product in data if product[field].startswith(value)]
                 case "endswith":
                     results = [product for product in data if product[field].endswith(value)]
+                case "eq":
+                    results = [product for product in data if str(product[field]).lower() == str(value).lower()]
                 case _:
                     return []
             return results

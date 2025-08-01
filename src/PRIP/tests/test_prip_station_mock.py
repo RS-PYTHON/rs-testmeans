@@ -14,13 +14,13 @@ import json
     ("/Products?$filter=endswith(Name, 'INVALID')&$expand=Attributes", None),
     ("/Products?$filter=startswith(Name, 'S1A_IW') and endswith(Name, 'SAFE.zip')&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=contains(Name, 'IW_RAW__0NSH') and endswith(Name, 'SAFE.zip')&$expand=Attributes", PRIP_PRODUCT),
-    #("/Products?$filter=startswith(Name, 'INVALID') and endswith(Name, 'SAFE.zip')&$expand=Attributes", None),
+    ("/Products?$filter=startswith(Name, 'INVALID') and endswith(Name, 'SAFE.zip')&$expand=Attributes", None),
     ("/Products?$filter=startswith(Name, 'S1A_IW') and endswith(Name, 'INVALID')&$expand=Attributes", None),
     ("/Products?$filter=EvictionDate eq 9999-12-31T23:59:59.999Z&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=ModificationDate eq 2022-06-26T06:30:34.558Z&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=OriginDate eq 2022-06-26T06:14:55.468Z&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=PublicationDate eq 2022-06-26T06:30:34.558Z&$expand=Attributes", PRIP_PRODUCT),
-    #("/Products?$filter=Online eq true&$expand=Attributes", PRIP_PRODUCT),
+    ("/Products?$filter=Online eq true&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=ContentDate/Start eq 2022-06-26T05:05:33.863Z&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=ContentDate/End eq 2022-06-26T05:10:38.849Z&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=OData.CSC.Intersects(area=geography'SRID=4326;POLYGON((-60 0,-62 -10,-58 -10,-56 0,-60 0))')&$expand=Attributes", PRIP_PRODUCT),
@@ -67,7 +67,6 @@ import json
     ("/Products?$filter=contains(Name, 'IW_RAW__0NSH') and endswith(Name, 'SAFE.zip')&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=startswith(Name, 'S1A_IW') and ContentDate/End eq 2022-06-26T05:10:38.849Z and orbitDirection eq 'ASCENDING'&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=cycleNumber eq 265 and productType eq 'IW_RAW__0N' and orbitDirection eq 'ASCENDING'&$expand=Attributes", PRIP_PRODUCT),
-    #("/Products?$filter=orbitNumber eq 43829 and relativeOrbitNumber eq 43829&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=instrumentShortName eq 'SAR' and platformShortName eq 'SENTINEL-1' and platformSerialIdentifier eq 'A'&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productClass' and att/OData.CSC.StringAttribute/Value eq 'N') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'IW_RAW__0N')&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'platformShortName' and att/OData.CSC.StringAttribute/Value eq 'INVALID')&$expand=Attributes", None),
@@ -81,7 +80,7 @@ import json
     ("/Products?$filter=startswith(Name, 'S1A_IW') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'datatakeID' and att/OData.CSC.StringAttribute/Value eq '000000')&$expand=Attributes", None),
     ("/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'coordinates' and att/OData.CSC.StringAttribute/Value eq 'INVALID')&$expand=Attributes", None),
     ("/Products?$filter=orbitNumber eq 99999 and cycleNumber eq 999&$expand=Attributes", None),
-    #("/Products?$filter=originDate eq 2000-01-01T00:00:00.000Z&$expand=Attributes", None),
+    ("/Products?$filter=OriginDate eq 2000-01-01T00:00:00.000Z&$expand=Attributes", None),
     ("/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'sliceProductFlag' and att/OData.CSC.StringAttribute/Value eq 'INVALID')&$expand=Attributes", None),
     ("/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'instrumentConfigurationID' and att/OData.CSC.StringAttribute/Value eq '999')&$expand=Attributes", None),
     ("/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'startTimeFromAscendingNode' and att/OData.CSC.StringAttribute/Value eq '9999999')&$expand=Attributes", None),
@@ -90,12 +89,10 @@ import json
     ("/Products?$filter=startswith(Name, 'S1A_IW') and endswith(Name, 'INVALID')&$expand=Attributes", None),
     ("/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'processingCenter' and att/OData.CSC.StringAttribute/Value eq 'INVALID') and processingDate eq 2000-01-01T00:00:00.000Z&$expand=Attributes", None),
     ("/Products?$filter=OData.CSC.Intersects(area=geography'SRID=4326;POLYGON((-80 40,-82 30,-78 30,-76 40,-80 40))')&$expand=Attributes", None),
-    #("/Products?$filter=contains(Name, 'INVALID') and endswith(Name, 'SAFE.zip')&$expand=Attributes", None),
+    ("/Products?$filter=contains(Name, 'INVALID') and endswith(Name, 'SAFE.zip')&$expand=Attributes", None),
     ("/Products?$filter=orbitNumber eq 123 and productType eq 'INVALID' and platformSerialIdentifier eq 'Z'&$expand=Attributes", None),
     ("/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'orbitDirection' and att/OData.CSC.StringAttribute/Value eq 'INVALID') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productConsolidation' and att/OData.CSC.StringAttribute/Value eq 'INVALID')&$expand=Attributes", None),
     ("/Products?$filter=ContentDate/Start eq 2000-01-01T00:00:00.000Z&$expand=Attributes", None),
-
-
 ])
 def test_query_products(prip_client, url, response):
     assert prip_client.get(url).status_code == HTTPStatus.OK # Should return all products

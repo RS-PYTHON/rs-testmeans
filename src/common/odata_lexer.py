@@ -1,6 +1,6 @@
 from odata_query.grammar import ODataLexer, ODataParser
 from odata_query.visitor import NodeVisitor
-from odata_query.ast import *
+from odata_query.ast import String, DateTime, Boolean, Compare, Identifier, Attribute, BoolOp, Call, CollectionLambda
 
 
 class FilterExtractor(NodeVisitor):
@@ -21,7 +21,7 @@ class FilterExtractor(NodeVisitor):
         """
         Recursively constructs the full attribute path from AST nodes.
 
-        For example, given nodes representing ContentDate and Start, it returns 'ContentDate/Start'.
+        ContentDate['Start'] -> 'ContentDate/Start'.
 
         Args:
             node (Attribute | Identifier): The AST node representing an attribute or identifier.
@@ -53,7 +53,8 @@ class FilterExtractor(NodeVisitor):
         """
         attr_path = self._get_attr_path(node.left)
         # Only handle comparisons where right side is a string or datetime literal
-        if isinstance(node.right, (String, DateTime)):
+
+        if isinstance(node.right, (String, DateTime, Boolean)):
             cond = {
                 "op": type(node.comparator).__name__,
                 "value": node.right.val
@@ -119,7 +120,7 @@ class FilterExtractor(NodeVisitor):
         Visits collection lambda expressions (e.g. any() in OData).
 
         Specifically extracts key-value pairs from lambdas that compare 'Name' and 'Value' properties,
-        such as:
+
         any(att: att/Name eq 'productType' and att/Value eq 'MSI_L1C_TL')
 
         Args:
@@ -154,7 +155,6 @@ class FilterExtractor(NodeVisitor):
                 }
 
         else:
-            # For other lambda expressions, recurse into the expression
             self.visit(node.lambda_.expression)
 
 
