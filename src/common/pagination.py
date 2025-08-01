@@ -13,6 +13,7 @@ def prepare_response_odata_v4(resp_body: list | map) -> Any:
     :return: A JSON string representing the OData v4 response.
     :rtype: str
     """
+
     unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
     try:
         data = json.dumps(dict(value=unpacked)) # if len(unpacked) > 1 else json.dumps(unpacked[0])

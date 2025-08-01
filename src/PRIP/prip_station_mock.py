@@ -47,6 +47,8 @@ def ready_live_status():
 # @token_required to be activated later
 @additional_options
 def query_products():
+    if "$filter" not in request.args:
+        return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(data), headers=request.args)
     odata_filter = request.args["$filter"]
     geo_products = []
     all_id_sets = []
@@ -56,20 +58,21 @@ def query_products():
         odata_filter = remove_intersects(request.args['$filter'])
         ids = {p['Id'] for p in geo_products}
         all_id_sets.append(ids)
-    # use lexer to parse request, split it into field: {op, value}
-    processed_filters = parse_odata_filter(odata_filter)
-    # XAND?
-    for filter_key, conditions in processed_filters.items():
-        for cond in (conditions if isinstance(conditions, list) else [conditions]):
-            products = process_products(
-                filter_key,
-                cond['op'],
-                cond['value']
-            )
+    if odata_filter:
+        # use lexer to parse request, split it into field: {op, value}
+        processed_filters = parse_odata_filter(odata_filter)
+        # XAND?
+        for filter_key, conditions in processed_filters.items():
+            for cond in (conditions if isinstance(conditions, list) else [conditions]):
+                products = process_products(
+                    filter_key,
+                    cond['op'],
+                    cond['value']
+                )
 
-        # store only id of the result
-        ids = {p['Id'] for p in products}
-        all_id_sets.append(ids)
+            # store only id of the result
+            ids = {p['Id'] for p in products}
+            all_id_sets.append(ids)
     # create set intersection, XAND, exclusive and beetween requests
     if not all_id_sets:
         common_ids = set()

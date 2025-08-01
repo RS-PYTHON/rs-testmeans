@@ -11,7 +11,6 @@ import yaml
 from src.ADGS.adgs_station_mock import create_adgs_app
 from src.CADIP.cadip_station_mock import create_cadip_app
 from src.LTA.lta_station_mock import create_lta_app
-from src.PRIP.prip_station_mock import create_prip_app
 from src.common.common_routes import EMPTY_AUTH_CONFIG
 
 @pytest.fixture(name="empty_token_dict")
@@ -93,22 +92,6 @@ def adgs_client():
         yield client
     # Deactivate the application context
     ctx.pop() 
-
-@pytest.fixture
-def prip_client():
-    """Docstring to be added."""
-    app = create_prip_app()
-    
-    # We create and activate an application context to keep the application running 
-    # during all requests of the current pytest
-    ctx = app.app_context()  
-    ctx.push() 
-    app.testing = True
-    with app.test_client() as client:
-        yield client
-    # Deactivate the application context
-    ctx.pop() 
-
 
 @pytest.fixture
 def lta_client():
