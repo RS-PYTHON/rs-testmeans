@@ -21,6 +21,8 @@ import json
     ("/Products?$filter=OriginDate eq 2022-06-26T06:14:55.468Z&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=PublicationDate eq 2022-06-26T06:30:34.558Z&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=Online eq true&$expand=Attributes", PRIP_PRODUCT),
+    ("/Products?$filter=Online invalid_op invalid_value&$expand=Attributes", None),
+    ("/Products?$filter=invalid_operator invalid_op invalid_value&$expand=Attributes", None),
     ("/Products?$filter=ContentDate/Start eq 2022-06-26T05:05:33.863Z&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=ContentDate/End eq 2022-06-26T05:10:38.849Z&$expand=Attributes", PRIP_PRODUCT),
     ("/Products?$filter=OData.CSC.Intersects(area=geography'SRID=4326;POLYGON((-60 0,-62 -10,-58 -10,-56 0,-60 0))')&$expand=Attributes", PRIP_PRODUCT),

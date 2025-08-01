@@ -1,7 +1,7 @@
 from odata_query.grammar import ODataLexer, ODataParser
 from odata_query.visitor import NodeVisitor
 from odata_query.ast import String, DateTime, Boolean, Compare, Identifier, Attribute, BoolOp, Call, CollectionLambda
-
+from odata_query.exceptions import UnknownFunctionException, ParsingException
 
 class FilterExtractor(NodeVisitor):
     """
@@ -171,17 +171,19 @@ def parse_odata_filter(query: str):
     # Strip leading "$filter=" if present
     if query.startswith("$filter="):
         query = query[len("$filter="):]
+    try:
+        # Tokenize the query string using ODataLexer
+        lexer = ODataLexer()
+        tokens = lexer.tokenize(query)
 
-    # Tokenize the query string using ODataLexer
-    lexer = ODataLexer()
-    tokens = lexer.tokenize(query)
+        # Parse tokens into an AST using ODataParser
+        parser = ODataParser()
+        ast = parser.parse(tokens)
 
-    # Parse tokens into an AST using ODataParser
-    parser = ODataParser()
-    ast = parser.parse(tokens)
-
-    # Extract filters from the AST using FilterExtractor visitor
-    extractor = FilterExtractor()
-    extractor.visit(ast)
+        # Extract filters from the AST using FilterExtractor visitor
+        extractor = FilterExtractor()
+        extractor.visit(ast)
+    except (UnknownFunctionException, ParsingException):
+        return {}
 
     return extractor.result
