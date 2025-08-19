@@ -1045,6 +1045,168 @@
           "Value": "A"
         }
       ]
+    },
+    {
+      "@odata.mediaContentType": "application/octet-stream",
+      "Id": "cf978bc8-0588-43da-8f40-7717d1b85fae",
+      "Name": "S2B_OPER_MSI_L2A_TL_2BPS_20250801T074829_A043890_T47XMH_N05.11.tar",
+      "ContentType": "application/octet-stream",
+      "ContentLength": 878704640,
+      "OriginDate": "2025-08-01T07:26:48Z",
+      "PublicationDate": "2025-08-01T08:24:45.289Z",
+      "EvictionDate": "2025-08-08T08:24:41.048Z",
+      "Checksum": [
+        {
+          "Algorithm": "MD5",
+          "Value": "b8f8fc9e710a0f012a6678f5c2fbf904",
+          "ChecksumDate": "2025-08-01T08:24:41.047Z"
+        }
+      ],
+      "ContentDate": {
+        "Start": "2025-08-01T07:06:50.15647Z",
+        "End": "2025-08-01T07:06:50.15647Z"
+      },
+      "ProductionType": "systematic_production",
+      "Footprint": "geography'SRID=4326;Polygon((94.19824055147242 79.23228590183592,99.46953471659118 79.2688550122954,99.43059710218749 78.28507194679452,94.59481908645394 78.2516379949303,94.19824055147242 79.23228590183592))'",
+      "GeoFootprint": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              94.19824055147242,
+              79.23228590183592
+            ],
+            [
+              99.46953471659118,
+              79.2688550122954
+            ],
+            [
+              99.43059710218749,
+              78.28507194679452
+            ],
+            [
+              94.59481908645394,
+              78.2516379949303
+            ],
+            [
+              94.19824055147242,
+              79.23228590183592
+            ]
+          ]
+        ]
+      },
+      "Attributes": [
+        {
+          "Name": "polarisationChannels",
+          "ValueType": "String",
+          "Value": "HH"
+        },
+        {
+          "Name": "productType",
+          "ValueType": "String",
+          "Value": "OPER_MSI_L2A"
+        },
+        {
+          "Name": "cycleNumber",
+          "ValueType": "Integer",
+          "Value": 265
+        },
+        {
+          "Name": "relativeOrbitNumber",
+          "ValueType": "Integer",
+          "Value": 43829
+        },
+        {
+          "Name": "processingCenter",
+          "ValueType": "String",
+          "Value": "S2 Production Service-SERCO"
+        },
+        {
+          "Name": "completionTimeFromAscendingNode",
+          "ValueType": "Double",
+          "Value": 4646455.264
+        },
+        {
+          "Name": "processingDate",
+          "ValueType": "DateTimeOffset",
+          "Value": "2025-08-01T07:06:50.15647Z"
+        },
+        {
+          "Name": "datatakeID",
+          "ValueType": "Integer",
+          "Value": 342155
+        },
+        {
+          "Name": "orbitNumber",
+          "ValueType": "Integer",
+          "Value": 43812
+        },
+        {
+          "Name": "productConsolidation",
+          "ValueType": "String",
+          "Value": "FULL"
+        },
+        {
+          "Name": "endingDateTime",
+          "ValueType": "DateTimeOffset",
+          "Value": "2025-08-01T07:06:50.15647Z"
+        },
+        {
+          "Name": "qualityDataObjectID",
+          "ValueType": "String",
+          "Value": "measurementData"
+        },
+        {
+          "Name": "coordinates",
+          "ValueType": "String",
+          "Value": "94.19824055147242 79.23228590183592,99.46953471659118 79.2688550122954,99.43059710218749 78.28507194679452,94.59481908645394 78.2516379949303,94.19824055147242 79.23228590183592"
+        },
+        {
+          "Name": "orbitDirection",
+          "ValueType": "String",
+          "Value": "ASCENDING"
+        },
+        {
+          "Name": "sliceProductFlag",
+          "ValueType": "Boolean",
+          "Value": false
+        },
+        {
+          "Name": "beginningDateTime",
+          "ValueType": "DateTimeOffset",
+          "Value": "2025-08-01T07:06:50.15647Z"
+        },
+        {
+          "Name": "instrumentConfigurationID",
+          "ValueType": "Integer",
+          "Value": 2
+        },
+        {
+          "Name": "startTimeFromAscendingNode",
+          "ValueType": "Double",
+          "Value": 4331469.328
+        },
+        {
+          "Name": "instrumentShortName",
+          "ValueType": "String",
+          "Value": "SAR"
+        },
+        {
+          "Name": "productClass",
+          "ValueType": "String",
+          "Value": "N"
+        },
+        {
+          "Name": "platformShortName",
+          "ValueType": "String",
+          "Value": "SENTINEL-2"
+        },
+        {
+          "Name": "platformSerialIdentifier",
+          "ValueType": "String",
+          "Value": "A"
+        }
+      ]
     }
   ]
 }
