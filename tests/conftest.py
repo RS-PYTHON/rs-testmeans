@@ -93,7 +93,6 @@ def adgs_client():
     # Deactivate the application context
     ctx.pop() 
 
-
 @pytest.fixture
 def lta_client():
     """LTA app comm."""
