@@ -7,7 +7,7 @@
         "history": [
             {
                 "output": "Downlinked Stream",
-                "processingTime": "2022-04-12T05:47:45.772210",
+                "processingTime": "2025-09-10T06:10:21.181317Z",
                 "processor": null,
                 "type": "Raw Data"
             },
@@ -18,13 +18,13 @@
                     "Raw Data": "Downlinked Stream"
                 },
                 "output": "Unknown",
-                "processingTime": "2022-04-12T06:12:34.086648",
+                "processingTime": "2025-09-10T06:12:34.181317Z",
                 "processor": null,
                 "type": "Raw Data"
             },
             {
                 "output": "Downlinked Stream",
-                "processingTime": "2022-04-12T05:47:29.878126",
+                "processingTime": "2025-09-10T06:14:29.181317Z",
                 "processor": null,
                 "type": "Raw Data"
             },
@@ -35,7 +35,7 @@
                     "Raw Data": "Downlinked Stream"
                 },
                 "output": "Unknown",
-                "processingTime": "2022-04-12T06:16:02.536571",
+                "processingTime": "2025-09-10T06:16:02.181317Z",
                 "processor": null,
                 "type": "Raw Data"
             },
@@ -48,7 +48,7 @@
                 },
                 "output": "/data/CDP/production//226510/S1A_IW_RAW__0SDV_20220412T054443_20220412T054516_042736_051989_B5EF.SAFE",
                 "processingCentre": "S1A-PS, ESA",
-                "processingTime": "2022-04-12T06:17:42.640978",
+                "processingTime": "2025-09-10T06:17:42.181317Z",
                 "processor": "",
                 "type": "Level-0 Product"
             },
@@ -64,7 +64,7 @@
                 },
                 "output": "S1A_IW_SL2__1_DV_20220412T054446_20220412T054516_042736_051989_BB0C.SAFE",
                 "processingCentre": "Copernicus Ground Segment, ESA",
-                "processingTime": "2022-04-12T06:42:55.000000",
+                "processingTime": "2025-09-10T06:42:55.181317Z",
                 "processor": "Sentinel-1 IPF",
                 "type": "Level-1 Intermediate SLC Product",
                 "version": "003.51"
@@ -75,7 +75,7 @@
                 },
                 "output": "S1A_IW_GR2__1_DV_20220412T054447_20220412T054512_042736_051989_F70F.SAFE",
                 "processingCentre": "Copernicus Ground Segment, ESA",
-                "processingTime": "2022-04-12T06:44:44.000000",
+                "processingTime": "2025-09-10T06:44:44.181317Z",
                 "processor": "Sentinel-1 IPF",
                 "type": "Level-1 Intermediate GRD Product",
                 "version": "003.51"
@@ -90,7 +90,7 @@
                 },
                 "output": "",
                 "processingCentre": "Unknown, Unknown",
-                "processingTime": "2022-04-12T06:51:59.109790",
+                "processingTime": "2025-09-10T06:51:59.181317Z",
                 "processor": "Sentinel-1 IPF",
                 "type": "L2",
                 "version": "03.51"
@@ -154,9 +154,9 @@
             }
         ],
         "properties": {
-            "created": "2022-04-12T06:51:59.109790",
-            "datetime": "2022-04-12T06:50:59.109790",
-            "end_datetime": "2022-04-12T05:45:12.619848",
+            "created": "2025-09-10T06:51:59.181317Z",
+            "datetime": "2025-09-10T06:50:59.181317Z",
+            "end_datetime": "2025-09-10T05:45:12.181317Z",
             "eopf:data_take_id": "334217",
             "eopf:instrument_mode": "IW",
             "eopf:instrument_swath": "IW",
@@ -183,11 +183,11 @@
                 }
             ],
             "sat:absolute_orbit": 42736,
-            "sat:anx_datetime": "2022-04-12T05:07:10.890454",
+            "sat:anx_datetime": "2025-09-10T05:07:10.181317Z",
             "sat:orbit_state": "DESCENDING",
             "sat:platform_international_designator": "2014-016A",
             "sat:relative_orbit": 139,
-            "start_datetime": "2022-04-12T05:44:47.620394"
+            "start_datetime": "2025-09-10T05:44:47.181317Z"
         },
         "stac_extensions": [
             "https://stac-extensions.github.io/eopf/v1.0.0/schema.json",
