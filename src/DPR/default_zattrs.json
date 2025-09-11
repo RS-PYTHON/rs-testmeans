@@ -108,14 +108,17 @@
         "transmitter_polarisation": "VV"
     },
     "stac_discovery": {
-        "assets": {
-            "file": {
-              "href": "",
-              "roles": [
-                "data"
-              ]
-            }
-        },
+        "type": "Feature",
+        "stac_version": "1.0.0",
+        "id": "SAR Standard L2 Product",
+        "stac_extensions": [
+            "https://stac-extensions.github.io/eopf/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
+            "https://stac-extensions.github.io/sat/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/view/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/scientific/v1.0.0/schema.json",
+            "https://stac-extensions.github.io/processing/v1.1.0/schema.json"
+        ],
         "bbox": [
             7.23847,
             41.496895,
@@ -123,6 +126,7 @@
             43.405128
         ],
         "geometry": {
+            "type": "Polygon",
             "coordinates": [
                 [
                     [
@@ -140,23 +144,22 @@
                     [
                         7.23847,
                         42.99741
+                    ],
+                    [
+                        6.843285,
+                        41.496895
                     ]
                 ]
-            ],
-            "type": "Polygon"
+            ]
         },
-        "id": "SAR Standard L2 Product",
-        "links": [
-            {
-                "href": "./.zattrs.json",
-                "rel": "self",
-                "type": "application/json"
-            }
-        ],
         "properties": {
             "created": "2025-09-10T06:51:59.181317Z",
             "datetime": "2025-09-10T06:50:59.181317Z",
             "end_datetime": "2025-09-10T05:45:12.181317Z",
+            "start_datetime": "2025-09-10T05:44:47.181317Z",
+            "updated": "2025-09-11T06:37:32.759103Z",
+            "published": "2025-09-11T06:37:32.758929Z",
+            "expires": "2025-10-11T06:37:32.762681Z",
             "eopf:data_take_id": "334217",
             "eopf:instrument_mode": "IW",
             "eopf:instrument_swath": "IW",
@@ -186,18 +189,22 @@
             "sat:anx_datetime": "2025-09-10T05:07:10.181317Z",
             "sat:orbit_state": "DESCENDING",
             "sat:platform_international_designator": "2014-016A",
-            "sat:relative_orbit": 139,
-            "start_datetime": "2025-09-10T05:44:47.181317Z"
+            "sat:relative_orbit": 139
         },
-        "stac_extensions": [
-            "https://stac-extensions.github.io/eopf/v1.0.0/schema.json",
-            "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
-            "https://stac-extensions.github.io/sat/v1.0.0/schema.json",
-            "https://stac-extensions.github.io/view/v1.0.0/schema.json",
-            "https://stac-extensions.github.io/scientific/v1.0.0/schema.json",
-            "https://stac-extensions.github.io/processing/v1.1.0/schema.json"
-        ],
-        "stac_version": "1.0.0",
-        "type": "Feature"
+        "assets": {
+            "file": {
+                "href": "file:///data/my_product.SAFE",
+                "roles": [
+                    "data"
+                ]
+            }
+        },
+        "links": [
+            {
+                "href": "./.zattrs.json",
+                "rel": "self",
+                "type": "application/json"
+            }
+        ]
     }
 }
