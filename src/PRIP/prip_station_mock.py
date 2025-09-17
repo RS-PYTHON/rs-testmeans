@@ -44,7 +44,7 @@ def ready_live_status():
 
 
 @app.route("/Products", methods=["GET"])
-# @token_required to be activated later
+@token_required
 @additional_options
 def query_products():
     if "$filter" not in request.args:
@@ -151,7 +151,7 @@ def create_prip_app():
     return app
 
 @app.route("/Products(<Id>)/$value", methods=["GET"])
-#@token_required
+@token_required
 def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     """Download file endpoint"""
     files = [product for product in data if Id.replace("'", "") == product["Id"]]
