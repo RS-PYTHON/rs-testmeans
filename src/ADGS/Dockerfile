@@ -23,6 +23,9 @@ RUN python3.11 -m pip install --no-cache-dir poetry && layer-cleanup.sh
 SHELL ["/bin/bash", "-c"]
 RUN poetry install --no-root && layer-cleanup.sh
 
+# Remove apt repository list and custom scripts
+RUN rm -f /etc/apt/sources.list /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
+
 # Set labels based on the Open Containers Initiative (OCI):
 # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
 #
