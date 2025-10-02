@@ -8,6 +8,10 @@ WORKDIR /src/DPR
 COPY ./. /src/DPR/
 COPY ./common /src/common
 
+# Change poetry virtual env dir or it will be removed by layer-cleanup
+# See: https://python-poetry.org/docs/configuration/#cache-directory
+ENV POETRY_CACHE_DIR=/root/pypoetry
+
 RUN python3.11 -m pip install --upgrade pip && layer-cleanup.sh
 # Install poetry
 RUN python3.11 -m pip install --no-cache-dir poetry && layer-cleanup.sh

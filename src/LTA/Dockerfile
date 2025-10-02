@@ -10,6 +10,10 @@ COPY ./lta_station_mock.py /opt/LTA
 COPY ./pyproject.toml /opt/LTA
 COPY ./config /opt/LTA/config
 
+# Change poetry virtual env dir or it will be removed by layer-cleanup
+# See: https://python-poetry.org/docs/configuration/#cache-directory
+ENV POETRY_CACHE_DIR=/root/pypoetry
+
 # Install poetry
 RUN python3.11 -m pip install --no-cache-dir poetry && layer-cleanup.sh
 
