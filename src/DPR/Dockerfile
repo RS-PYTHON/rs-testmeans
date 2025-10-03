@@ -1,19 +1,26 @@
 FROM ghcr.io/rs-python/python:3.11.7-slim-bookworm
 LABEL description="This docker allow to run a DPR Processor mockup."
 
+COPY ./layer-cleanup.sh /usr/local/bin/
+RUN chmod 755 /usr/local/bin/layer-cleanup.sh
+
 WORKDIR /src/DPR
 COPY ./. /src/DPR/
 COPY ./common /src/common
 
-RUN python3.11 -m pip install --upgrade pip
+# Change poetry virtual env dir or it will be removed by layer-cleanup
+# See: https://python-poetry.org/docs/configuration/#cache-directory
+ENV POETRY_CACHE_DIR=/root/pypoetry
+
+RUN python3.11 -m pip install --upgrade pip && layer-cleanup.sh
 # Install poetry
-RUN python3.11 -m pip install --no-cache-dir poetry
+RUN python3.11 -m pip install --no-cache-dir poetry && layer-cleanup.sh
 
 SHELL ["/bin/bash", "-c"]
-RUN poetry install --no-root
+RUN poetry install --no-root && layer-cleanup.sh
 
-# Clean everything
-RUN rm -rf /tmp/whl /root/.cache/pip /var/cache/apt/archives /var/lib/apt/lists/*
+# Remove apt repository list and custom scripts
+RUN rm -f /etc/apt/sources.list /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
 
 # Set labels based on the Open Containers Initiative (OCI):
 # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys

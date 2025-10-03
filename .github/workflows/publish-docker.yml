@@ -90,6 +90,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Copy Dockerfile requirements
+        run: cp -t ./src ./.github/scripts/layer-cleanup.sh
+        shell: bash
+
       - id: publish-docker
         uses: ./.github/actions/publish-docker
         with:
@@ -110,6 +114,10 @@ jobs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Copy Dockerfile requirements
+        run: cp -t ./src ./.github/scripts/layer-cleanup.sh
+        shell: bash
 
       - id: publish-docker
         uses: ./.github/actions/publish-docker
@@ -132,6 +140,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Copy Dockerfile requirements
+        run: cp -t ./src/LTA ./.github/scripts/layer-cleanup.sh
+        shell: bash
+
       - id: publish-docker
         uses: ./.github/actions/publish-docker
         with:
@@ -152,6 +164,10 @@ jobs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Copy Dockerfile requirements
+        run: cp -t ./src/DPR ./.github/scripts/layer-cleanup.sh
+        shell: bash
 
       - id: publish-docker
         uses: ./.github/actions/publish-docker
@@ -174,6 +190,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Copy Dockerfile requirements
+        run: cp -t ./src ./.github/scripts/layer-cleanup.sh
+        shell: bash
+
       - id: publish-docker
         uses: ./.github/actions/publish-docker
         with:
@@ -183,6 +203,7 @@ jobs:
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
+
   ###########
   # TESTING #
   ###########
