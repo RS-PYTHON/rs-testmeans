@@ -42,34 +42,34 @@
         "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL2A_20220614T081611_0000_A121_T215.cog.zip",
         "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S2MSIL2A_20220614T081611_0000_A121_T415.nc"
     },
-    "S3ALTL0_": {
+    "S03ALTL0_": {
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3ALTL0__20221101T092457_3029_A307__483.zarr.zip"
     },
-    "S3MWRL0_": {
+    "S03MWRL0_": {
         "zarr": "data/S03MWRL0__20221101T092439_6037_A307_T677.zarr.zip"
     },
-    "S3OLCL0_": {
+    "S03OLCL0_": {
         "zarr": "data/S03OLCL0__20210629T044945_0119_A247_T219.zarr.zip"
     },
-    "S3OLCEFR": {
+    "S03OLCEFR": {
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCEFR_20220116T092821_0180_A036_S418.zarr.zip",
         "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCEFR_20220116T092821_0180_A036_S352.cog.zip",
         "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCEFR_20220116T092821_0180_A036_S640.nc"
     },
-    "S3OLCLFR": {
+    "S03OLCLFR": {
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCLFR_20220513T003546_0180_A159_T221.zarr.zip",
         "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCLFR_20220513T003546_0180_A159_T394.cog.zip",
         "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3OLCLFR_20220513T003546_0180_A159_T874.nc"
     },
-    "S3SLSL0_": {
+    "S03SLSL0_": {
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSL0__20210807T232352_0299_A044_T317.zarr.zip"
     },
-    "S3SLSRBT": {
+    "S03SLSRBT": {
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSRBT_20230824T091057_0180_B150_T124.zarr.zip",
         "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSRBT_20230824T091057_0180_B150_T986.cog.zip",
         "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSRBT_20230824T091057_0180_B150_T700.nc"
     },
-    "S3SLSLST": {
+    "S03SLSLST": {
         "zarr": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSLST_20230822T052122_0180_B119_T853.zarr.zip",
         "cog": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSLST_20230822T052122_0180_B119_T475.cog.zip",
         "netcdf": "https://eopf-public.s3.sbg.perf.cloud.ovh.net/S3SLSLST_20230822T052122_0180_B119_T975.nc"
