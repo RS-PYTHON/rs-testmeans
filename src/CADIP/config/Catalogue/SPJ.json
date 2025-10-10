@@ -125,6 +125,27 @@
       "DownlinkStop": "2025-01-09T07:42:04.051Z",
       "DownlinkStatusOK": true,
       "DeliveryPushOK": true
+    },
+    {
+      "Id": "9e3b41d6-b2c0-4d17-9a1a-4a8b5f7d92d3",
+      "SessionId": "S3B_20251010143722593812",
+      "NumChannels": 2,
+      "PublicationDate": "2025-10-10T18:37:22.000Z",
+      "Satellite": "S3B",
+      "StationUnitId": "06",
+      "DownlinkOrbit": 98214,
+      "AcquisitionId": "98214_1",
+      "AntennaId": "MSP21",
+      "FrontEndId": "01",
+      "Retransfer": false,
+      "AntennaStatusOK": true,
+      "FrontEndStatusOK": true,
+      "PlannedDataStart": "2025-10-10T14:37:22.000Z",
+      "PlannedDataStop": "2025-10-10T14:46:22.000Z",
+      "DownlinkStart": "2025-10-10T14:37:22.000Z",
+      "DownlinkStop": "2025-10-10T14:57:22.000Z",
+      "DownlinkStatusOK": true,
+      "DeliveryPushOK": true
     }
   ]
 }
