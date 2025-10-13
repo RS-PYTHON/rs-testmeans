@@ -11,8 +11,7 @@ dependencies = [
     "Flask-Bcrypt == 1.0.1",
     "boto3 == 1.28.85",
     "botocore == 1.31.85",
-    "dotenv == 0.9.9",
-    "sqlalchemy (>=2.0.41,<3.0.0)"
+    "dotenv == 0.9.9"
     ]
 
 
