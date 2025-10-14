@@ -223,11 +223,37 @@ def process_products_request(request, headers) -> Response:
             field, op, value = request.split(" ")
             value = value.strip("()")
             date = datetime.datetime.fromisoformat(value)
-            resp_body = [
-                    product
-                    for product in catalog_data["Data"]
-                    if date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
-                ]
+            match op:
+                case "eq":
+                    resp_body = [
+                            product
+                            for product in catalog_data["Data"]
+                            if date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
+                        ]
+                case "lt":
+                    resp_body = [
+                            product
+                            for product in catalog_data["Data"]
+                            if date > datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
+                        ]
+                case "gt":
+                    resp_body = [
+                            product
+                            for product in catalog_data["Data"]
+                            if date < datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
+                        ]
+                case "gte":
+                    resp_body = [
+                        product
+                        for product in catalog_data["Data"]
+                        if date < datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                    ]
+                case "lte":
+                    resp_body = [
+                        product
+                        for product in catalog_data["Data"]
+                        if date > datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                    ]
             return (
                 Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
                 if resp_body
