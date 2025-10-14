@@ -223,37 +223,29 @@ def process_products_request(request, headers) -> Response:
             field, op, value = request.split(" ")
             value = value.strip("()")
             date = datetime.datetime.fromisoformat(value)
-            match op:
-                case "eq":
-                    resp_body = [
-                            product
-                            for product in catalog_data["Data"]
-                            if date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
-                        ]
-                case "lt":
-                    resp_body = [
-                            product
-                            for product in catalog_data["Data"]
-                            if date > datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
-                        ]
-                case "gt":
-                    resp_body = [
-                            product
-                            for product in catalog_data["Data"]
-                            if date < datetime.datetime.fromisoformat(product["ContentDate"]["Start"] if "Start" in field else product["ContentDate"]["End"])
-                        ]
-                case "gte":
-                    resp_body = [
-                        product
-                        for product in catalog_data["Data"]
-                        if date < datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
-                    ]
-                case "lte":
-                    resp_body = [
-                        product
-                        for product in catalog_data["Data"]
-                        if date > datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
-                    ]
+            date_field = "Start" if "Start" in field else "End"
+
+            # Define a comparison map to avoid repetitive code
+            comparison_ops = {
+                "eq": lambda d: d == date,
+                "lt": lambda d: d < date,
+                "gt": lambda d: d > date,
+                "lte": lambda d: d <= date,
+                "gte": lambda d: d >= date,
+            }
+
+            # Parse and filter in one comprehension
+            if op in comparison_ops:
+                resp_body = [
+                    product
+                    for product in catalog_data["Data"]
+                    if comparison_ops[op](
+                        datetime.datetime.fromisoformat(product["ContentDate"][date_field])
+                    )
+                ]
+            else:
+                resp_body = []
+                
             return (
                 Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
                 if resp_body
@@ -484,7 +476,7 @@ def process_common_elements(first_response, second_response, operator):
                 headers=request.args,
             )
 
-@app.route("/Products", methods=["GET"])
+@app.route("/Products", methods=["GET"]) 
 @token_required
 @additional_options
 def query_products():
