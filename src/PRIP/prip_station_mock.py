@@ -4,7 +4,7 @@ import pathlib
 import logging
 import datetime
 import json
-from flask import Flask, Response, request, send_file
+from flask import Flask, Response, request, send_file, after_this_request
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from http import HTTPStatus
@@ -17,7 +17,9 @@ from common.pagination import additional_options, prepare_response_odata_v4
 import re
 from common.odata_lexer import parse_odata_filter
 from shapely.geometry import Polygon, shape
-
+from common.s3_handler import S3StorageHandler, GetKeysFromS3Config
+import os
+import dotenv
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
 with open(PATH_TO_CONFIG / "Catalog" / "GETFileResponse.json") as bdata:
@@ -157,6 +159,40 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     files = [product for product in data if Id.replace("'", "") == product["Id"]]
     if len(files) != 1:
         return Response(status="404 None/Multiple files found")
+
+    file_info = files[0]
+    if "S3_path" in file_info:
+        try:
+            # Try to create s3 connector using env variables
+            handler = S3StorageHandler(
+                os.environ["S3_ACCESSKEY"],
+                os.environ["S3_SECRETKEY"],
+                os.environ["S3_ENDPOINT"],
+                os.environ["S3_REGION"],  # "sbg",
+            )
+        except KeyError:
+            # If env variables are not set, check if /.s3cfg is there, and map the values.
+            if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("/.s3cfg"))):
+                return Response(status=HTTPStatus.BAD_REQUEST, response="You must have a s3cmd config file under '~/.s3cfg'")
+            handler = S3StorageHandler(
+                s3_credentials["access_key"],
+                s3_credentials["secret_key"],
+                s3_credentials["host_bucket"],
+                s3_credentials["bucket_location"],  # "sbg",
+            )
+        parts = file_info["S3_path"].replace("s3://", "").split("/", 1)
+        handler.get_keys_from_s3(GetKeysFromS3Config([parts[1]], parts[0], "/tmp/prip"))
+        file_path = f"/tmp/prip/{file_info['Name']}"
+        @after_this_request
+        def remove_file(response):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                app.logger.error(f"Failed to delete {file_path}: {e}")
+            return response
+        return send_file(file_path)
+    
+
     # Send bytes of gzip files in order to avoid auto-decompress feature from application/gzip headers
     if any(gzip_extension in files[0]["Name"] for gzip_extension in [".TGZ", ".gz", ".zip", ".tar"]):
         import io
