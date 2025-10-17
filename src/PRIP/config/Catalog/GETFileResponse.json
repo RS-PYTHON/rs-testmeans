@@ -1211,6 +1211,7 @@
     {
       "Id": "b4b3a6b9-7f1c-49a3-b78d-45dc764e56d3",
       "Name": "S1A_IW_SLC__1SDV_20240416T171518_20240416T171545_053462_067C88_DA9D.SAFE.zip",
+      "S3_path": "s3://rs-dev-cluster-temp/ARD_V2/SAFE/S1A_IW_SLC__1SDV_20240416T171518_20240416T171545_053462_067C88_DA9D.SAFE.zip",
       "EvictionDate": "9999-12-31T23:59:59.999Z",
       "ModificationDate": "2024-04-16T18:25:42.000Z",
       "OriginDate": "2024-04-16T18:10:00.000Z",
@@ -1234,11 +1235,26 @@
         "type": "Polygon",
         "coordinates": [
           [
-            [12.4523, 45.6721],
-            [12.2089, 43.8432],
-            [14.6217, 43.5176],
-            [14.8552, 45.3478],
-            [12.4523, 45.6721]
+            [
+              12.4523,
+              45.6721
+            ],
+            [
+              12.2089,
+              43.8432
+            ],
+            [
+              14.6217,
+              43.5176
+            ],
+            [
+              14.8552,
+              45.3478
+            ],
+            [
+              12.4523,
+              45.6721
+            ]
           ]
         ]
       },
@@ -1332,6 +1348,169 @@
           "Name": "startTimeFromAscendingNode",
           "ValueType": "Double",
           "Value": 4341623.784
+        },
+        {
+          "Name": "instrumentShortName",
+          "ValueType": "String",
+          "Value": "SAR"
+        },
+        {
+          "Name": "productClass",
+          "ValueType": "String",
+          "Value": "S"
+        },
+        {
+          "Name": "platformShortName",
+          "ValueType": "String",
+          "Value": "SENTINEL-1"
+        },
+        {
+          "Name": "platformSerialIdentifier",
+          "ValueType": "String",
+          "Value": "A"
+        }
+      ]
+    },
+    {
+      "Id": "1a6e932f-9a4c-4a35-9b84-b223c3f8a7f9",
+      "Name": "S1A_IW_SLC__1SDV_20240428T171518_20240428T171545_053637_068367_71A2.SAFE.zip",
+      "S3_path": "s3://rs-dev-cluster-temp/ARD_V2/SAFE/S1A_IW_SLC__1SDV_20240428T171518_20240428T171545_053637_068367_71A2.SAFE.zip",
+      "EvictionDate": "9999-12-31T23:59:59.999Z",
+      "ModificationDate": "2024-04-28T18:24:53.000Z",
+      "OriginDate": "2024-04-28T18:09:14.000Z",
+      "PublicationDate": "2024-04-28T18:24:53.000Z",
+      "ContentLength": 786121044,
+      "Online": true,
+      "ContentType": "application/zip",
+      "ContentDate": {
+        "Start": "2024-04-28T17:15:18.000Z",
+        "End": "2024-04-28T17:15:45.000Z"
+      },
+      "Checksum": [
+        {
+          "Algorithm": "MD5",
+          "Value": "a1e77d945e2f64f5c65c1c54b27a37f6",
+          "ChecksumDate": "2024-04-28T18:09:14.000Z"
+        }
+      ],
+      "Footprint": "geography'SRID=4326;POLYGON((12.4932 45.7193,12.2411 43.8748,14.6675 43.5439,14.9098 45.3725,12.4932 45.7193))",
+      "GeoFootprint": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              12.4932,
+              45.7193
+            ],
+            [
+              12.2411,
+              43.8748
+            ],
+            [
+              14.6675,
+              43.5439
+            ],
+            [
+              14.9098,
+              45.3725
+            ],
+            [
+              12.4932,
+              45.7193
+            ]
+          ]
+        ]
+      },
+      "Attributes": [
+        {
+          "Name": "polarisationChannels",
+          "ValueType": "String",
+          "Value": "VV VH"
+        },
+        {
+          "Name": "productType",
+          "ValueType": "String",
+          "Value": "IW_SLC__1S"
+        },
+        {
+          "Name": "cycleNumber",
+          "ValueType": "Integer",
+          "Value": 497
+        },
+        {
+          "Name": "relativeOrbitNumber",
+          "ValueType": "Integer",
+          "Value": 3637
+        },
+        {
+          "Name": "processingCenter",
+          "ValueType": "String",
+          "Value": "S1 Processing and Archiving Center"
+        },
+        {
+          "Name": "completionTimeFromAscendingNode",
+          "ValueType": "Double",
+          "Value": 4650012.412
+        },
+        {
+          "Name": "processingDate",
+          "ValueType": "DateTimeOffset",
+          "Value": "2024-04-28T18:22:18.000Z"
+        },
+        {
+          "Name": "datatakeID",
+          "ValueType": "Integer",
+          "Value": 543875
+        },
+        {
+          "Name": "orbitNumber",
+          "ValueType": "Integer",
+          "Value": 53637
+        },
+        {
+          "Name": "productConsolidation",
+          "ValueType": "String",
+          "Value": "FULL"
+        },
+        {
+          "Name": "endingDateTime",
+          "ValueType": "DateTimeOffset",
+          "Value": "2024-04-28T17:15:45.000Z"
+        },
+        {
+          "Name": "qualityDataObjectID",
+          "ValueType": "String",
+          "Value": "measurementData"
+        },
+        {
+          "Name": "coordinates",
+          "ValueType": "String",
+          "Value": "12.4932 45.7193,12.2411 43.8748,14.6675 43.5439,14.9098 45.3725,12.4932 45.7193"
+        },
+        {
+          "Name": "orbitDirection",
+          "ValueType": "String",
+          "Value": "ASCENDING"
+        },
+        {
+          "Name": "sliceProductFlag",
+          "ValueType": "Boolean",
+          "Value": false
+        },
+        {
+          "Name": "beginningDateTime",
+          "ValueType": "DateTimeOffset",
+          "Value": "2024-04-28T17:15:18.000Z"
+        },
+        {
+          "Name": "instrumentConfigurationID",
+          "ValueType": "Integer",
+          "Value": 8
+        },
+        {
+          "Name": "startTimeFromAscendingNode",
+          "ValueType": "Double",
+          "Value": 4341721.527
         },
         {
           "Name": "instrumentShortName",
