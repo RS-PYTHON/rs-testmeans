@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DSIB xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="DSIB.xsd">
+  <Header>
+    <Satellite>S1A</Satellite>
+    <DCSU_Number>01</DCSU_Number>
+    <Session_ID>202501270945000000112233</Session_ID>
+    <Channel>2</Channel>
+    <DSIB_Version>1.0</DSIB_Version>
+    <Generation_Time>2025-10-27T12:34:56Z</Generation_Time>
+  </Header>
+  <Acquisition_Info>
+    <Start_Time>2025-10-27T09:45:00Z</Start_Time>
+    <End_Time>2025-10-27T09:55:00Z</End_Time>
+    <Orbit_Number>12345</Orbit_Number>
+    <Station_ID>FLGS</Station_ID>
+  </Acquisition_Info>
+  <Files>
+    <DSDB_File>
+      <File_Name>DCS_01_202501270945000000112233_ch1_DSDB_00001.raw</File_Name>
+      <Size_Bytes>1048576</Size_Bytes>
+      <Checksum>ABCD1234EF567890</Checksum>
+    </DSDB_File>
+    <DSDB_File>
+      <File_Name>DCS_01_202501270945000000112233_ch1_DSDB_00002.raw</File_Name>
+      <Size_Bytes>2097152</Size_Bytes>
+      <Checksum>DEADFACECAFEBABE</Checksum>
+    </DSDB_File>
+  </Files>
+  <Metadata>
+    <Generated_By>FTPS Mock Generator</Generated_By>
+    <Comments>This is a dummy DSIB file for test purposes only.</Comments>
+  </Metadata>
+</DSIB>
