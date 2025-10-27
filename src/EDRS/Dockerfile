@@ -17,8 +17,10 @@ RUN mkdir -p /etc/ssl/private && \
 RUN mkdir -p /var/run/vsftpd/empty && chmod 755 /var/run/vsftpd/empty
 
 COPY vsftpd.conf /etc/vsftpd.conf
+# mount cadip data
+COPY data/NOMINAL /home/ftpuser/NOMINAL
 
 EXPOSE 21 21100-21110
 
 #  Keep vsftpd running forever
-CMD /usr/sbin/vsftpd /etc/vsftpd.conf & tail -f /dev/null
+CMD ["/bin/sh", "-c", "/usr/sbin/vsftpd /etc/vsftpd.conf & tail -f /dev/null"]
