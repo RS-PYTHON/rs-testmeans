@@ -1,6 +1,9 @@
 FROM debian:bullseye-slim
 
-RUN apt-get update && apt-get install -y vsftpd openssl iproute2 db5.3-util coreutils && rm -rf /var/lib/apt/lists/*
+COPY ./layer-cleanup.sh /usr/local/bin/
+RUN chmod 755 /usr/local/bin/layer-cleanup.sh
+
+RUN apt-get update && apt-get install -y vsftpd openssl iproute2 db5.3-util coreutils && layer-cleanup.sh
 
 ENV FTP_USER=**String**
 ENV FTP_PASS=**Random**
@@ -39,6 +42,9 @@ RUN mkdir -p /app/vsftpd/users
 RUN chown -R vsftpduser:vsftpduser /app/vsftpd/users
 RUN mkdir -p /var/run/vsftpd/empty
 RUN chmod 755 /var/run/vsftpd/empty
+
+# Remove apt repository list and custom scripts
+RUN rm -f /etc/apt/sources.list /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
 
 EXPOSE 21 21100-21110
 
