@@ -12,6 +12,9 @@ fi
 
 # Create home dir and update rspy user db:
 mkdir -p "/app/vsftpd/users/${FTP_USER}"
+if [ ! -e "/app/vsftpd/users/${FTP_USER}/NOMINAL" ]; then
+    mv /app/vsftpd/NOMINAL "/app/vsftpd/users/${FTP_USER}/"
+fi
 chown -R vsftpduser:vsftpduser "/app/vsftpd/users/${FTP_USER}"
 chmod 755 "/app/vsftpd/users/${FTP_USER}"
 

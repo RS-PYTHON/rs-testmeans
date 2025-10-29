@@ -35,6 +35,7 @@ RUN useradd -d /app/vsftpd -s /bin/false vsftpduser
 COPY vsftpd.conf /app/vsftpd/vsftpd.conf
 COPY vsftpd_virtual /etc/pam.d/
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY data/NOMINAL /app/vsftpd/NOMINAL
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
