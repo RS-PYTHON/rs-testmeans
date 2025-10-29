@@ -45,42 +45,45 @@ echo "log_ftp_protocol=${LOG_FTP_PROTOCOL}" >> "${CONFIG_TMP}"
 echo "pasv_promiscuous=${PASV_PROMISCUOUS}" >> "${CONFIG_TMP}"
 echo "port_promiscuous=${PORT_PROMISCUOUS}" >> "${CONFIG_TMP}"
 
-if [ "$SSL_ENABLE" = "YES" ]; then
+if [ "${SSL_ENABLE}" = "YES" ]; then
+
+    if [ "${SSL_GENERATE}" = "YES" ]; then
 
 cat <<EOF > /app/vsftpd/cert/san.cnf
-    [ req ]
-    default_bits       = 2048
-    prompt             = no
-    default_md         = sha256
-    req_extensions     = req_ext
-    distinguished_name = dn
+        [ req ]
+        default_bits       = 2048
+        prompt             = no
+        default_md         = sha256
+        req_extensions     = req_ext
+        distinguished_name = dn
 
-    [ dn ]
-    C  = FR
-    O  = RSPY
-    CN = ${HOSTNAME}
+        [ dn ]
+        C  = FR
+        O  = RSPY
+        CN = ${HOSTNAME}
 
-    [ req_ext ]
-    subjectAltName = @alt_names
+        [ req_ext ]
+        subjectAltName = @alt_names
 
-    [ alt_names ]
-    DNS.1 = ${HOSTNAME}
-    IP.1  = ${PASV_ADDRESS}
+        [ alt_names ]
+        DNS.1 = ${HOSTNAME}
+        IP.1  = ${PASV_ADDRESS}
 EOF
 
-    echo "Generate CA Key and Certificate (used to sign both server and client certs)"
-    openssl genrsa -out /app/vsftpd/cert/ca.key 4096 > /dev/null 2>&1
-    openssl req -x509 -new -nodes -key /app/vsftpd/cert/ca.key -sha256 -days 3650 -out /app/vsftpd/cert/ca.crt -subj "/C=FR/O=RSPY/CN=RSPY" > /dev/null 2>&1
+        echo "Generate CA Key and Certificate (used to sign both server and client certs)"
+        openssl genrsa -out /app/vsftpd/cert/ca.key 4096 > /dev/null 2>&1
+        openssl req -x509 -new -nodes -key /app/vsftpd/cert/ca.key -sha256 -days 3650 -out /app/vsftpd/cert/${CA_CERT} -subj "/C=FR/O=RSPY/CN=RSPY" > /dev/null 2>&1
 
-    echo "Generate Server Key and Certificate"
-    openssl genrsa -out /app/vsftpd/cert/server.key 2048 > /dev/null 2>&1
-    openssl req -new -key /app/vsftpd/cert/server.key -out /app/vsftpd/cert/server.csr -config /app/vsftpd/cert/san.cnf > /dev/null 2>&1
+        echo "Generate Server Key and Certificate"
+        openssl genrsa -out /app/vsftpd/cert/${SRV_KEY} 2048 > /dev/null 2>&1
+        openssl req -new -key /app/vsftpd/cert/${SRV_KEY} -out /app/vsftpd/cert/server.csr -config /app/vsftpd/cert/san.cnf > /dev/null 2>&1
 
-    echo "Generate Client Key and Certificate"
-    openssl genrsa -out /app/vsftpd/cert/client.key 2048 > /dev/null 2>&1
-    openssl req -new -key /app/vsftpd/cert/client.key -out /app/vsftpd/cert/client.csr -subj "/C=FR/O=RSPY/CN=ftpclient" > /dev/null 2>&1
-    openssl x509 -req -in /app/vsftpd/cert/client.csr -CA /app/vsftpd/cert/ca.crt -CAkey /app/vsftpd/cert/ca.key -CAcreateserial -out /app/vsftpd/cert/client.crt -days 365 -sha256 > /dev/null 2>&1
-    openssl x509 -req -in /app/vsftpd/cert/server.csr -CA /app/vsftpd/cert/ca.crt -CAkey /app/vsftpd/cert/ca.key -CAcreateserial -out /app/vsftpd/cert/server.crt -days 365 -sha256 -extfile /app/vsftpd/cert/san.cnf -extensions req_ext > /dev/null 2>&1
+        echo "Generate Client Key and Certificate"
+        openssl genrsa -out /app/vsftpd/cert/client.key 2048 > /dev/null 2>&1
+        openssl req -new -key /app/vsftpd/cert/client.key -out /app/vsftpd/cert/client.csr -subj "/C=FR/O=RSPY/CN=ftpclient" > /dev/null 2>&1
+        openssl x509 -req -in /app/vsftpd/cert/client.csr -CA /app/vsftpd/cert/${CA_CERT} -CAkey /app/vsftpd/cert/ca.key -CAcreateserial -out /app/vsftpd/cert/client.crt -days 365 -sha256 > /dev/null 2>&1
+        openssl x509 -req -in /app/vsftpd/cert/server.csr -CA /app/vsftpd/cert/${CA_CERT} -CAkey /app/vsftpd/cert/ca.key -CAcreateserial -out /app/vsftpd/cert/${SRV_CERT} -days 365 -sha256 -extfile /app/vsftpd/cert/san.cnf -extensions req_ext > /dev/null 2>&1
+    fi
 
     echo "ssl_enable=YES" >> "${CONFIG_TMP}"
     echo "allow_anon_ssl=NO" >> "${CONFIG_TMP}"
