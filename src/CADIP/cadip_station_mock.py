@@ -256,7 +256,7 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
         case "eq":
             query_result = [product for product in catalog_data["Data"] if value == product[field]]
         case "in":
-            sat_sid_match = re.sub(r"[()]", "", value).split(", ")
+            sat_sid_match = re.sub(r"[()]", "", value).split(",")
             query_result = [
                 [product for product in catalog_data["Data"] if product[field] == sat_sid.strip()]
                 for sat_sid in sat_sid_match
@@ -533,8 +533,9 @@ def process_files_request(request, headers, catalog_data):
                 matching = [product for product in catalog_data["Data"] if value[0].strip("('),") == product[field]]
             case "in":
                 matching = []
-                for idx in value:
-                    matching += [product for product in catalog_data["Data"] if idx.strip("('),") in product[field]]
+                for idx_list in value:
+                    for idx in idx_list.split(","):
+                        matching += [product for product in catalog_data["Data"] if idx.strip("(')") in product[field]]
         return (
             Response(response=batch_response_odata_v4(matching), status=HTTPStatus.OK, headers=headers)
             if matching
