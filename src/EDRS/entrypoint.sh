@@ -113,4 +113,6 @@ echo "FTP Password: ${FTP_PASS}"
 touch /var/log/vsftpd.log
 
 # Run vsftpd:
-tail -F /var/log/vsftpd.log & /usr/sbin/vsftpd /app/vsftpd/vsftpd.conf &>/dev/null
+echo "Starting vsftpd..."
+/usr/sbin/vsftpd /app/vsftpd/vsftpd.conf &
+tail -F /var/log/vsftpd.log
