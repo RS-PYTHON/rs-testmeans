@@ -90,7 +90,7 @@ EOF
 
     echo "ssl_enable=YES" >> "${CONFIG_TMP}"
     echo "allow_anon_ssl=NO" >> "${CONFIG_TMP}"
-    echo "force_local_data_ssl="${FORCE_LOCAL_DATA_SSL}" >> "${CONFIG_TMP}"
+    echo "force_local_data_ssl=${FORCE_LOCAL_DATA_SSL}" >> "${CONFIG_TMP}"
     echo "force_local_logins_ssl=YES" >> "${CONFIG_TMP}"
     echo "ssl_tlsv1=YES" >> "${CONFIG_TMP}"
     echo "ssl_sslv2=NO" >> "${CONFIG_TMP}"
