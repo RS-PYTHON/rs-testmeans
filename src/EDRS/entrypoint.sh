@@ -24,9 +24,7 @@ db5.3_load -T -t hash -f /app/vsftpd/virtual_users.txt /app/vsftpd/virtual_users
 # Set passive mode parameters:
 if [ "$PASV_ADDRESS" = "**IPv4**" ]; then
     #export PASV_ADDRESS=$(/sbin/ip route|awk '/default/ { print $3 }')
-    export PASV_ADDRESS=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
-)
-
+    export PASV_ADDRESS=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 fi
 
 CONFIG_TMP="/tmp/vsftpd.conf"
@@ -88,7 +86,7 @@ EOF
         openssl x509 -req -in /app/vsftpd/cert/server.csr -CA /app/vsftpd/cert/${CA_CERT} -CAkey /app/vsftpd/cert/ca.key -CAcreateserial -out /app/vsftpd/cert/${SRV_CERT} -days 365 -sha256 -extfile /app/vsftpd/cert/san.cnf -extensions req_ext > /dev/null 2>&1
     fi
 
-    echo "ssl_enable=YES" >> "${CONFIG_TMP}"
+    echo "ssl_enable=NO" >> "${CONFIG_TMP}"
     echo "allow_anon_ssl=NO" >> "${CONFIG_TMP}"
     echo "force_local_data_ssl=${FORCE_LOCAL_DATA_SSL}" >> "${CONFIG_TMP}"
     echo "force_local_logins_ssl=YES" >> "${CONFIG_TMP}"
