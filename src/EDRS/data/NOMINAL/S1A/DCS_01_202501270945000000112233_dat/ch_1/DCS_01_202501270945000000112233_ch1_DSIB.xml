@@ -4,31 +4,55 @@
   <Header>
     <Satellite>S1A</Satellite>
     <DCSU_Number>01</DCSU_Number>
-    <Session_ID>202501270945000000112233</Session_ID>
+    <Session_ID>20240410083700053369</Session_ID>
     <Channel>1</Channel>
     <DSIB_Version>1.0</DSIB_Version>
-    <Generation_Time>2025-10-27T12:34:56Z</Generation_Time>
+    <Generation_Time>2024-04-10T08:42:14Z</Generation_Time>
   </Header>
+
   <Acquisition_Info>
-    <Start_Time>2025-10-27T09:45:00Z</Start_Time>
-    <End_Time>2025-10-27T09:55:00Z</End_Time>
-    <Orbit_Number>12345</Orbit_Number>
-    <Station_ID>FLGS</Station_ID>
+    <Start_Time>2024-04-10T08:37:00Z</Start_Time>
+    <End_Time>2024-04-10T08:42:14Z</End_Time>
+    <Orbit_Number>00000</Orbit_Number>
+    <Station_ID>UNKNOWN</Station_ID>
   </Acquisition_Info>
+
   <Files>
     <DSDB_File>
-      <File_Name>DCS_01_202501270945000000112233_ch1_DSDB_00001.raw</File_Name>
-      <Size_Bytes>1048576</Size_Bytes>
-      <Checksum>ABCD1234EF567890</Checksum>
+      <File_Name>DCS_01_S1A_20240410083700053369_ch1_DSDB_00001.raw</File_Name>
+      <Size_Bytes>21936469632</Size_Bytes>
+      <Checksum>UNKNOWN</Checksum>
     </DSDB_File>
     <DSDB_File>
-      <File_Name>DCS_01_202501270945000000112233_ch1_DSDB_00002.raw</File_Name>
-      <Size_Bytes>2097152</Size_Bytes>
-      <Checksum>DEADFACECAFEBABE</Checksum>
+      <File_Name>DCS_01_S1A_20240410083700053369_ch1_DSDB_00002.raw</File_Name>
+      <Size_Bytes>21936469632</Size_Bytes>
+      <Checksum>UNKNOWN</Checksum>
+    </DSDB_File>
+    <DSDB_File>
+      <File_Name>DCS_01_S1A_20240410083700053369_ch1_DSDB_00003.raw</File_Name>
+      <Size_Bytes>21936469632</Size_Bytes>
+      <Checksum>UNKNOWN</Checksum>
+    </DSDB_File>
+    <DSDB_File>
+      <File_Name>DCS_01_S1A_20240410083700053369_ch1_DSDB_00004.raw</File_Name>
+      <Size_Bytes>21936469632</Size_Bytes>
+      <Checksum>UNKNOWN</Checksum>
+    </DSDB_File>
+    <DSDB_File>
+      <File_Name>DCS_01_S1A_20240410083700053369_ch1_DSDB_00005.raw</File_Name>
+      <Size_Bytes>21936469632</Size_Bytes>
+      <Checksum>UNKNOWN</Checksum>
+    </DSDB_File>
+    <!-- ... repeat for all DSDB_00006.raw to DSDB_00035.raw ... -->
+    <DSDB_File>
+      <File_Name>DCS_01_S1A_20240410083700053369_ch1_DSDB_00035.raw</File_Name>
+      <Size_Bytes>21936469632</Size_Bytes>
+      <Checksum>UNKNOWN</Checksum>
     </DSDB_File>
   </Files>
+
   <Metadata>
-    <Generated_By>FTPS Mock Generator</Generated_By>
-    <Comments>This is a dummy DSIB file for test purposes only.</Comments>
+    <Generated_By>Session XML Converter</Generated_By>
+    <Comments>Converted from DCSU_Session_Information_Block format.</Comments>
   </Metadata>
 </DSIB>
