@@ -219,8 +219,9 @@ def process_query_request(request: str, catalog_data: dict) -> Response:
             case "eq":
                 matching = [product for product in catalog_data["Data"] if value[0] == product[field]]
             case "in":
-                for idx in value:
-                    matching += [product for product in catalog_data["Data"] if idx.replace(",", "") in product[field]]
+                for idx_list in value:
+                    for idx in idx_list.split(","):
+                        matching += [product for product in catalog_data["Data"] if idx in product[field]]
         return (
             Response(response=batch_response_odata_v4(matching), status=HTTP_OK)
             if matching
