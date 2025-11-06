@@ -15,7 +15,7 @@ mkdir -p "/app/vsftpd/users/${FTP_USER}"
 if [ ! -e "/app/vsftpd/users/${FTP_USER}/NOMINAL" ]; then
     mv /app/vsftpd/NOMINAL "/app/vsftpd/users/${FTP_USER}/"
 fi
-chown -R vsftpduser:vsftpduser "/app/vsftpd/users/${FTP_USER}"
+chown vsftpduser:vsftpduser "/app/vsftpd/users/${FTP_USER}"
 chmod 755 "/app/vsftpd/users/${FTP_USER}"
 
 echo -e "${FTP_USER}\n${FTP_PASS}" > /app/vsftpd/virtual_users.txt
