@@ -36,14 +36,13 @@ class DPRProcessor:
         self.list_of_downloads = []
         self.meta_attrs = []
         if isinstance(payload_file, pathlib.Path) and payload_file.absolute().is_file():
-            with open(payload_file.absolute()) as payload:
+            with open(payload_file) as payload:
                 logger.info("Triggering payload loaded from file, %s", payload_file.absolute())
                 self.payload_data = yaml.safe_load(payload)
         else:
             try:
-                with open(payload_file.absolute()) as payload:
-                    self.payload_data = yaml.safe_load(payload)
-                    logger.info("Triggering string yaml-like loaded into processor.")
+                self.payload_data = yaml.safe_load(payload_file)
+                logger.info("Triggering string yaml-like loaded into processor.")
             except yaml.YAMLError:
                 logger.error("Payload configuration cannot be loaded.")
                 raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Bad payload")
