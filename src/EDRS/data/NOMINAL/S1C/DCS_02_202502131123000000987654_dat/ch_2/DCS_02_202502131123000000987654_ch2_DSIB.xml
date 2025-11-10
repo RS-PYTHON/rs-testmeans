@@ -1,37 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<DSIB xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:noNamespaceSchemaLocation="DSIB.xsd">
-  <Header>
-    <Satellite>S1C</Satellite>
-    <DCSU_Number>02</DCSU_Number>
-    <Session_ID>202502131123000000987654</Session_ID>
-    <Channel>1</Channel>
-    <DSIB_Version>1.0</DSIB_Version>
-    <Generation_Time>2025-02-13T11:28:42Z</Generation_Time>
-  </Header>
-
-  <Acquisition_Info>
-    <Start_Time>2025-02-13T11:23:00Z</Start_Time>
-    <End_Time>2025-02-13T11:33:00Z</End_Time>
-    <Orbit_Number>54321</Orbit_Number>
-    <Station_ID>KSAT</Station_ID>
-  </Acquisition_Info>
-
-  <Files>
-    <DSDB_File>
-      <File_Name>DCS_02_202502131123000000987654_ch2_DSDB_00001.raw</File_Name>
-      <Size_Bytes>15728640</Size_Bytes>
-      <Checksum>8FAE12CD5679B4A3</Checksum>
-    </DSDB_File>
-    <DSDB_File>
-      <File_Name>DCS_02_202502131123000000987654_ch2_DSDB_00002.raw</File_Name>
-      <Size_Bytes>15728640</Size_Bytes>
-      <Checksum>8FAE12CD5679B4A3</Checksum>
-    </DSDB_File>
-  </Files>
-
-  <Metadata>
-    <Generated_By>Automated DSIB Builder</Generated_By>
-    <Comments>Nominal acquisition session for Sentinel-1C downlink. Data recorded at KSAT Tromsø ground station.</Comments>
-  </Metadata>
-</DSIB>
+<DCSU_Session_Information_Block>
+    <session_id>202502131123000000987654</session_id>
+    <time_start>2025-02-13T11:23:00Z</time_start>
+    <time_stop>2025-02-13T11:33:00Z</time_stop>
+    <time_created>2025-02-13T11:28:42Z</time_created>
+    <time_finished>2025-02-13T11:28:42Z</time_finished>
+    <data_size>15728640</data_size>
+    <dsdb_list>
+        <dsdb_name>DCS_02_202502131123000000987654_ch2_DSDB_00001.raw</dsdb_name>
+        <dsdb_name>DCS_02_202502131123000000987654_ch2_DSDB_00002.raw</dsdb_name>
+    </dsdb_list>
+</DCSU_Session_Information_Block>

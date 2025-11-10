@@ -1,37 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<DSIB xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:noNamespaceSchemaLocation="DSIB.xsd">
-  <Header>
-    <Satellite>S2B</Satellite>
-    <DCSU_Number>03</DCSU_Number>
-    <Session_ID>202504191237000000445566</Session_ID>
-    <Channel>1</Channel>
-    <DSIB_Version>1.0</DSIB_Version>
-    <Generation_Time>2025-04-19T12:42:55Z</Generation_Time>
-  </Header>
-
-  <Acquisition_Info>
-    <Start_Time>2025-04-19T12:37:00Z</Start_Time>
-    <End_Time>2025-04-19T12:47:00Z</End_Time>
-    <Orbit_Number>67890</Orbit_Number>
-    <Station_ID>MTGS</Station_ID>
-  </Acquisition_Info>
-
-  <Files>
-    <DSDB_File>
-      <File_Name>DCS_03_202504191237000000445566_ch1_DSDB_00001.raw</File_Name>
-      <Size_Bytes>16777216</Size_Bytes>
-      <Checksum>9A7F3C21B5D4E678</Checksum>
-    </DSDB_File>
-    <DSDB_File>
-      <File_Name>DCS_03_202504191237000000445566_ch1_DSDB_00002.raw</File_Name>
-      <Size_Bytes>18874368</Size_Bytes>
-      <Checksum>FACEB00C12DE3456</Checksum>
-    </DSDB_File>
-  </Files>
-
-  <Metadata>
-    <Generated_By>Automated DSIB Builder</Generated_By>
-    <Comments>Nominal Sentinel-2B acquisition, Channel 1 data from MTGS ground station.</Comments>
-  </Metadata>
-</DSIB>
+<DCSU_Session_Information_Block>
+    <session_id>202504191237000000445566</session_id>
+    <time_start>2025-04-19T12:37:00Z</time_start>
+    <time_stop>2025-04-19T12:47:00Z</time_stop>
+    <time_created>2025-04-19T12:42:55Z</time_created>
+    <time_finished>2025-04-19T12:42:55Z</time_finished>
+    <data_size>35651584</data_size>
+    <dsdb_list>
+        <dsdb_name>DCS_03_202504191237000000445566_ch1_DSDB_00001.raw</dsdb_name>
+        <dsdb_name>DCS_03_202504191237000000445566_ch1_DSDB_00002.raw</dsdb_name>
+    </dsdb_list>
+</DCSU_Session_Information_Block>
