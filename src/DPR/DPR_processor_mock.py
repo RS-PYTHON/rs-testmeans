@@ -36,13 +36,14 @@ class DPRProcessor:
         self.list_of_downloads = []
         self.meta_attrs = []
         if isinstance(payload_file, pathlib.Path) and payload_file.absolute().is_file():
-            with open(payload_file) as payload:
+            with open(payload_file.absolute()) as payload:
                 logger.info("Triggering payload loaded from file, %s", payload_file.absolute())
                 self.payload_data = yaml.safe_load(payload)
         else:
             try:
-                self.payload_data = yaml.safe_load(payload_file)
-                logger.info("Triggering string yaml-like loaded into processor.")
+                with open(payload_file.absolute()) as payload:
+                    self.payload_data = yaml.safe_load(payload)
+                    logger.info("Triggering string yaml-like loaded into processor.")
             except yaml.YAMLError:
                 logger.error("Payload configuration cannot be loaded.")
                 raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Bad payload")
@@ -94,9 +95,17 @@ class DPRProcessor:
             raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , "Invalid payload")
 
         payload_parameters = self.payload_data["workflow"][0].get("outputs", None)
-        requested_ptypes = payload_parameters.values()
-        existing_ptypes = self.mapped_data.keys()
 
+        if isinstance(payload_parameters, list):
+            merged = {}
+            for d in payload_parameters:
+                if isinstance(d, dict):
+                    merged.update(d)
+            requested_ptypes = merged.values()
+        else:
+            requested_ptypes = payload_parameters.values()
+
+        existing_ptypes = self.mapped_data.keys()
         for ptype in requested_ptypes:
             if ptype not in existing_ptypes:
                 raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR , 

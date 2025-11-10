@@ -18,8 +18,8 @@ workflow:
     in3: AUX1
     in4: AUX2 # One AUX{N} entry by ADGS file we want to pass as input. In this example we consider 2 aux files
   outputs:
-    out1: S3OLCL0_
-    out2: S3MWRL0_
+    - out1: S03OLCL0_
+      out2: S03MWRL0_
 I/O:
   inputs_products:
   - id: CADU1
@@ -39,12 +39,12 @@ I/O:
     store_type: zarr
     store_params: {}
   output_products:
-  - id: S3OLCL0_
+  - id: S03OLCL0_
     path: s3://test-data/mDPR # output folder or S3 bucket
     type: folder
     store_type: zarr
     store_params: {} #Credentials will be here
-  - id: S3MWRL0_
+  - id: S03MWRL0_
     path: s3://test-data/mDPR # output folder or S3 bucket
     type: folder
     store_type: zarr
