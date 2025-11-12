@@ -164,6 +164,19 @@ class DPRProcessor:
         #data['stac_discovery']['id'] = new_product_id
         self.meta_attrs.append(data)
 
+    def unzip_if_needed(self, path: pathlib.Path) -> None:
+        # Check if the file has a .zip extension
+        if path.suffix.lower() == ".zip" and path.is_file():
+            extract_dir = path.parent / path.stem  # create folder with same name
+            extract_dir.mkdir(exist_ok=True)
+            
+            # Unzip the file
+            with zipfile.ZipFile(path, 'r') as zip_ref:
+                zip_ref.extractall(extract_dir)
+            
+            return extract_dir
+        return path
+    
     def upload_to_s3(self, path: pathlib.Path, ptype):
         """To be added. Should update products to a given s3 storage."""
         bucket_path = [out['path'] for out in self.payload_data["I/O"]["output_products"] if ptype == out['id']][0].split("/")
@@ -173,6 +186,8 @@ class DPRProcessor:
             bucket_path[2],
             "/".join(bucket_path[3:]),
         )
+        path = self.unzip_if_needed(path)
+        s3_config.files = [path]
         logger.info("S3 config: %s %s %s", [str(path.absolute().resolve())], bucket_path[2], "/".join(bucket_path[3:]))
         handler = S3StorageHandler(
             os.environ["S3_ACCESSKEY"],
@@ -266,7 +281,7 @@ class DPRProcessor:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Starts the DPR processor mockup")
-    default_payload_file = "src/DPR/payload.yaml"
+    default_payload_file = "payload.yaml"
     parser.add_argument(
         "-p",
         "--payload",
