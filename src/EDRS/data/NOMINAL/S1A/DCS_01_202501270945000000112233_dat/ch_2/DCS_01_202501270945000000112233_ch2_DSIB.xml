@@ -1,11 +1,11 @@
 <DCSU_Session_Information_Block>
-    <session_id>20240410083700053369</session_id>
+    <session_id>202501270945000000112233</session_id>
     <time_start>2024-04-10T08:37:00Z</time_start>
     <time_stop>2024-04-10T08:42:14Z</time_stop>
     <time_created>2024-04-10T08:42:14Z</time_created>
     <time_finished>2024-04-10T08:42:14Z</time_finished>
     <data_size>43872939264</data_size>
     <dsdb_list>
-        <dsdb_name>DCS_01_202501270945000000112233_ch2_DSDB_00001.raw.raw</dsdb_name>
+        <dsdb_name>DCS_01_202501270945000000112233_ch2_DSDB_00001.raw.raw.raw</dsdb_name>
     </dsdb_list>
 </DCSU_Session_Information_Block>
