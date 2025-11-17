@@ -238,7 +238,7 @@ class S3StorageHandler:
         """
         list_with_files = []
         for local in paths:
-            path = local.strip()
+            path = str(local).strip()
             # check if it is a file
             self.logger.debug("path = %s", path)
             if os.path.isfile(path):
@@ -493,7 +493,6 @@ class S3StorageHandler:
         self.logger.debug("locals = %s", locals())
 
         collection_files = self.files_to_be_uploaded(config.files)
-
         try:
             self.check_bucket_access(config.bucket)
         except RuntimeError:
