@@ -1,5 +1,7 @@
 
-FROM ghcr.io/rs-python/python:3.11.7-slim-bookworm
+ARG PYTHON_VERSION=3.13.9
+
+FROM ghcr.io/rs-python/python:${PYTHON_VERSION}-slim-bookworm
 LABEL description="This docker allows to run a LTA mockup server."
 
 COPY ./layer-cleanup.sh /usr/local/bin/
@@ -15,7 +17,7 @@ COPY ./config /opt/LTA/config
 ENV POETRY_CACHE_DIR=/root/pypoetry
 
 # Install poetry
-RUN python3.11 -m pip install --no-cache-dir poetry && layer-cleanup.sh
+RUN python3 -m pip install --no-cache-dir poetry && layer-cleanup.sh
 
 SHELL ["/bin/bash", "-c"]
 RUN poetry install --no-root && layer-cleanup.sh
@@ -30,4 +32,4 @@ LABEL org.opencontainers.image.source="https://github.com/RS-PYTHON/rs-testmeans
 LABEL org.opencontainers.image.ref.name="ghcr.io/rs-python/rs-testmeans_lta-station-mock"
 LABEL dockerfile.url="https://github.com/RS-PYTHON/rs-testmeans/blob/develop/src/LTA/Dockerfile"
 
-ENTRYPOINT [ "poetry", "run", "python3.11", "/opt/LTA/lta_station_mock.py", "-H", "0.0.0.0" ]
+ENTRYPOINT [ "poetry", "run", "python3", "/opt/LTA/lta_station_mock.py", "-H", "0.0.0.0" ]

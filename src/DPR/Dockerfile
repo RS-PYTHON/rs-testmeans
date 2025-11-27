@@ -1,4 +1,7 @@
-FROM ghcr.io/rs-python/python:3.11.7-slim-bookworm
+
+ARG PYTHON_VERSION=3.13.9
+
+FROM ghcr.io/rs-python/python:${PYTHON_VERSION}-slim-bookworm
 LABEL description="This docker allow to run a DPR Processor mockup."
 
 COPY ./layer-cleanup.sh /usr/local/bin/
@@ -12,9 +15,9 @@ COPY ./common /src/common
 # See: https://python-poetry.org/docs/configuration/#cache-directory
 ENV POETRY_CACHE_DIR=/root/pypoetry
 
-RUN python3.11 -m pip install --upgrade pip && layer-cleanup.sh
+RUN python3 -m pip install --upgrade pip && layer-cleanup.sh
 # Install poetry
-RUN python3.11 -m pip install --no-cache-dir poetry && layer-cleanup.sh
+RUN python3 -m pip install --no-cache-dir poetry && layer-cleanup.sh
 
 SHELL ["/bin/bash", "-c"]
 RUN poetry install --no-root && layer-cleanup.sh
@@ -29,4 +32,4 @@ LABEL org.opencontainers.image.source="https://github.com/RS-PYTHON/rs-testmeans
 LABEL org.opencontainers.image.ref.name="ghcr.io/rs-python/rs-testmeans_dpr-station-mock"
 LABEL dockerfile.url="https://github.com/RS-PYTHON/rs-testmeans/blob/develop/src/DPR/Dockerfile"
 
-ENTRYPOINT [ "poetry", "run", "python3.11", "dpr_simulator_ws.py"]
+ENTRYPOINT [ "poetry", "run", "python3", "dpr_simulator_ws.py"]

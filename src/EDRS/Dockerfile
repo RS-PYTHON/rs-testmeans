@@ -45,8 +45,8 @@ RUN chown -R vsftpduser:vsftpduser /app/vsftpd/users
 RUN mkdir -p /var/run/vsftpd/empty
 RUN chmod 755 /var/run/vsftpd/empty
 
-# Remove apt repository list and custom scripts
-RUN rm -f /etc/apt/sources.list /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
+# Remove custom scripts
+RUN rm -f /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
 
 EXPOSE 21 21100-21110
 
