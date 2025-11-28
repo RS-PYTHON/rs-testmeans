@@ -1,4 +1,9 @@
 
+#
+# Target Docker image name:
+# ghcr.io/rs-python/rs-testmeans_lta-station-mock 
+#
+
 ARG PYTHON_VERSION=3.13.9
 
 FROM ghcr.io/rs-python/python:${PYTHON_VERSION}-slim-bookworm
@@ -29,7 +34,6 @@ RUN rm -f /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
 # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
 #
 LABEL org.opencontainers.image.source="https://github.com/RS-PYTHON/rs-testmeans"
-LABEL org.opencontainers.image.ref.name="ghcr.io/rs-python/rs-testmeans_lta-station-mock"
 LABEL dockerfile.url="https://github.com/RS-PYTHON/rs-testmeans/blob/develop/src/LTA/Dockerfile"
 
 ENTRYPOINT [ "poetry", "run", "python3", "/opt/LTA/lta_station_mock.py", "-H", "0.0.0.0" ]
