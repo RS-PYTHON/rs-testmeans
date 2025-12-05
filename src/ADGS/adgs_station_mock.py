@@ -129,6 +129,15 @@ def process_products_request(request, headers) -> Response:
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
     if "Name" in request:
+        if "in" in request:
+            field, op, *value = request.strip().split(" ")
+            values = [item.strip("(),'\"") for item in value]
+            filtered_products = [
+                product
+                for product in catalog_data["Data"]
+                if product["Name"] in values
+            ]
+            return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(filtered_products), headers=headers)
         pattern = r"(\w+)\((\w+), '?([\w.]+)'?\)"
         op = re.search(pattern, request).group(1)
         filter_by = re.search(pattern, request).group(2)
@@ -349,6 +358,8 @@ def process_filter(request, input_filter: str) -> Response:
         if "Attributes" in end_filter or "OData.CSC" in end_filter:
             return process_attributes_search(end_filter, request.args)
         return process_products_request(str(end_filter), request.args)
+    elif operators == ['in']:
+        return process_products_request(str(input_filter), request.args)
 
     # If there is more than one filter, repeat operation on each one and combine its
     # results with the ones of the previous one using the correct operator
