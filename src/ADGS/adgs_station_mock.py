@@ -129,7 +129,7 @@ def process_products_request(request, headers) -> Response:
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
     if "Name" in request:
-        if "in" in request:
+        if " in " in request:
             field, op, *value = request.strip().split(" ")
             values = [item.strip("(),'\"") for item in value]
             filtered_products = [
