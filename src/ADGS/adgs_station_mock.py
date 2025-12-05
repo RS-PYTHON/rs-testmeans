@@ -358,7 +358,7 @@ def process_filter(request, input_filter: str) -> Response:
         if "Attributes" in end_filter or "OData.CSC" in end_filter:
             return process_attributes_search(end_filter, request.args)
         return process_products_request(str(end_filter), request.args)
-    elif operators == ['in']:
+    elif operators == ['in'] and 'Name' in splitted_filters[0].strip():
         return process_products_request(str(input_filter), request.args)
 
     # If there is more than one filter, repeat operation on each one and combine its
