@@ -74,7 +74,7 @@ jobs:
     outputs:
       sha_short: ${{ steps.pre-actions.outputs.sha_short }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         # Calculate the short git commit hash
       - id: pre-actions
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
@@ -88,7 +88,7 @@ jobs:
     outputs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Copy Dockerfile requirements
         run: cp -t ./src ./.github/scripts/layer-cleanup.sh
@@ -113,7 +113,7 @@ jobs:
     outputs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Copy Dockerfile requirements
         run: cp -t ./src ./.github/scripts/layer-cleanup.sh
@@ -138,7 +138,7 @@ jobs:
     outputs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Copy Dockerfile requirements
         run: cp -t ./src/LTA ./.github/scripts/layer-cleanup.sh
@@ -163,7 +163,7 @@ jobs:
     outputs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Copy Dockerfile requirements
         run: cp -t ./src/DPR ./.github/scripts/layer-cleanup.sh
@@ -188,7 +188,7 @@ jobs:
     outputs:
       docker_image: ${{ steps.publish-docker.outputs.docker_image}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Copy Dockerfile requirements
         run: cp -t ./src ./.github/scripts/layer-cleanup.sh
