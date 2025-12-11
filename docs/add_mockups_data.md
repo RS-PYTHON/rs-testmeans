@@ -83,13 +83,13 @@ The actual files should be placed into **config/S3Mock/** directory.
 With files already placed in a custom location, start the docker image by passing the path using -c flag.
 
 ```shell
-docker exec cadip_container poetry run python3.11 /opt/cadip/cadip_station_mock.py -H 127.0.0.1 -p 8080 -c /your/dir/
+docker exec cadip_container poetry run python3 /opt/cadip/cadip_station_mock.py -H 127.0.0.1 -p 8080 -c /your/dir/
 ```
 
 To use the *$expand=Files* option for a simulated station, you can use the --expand flag while running the container:
 
 ```shell
-docker exec cadip_container poetry run python3.11 /opt/cadip/cadip_station_mock.py -H 127.0.0.1 -p 8080 --expand True
+docker exec cadip_container poetry run python3 /opt/cadip/cadip_station_mock.py -H 127.0.0.1 -p 8080 --expand True
 ```
 
 By following these steps, you can successfully add data to the RS testmeans pickup point simulators and configure the
@@ -145,7 +145,7 @@ Files should be placed in **Storage** directory.
 With files already placed in a custom location, start the docker image by passing the path using -c flag.
 
 ```shell
-docker exec adgs_container poetry run python3.11 /opt/adgs/adgs_station_mock.py -H 127.0.0.1 -p 8080 -c /your/dir/
+docker exec adgs_container poetry run python3 /opt/adgs/adgs_station_mock.py -H 127.0.0.1 -p 8080 -c /your/dir/
 ```
 
 ## Usage on cluster (Kubernetes)
