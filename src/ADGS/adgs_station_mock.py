@@ -352,6 +352,18 @@ def process_filter(request, input_filter: str) -> Response:
     # Split the filter
     splitted_filters, operators = split_composite_filter(input_filter)
 
+    # If "Name in (...)" was split as ["Name", "(...)", ...] because of the generic
+    # operator parsing, rebuild the first filter so it can be parsed correctly.
+    if (
+        operators
+        and operators[0] == "in"
+        and len(splitted_filters) > 1
+        and splitted_filters[0].strip() == "Name"
+    ):
+        combined_filter = f"Name in {splitted_filters[1]}"
+        splitted_filters = [combined_filter] + splitted_filters[2:]
+        operators = operators[1:]
+
     # If there is only one filter, apply it and gather results
     if len(splitted_filters)==1:
         end_filter = splitted_filters[0]
