@@ -2,6 +2,7 @@ from odata_query.grammar import ODataLexer, ODataParser
 from odata_query.visitor import NodeVisitor
 from odata_query.ast import String, DateTime, Boolean, Compare, Identifier, Attribute, BoolOp, Call, CollectionLambda
 from odata_query.exceptions import UnknownFunctionException, ParsingException
+from odata_query.ast import List
 
 class FilterExtractor(NodeVisitor):
     """
@@ -54,7 +55,7 @@ class FilterExtractor(NodeVisitor):
         attr_path = self._get_attr_path(node.left)
         # Only handle comparisons where right side is a string or datetime literal
 
-        if isinstance(node.right, (String, DateTime, Boolean)):
+        if isinstance(node.right, (String, DateTime, Boolean, List)):
             cond = {
                 "op": type(node.comparator).__name__,
                 "value": node.right.val

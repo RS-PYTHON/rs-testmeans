@@ -66,11 +66,17 @@ def query_products():
         # XAND?
         for filter_key, conditions in processed_filters.items():
             for cond in (conditions if isinstance(conditions, list) else [conditions]):
-                products = process_products(
-                    filter_key,
-                    cond['op'],
-                    cond['value']
-                )
+                values = cond['value']
+                if not isinstance(values, list):
+                    values = [values]
+
+                products = []
+                for v in values:
+                    # extract .val if it's a String object
+                    actual_value = getattr(v, 'val', v)
+                    result = process_products(filter_key, cond['op'], actual_value)
+                    if result:
+                        products.extend(result)
                 if not products:
                     # If a search doesn't return products, then the whole search result is empty
                     return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
@@ -105,6 +111,14 @@ def process_products(field, op, value) -> Response:
                     results = [product for product in data if product[field].endswith(value)]
                 case "eq":
                     results = [product for product in data if str(product[field]).lower() == str(value).lower()]
+                case "in":
+                    t_values = value if isinstance(value, list) else [value]
+                    values = [str(v).lower() for v in t_values]
+
+                    results = [
+                        product for product in data
+                        if str(product[field]).lower() in values
+                    ]
                 case _:
                     return []
             return results
