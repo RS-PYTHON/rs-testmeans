@@ -129,6 +129,15 @@ def process_products_request(request, headers) -> Response:
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
     if "Name" in request:
+        if " in " in request:
+            field, op, *value = request.strip().split(" ")
+            values = [v.strip(" '\"") for v in " ".join(value).strip("()").split(",")]
+            resp_body = [
+                product
+                for product in catalog_data["Data"]
+                if product["Name"] in values
+            ]
+            return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
         pattern = r"(\w+)\((\w+), '?([\w.]+)'?\)"
         op = re.search(pattern, request).group(1)
         filter_by = re.search(pattern, request).group(2)
@@ -343,12 +352,26 @@ def process_filter(request, input_filter: str) -> Response:
     # Split the filter
     splitted_filters, operators = split_composite_filter(input_filter)
 
+    # If "Name in (...)" was split as ["Name", "(...)", ...] because of the generic
+    # operator parsing, rebuild the first filter so it can be parsed correctly.
+    if (
+        operators
+        and operators[0] == "in"
+        and len(splitted_filters) > 1
+        and splitted_filters[0].strip() == "Name"
+    ):
+        combined_filter = f"Name in {splitted_filters[1]}"
+        splitted_filters = [combined_filter] + splitted_filters[2:]
+        operators = operators[1:]
+
     # If there is only one filter, apply it and gather results
     if len(splitted_filters)==1:
         end_filter = splitted_filters[0]
         if "Attributes" in end_filter or "OData.CSC" in end_filter:
             return process_attributes_search(end_filter, request.args)
         return process_products_request(str(end_filter), request.args)
+    elif operators == ['in'] and 'Name' in splitted_filters[0].strip():
+        return process_products_request(str(input_filter), request.args)
 
     # If there is more than one filter, repeat operation on each one and combine its
     # results with the ones of the previous one using the correct operator
@@ -364,7 +387,8 @@ def process_filter(request, input_filter: str) -> Response:
 def extract_values_and_operation(part1, part2):
     # Regular expression to capture the operation and value between single quotes
     pattern = r"(\b(eq|gt|lt)\b)\s+'(.*?)'"
-    
+    in_pattern = r"in\s*\(\s*'([^']*(?:'\s*,\s*'[^']*)*)"
+
     # Search for the operation and value in part1
     value1 = re.search(r"'(.*?)'", part1).group(1) if re.search(r"'(.*?)'", part1) else None
 
@@ -373,10 +397,15 @@ def extract_values_and_operation(part1, part2):
     if match2:
         operation = match2.group(1)  # Capture the operation (eq, gt, lt)
         value2 = match2.group(3)      # Capture the value between single quotes
-    else:
-        operation, value2 = None, None
-
-    return value1, operation, value2
+        return value1, operation, value2
+    
+    match_in = re.search(in_pattern, part2)
+    if match_in:
+        operation = "in"
+        value2 = [v.strip() for v in match_in.group(1).split("','")]
+        return value1, operation, value2
+    
+    return value1, None, None
     
 def process_attributes_search(query, headers) -> Response:
     # Don;t touch this, it just works
@@ -427,8 +456,14 @@ def process_individual_query_part(query_parts, headers):
         for product in catalog_data['Data']:
             for attr in product["Attributes"]:
                 try:
-                    if attr['Name'].lower() == field.lower() and attr['Value'].lower() == value.lower():
-                        resp.append(product)
+                    if attr['Name'].lower() == field.lower():
+                        if attr['Value'] is not None:
+                            if op == "in" and isinstance(value, list):
+                                if attr['Value'].lower() in [v.lower() for v in value]:
+                                    resp.append(product)
+                            else:
+                                if attr['Value'].lower() == value.lower():
+                                    resp.append(product)
                 except KeyError:
                     continue
     return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp if resp else []), headers=headers)
