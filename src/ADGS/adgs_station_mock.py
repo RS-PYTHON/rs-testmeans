@@ -573,16 +573,24 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
                     app.logger.error(f"Failed to delete {file_path}: {e}")
                 return response
         # Send bytes of gzip files in order to avoid auto-decompress feature from application/gzip headers
-        if any(gzip_extension in files[0]["Name"] for gzip_extension in [".TGZ", ".gz", ".zip", ".tar"]):
-            import io
-
-            fpath = app.config["configuration_path"] / "Storage" / files[0]["Name"]
-            send_args = io.BytesIO(open(fpath if "S3_path" not in file_info else file_path, "rb").read())
-            return send_file(send_args, download_name=files[0]["Name"], as_attachment=True)
+        # Decide once where the file actually is
+        if "S3_path" in file_info:
+            send_path = file_path
         else:
-            # Nominal case.
-            send_args = f'config/Storage/{files[0]["Name"]}'
-            return send_file(send_args)
+            send_path = app.config["configuration_path"] / "Storage" / files[0]["Name"]
+
+        # Send bytes for archives to avoid auto-decompression
+        if any(ext in files[0]["Name"] for ext in [".TGZ", ".gz", ".zip", ".tar"]):
+            import io
+            with open(send_path, "rb") as f:
+                send_args = io.BytesIO(f.read())
+            return send_file(
+                send_args,
+                download_name=files[0]["Name"],
+                as_attachment=True,
+            )
+        else:
+            return send_file(send_path)
 
 def create_adgs_app():
     """Docstring to be added."""
