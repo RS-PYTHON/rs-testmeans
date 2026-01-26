@@ -173,7 +173,14 @@ class DPRProcessor:
             # Unzip the file
             with zipfile.ZipFile(path, 'r') as zip_ref:
                 zip_ref.extractall(extract_dir)
-            
+            # copy .zattrs from produs.zarr/produs.zarr to produs.zarr
+            (
+                extract_dir / path.stem / ".zattrs"
+            ).is_file() and (
+                extract_dir / ".zattrs"
+            ).write_bytes(
+                (extract_dir / path.stem / ".zattrs").read_bytes()
+            )
             return extract_dir
         return path
     
