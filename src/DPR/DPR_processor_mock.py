@@ -167,7 +167,7 @@ class DPRProcessor:
     def unzip_if_needed(self, path: pathlib.Path) -> None:
         # Check if the file has a .zip extension
         if path.suffix.lower() == ".zip" and path.is_file():
-            extract_dir = path.parent / path.stem  # create folder with same name
+            extract_dir = path.parent #/ path.stem  # create folder with same name
             extract_dir.mkdir(exist_ok=True)
             
             # Unzip the file
