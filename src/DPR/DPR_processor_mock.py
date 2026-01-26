@@ -167,13 +167,20 @@ class DPRProcessor:
     def unzip_if_needed(self, path: pathlib.Path) -> None:
         # Check if the file has a .zip extension
         if path.suffix.lower() == ".zip" and path.is_file():
-            extract_dir = path.parent #/ path.stem  # create folder with same name
+            extract_dir = path.parent / path.stem  # create folder with same name
             extract_dir.mkdir(exist_ok=True)
             
             # Unzip the file
             with zipfile.ZipFile(path, 'r') as zip_ref:
                 zip_ref.extractall(extract_dir)
-            
+            # copy .zattrs from produs.zarr/produs.zarr to produs.zarr
+            (
+                extract_dir / path.stem / ".zattrs"
+            ).is_file() and (
+                extract_dir / ".zattrs"
+            ).write_bytes(
+                (extract_dir / path.stem / ".zattrs").read_bytes()
+            )
             return extract_dir
         return path
     
