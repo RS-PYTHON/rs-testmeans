@@ -101,6 +101,23 @@ def query_products():
 def process_products(field, op, value) -> Response:
     # handle special case:
     match field:
+        case "Id":
+            # Support exact and list matching for Id in OData filters.
+            op_lower = op.lower()
+            def normalize_value(raw):
+                return str(raw).strip().strip("'\"[]()")
+            if op_lower == "eq":
+                # Exact Id match.
+                norm_value = normalize_value(value)
+                results = [product for product in data if product["Id"] == norm_value]
+            elif op_lower == "in":
+                # Accept (a,b) and (['a','b']) list formats.
+                t_values = value if isinstance(value, list) else [value]
+                values = [normalize_value(v) for v in t_values]
+                results = [product for product in data if product["Id"] in values]
+            else:
+                return []
+            return results
         case "Name" | "Online":
             match op.lower():
                 case "contains":

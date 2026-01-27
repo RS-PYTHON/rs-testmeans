@@ -128,6 +128,7 @@ def process_products_request(request, headers) -> Response:
     """Docstring to be added."""
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
+    # Handle direct filtering by Id (eq/in), including GUID and list formats.
     if request.strip().startswith("Id "):
         def normalize_id_value(raw: str) -> str:
             value = raw.strip()
@@ -135,11 +136,13 @@ def process_products_request(request, headers) -> Response:
                 value = value[5:-1]
             return value.strip("'\"[]")
 
+        # Split into: Id <op> <value>
         parts = request.strip().split(maxsplit=2)
         if len(parts) < 3:
             return Response(status=HTTPStatus.BAD_REQUEST)
         _, op, raw_value = parts
         if op == "in":
+            # Accept both (a,b) and (['a','b']) shapes.
             values_raw = raw_value.strip().strip("()").strip("[]")
             values = [
                 normalize_id_value(v)
@@ -153,6 +156,7 @@ def process_products_request(request, headers) -> Response:
             ]
             return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
         if op == "eq":
+            # Exact match for a single Id.
             value = normalize_id_value(raw_value)
             resp_body = [
                 product
@@ -385,8 +389,7 @@ def process_filter(request, input_filter: str) -> Response:
     # Split the filter
     splitted_filters, operators = split_composite_filter(input_filter)
 
-    # If "<field> in (...)" was split as ["<field>", "(...)", ...] because of the generic
-    # operator parsing, rebuild the first filter so it can be parsed correctly.
+    # Rebuild "<field> in (...)" for fields handled by process_products_request.
     if (
         operators
         and operators[0] == "in"

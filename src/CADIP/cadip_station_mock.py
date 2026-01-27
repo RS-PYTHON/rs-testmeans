@@ -272,11 +272,17 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
 
 def manage_str_querry(op, value, catalog_data, field, headers):
     """Docstring to be added."""
+    # Normalize string values and support "in" lists for Id-like fields.
+    def normalize_value(raw: str) -> str:
+        return raw.strip().strip("'\"[]()")
+
     match op:
         case "eq":
-            query_result = [product for product in catalog_data["Data"] if value == product[field]]
+            norm_value = normalize_value(value)
+            query_result = [product for product in catalog_data["Data"] if norm_value == product[field]]
         case "in":
-            query_result = [product for product in catalog_data["Data"] if value in product[field]]
+            values = [normalize_value(v) for v in value.split(",") if v.strip()]
+            query_result = [product for product in catalog_data["Data"] if product[field] in values]
     return (
         Response(status=HTTPStatus.OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
@@ -464,6 +470,31 @@ def query_files() -> Response | list[Any]:
 
 def process_files_request(request, headers, catalog_data):
     """Docstring to be added."""
+    # Handle Id eq/in filters for file queries.
+    if request.strip().startswith("Id "):
+        # Support Id eq/in filters for file queries.
+        parts = request.strip().split(maxsplit=2)
+        if len(parts) < 3:
+            return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+        _, op, raw_value = parts
+        def normalize_value(raw: str) -> str:
+            value = raw.strip()
+            if value.lower().startswith("guid'") and value.endswith("'"):
+                value = value[5:-1]
+            return value.strip("'\"[]()")
+        if op == "eq":
+            # Exact Id match.
+            value = normalize_value(raw_value)
+            resp_body = [product for product in catalog_data["Data"] if product["Id"] == value]
+            return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(resp_body), headers=headers)
+        if op == "in":
+            # Accept (a,b) and (['a','b']) list formats.
+            values_raw = raw_value.strip().strip("()").strip("[]")
+            values = [normalize_value(v) for v in values_raw.split(",") if v.strip()]
+            resp_body = [product for product in catalog_data["Data"] if product["Id"] in values]
+            return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(resp_body), headers=headers)
+        return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+
     if "Name" in request:
         op, value = request.split("(")
         regex = re.search(r"(\w+)\((\w+), \'([\w_]+)\'\)", request)
