@@ -33,6 +33,13 @@ from odata_lexer import parse_odata_filter
             },
         ),
         (
+            "Id eq 06c91249-b275-4811-9a55-a8d11b534945",
+            {
+                "Id":
+                    {"op": "Eq", "value": "06c91249-b275-4811-9a55-a8d11b534945"},
+            },
+        ),
+        (
             "contains(Name, 'S1A_IW_RAW') and PublicationDate eq 2019-01-01T00:00:00.000Z",
             {
                 "Name":
