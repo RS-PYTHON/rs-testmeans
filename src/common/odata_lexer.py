@@ -223,7 +223,8 @@ def quote_unquoted_uuid_in_id_filter(query: str) -> str:
 
     def _in_repl(match: re.Match) -> str:
         # Rewrite "Id in (<uuid>,...)" to quote bare UUIDs for the lexer.
-        raw_values = match.group("values")
+        # Some callers send lists as (['a','b']); strip brackets to match OData list syntax.
+        raw_values = match.group("values").replace("[", "").replace("]", "")
         values = [_normalize_token(v) for v in raw_values.split(",")]
         return f"Id in ({', '.join(values)})"
 
