@@ -128,6 +128,43 @@ def process_products_request(request, headers) -> Response:
     """Docstring to be added."""
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
+    # Handle direct filtering by Id (eq/in), including GUID and list formats.
+    if request.strip().startswith("Id "):
+        def normalize_id_value(raw: str) -> str:
+            value = raw.strip()
+            if value.lower().startswith("guid'") and value.endswith("'"):
+                value = value[5:-1]
+            return value.strip("'\"[]")
+
+        # Split into: Id <op> <value>
+        parts = request.strip().split(maxsplit=2)
+        if len(parts) < 3:
+            return Response(status=HTTPStatus.BAD_REQUEST)
+        _, op, raw_value = parts
+        if op == "in":
+            # Accept both (a,b) and (['a','b']) shapes.
+            values_raw = raw_value.strip().strip("()").strip("[]")
+            values = [
+                normalize_id_value(v)
+                for v in values_raw.split(",")
+                if v.strip()
+            ]
+            resp_body = [
+                product
+                for product in catalog_data["Data"]
+                if product["Id"] in values
+            ]
+            return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+        if op == "eq":
+            # Exact match for a single Id.
+            value = normalize_id_value(raw_value)
+            resp_body = [
+                product
+                for product in catalog_data["Data"]
+                if product["Id"] == value
+            ]
+            return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+        return Response(status=HTTPStatus.BAD_REQUEST)
     if "Name" in request:
         if " in " in request:
             field, op, *value = request.strip().split(" ")
@@ -352,15 +389,14 @@ def process_filter(request, input_filter: str) -> Response:
     # Split the filter
     splitted_filters, operators = split_composite_filter(input_filter)
 
-    # If "Name in (...)" was split as ["Name", "(...)", ...] because of the generic
-    # operator parsing, rebuild the first filter so it can be parsed correctly.
+    # Rebuild "<field> in (...)" for fields handled by process_products_request.
     if (
         operators
         and operators[0] == "in"
         and len(splitted_filters) > 1
-        and splitted_filters[0].strip() == "Name"
+        and splitted_filters[0].strip() in ("Name", "Id")
     ):
-        combined_filter = f"Name in {splitted_filters[1]}"
+        combined_filter = f"{splitted_filters[0].strip()} in {splitted_filters[1]}"
         splitted_filters = [combined_filter] + splitted_filters[2:]
         operators = operators[1:]
 
@@ -370,7 +406,7 @@ def process_filter(request, input_filter: str) -> Response:
         if "Attributes" in end_filter or "OData.CSC" in end_filter:
             return process_attributes_search(end_filter, request.args)
         return process_products_request(str(end_filter), request.args)
-    elif operators == ['in'] and 'Name' in splitted_filters[0].strip():
+    elif operators == ["in"] and splitted_filters[0].strip() in ("Name", "Id"):
         return process_products_request(str(input_filter), request.args)
 
     # If there is more than one filter, repeat operation on each one and combine its
@@ -523,7 +559,7 @@ def query_products():
         # Handle parantheses
     if not re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args["$filter"]):
         if not any(
-            [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes", "ContentDate/Start", "ContentDate/End"]],
+            [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes", "ContentDate/Start", "ContentDate/End", "Id"]],
         ):
             return Response(status=HTTPStatus.BAD_REQUEST)
 

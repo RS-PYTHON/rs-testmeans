@@ -1,3 +1,4 @@
+import re
 from odata_query.grammar import ODataLexer, ODataParser
 from odata_query.visitor import NodeVisitor
 from odata_query.ast import String, DateTime, Boolean, Compare, Identifier, Attribute, BoolOp, Call, CollectionLambda
@@ -53,12 +54,12 @@ class FilterExtractor(NodeVisitor):
             node (Compare): The comparison AST node.
         """
         attr_path = self._get_attr_path(node.left)
-        # Only handle comparisons where right side is a string or datetime literal
-
-        if isinstance(node.right, (String, DateTime, Boolean, List)):
+        # Only handle comparisons where right side is a literal or identifier
+        if isinstance(node.right, (String, DateTime, Boolean, List, Identifier)):
+            value = node.right.val if hasattr(node.right, "val") else node.right.name
             cond = {
                 "op": type(node.comparator).__name__,
-                "value": node.right.val
+                "value": value
             }
             # Append to existing conditions for the attribute if needed
             if attr_path in self.result:
@@ -172,6 +173,8 @@ def parse_odata_filter(query: str):
     # Strip leading "$filter=" if present
     if query.startswith("$filter="):
         query = query[len("$filter="):]
+    # Normalize unquoted UUIDs for Id eq/in so the parser can handle them.
+    query = quote_unquoted_uuid_in_id_filter(query)
     try:
         # Tokenize the query string using ODataLexer
         lexer = ODataLexer()
@@ -188,3 +191,43 @@ def parse_odata_filter(query: str):
         return {}
 
     return extractor.result
+
+
+# UUID matcher used to normalize unquoted Id values before OData parsing.
+UUID_RE = re.compile(
+    r"[0-9a-fA-F]{8}-"
+    r"[0-9a-fA-F]{4}-"
+    r"[0-9a-fA-F]{4}-"
+    r"[0-9a-fA-F]{4}-"
+    r"[0-9a-fA-F]{12}"
+)
+
+
+def quote_unquoted_uuid_in_id_filter(query: str) -> str:
+    """Normalize Id eq/in filters so UUIDs without quotes parse as strings."""
+    def _normalize_token(token: str) -> str:
+        # Keep already-quoted tokens; only quote bare UUIDs.
+        token = token.strip()
+        if not token:
+            return token
+        if token.startswith(("'", '"')) or token.lower().startswith("guid'"):
+            return token
+        if UUID_RE.fullmatch(token):
+            return f"'{token}'"
+        return token
+
+    def _eq_repl(match: re.Match) -> str:
+        # Rewrite "Id eq <uuid>" to "Id eq '<uuid>'" for the lexer.
+        value = _normalize_token(match.group("value"))
+        return f"Id eq {value}"
+
+    def _in_repl(match: re.Match) -> str:
+        # Rewrite "Id in (<uuid>,...)" to quote bare UUIDs for the lexer.
+        # Some callers send lists as (['a','b']); strip brackets to match OData list syntax.
+        raw_values = match.group("values").replace("[", "").replace("]", "")
+        values = [_normalize_token(v) for v in raw_values.split(",")]
+        return f"Id in ({', '.join(values)})"
+
+    query = re.sub(r"\bId\s+eq\s+(?P<value>[^ )]+)", _eq_repl, query)
+    query = re.sub(r"\bId\s+in\s*\(\s*(?P<values>[^)]+)\)", _in_repl, query)
+    return query
