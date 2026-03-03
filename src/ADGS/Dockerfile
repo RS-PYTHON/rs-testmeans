@@ -4,7 +4,7 @@
 # ghcr.io/rs-python/rs-testmeans_adgs-station-mock 
 #
 
-ARG PYTHON_VERSION=3.13.11
+ARG PYTHON_VERSION=3.13.12
 
 FROM ghcr.io/rs-python/python:${PYTHON_VERSION}-slim-bookworm
 LABEL description="This docker allow to run a ADGS mockup server."
