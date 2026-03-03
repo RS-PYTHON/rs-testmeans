@@ -18,6 +18,7 @@ import yaml
 from fastapi import HTTPException
 from common.s3_handler import PutFilesToS3Config, S3StorageHandler
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -55,6 +56,37 @@ class DPRProcessor:
         """Function that simulates the processing of the DPR payload."""
         logger.info("DPR processor mockup running:")
         self.payload_to_url()
+        # =================
+        # S1L0 files bypass
+        self.list_of_downloads = [
+            (
+                "data/S01SEWRAW_20250611T041159_0050_A102_TFDC.zarr.zip",
+                Path("data/S01SEWRAW_20250611T041159_0050_A102_TFDC.zarr.zip").resolve(),
+                "S03OLCL0_",
+            ),
+            (
+                "data/S01SIWRAW_20250611T044009_0023_A102_TC97.zarr.zip",
+                Path("data/S01SIWRAW_20250611T044009_0023_A102_TC97.zarr.zip").resolve(),
+                "S03OLCL0_",
+            ),
+            (
+                "data/S01SIWRAW_20250611T050659_0518_A102_TB03.zarr.zip",
+                Path("data/S01SIWRAW_20250611T050659_0518_A102_TB03.zarr.zip").resolve(),
+                "S03OLCL0_",
+            ),
+            (
+                "data/S01SWVRAW_20250611T004605_0011_A102_T38E.zarr.zip",
+                Path("data/S01SWVRAW_20250611T004605_0011_A102_T38E.zarr.zip").resolve(),
+                "S03OLCL0_",
+            ),
+            (
+                "data/S01SWVRAW_20250611T023633_1378_A102_T14D.zarr.zip",
+                Path("data/S01SWVRAW_20250611T023633_1378_A102_T14D.zarr.zip").resolve(),
+                "S03OLCL0_",
+            ),
+        ]
+        # S1L0 files bypass
+        # =================
         for index, (url, product_path, ptype) in enumerate(self.list_of_downloads):
             if "data" in url:
                 logger.info(f"Using a local product for {product_path}")
