@@ -316,7 +316,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBPRE"
+                    "Value": "MPL_ORBPRE"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -386,7 +386,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -946,7 +946,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBPRE"
+                    "Value": "MPL_ORBPRE"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -1016,7 +1016,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -1576,7 +1576,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBPRE"
+                    "Value": "MPL_ORBPRE"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -1646,7 +1646,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -2206,7 +2206,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBPRE"
+                    "Value": "MPL_ORBPRE"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -2276,7 +2276,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -2836,7 +2836,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBPRE"
+                    "Value": "MPL_ORBPRE"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -2906,7 +2906,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -3466,7 +3466,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBPRE"
+                    "Value": "MPL_ORBPRE"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -3536,7 +3536,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -4166,7 +4166,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -4726,7 +4726,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBPRE"
+                    "Value": "MPL_ORBPRE"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -4796,7 +4796,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -5356,7 +5356,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -5426,7 +5426,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -5916,7 +5916,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
@@ -5986,7 +5986,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "OPER_MPL_ORBSCT"
+                    "Value": "MPL_ORBSCT"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
