@@ -306,11 +306,11 @@ def manage_datetime_querry(op, value, catalog_data, field, headers):
             resp_body = [
                 product for product in catalog_data["Data"] if date > datetime.fromisoformat(product[field])
             ]
-        case "gte":
+        case "ge":
             resp_body = [
                 product for product in catalog_data["Data"] if date < datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
             ]
-        case "lte":
+        case "le":
             resp_body = [
                 product for product in catalog_data["Data"] if date > datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
             ]
@@ -539,13 +539,13 @@ def process_files_request(request, headers, catalog_data):
                     for product in catalog_data["Data"]
                     if date > datetime.fromisoformat(product[field])
                 ]
-            case "gte":
+            case "ge":
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
                     if date < datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
                 ]
-            case "lte":
+            case "le":
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
