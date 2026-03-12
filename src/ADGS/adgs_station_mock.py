@@ -214,13 +214,13 @@ def process_products_request(request, headers) -> Response:
                     for product in catalog_data["Data"]
                     if date > datetime.datetime.fromisoformat(product[field])
                 ]
-            case "gte":
+            case "ge":
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
                     if date < datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
                 ]
-            case "lte":
+            case "le":
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
@@ -276,8 +276,8 @@ def process_products_request(request, headers) -> Response:
                 "eq": lambda d: d == date,
                 "lt": lambda d: d < date,
                 "gt": lambda d: d > date,
-                "lte": lambda d: d <= date,
-                "gte": lambda d: d >= date,
+                "le": lambda d: d <= date,
+                "ge": lambda d: d >= date,
             }
 
             # Parse and filter in one comprehension
