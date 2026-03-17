@@ -1736,7 +1736,7 @@
         {
           "Name": "productType",
           "ValueType": "String",
-          "Value": "OPER_MSI_L2A"
+          "Value": "MSI_L2A_DS"
         },
         {
           "Name": "processingCenter",
