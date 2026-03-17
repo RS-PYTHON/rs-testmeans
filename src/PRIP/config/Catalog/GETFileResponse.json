@@ -1680,6 +1680,115 @@
               "Value": "B"
           }
       ]
+    },
+    {
+      "@odata.mediaContentType": "application/octet-stream",
+      "Id": "05fa4a7e-4a99-4c92-9f0b-5dbb2a5fbe55",
+      "Name": "S2B_OPER_MSI_L2A_TL_2BPS_20260310T135837_A047051_T35MMN_N05.12.tar",
+      "ContentType": "application/octet-stream",
+      "ContentLength": 1120051200,
+      "OriginDate": "2026-03-10T13:25:15Z",
+      "PublicationDate": "2026-03-10T16:04:45.269Z",
+      "ModificationDate": "2026-03-10T16:04:45.269Z",
+      "EvictionDate": "2026-03-17T16:01:54.208Z",
+      "Online": true,
+      "Checksum": [
+        {
+          "Algorithm": "MD5",
+          "Value": "613c17d0ecab8929245e1cbee8d667a8",
+          "ChecksumDate": "2026-03-10T13:58:37Z"
+        }
+      ],
+      "ContentDate": {
+        "Start": "2026-03-10T08:42:07.586829Z",
+        "End": "2026-03-10T08:42:07.586829Z"
+      },
+      "ProductionType": "systematic_production",
+      "Footprint": "geography'SRID=4326;POLYGON((26.095521798619682 -6.33171157341235,27.08824547412565 -6.33249189439771,27.08842766157828 -7.325744468031913,26.093654763694715 -7.324840550633226,26.095521798619682 -6.33171157341235))'",
+      "GeoFootprint": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              26.095521798619682,
+              -6.33171157341235
+            ],
+            [
+              27.08824547412565,
+              -6.33249189439771
+            ],
+            [
+              27.08842766157828,
+              -7.325744468031913
+            ],
+            [
+              26.093654763694715,
+              -7.324840550633226
+            ],
+            [
+              26.095521798619682,
+              -6.33171157341235
+            ]
+          ]
+        ]
+      },
+      "Attributes": [
+        {
+          "Name": "productType",
+          "ValueType": "String",
+          "Value": "OPER_MSI_L2A"
+        },
+        {
+          "Name": "processingCenter",
+          "ValueType": "String",
+          "Value": "2BPS"
+        },
+        {
+          "Name": "processingDate",
+          "ValueType": "DateTimeOffset",
+          "Value": "2026-03-10T13:58:37Z"
+        },
+        {
+          "Name": "processorVersion",
+          "ValueType": "String",
+          "Value": "5.12"
+        },
+        {
+          "Name": "orbitNumber",
+          "ValueType": "Integer",
+          "Value": 47051
+        },
+        {
+          "Name": "beginningDateTime",
+          "ValueType": "DateTimeOffset",
+          "Value": "2026-03-10T08:42:07.586829Z"
+        },
+        {
+          "Name": "endingDateTime",
+          "ValueType": "DateTimeOffset",
+          "Value": "2026-03-10T08:42:07.586829Z"
+        },
+        {
+          "Name": "coordinates",
+          "ValueType": "String",
+          "Value": "26.095521798619682 -6.33171157341235,27.08824547412565 -6.33249189439771,27.08842766157828 -7.325744468031913,26.093654763694715 -7.324840550633226,26.095521798619682 -6.33171157341235"
+        },
+        {
+          "Name": "instrumentShortName",
+          "ValueType": "String",
+          "Value": "MSI"
+        },
+        {
+          "Name": "platformShortName",
+          "ValueType": "String",
+          "Value": "SENTINEL-2"
+        },
+        {
+          "Name": "platformSerialIdentifier",
+          "ValueType": "String",
+          "Value": "B"
+        }
+      ]
     }
   ]
 }
