@@ -46,7 +46,7 @@ def ready_live_status():
 
 
 @app.route("/Products", methods=["GET"])
-# @token_required
+@token_required
 @additional_options
 def query_products():
     if "$filter" not in request.args:
