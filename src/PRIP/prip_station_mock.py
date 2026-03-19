@@ -66,44 +66,44 @@ def query_products():
         # XAND?
         all_id_sets = []
 
-    if "PublicationDate" in processed_filters:
-        conds = processed_filters["PublicationDate"]
-        conds = conds if isinstance(conds, list) else [conds]
+        if "PublicationDate" in processed_filters:
+            conds = processed_filters["PublicationDate"]
+            conds = conds if isinstance(conds, list) else [conds]
 
-        lower_ids = set()
-        upper_ids = set()
-        eq_ids = set()
+            lower_ids = set()
+            upper_ids = set()
+            eq_ids = set()
 
-        for cond in conds:
-            values = cond['value']
-            if not isinstance(values, list):
-                values = [values]
+            for cond in conds:
+                values = cond['value']
+                if not isinstance(values, list):
+                    values = [values]
 
-            for v in values:
-                actual_value = getattr(v, 'val', v)
-                result = process_products("PublicationDate", cond['op'], actual_value)
+                for v in values:
+                    actual_value = getattr(v, 'val', v)
+                    result = process_products("PublicationDate", cond['op'], actual_value)
 
-                if not result:
-                    continue
+                    if not result:
+                        continue
 
-                ids = {p['Id'] for p in result}
-                op = cond['op'].lower()
+                    ids = {p['Id'] for p in result}
+                    op = cond['op'].lower()
 
-                if op in ("gt", "ge"):
-                    lower_ids.update(ids)
-                elif op in ("lt", "le"):
-                    upper_ids.update(ids)
-                elif op == "eq":
-                    eq_ids.update(ids)
+                    if op in ("gt", "ge"):
+                        lower_ids.update(ids)
+                    elif op in ("lt", "le"):
+                        upper_ids.update(ids)
+                    elif op == "eq":
+                        eq_ids.update(ids)
 
-        left = lower_ids.union(eq_ids) if (lower_ids or eq_ids) else set()
-        right = upper_ids.union(eq_ids) if (upper_ids or eq_ids) else set()
+            left = lower_ids.union(eq_ids) if (lower_ids or eq_ids) else set()
+            right = upper_ids.union(eq_ids) if (upper_ids or eq_ids) else set()
 
-        if not left or not right:
-            return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+            if not left or not right:
+                return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
 
-        group_ids = left.intersection(right)
-        all_id_sets.append(group_ids)
+            group_ids = left.intersection(right)
+            all_id_sets.append(group_ids)
 
         for filter_key, conditions in processed_filters.items():
             if filter_key == "PublicationDate":
