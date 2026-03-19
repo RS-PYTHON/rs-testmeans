@@ -170,6 +170,8 @@
       "ContentLength": 23986688,
       "OriginDate": "2025-08-01T07:26:48Z",
       "PublicationDate": "2025-08-01T07:42:12.646Z",
+      "ModificationDate": "2025-08-01T07:42:12.646Z",
+      "Online": true,
       "EvictionDate": "2025-08-08T07:42:12.076Z",
       "Checksum": [
         {
@@ -892,6 +894,8 @@
       "ContentLength": 18391552,
       "OriginDate": "2025-08-01T07:26:48Z",
       "PublicationDate": "2025-08-01T07:45:53.563Z",
+      "ModificationDate": "2025-08-01T07:45:53.563Z",
+      "Online": true,
       "EvictionDate": "2025-08-08T07:45:53.277Z",
       "Checksum": [
         {
@@ -1054,6 +1058,8 @@
       "ContentLength": 878704640,
       "OriginDate": "2025-08-01T07:26:48Z",
       "PublicationDate": "2025-08-01T08:24:45.289Z",
+      "ModificationDate": "2025-08-01T08:24:45.289Z",
+      "Online": true,
       "EvictionDate": "2025-08-08T08:24:41.048Z",
       "Checksum": [
         {

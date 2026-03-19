@@ -25,7 +25,7 @@ def products(*idx):
     ("/Products?$filter=ModificationDate eq 2022-06-26T06:30:34.558Z&$expand=Attributes", products(0)),
     ("/Products?$filter=OriginDate eq 2022-06-26T06:14:55.468Z&$expand=Attributes", products(0)),
     ("/Products?$filter=PublicationDate eq 2022-06-26T06:30:34.558Z&$expand=Attributes", products(0)),
-    ("/Products?$filter=Online eq true&$expand=Attributes", products(0, 4, 5, 6, 7)),
+    ("/Products?$filter=Online eq true&$expand=Attributes", products(0, 1, 2, 3, 4, 5, 6, 7)),
     ("/Products?$filter=Online invalid_op invalid_value&$expand=Attributes", None),
     ("/Products?$filter=invalid_operator invalid_op invalid_value&$expand=Attributes", None),
     ("/Products?$filter=ContentDate/Start eq 2022-06-26T05:05:33.863Z&$expand=Attributes", products(0)),
