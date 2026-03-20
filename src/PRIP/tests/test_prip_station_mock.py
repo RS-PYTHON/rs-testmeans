@@ -100,6 +100,9 @@ def products(*idx):
     ("/Products?$filter=orbitNumber eq 123 and productType eq 'INVALID' and platformSerialIdentifier eq 'Z'&$expand=Attributes", None),
     ("/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'orbitDirection' and att/OData.CSC.StringAttribute/Value eq 'INVALID') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productConsolidation' and att/OData.CSC.StringAttribute/Value eq 'INVALID')&$expand=Attributes", None),
     ("/Products?$filter=ContentDate/Start eq 2000-01-01T00:00:00.000Z&$expand=Attributes", None),
+    ("/Products?$filter=(PublicationDate gt 2000-03-03T00:00:00.000Z or PublicationDate eq 2000-03-03T00:00:00.000Z) and (PublicationDate lt 2022-09-21T00:00:00.000Z or PublicationDate eq 2022-09-21T00:00:00.000Z)&$orderby=PublicationDate%20desc&$top=1&$skip=0&$expand=Attributes", products(0)),
+    ("/Products?$filter=(PublicationDate gt 2000-03-03T00:00:00.000Z or PublicationDate eq 2000-03-03T00:00:00.000Z) and (PublicationDate lt 2000-09-21T00:00:00.000Z or PublicationDate eq 2000-09-21T00:00:00.000Z)&$orderby=PublicationDate%20desc&$top=1&$skip=0&$expand=Attributes", None),
+    (" /Products?$filter=(PublicationDate gt 2025-03-11T00:00:00.000Z or PublicationDate eq 2025-03-11T00:00:00.000Z) and (PublicationDate lt 2026-05-14T00:00:00.000Z or PublicationDate eq 2026-05-14T00:00:00.000Z) and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_MSI_L0')&$top=1&$skip=0&$expand=Attributes", products(2))
 ])
 def test_query_products(prip_client_with_auth, url, response):
     assert prip_client_with_auth.get(url).status_code == HTTPStatus.OK # Should return all products
