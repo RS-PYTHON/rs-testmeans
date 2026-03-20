@@ -96,6 +96,6 @@ import json
     ("/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'orbitDirection' and att/OData.CSC.StringAttribute/Value eq 'INVALID') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productConsolidation' and att/OData.CSC.StringAttribute/Value eq 'INVALID')&$expand=Attributes", None),
     ("/Products?$filter=ContentDate/Start eq 2000-01-01T00:00:00.000Z&$expand=Attributes", None),
 ])
-def test_query_products(prip_client, url, response):
-    assert prip_client.get(url).status_code == HTTPStatus.OK # Should return all products
-    assert json.loads(prip_client.get(url).data)["value"] == ([response] if response else [])
+def test_query_products(prip_client_with_auth, url, response):
+    assert prip_client_with_auth.get(url).status_code == HTTPStatus.OK # Should return all products
+    assert json.loads(prip_client_with_auth.get(url).data)["value"] == ([response] if response else [])
