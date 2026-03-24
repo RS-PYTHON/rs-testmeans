@@ -22,6 +22,13 @@ inputs:
   docker_tag:
     description: Tag the docker images
     required: false
+  image_name:
+    description: Image name, by default the repository name (here rs-testmeans).
+    required: false
+    default: ${{ github.repository }}
+  build_args:
+    description: List of build-time variables
+    required: false
 
 outputs:
   docker_image:
@@ -47,7 +54,7 @@ runs:
     # Full Docker image name:tag as ghcr.io/RS-PYTHON/rs-server<suffix>:<version> in lowercase
     - id: docker_image
       run: |
-        docker_image=${{ env.DOCKER_REGISTRY }}/${{ github.repository }}${{ inputs.image_suffix }}:${{ env.docker_version_name }}
+        docker_image=${{ env.DOCKER_REGISTRY }}/${{ inputs.image_name }}${{ inputs.image_suffix }}:${{ env.docker_version_name }}
         docker_image=${docker_image,,} # lowercase
         echo docker_image=${docker_image} >> $GITHUB_ENV
         echo docker_image=${docker_image} >> $GITHUB_OUTPUT
@@ -58,7 +65,7 @@ runs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }} # ghcr.io/RS-PYTHON/rs-server
+        images: ${{ env.DOCKER_REGISTRY }}/${{ inputs.image_name }} # ghcr.io/RS-PYTHON/rs-server
 
     # Checkout code from the current branch and build Docker image.
     - name: Build Docker image
@@ -70,6 +77,7 @@ runs:
         tags: ${{ env.docker_image }}
         labels: ${{ steps.meta.outputs.labels }}
         push: false # push after the security scans below
+        build-args: ${{ inputs.build_args }}
 
     # Note: cannot run Trivy vulnerability scanner on a private repository
 
