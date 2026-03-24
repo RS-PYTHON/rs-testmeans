@@ -46,4 +46,5 @@ PATH_TO_CONFIG = pathlib.Path(__file__).parent.parent.resolve() / "config"
 with open(PATH_TO_CONFIG / "Catalog" / "GETFileResponse.json") as bdata:
     data = json.loads(bdata.read())['Data']
 
+PRIP_PRODUCTS = data
 PRIP_PRODUCT = data[0]
