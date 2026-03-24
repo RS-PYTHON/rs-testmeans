@@ -63,8 +63,54 @@ def query_products():
     if odata_filter:
         # use lexer to parse request, split it into field: {op, value}
         processed_filters = parse_odata_filter(odata_filter)
+
+        # A simple time range is converted into mutiple conditions
+        # ex. (PublicationDate gt date1 or PublicationDate eq date1) and (PublicationDate lt date2 or PublicationDate eq date2)
+        if "PublicationDate" in processed_filters:
+            conds = processed_filters["PublicationDate"]
+            conds = conds if isinstance(conds, list) else [conds]
+
+            lower_ids = set() # IDs matching lower bound (gt, ge)
+            upper_ids = set() # IDs matching upper bound (lt, le)
+            eq_ids = set()
+
+            for cond in conds:
+                values = cond['value']
+                if not isinstance(values, list):
+                    values = [values]
+
+                for v in values:
+                    actual_value = getattr(v, 'val', v)
+                    result = process_products("PublicationDate", cond['op'], actual_value)
+
+                    if not result:
+                        continue
+
+                    ids = {p['Id'] for p in result}
+                    op = cond['op'].lower()
+
+                    if op in ("gt", "ge"):
+                        lower_ids.update(ids)
+                    elif op in ("lt", "le"):
+                        upper_ids.update(ids)
+                    elif op == "eq":
+                        eq_ids.update(ids)
+
+            # Make an union with eq values, if any 
+            left = lower_ids.union(eq_ids) if (lower_ids or eq_ids) else set()
+            right = upper_ids.union(eq_ids) if (upper_ids or eq_ids) else set()
+
+            # If all searches doesn't return products, then the whole search result is empty
+            if not left or not right:
+                return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+
+            # Store the common values
+            group_ids = left.intersection(right)
+            all_id_sets.append(group_ids)
         # XAND?
         for filter_key, conditions in processed_filters.items():
+            if filter_key == "PublicationDate":
+                continue
             for cond in (conditions if isinstance(conditions, list) else [conditions]):
                 values = cond['value']
                 if not isinstance(values, list):
