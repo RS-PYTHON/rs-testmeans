@@ -35,7 +35,7 @@ ARG USER=dask:dask
 ARG USER_NAME=dask
 
 USER root
-COPY --from=docker-scripts ./layer-cleanup.sh ./restore-apt.sh /usr/local/bin/
+COPY ./layer-cleanup.sh ./restore-apt.sh /usr/local/bin/
 RUN chmod 755 /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
 
 ############################################
