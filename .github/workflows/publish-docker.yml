@@ -236,31 +236,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
-  services-edrs-img:
-    if: github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
-    name: "'services/edrs' Docker image"
-    needs: [set-env, pre-actions]
-    permissions: write-all
-    outputs:
-      docker_image: ${{ steps.publish-docker.outputs.docker_image}}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Copy Dockerfile requirements
-        run: cp -t ./src/EDRS ./.github/scripts/layer-cleanup.sh
-        shell: bash
-
-      - id: publish-docker
-        uses: ./.github/actions/publish-docker
-        with:
-          dockerfile: ./src/EDRS/Dockerfile
-          build_context_path: ./src/EDRS
-          image_suffix: _edrs-station-mock
-          version_name: ${{ needs.pre-actions.outputs.sha_short }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          docker_tag: ${{ needs.set-env.outputs.docker_tag }}
-
   ###########
   # TESTING #
   ###########
