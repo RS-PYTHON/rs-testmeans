@@ -168,7 +168,9 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Copy Dockerfile requirements
-        run: cp -t ./src/DPR ./.github/scripts/layer-cleanup.sh
+        run: |
+          cp -t ./src/DPR ./.github/scripts/layer-cleanup.sh
+          cp -t ./src/DPR ./.github/scripts/restore-apt.sh
         shell: bash
 
       - id: publish-docker-processor-mock
