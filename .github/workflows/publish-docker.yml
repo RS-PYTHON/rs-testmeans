@@ -161,7 +161,9 @@ jobs:
     needs: [set-env, pre-actions]
     permissions: write-all
     outputs:
-      docker_image: ${{ steps.publish-docker.outputs.docker_image}}
+      docker_image_base: ${{ steps.publish-docker.outputs.docker_image}}
+      docker_image_dask_k8s: ${{ steps.publish-docker-k8s.outputs.docker_image}}
+      docker_image_dask_local: ${{ steps.publish-docker-local.outputs.docker_image}}
     steps:
       - uses: actions/checkout@v6
 
@@ -169,7 +171,7 @@ jobs:
         run: cp -t ./src/DPR ./.github/scripts/layer-cleanup.sh
         shell: bash
 
-      - id: publish-docker
+      - id: publish-docker-processor-mock
         uses: ./.github/actions/publish-docker
         with:
           dockerfile: ./src/DPR/Dockerfile
@@ -178,6 +180,30 @@ jobs:
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
+
+      - id: publish-docker-mockup-dask-k8s
+        uses: ./.github/actions/publish-docker
+        with:
+          dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
+          build_context_path: ./src/DPR
+          image_name: ${{ github.repository }}-dask-eopf-mockup
+          image_suffix: _dpr-processor-mock
+          version_name: ${{ needs.pre-actions.outputs.sha_short }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          docker_tag: ${{ needs.set-env.outputs.docker_tag }}
+          build_args: "BASE_IMAGE_TARGET=k8s"
+
+      - id: publish-docker-mockup-dask-local
+        uses: ./.github/actions/publish-docker
+        with:
+          dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
+          build_context_path: ./src/DPR
+          image_name: ${{ github.repository }}-dask-eopf-mockup
+          image_suffix: _dpr-processor-mock
+          version_name: ${{ needs.pre-actions.outputs.sha_short }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          docker_tag: ${{ needs.set-env.outputs.docker_tag }}
+          build_args: "BASE_IMAGE_TARGET=local"
 
   services-prip-img:
     if: github.actor != 'dependabot[bot]'
