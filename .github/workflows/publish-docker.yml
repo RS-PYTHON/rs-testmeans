@@ -188,7 +188,7 @@ jobs:
         with:
           dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
           build_context_path: ./src/DPR
-          image_name: dask/mockup
+          image_name: rs-python/dask/mockup
           image_suffix: /k8s
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -202,7 +202,7 @@ jobs:
         with:
           dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
           build_context_path: ./src/DPR
-          image_name: dask/mockup
+          image_name: rs-python/dask/mockup
           image_suffix: /local
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
