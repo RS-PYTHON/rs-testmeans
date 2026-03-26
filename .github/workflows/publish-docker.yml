@@ -186,24 +186,28 @@ jobs:
         with:
           dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
           build_context_path: ./src/DPR
-          image_name: ${{ github.repository }}-dask-eopf-mockup
-          image_suffix: _dpr-processor-mock
+          image_name: dask/mockup
+          image_suffix: /k8s
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
-          build_args: "BASE_IMAGE_TARGET=k8s"
+          build_args: |
+            BASE_IMAGE_TARGET=k8s
+            MOCKUP_TAG=${{ needs.set-env.outputs.docker_tag }}
 
       - id: publish-docker-mockup-dask-local
         uses: ./.github/actions/publish-docker
         with:
           dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
           build_context_path: ./src/DPR
-          image_name: ${{ github.repository }}-dask-eopf-mockup
-          image_suffix: _dpr-processor-mock
+          image_name: dask/mockup
+          image_suffix: /local
           version_name: ${{ needs.pre-actions.outputs.sha_short }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
-          build_args: "BASE_IMAGE_TARGET=local"
+          build_args: |
+            BASE_IMAGE_TARGET=local
+            MOCKUP_TAG=${{ needs.set-env.outputs.docker_tag }}
 
   services-prip-img:
     if: github.actor != 'dependabot[bot]'
