@@ -25,6 +25,8 @@ jobs:
     if: github.actor != 'dependabot[bot]' # ignore pull requests by github bot
     runs-on: ubuntu-latest
     name: "Set environment"
+    env:
+      DOCKER_TAG: "${{ github.event.inputs.docker_tag }}"
     outputs:
       docker_tag: ${{ steps.set-env.outputs.docker_tag }}
       branch_name: ${{ steps.set-env.outputs.branch_name }}
@@ -52,7 +54,7 @@ jobs:
 
           # For a manual trigger, use the user-defined tag
           elif [[ ${{ github.event_name }} == workflow_dispatch ]]; then
-            docker_tag=${{ github.event.inputs.docker_tag }}
+            docker_tag=$DOCKER_TAG
 
           else
             >&2 echo "Unknown trigger"

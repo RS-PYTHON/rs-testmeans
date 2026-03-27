@@ -39,22 +39,35 @@ runs:
   using: "composite"
   steps:
 
+    # Put every input into an environment variable for safety purposes (to avoid code substitution) 
+    - name: Set up environment variables
+      env:
+        DOCKERFILE: ${{ inputs.dockerfile }}
+        BUILD_CONTEXT_PATH: ${{ inputs.build_context_path }}
+        IMAGE_SUFFIX: ${{ inputs.image_suffix }}
+        VERSION_NAME: ${{ inputs.version_name }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        DOCKER_TAG: ${{ inputs.docker_tag }}
+        IMAGE_NAME: ${{ inputs.image_name }}
+        BUILD_ARGS: ${{ inputs.build_args }}
+      # Replace invalid characters in the Docker version name, e.g. 1.2.3a4+dev1a2b3c4d becomes 1.2.3a4.dev1a2b3c4d
+      # Then we can use ${{ env.docker_version_name }}
+      run: |
+        echo "Creating environment variables for the given inputs..."
+        echo "docker_version_name=$(echo ${{ env.VERSION_NAME }} | tr + .)" >> $GITHUB_ENV
+      shell: bash
+
     - name: Log into Docker registry
       uses: docker/login-action@v3
       with:
         registry: ${{ env.DOCKER_REGISTRY }}
         username: ${{ github.actor }}
-        password: ${{ inputs.github_token }}
-
-    # Replace invalid characters in the Docker version name, e.g. 1.2.3a4+dev1a2b3c4d becomes 1.2.3a4.dev1a2b3c4d
-    # Then we can use ${{ inputs.docker_version_name }}
-    - run: echo "docker_version_name=$(echo ${{ inputs.version_name }} | tr + .)" >> $GITHUB_ENV
-      shell: bash
+        password: ${{ env.GITHUB_TOKEN }}
 
     # Full Docker image name:tag as ghcr.io/RS-PYTHON/rs-server<suffix>:<version> in lowercase
     - id: docker_image
       run: |
-        docker_image=${{ env.DOCKER_REGISTRY }}/${{ inputs.image_name }}${{ inputs.image_suffix }}:${{ env.docker_version_name }}
+        docker_image=${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}${{ env.IMAGE_SUFFIX }}:${{ env.docker_version_name }}
         docker_image=${docker_image,,} # lowercase
         echo docker_image=${docker_image} >> $GITHUB_ENV
         echo docker_image=${docker_image} >> $GITHUB_OUTPUT
@@ -65,19 +78,19 @@ runs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.DOCKER_REGISTRY }}/${{ inputs.image_name }} # ghcr.io/RS-PYTHON/rs-server
+        images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }} # ghcr.io/RS-PYTHON/rs-server
 
     # Checkout code from the current branch and build Docker image.
     - name: Build Docker image
       uses: docker/build-push-action@v5
       with:
-        context: ${{ inputs.build_context_path }}
-        file: ${{ inputs.dockerfile }}
+        context: ${{ env.BUILD_CONTEXT_PATH }}
+        file: ${{ env.DOCKERFILE }}
         load: true
         tags: ${{ env.docker_image }}
         labels: ${{ steps.meta.outputs.labels }}
         push: false # push after the security scans below
-        build-args: ${{ inputs.build_args }}
+        build-args: ${{ env.BUILD_ARGS }}
 
     # Note: cannot run Trivy vulnerability scanner on a private repository
 
@@ -90,8 +103,8 @@ runs:
       if: always()
       run: | # use sed to replace the last :<tag> by :docker_tag
         set -x
-        if [[ ${{ inputs.docker_tag }}test != test ]]; then # if variable is defined and not empty
-          docker_image_tag=$(sed "s|\(:[^:]*\)|:${{ inputs.docker_tag }}|g" <<< ${{ env.docker_image }})
+        if [[ ${{ env.DOCKER_TAG }}test != test ]]; then # if variable is defined and not empty
+          docker_image_tag=$(sed "s|\(:[^:]*\)|:${{ env.DOCKER_TAG }}|g" <<< ${{ env.docker_image }})
           docker tag ${{ env.docker_image }} ${docker_image_tag}
           docker push ${docker_image_tag}
         fi
