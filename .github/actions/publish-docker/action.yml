@@ -52,6 +52,14 @@ runs:
         BUILD_ARGS: ${{ inputs.build_args }}
       run: |
         echo "Creating environment variables for the given inputs..."
+        echo "DOCKERFILE=${DOCKERFILE}" >> $GITHUB_ENV
+        echo "BUILD_CONTEXT_PATH=${BUILD_CONTEXT_PATH}" >> $GITHUB_ENV
+        echo "IMAGE_SUFFIX=${IMAGE_SUFFIX}" >> $GITHUB_ENV
+        echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
+        echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
+        echo "DOCKER_TAG=${DOCKER_TAG}" >> $GITHUB_ENV
+        echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
+        echo "BUILD_ARGS=${BUILD_ARGS}" >> $GITHUB_ENV
       shell: bash
 
     - name: Log into Docker registry
