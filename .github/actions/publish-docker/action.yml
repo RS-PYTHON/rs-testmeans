@@ -39,7 +39,8 @@ runs:
   using: "composite"
   steps:
 
-    # Put inputs used in scripts into environment variables for safety purposes (to avoid code substitution) 
+    # Put inputs used in scripts into environment variables for safety purposes (to avoid code substitution)
+    # See https://sonarcloud.io/organizations/rs-python/rules?open=githubactions%3AS7630&rule_key=githubactions%3AS7630
     - name: Set up environment variables
       env:
         IMAGE_SUFFIX: ${{ inputs.image_suffix }}
