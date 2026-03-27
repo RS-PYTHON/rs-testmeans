@@ -39,27 +39,19 @@ runs:
   using: "composite"
   steps:
 
-    # Put every input into an environment variable for safety purposes (to avoid code substitution) 
+    # Put inputs used in scripts into environment variables for safety purposes (to avoid code substitution) 
     - name: Set up environment variables
       env:
-        DOCKERFILE: ${{ inputs.dockerfile }}
-        BUILD_CONTEXT_PATH: ${{ inputs.build_context_path }}
         IMAGE_SUFFIX: ${{ inputs.image_suffix }}
         VERSION_NAME: ${{ inputs.version_name }}
-        GITHUB_TOKEN: ${{ inputs.github_token }}
         DOCKER_TAG: ${{ inputs.docker_tag }}
         IMAGE_NAME: ${{ inputs.image_name }}
-        BUILD_ARGS: ${{ inputs.build_args }}
       run: |
         echo "Creating environment variables for the given inputs..."
-        echo "DOCKERFILE=${DOCKERFILE}" >> $GITHUB_ENV
-        echo "BUILD_CONTEXT_PATH=${BUILD_CONTEXT_PATH}" >> $GITHUB_ENV
         echo "IMAGE_SUFFIX=${IMAGE_SUFFIX}" >> $GITHUB_ENV
         echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
-        echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
         echo "DOCKER_TAG=${DOCKER_TAG}" >> $GITHUB_ENV
         echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
-        echo "BUILD_ARGS=${BUILD_ARGS}" >> $GITHUB_ENV
       shell: bash
 
     - name: Log into Docker registry
@@ -67,7 +59,7 @@ runs:
       with:
         registry: ${{ env.DOCKER_REGISTRY }}
         username: ${{ github.actor }}
-        password: ${{ env.GITHUB_TOKEN }}
+        password: ${{ inputs.github_token }}
 
     # Replace invalid characters in the Docker version name, e.g. 1.2.3a4+dev1a2b3c4d becomes 1.2.3a4.dev1a2b3c4d
     # Then we can use ${{ env.docker_version_name }}
@@ -94,13 +86,13 @@ runs:
     - name: Build Docker image
       uses: docker/build-push-action@v5
       with:
-        context: ${{ env.BUILD_CONTEXT_PATH }}
-        file: ${{ env.DOCKERFILE }}
+        context: ${{ inputs.build_context_path }}
+        file: ${{ inputs.dockerfile }}
         load: true
         tags: ${{ env.docker_image }}
         labels: ${{ steps.meta.outputs.labels }}
         push: false # push after the security scans below
-        build-args: ${{ env.BUILD_ARGS }}
+        build-args: ${{ inputs.build_args }}
 
     # Note: cannot run Trivy vulnerability scanner on a private repository
 
