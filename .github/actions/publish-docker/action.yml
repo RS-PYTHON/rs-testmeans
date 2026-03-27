@@ -50,11 +50,8 @@ runs:
         DOCKER_TAG: ${{ inputs.docker_tag }}
         IMAGE_NAME: ${{ inputs.image_name }}
         BUILD_ARGS: ${{ inputs.build_args }}
-      # Replace invalid characters in the Docker version name, e.g. 1.2.3a4+dev1a2b3c4d becomes 1.2.3a4.dev1a2b3c4d
-      # Then we can use ${{ env.docker_version_name }}
       run: |
         echo "Creating environment variables for the given inputs..."
-        echo "docker_version_name=$(echo $VERSION_NAME | tr + .)" >> $GITHUB_ENV
       shell: bash
 
     - name: Log into Docker registry
@@ -63,6 +60,11 @@ runs:
         registry: ${{ env.DOCKER_REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ env.GITHUB_TOKEN }}
+
+    # Replace invalid characters in the Docker version name, e.g. 1.2.3a4+dev1a2b3c4d becomes 1.2.3a4.dev1a2b3c4d
+    # Then we can use ${{ env.docker_version_name }}
+    - run: echo "docker_version_name=$(echo $VERSION_NAME | tr + .)" >> $GITHUB_ENV
+      shell: bash
 
     # Full Docker image name:tag as ghcr.io/RS-PYTHON/rs-server<suffix>:<version> in lowercase
     - id: docker_image
