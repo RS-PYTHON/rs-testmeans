@@ -54,7 +54,7 @@ runs:
       # Then we can use ${{ env.docker_version_name }}
       run: |
         echo "Creating environment variables for the given inputs..."
-        echo "docker_version_name=$(echo ${{ env.VERSION_NAME }} | tr + .)" >> $GITHUB_ENV
+        echo "docker_version_name=$(echo $VERSION_NAME | tr + .)" >> $GITHUB_ENV
       shell: bash
 
     - name: Log into Docker registry
@@ -67,7 +67,7 @@ runs:
     # Full Docker image name:tag as ghcr.io/RS-PYTHON/rs-server<suffix>:<version> in lowercase
     - id: docker_image
       run: |
-        docker_image=${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}${{ env.IMAGE_SUFFIX }}:${{ env.docker_version_name }}
+        docker_image=${DOCKER_REGISTRY}/${IMAGE_NAME}${IMAGE_SUFFIX}:${{ env.docker_version_name }}
         docker_image=${docker_image,,} # lowercase
         echo docker_image=${docker_image} >> $GITHUB_ENV
         echo docker_image=${docker_image} >> $GITHUB_OUTPUT
@@ -103,8 +103,8 @@ runs:
       if: always()
       run: | # use sed to replace the last :<tag> by :docker_tag
         set -x
-        if [[ ${{ env.DOCKER_TAG }}test != test ]]; then # if variable is defined and not empty
-          docker_image_tag=$(sed "s|\(:[^:]*\)|:${{ env.DOCKER_TAG }}|g" <<< ${{ env.docker_image }})
+        if [[ ${DOCKER_TAG}test != test ]]; then # if variable is defined and not empty
+          docker_image_tag=$(sed "s|\(:[^:]*\)|:${DOCKER_TAG}|g" <<< ${{ env.docker_image }})
           docker tag ${{ env.docker_image }} ${docker_image_tag}
           docker push ${docker_image_tag}
         fi
