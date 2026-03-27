@@ -14,6 +14,14 @@ on:
       docker_tag:
         description: Tag the docker images as e.g. 'latest' or 'feat-rspy123'
         required: false
+      build_only_mockup_images:
+        description: Put to true to only build the images for DPR processor mockup
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 env:
   DOCKER_REGISTRY: ghcr.io
@@ -82,7 +90,7 @@ jobs:
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
   services-adgs-img:
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ (github.actor != 'dependabot[bot]') && ((github.event_name != 'workflow_dispatch') || (github.event.inputs.build_only_mockup_images == 'false')) }}
     runs-on: ubuntu-latest
     name: "'services/adgs' Docker image"
     needs: [set-env, pre-actions]
@@ -107,7 +115,7 @@ jobs:
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
   services-cadip-img:
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ (github.actor != 'dependabot[bot]') && ((github.event_name != 'workflow_dispatch') || (github.event.inputs.build_only_mockup_images == 'false')) }}
     runs-on: ubuntu-latest
     name: "'services/cadip' Docker image"
     needs: [set-env, pre-actions]
@@ -132,7 +140,7 @@ jobs:
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
   services-lta-img:
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ (github.actor != 'dependabot[bot]') && ((github.event_name != 'workflow_dispatch') || (github.event.inputs.build_only_mockup_images == 'false')) }}
     runs-on: ubuntu-latest
     name: "'services/lta' Docker image"
     needs: [set-env, pre-actions]
@@ -214,7 +222,7 @@ jobs:
             MOCKUP_TAG=${{ needs.set-env.outputs.docker_tag }}
 
   services-prip-img:
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ (github.actor != 'dependabot[bot]') && ((github.event_name != 'workflow_dispatch') || (github.event.inputs.build_only_mockup_images == 'false')) }}
     runs-on: ubuntu-latest
     name: "'services/prip' Docker image"
     needs: [set-env, pre-actions]
