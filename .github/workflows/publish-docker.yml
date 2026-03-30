@@ -252,7 +252,7 @@ jobs:
 
   # Test rs-demo with the new Docker images
   test-demo:
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ always() && !failure() && !cancelled() && github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     name: "Test rs-demo"
     needs: [set-env, services-adgs-img, services-cadip-img, services-dpr-processor-img]
