@@ -14,6 +14,14 @@ on:
       docker_tag:
         description: Tag the docker images as e.g. 'latest' or 'feat-rspy123'
         required: false
+      build_only_mockup_images:
+        description: Put to true to only build the images for DPR processor mockup
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 env:
   DOCKER_REGISTRY: ghcr.io
@@ -25,6 +33,8 @@ jobs:
     if: github.actor != 'dependabot[bot]' # ignore pull requests by github bot
     runs-on: ubuntu-latest
     name: "Set environment"
+    env:
+      DOCKER_TAG: "${{ github.event.inputs.docker_tag }}"
     outputs:
       docker_tag: ${{ steps.set-env.outputs.docker_tag }}
       branch_name: ${{ steps.set-env.outputs.branch_name }}
@@ -52,7 +62,7 @@ jobs:
 
           # For a manual trigger, use the user-defined tag
           elif [[ ${{ github.event_name }} == workflow_dispatch ]]; then
-            docker_tag=${{ github.event.inputs.docker_tag }}
+            docker_tag=$DOCKER_TAG
 
           else
             >&2 echo "Unknown trigger"
@@ -80,7 +90,7 @@ jobs:
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
   services-adgs-img:
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ (github.actor != 'dependabot[bot]') && ((github.event_name != 'workflow_dispatch') || (github.event.inputs.build_only_mockup_images == 'false')) }}
     runs-on: ubuntu-latest
     name: "'services/adgs' Docker image"
     needs: [set-env, pre-actions]
@@ -105,7 +115,7 @@ jobs:
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
   services-cadip-img:
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ (github.actor != 'dependabot[bot]') && ((github.event_name != 'workflow_dispatch') || (github.event.inputs.build_only_mockup_images == 'false')) }}
     runs-on: ubuntu-latest
     name: "'services/cadip' Docker image"
     needs: [set-env, pre-actions]
@@ -130,7 +140,7 @@ jobs:
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
   services-lta-img:
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ (github.actor != 'dependabot[bot]') && ((github.event_name != 'workflow_dispatch') || (github.event.inputs.build_only_mockup_images == 'false')) }}
     runs-on: ubuntu-latest
     name: "'services/lta' Docker image"
     needs: [set-env, pre-actions]
@@ -161,15 +171,19 @@ jobs:
     needs: [set-env, pre-actions]
     permissions: write-all
     outputs:
-      docker_image: ${{ steps.publish-docker.outputs.docker_image}}
+      docker_image_base: ${{ steps.publish-docker.outputs.docker_image}}
+      docker_image_dask_k8s: ${{ steps.publish-docker-k8s.outputs.docker_image}}
+      docker_image_dask_local: ${{ steps.publish-docker-local.outputs.docker_image}}
     steps:
       - uses: actions/checkout@v6
 
       - name: Copy Dockerfile requirements
-        run: cp -t ./src/DPR ./.github/scripts/layer-cleanup.sh
+        run: |
+          cp -t ./src/DPR ./.github/scripts/layer-cleanup.sh
+          cp -t ./src/DPR ./.github/scripts/restore-apt.sh
         shell: bash
 
-      - id: publish-docker
+      - id: publish-docker-processor-mock
         uses: ./.github/actions/publish-docker
         with:
           dockerfile: ./src/DPR/Dockerfile
@@ -179,8 +193,36 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           docker_tag: ${{ needs.set-env.outputs.docker_tag }}
 
+      - id: publish-docker-mockup-dask-k8s
+        uses: ./.github/actions/publish-docker
+        with:
+          dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
+          build_context_path: ./src/DPR
+          image_name: rs-python/dask/mockup
+          image_suffix: /k8s
+          version_name: ${{ needs.pre-actions.outputs.sha_short }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          docker_tag: ${{ needs.set-env.outputs.docker_tag }}
+          build_args: |
+            BASE_IMAGE_TARGET=k8s
+            MOCKUP_TAG=${{ needs.set-env.outputs.docker_tag }}
+
+      - id: publish-docker-mockup-dask-local
+        uses: ./.github/actions/publish-docker
+        with:
+          dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
+          build_context_path: ./src/DPR
+          image_name: rs-python/dask/mockup
+          image_suffix: /local
+          version_name: ${{ needs.pre-actions.outputs.sha_short }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          docker_tag: ${{ needs.set-env.outputs.docker_tag }}
+          build_args: |
+            BASE_IMAGE_TARGET=local
+            MOCKUP_TAG=${{ needs.set-env.outputs.docker_tag }}
+
   services-prip-img:
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ (github.actor != 'dependabot[bot]') && ((github.event_name != 'workflow_dispatch') || (github.event.inputs.build_only_mockup_images == 'false')) }}
     runs-on: ubuntu-latest
     name: "'services/prip' Docker image"
     needs: [set-env, pre-actions]
@@ -210,7 +252,7 @@ jobs:
 
   # Test rs-demo with the new Docker images
   test-demo:
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ always() && !failure() && !cancelled() && github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     name: "Test rs-demo"
     needs: [set-env, services-adgs-img, services-cadip-img, services-dpr-processor-img]
