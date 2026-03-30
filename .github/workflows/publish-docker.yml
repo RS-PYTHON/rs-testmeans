@@ -28,6 +28,19 @@ env:
 
 jobs:
 
+  display-inputs:
+    if: github.actor != 'dependabot[bot]' # ignore pull requests by github bot
+    runs-on: ubuntu-latest
+    name: "Display workflow inputs"
+    steps:
+      - name: Display workflow inputs
+        run: |
+          echo "Workflow triggered by: ${{ github.actor }}"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Docker tag input: ${{ github.event.inputs.docker_tag }}"
+          echo "Build only mockup images input: ${{ github.event.inputs.build_only_mockup_images }}"
+        shell: bash
+
   # Calculate variables for this workflow
   set-env:
     if: github.actor != 'dependabot[bot]' # ignore pull requests by github bot
