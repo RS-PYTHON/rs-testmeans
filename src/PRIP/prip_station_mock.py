@@ -1,30 +1,48 @@
+# Copyright 2023-2026 Airbus, CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """PRIP mockup module implementation"""
+
 import argparse
-import pathlib
-import logging
 import datetime
 import json
-from flask import Flask, Response, request, send_file, after_this_request
+import logging
+import os
+import pathlib
+import re
+import sys
+from http import HTTPStatus
+
+import dotenv
+from flask import Flask, Response, after_this_request, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
-from http import HTTPStatus
-import sys
-from common.common_routes import (
-    token_required,
-    register_token_route, 
-)
-from common.pagination import additional_options, prepare_response_odata_v4
-import re
-from common.odata_lexer import parse_odata_filter
 from shapely.geometry import Polygon, shape
-from common.s3_handler import S3StorageHandler, GetKeysFromS3Config
-import os
-import dotenv
+
+from common.common_routes import (
+    register_token_route,
+    token_required,
+)
+from common.odata_lexer import parse_odata_filter
+from common.pagination import additional_options, prepare_response_odata_v4
+from common.s3_handler import GetKeysFromS3Config, S3StorageHandler
+
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
 with open(PATH_TO_CONFIG / "Catalog" / "GETFileResponse.json") as bdata:
-    data = json.loads(bdata.read())['Data']
-    ATTRS = [attr["Name"] for attr in data[0]['Attributes']]
+    data = json.loads(bdata.read())["Data"]
+    ATTRS = [attr["Name"] for attr in data[0]["Attributes"]]
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -33,11 +51,13 @@ bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 register_token_route(app)
 
+
 @app.route("/", methods=["GET", "POST"])
 @token_required
 def hello():
     """Homepage"""
     return Response(status=HTTPStatus.OK)
+
 
 @app.route("/health", methods=["GET"])
 def ready_live_status():
@@ -54,11 +74,11 @@ def query_products():
     odata_filter = request.args["$filter"]
     geo_products = []
     all_id_sets = []
-    if "OData.CSC.Intersects" in request.args['$filter']:
+    if "OData.CSC.Intersects" in request.args["$filter"]:
         geo_products = filter_items_by_polygon(data, odata_filter)
         # Remove odata.csc.intersects after processed, and then continue with normal queries
-        odata_filter = remove_intersects(request.args['$filter'])
-        ids = {p['Id'] for p in geo_products}
+        odata_filter = remove_intersects(request.args["$filter"])
+        ids = {p["Id"] for p in geo_products}
         all_id_sets.append(ids)
     if odata_filter:
         # use lexer to parse request, split it into field: {op, value}
@@ -70,24 +90,24 @@ def query_products():
             conds = processed_filters["PublicationDate"]
             conds = conds if isinstance(conds, list) else [conds]
 
-            lower_ids = set() # IDs matching lower bound (gt, ge)
-            upper_ids = set() # IDs matching upper bound (lt, le)
+            lower_ids = set()  # IDs matching lower bound (gt, ge)
+            upper_ids = set()  # IDs matching upper bound (lt, le)
             eq_ids = set()
 
             for cond in conds:
-                values = cond['value']
+                values = cond["value"]
                 if not isinstance(values, list):
                     values = [values]
 
                 for v in values:
-                    actual_value = getattr(v, 'val', v)
-                    result = process_products("PublicationDate", cond['op'], actual_value)
+                    actual_value = getattr(v, "val", v)
+                    result = process_products("PublicationDate", cond["op"], actual_value)
 
                     if not result:
                         continue
 
-                    ids = {p['Id'] for p in result}
-                    op = cond['op'].lower()
+                    ids = {p["Id"] for p in result}
+                    op = cond["op"].lower()
 
                     if op in ("gt", "ge"):
                         lower_ids.update(ids)
@@ -96,7 +116,7 @@ def query_products():
                     elif op == "eq":
                         eq_ids.update(ids)
 
-            # Make an union with eq values, if any 
+            # Make an union with eq values, if any
             left = lower_ids.union(eq_ids) if (lower_ids or eq_ids) else set()
             right = upper_ids.union(eq_ids) if (upper_ids or eq_ids) else set()
 
@@ -112,22 +132,22 @@ def query_products():
             if filter_key == "PublicationDate":
                 continue
             for cond in (conditions if isinstance(conditions, list) else [conditions]):
-                values = cond['value']
+                values = cond["value"]
                 if not isinstance(values, list):
                     values = [values]
 
                 products = []
                 for v in values:
                     # extract .val if it's a String object
-                    actual_value = getattr(v, 'val', v)
-                    result = process_products(filter_key, cond['op'], actual_value)
+                    actual_value = getattr(v, "val", v)
+                    result = process_products(filter_key, cond["op"], actual_value)
                     if result:
                         products.extend(result)
                 if not products:
                     # If a search doesn't return products, then the whole search result is empty
                     return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
             # store only id of the result
-            ids = {p['Id'] for p in products}
+            ids = {p["Id"] for p in products}
             all_id_sets.append(ids)
     # create set intersection, XAND, exclusive and beetween requests
     if not all_id_sets:
@@ -138,9 +158,11 @@ def query_products():
     return (
         Response(
             status=HTTPStatus.OK,
-            response=json.dumps({"value": [item for item in data if item['Id'] in common_ids]}),
-            headers=request.args
-        ) if common_ids else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+            response=json.dumps({"value": [item for item in data if item["Id"] in common_ids]}),
+            headers=request.args,
+        )
+        if common_ids
+        else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
     )
 
 
@@ -150,8 +172,10 @@ def process_products(field, op, value) -> Response:
         case "Id":
             # Support exact and list matching for Id in OData filters.
             op_lower = op.lower()
+
             def normalize_value(raw):
                 return str(raw).strip().strip("'\"[]()")
+
             if op_lower == "eq":
                 # Exact Id match.
                 norm_value = normalize_value(value)
@@ -178,14 +202,18 @@ def process_products(field, op, value) -> Response:
                     t_values = value if isinstance(value, list) else [value]
                     values = [str(v).lower() for v in t_values]
 
-                    results = [
-                        product for product in data
-                        if str(product[field]).lower() in values
-                    ]
+                    results = [product for product in data if str(product[field]).lower() in values]
                 case _:
                     return []
             return results
-        case "PublicationDate" | "EvictionDate" | "ModificationDate" | "OriginDate" | "ContentDate/Start" | "ContentDate/End":
+        case (
+            "PublicationDate"
+            | "EvictionDate"
+            | "ModificationDate"
+            | "OriginDate"
+            | "ContentDate/Start"
+            | "ContentDate/End"
+        ):
             # Special case of ContentDate/Start
             if "/" in field:
                 top_key, sub_key = field.split("/")
@@ -195,32 +223,24 @@ def process_products(field, op, value) -> Response:
             date = datetime.datetime.fromisoformat(value)
             match op.lower():
                 case "eq":
-                    results = [
-                        product
-                        for product in data
-                        if date == get_field(product)
-                    ]
+                    results = [product for product in data if date == get_field(product)]
                 case "gt":
-                    results = [
-                        product
-                        for product in data
-                        if date < get_field(product)
-                    ]
+                    results = [product for product in data if date < get_field(product)]
                 case "lt":
-                    results = [
-                        product
-                        for product in data
-                        if date > get_field(product)
-                    ]
+                    results = [product for product in data if date > get_field(product)]
                 case _:
                     return []
         case _ if field in ATTRS:
             results = [
-                item for item in data
-                if op == 'Eq' and any(attr.get("Name") == field and str(attr.get("Value")) == value for attr in item.get("Attributes", []))
+                item
+                for item in data
+                if op == "Eq"
+                and any(
+                    attr.get("Name") == field and str(attr.get("Value")) == value for attr in item.get("Attributes", [])
+                )
             ]
         case _:
-            raise NotImplemented
+            raise NotImplementedError
     return results
 
 
@@ -228,6 +248,7 @@ def create_prip_app():
     """Used to pass instance to conftest."""
     app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
     return app
+
 
 @app.route("/Products(<Id>)/$value", methods=["GET"])
 @token_required
@@ -250,7 +271,10 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         except KeyError:
             # If env variables are not set, check if /.s3cfg is there, and map the values.
             if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("/.s3cfg"))):
-                return Response(status=HTTPStatus.BAD_REQUEST, response="You must have a s3cmd config file under '~/.s3cfg'")
+                return Response(
+                    status=HTTPStatus.BAD_REQUEST,
+                    response="You must have a s3cmd config file under '~/.s3cfg'",
+                )
             handler = S3StorageHandler(
                 s3_credentials["access_key"],
                 s3_credentials["secret_key"],
@@ -260,6 +284,7 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         parts = file_info["S3_path"].replace("s3://", "").split("/", 1)
         handler.get_keys_from_s3(GetKeysFromS3Config([parts[1]], parts[0], "/tmp/prip"))
         file_path = f"/tmp/prip/{file_info['Name']}"
+
         @after_this_request
         def remove_file(response):
             try:
@@ -267,8 +292,8 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
             except Exception as e:
                 app.logger.error(f"Failed to delete {file_path}: {e}")
             return response
+
         return send_file(file_path)
-    
 
     # Send bytes of gzip files in order to avoid auto-decompress feature from application/gzip headers
     if any(gzip_extension in files[0]["Name"] for gzip_extension in [".TGZ", ".gz", ".zip", ".tar"]):
@@ -282,6 +307,7 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         send_args = f'config/Storage/{files[0]["Name"]}'
     return send_file(send_args)
 
+
 def extract_polygon_from_odata_filter(odata_filter: str) -> Polygon:
     match = re.search(r"POLYGON\s*\(\((.*?)\)\)", odata_filter)
     if not match:
@@ -291,18 +317,18 @@ def extract_polygon_from_odata_filter(odata_filter: str) -> Polygon:
     coords = [tuple(map(float, c.strip().split())) for c in coords_str.split(",")]
     return Polygon(coords)
 
+
 def filter_items_by_polygon(data: list[dict], odata_filter: str) -> list[dict]:
     request_polygon = extract_polygon_from_odata_filter(odata_filter)
 
-    return [
-        item for item in data
-        if 'GeoFootprint' in item and request_polygon.intersects(shape(item['GeoFootprint']))
-    ]
+    return [item for item in data if "GeoFootprint" in item and request_polygon.intersects(shape(item["GeoFootprint"]))]
+
 
 def remove_intersects(filter_str: str) -> str:
     pattern = r"(\s*OData\.CSC\.Intersects\s*\(\s*area=geography'[^']+'\s*\)\s*and\s*)|(\s*and\s*OData\.CSC\.Intersects\s*\(\s*area=geography'[^']+'\s*\))|(^OData\.CSC\.Intersects\s*\(\s*area=geography'[^']+'\s*\)$)"
     result = re.sub(pattern, "", filter_str, flags=re.IGNORECASE)
     return result.strip()
+
 
 if __name__ == "__main__":
     """Docstring to be added."""
@@ -326,17 +352,17 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
-    
+
     # Create a json file containing the authentification configuration
     # this file will be deleted at the shutdown of the application
-    auth_tmp_path =  str(app.config["configuration_path"] / "auth_tmp.json")
-    auth_path =  str(app.config["configuration_path"] / "auth.json")
+    auth_tmp_path = str(app.config["configuration_path"] / "auth_tmp.json")
+    auth_path = str(app.config["configuration_path"] / "auth.json")
 
     # Copy data from the authentification template file (auth_tmp.json) to the authentification file (auth.json)
-    with open(auth_tmp_path, "r", encoding="utf-8") as src:
+    with open(auth_tmp_path, encoding="utf-8") as src:
         auth_tmp_dict = json.load(src)
     with open(auth_path, "w", encoding="utf-8") as dest:
         json.dump(auth_tmp_dict, dest, indent=4, ensure_ascii=False)
-    
+
     app.run(debug=True, host=args.host, port=args.port)  # local
     # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN

@@ -1,4 +1,19 @@
+# Copyright 2023-2026 Airbus, CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Docstring to be added."""
+
 import argparse
 import datetime
 import json
@@ -29,20 +44,22 @@ HTTP_UNAUTHORIZED = 401
 HTTP_FORBIDDEN = 403
 HTTP_NOT_FOUND = 404
 
+
 def token_required(f):
     """Decorator to enforce token-based authentication for a Flask route.
 
-    This decorator checks for the presence of a valid authorization token in the 
-    request headers. It ensures that the incoming request contains a valid token, 
-    which is compared against a pre-configured value stored in the auth.json file. If the 
+    This decorator checks for the presence of a valid authorization token in the
+    request headers. It ensures that the incoming request contains a valid token,
+    which is compared against a pre-configured value stored in the auth.json file. If the
     token is missing or invalid, the request is denied with a 403 Forbidden response.
 
     Args:
         f: The Flask route function being decorated.
 
     Returns:
-        The decorated function that performs token validation before executing the original 
+        The decorated function that performs token validation before executing the original
         route logic.
+
     """
 
     @wraps(f)
@@ -51,7 +68,7 @@ def token_required(f):
 
         This function:
         - Retrieves the token from the "Authorization" header.
-        - If no token is found or the token is invalid, it logs the error and returns a 403 
+        - If no token is found or the token is invalid, it logs the error and returns a 403
           Forbidden response.
         - If the token is valid, it allows the original route logic to proceed.
 
@@ -62,18 +79,18 @@ def token_required(f):
         Returns:
             A Response object with a 403 Forbidden status if the token is missing or invalid.
             Otherwise, the original route function's response is returned.
+
         """
-        token = None        
+        token = None
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split()[1]
 
         if not token:
             logger.error("Returning HTTP_FORBIDDEN. Token is missing")
             return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is missing!"}))
-        
 
         auth_path = app.config["configuration_path"] / "auth.json"
-        config_auth = json.loads(open(auth_path).read())        
+        config_auth = json.loads(open(auth_path).read())
         if token != config_auth["token"]:
             logger.error("Returning HTTP_FORBIDDEN. Token is invalid!")
             return Response(status=HTTP_FORBIDDEN, response=json.dumps({"message": "Token is invalid!"}))
@@ -81,6 +98,7 @@ def token_required(f):
         return f(*args, **kwargs)
 
     return decorated
+
 
 def batch_response_odata_v4(resp_body: list | map) -> Any:
     """Used to custom-jsonify output to OData v4 protocol."""
@@ -372,21 +390,22 @@ def token():
     """OAuth 2.0 token endpoint for issuing an access token based on client credentials.
 
     It is intended to be used for tests only.
-    This function handles the OAuth 2.0 token request by validating the incoming client 
-    credentials, username, password, and grant type against the pre-configured values 
-    stored in an authentication file (`auth.json`). If the request is valid, an access 
+    This function handles the OAuth 2.0 token request by validating the incoming client
+    credentials, username, password, and grant type against the pre-configured values
+    stored in an authentication file (`auth.json`). If the request is valid, an access
     token (fake string) is returned in JSON format; otherwise, appropriate error responses are sent.
 
     The supported grant type is validated against the `grant_type` stored in the configuration.
 
     Returns:
-        Response: 
-            - A JSON response with the access token and other token-related information 
+        Response:
+            - A JSON response with the access token and other token-related information
               if the client credentials and other parameters are valid.
-            - An HTTP 401 Unauthorized response if the client credentials, username, or 
+            - An HTTP 401 Unauthorized response if the client credentials, username, or
               password are invalid.
-            - An HTTP 400 Bad Request response if the grant type is unsupported or missing 
+            - An HTTP 400 Bad Request response if the grant type is unsupported or missing
               required parameters.
+
     """
     # Get the form data
     logger.info("Endpoint oauth2/token called")
@@ -397,15 +416,15 @@ def token():
     username = request.form.get("username")
     password = request.form.get("password")
     grant_type = request.form.get("grant_type")
-    scope = request.form.get("scope")    
+    scope = request.form.get("scope")
 
     # Optional Authorization header check
     # auth_header = request.headers.get('Authorization')
     # print(f"auth_header {auth_header}")
-    logger.info("Token requested")    
+    logger.info("Token requested")
     if request.headers.get("Authorization", None):
         logger.debug(f"Authorization in request.headers = {request.headers['Authorization']}")
-    
+
     # Validate required fields
     if not client_id or not client_secret or not username or not password:
         logger.error("Invalid client. The token is not granted")
@@ -413,20 +432,21 @@ def token():
 
     if client_id != config_auth["client_id"] or client_secret != config_auth["client_secret"]:
         logger.error("Invalid client id and/or secret. The token is not granted")
-        return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": 
-                                                                       f"Invalid client id and/or secret: {client_id} | {client_secret}"}))
+        return Response(
+            status=HTTP_UNAUTHORIZED,
+            response=json.dumps({"error": f"Invalid client id and/or secret: {client_id} | {client_secret}"}),
+        )
     if username != config_auth["username"] or password != config_auth["password"]:
         logger.error("Invalid username and/or password. The token is not granted")
         return Response(status=HTTP_UNAUTHORIZED, response=json.dumps({"error": "Invalid username and/or password"}))
     # Validate the grant_type
     if grant_type != config_auth["grant_type"]:
         logger.error("Unsupported grant_type. The token is not granted")
-        return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST    
+        return json.dumps({"error": "Unsupported grant_type"}), HTTP_BAD_REQUEST
     # Return the token in JSON format
     response = {"access_token": config_auth["token"], "token_type": "Bearer", "expires_in": 3600}
     logger.info("Grant type validated. Token sent back")
     return Response(status=HTTP_OK, response=json.dumps(response))
-
 
 
 def create_lta_app():  # noqa: D103

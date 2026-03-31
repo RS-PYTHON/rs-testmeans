@@ -1,7 +1,7 @@
 
 #
 # Target Docker image name:
-# ghcr.io/rs-python/rs-testmeans_adgs-station-mock 
+# ghcr.io/rs-python/rs-testmeans_adgs-station-mock
 #
 
 ARG PYTHON_VERSION=3.13.12

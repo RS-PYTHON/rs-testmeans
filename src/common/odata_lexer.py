@@ -1,13 +1,38 @@
+# Copyright 2023-2026 Airbus, CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import re
+
+from odata_query.ast import (
+    Attribute,
+    Boolean,
+    BoolOp,
+    Call,
+    CollectionLambda,
+    Compare,
+    DateTime,
+    Identifier,
+    List,
+    String,
+)
+from odata_query.exceptions import ParsingException, UnknownFunctionException
 from odata_query.grammar import ODataLexer, ODataParser
 from odata_query.visitor import NodeVisitor
-from odata_query.ast import String, DateTime, Boolean, Compare, Identifier, Attribute, BoolOp, Call, CollectionLambda
-from odata_query.exceptions import UnknownFunctionException, ParsingException
-from odata_query.ast import List
+
 
 class FilterExtractor(NodeVisitor):
-    """
-    AST visitor that extracts filters from an OData query AST into a dictionary.
+    """AST visitor that extracts filters from an OData query AST into a dictionary.
 
     The extracted filters map attribute paths to conditions, e.g.:
     {
@@ -15,13 +40,13 @@ class FilterExtractor(NodeVisitor):
         "Name": {"op": "contains", "value": "S2__OPER_AUX_ECMWFD_PDMC_20190216T1"}
     }
     """
+
     def __init__(self):
         # Dictionary to hold extracted filters keyed by attribute path
         self.result = {}
 
     def _get_attr_path(self, node):
-        """
-        Recursively constructs the full attribute path from AST nodes.
+        """Recursively constructs the full attribute path from AST nodes.
 
         ContentDate['Start'] -> 'ContentDate/Start'.
 
@@ -30,6 +55,7 @@ class FilterExtractor(NodeVisitor):
 
         Returns:
             str: The full attribute path as a string separated by '/'.
+
         """
         parts = []
         # Traverse upward through Attribute nodes collecting attribute names
@@ -43,8 +69,7 @@ class FilterExtractor(NodeVisitor):
         return "/".join(parts)
 
     def visit_Compare(self, node: Compare):
-        """
-        Visits a comparison node (e.g. ContentDate/Start gt '2019-01-01T00:00:00.000Z')
+        """Visits a comparison node (e.g. ContentDate/Start gt '2019-01-01T00:00:00.000Z')
         and extracts the attribute, operator, and value.
 
         Stores the condition in self.result. Handles multiple conditions on the
@@ -52,15 +77,13 @@ class FilterExtractor(NodeVisitor):
 
         Args:
             node (Compare): The comparison AST node.
+
         """
         attr_path = self._get_attr_path(node.left)
         # Only handle comparisons where right side is a literal or identifier
         if isinstance(node.right, (String, DateTime, Boolean, List, Identifier)):
             value = node.right.val if hasattr(node.right, "val") else node.right.name
-            cond = {
-                "op": type(node.comparator).__name__,
-                "value": value
-            }
+            cond = {"op": type(node.comparator).__name__, "value": value}
             # Append to existing conditions for the attribute if needed
             if attr_path in self.result:
                 if isinstance(self.result[attr_path], list):
@@ -71,24 +94,24 @@ class FilterExtractor(NodeVisitor):
                 self.result[attr_path] = cond
 
     def visit_BoolOp(self, node: BoolOp):
-        """
-        Visits boolean operation nodes (AND, OR) and recursively visits both sides.
+        """Visits boolean operation nodes (AND, OR) and recursively visits both sides.
 
         Args:
             node (BoolOp): The boolean operation AST node.
+
         """
         self.visit(node.left)
         self.visit(node.right)
 
     def visit_Call(self, node: Call):
-        """
-        Visits function call nodes such as contains(), startswith(), endswith().
+        """Visits function call nodes such as contains(), startswith(), endswith().
 
         Extracts the attribute and value arguments and stores them similarly
         to comparison nodes in self.result.
 
         Args:
             node (Call): The function call AST node.
+
         """
         func_name = node.func.name if isinstance(node.func, Identifier) else None
         if func_name in {"contains", "startswith", "endswith"} and len(node.args) == 2:
@@ -100,10 +123,7 @@ class FilterExtractor(NodeVisitor):
             value = arg1.val if isinstance(arg1, String) else None
 
             if attr_path and value is not None:
-                cond = {
-                    "op": func_name,
-                    "value": value
-                }
+                cond = {"op": func_name, "value": value}
                 # Append or create condition in the result dict
                 if attr_path in self.result:
                     if isinstance(self.result[attr_path], list):
@@ -118,8 +138,7 @@ class FilterExtractor(NodeVisitor):
                 self.visit(arg)
 
     def visit_CollectionLambda(self, node: CollectionLambda):
-        """
-        Visits collection lambda expressions (e.g. any() in OData).
+        """Visits collection lambda expressions (e.g. any() in OData).
 
         Specifically extracts key-value pairs from lambdas that compare 'Name' and 'Value' properties,
 
@@ -127,6 +146,7 @@ class FilterExtractor(NodeVisitor):
 
         Args:
             node (CollectionLambda): The collection lambda AST node.
+
         """
         if isinstance(node.lambda_.expression, BoolOp):
             left = node.lambda_.expression.left
@@ -151,28 +171,25 @@ class FilterExtractor(NodeVisitor):
 
             # Store the extracted key-value pair in the result dict as an equality condition
             if "key" in parts and "value" in parts:
-                self.result[parts["key"]] = {
-                    "op": "Eq",
-                    "value": parts["value"]
-                }
+                self.result[parts["key"]] = {"op": "Eq", "value": parts["value"]}
 
         else:
             self.visit(node.lambda_.expression)
 
 
 def parse_odata_filter(query: str):
-    """
-    Parses an OData $filter query string and extracts filters into a dictionary.
+    """Parses an OData $filter query string and extracts filters into a dictionary.
 
     Args:
         query (str): The OData $filter query string, optionally starting with "$filter=".
 
     Returns:
         dict: Dictionary of extracted filters keyed by attribute paths.
+
     """
     # Strip leading "$filter=" if present
     if query.startswith("$filter="):
-        query = query[len("$filter="):]
+        query = query[len("$filter=") :]
     # Normalize unquoted UUIDs for Id eq/in so the parser can handle them.
     query = quote_unquoted_uuid_in_id_filter(query)
     try:
@@ -194,17 +211,12 @@ def parse_odata_filter(query: str):
 
 
 # UUID matcher used to normalize unquoted Id values before OData parsing.
-UUID_RE = re.compile(
-    r"[0-9a-fA-F]{8}-"
-    r"[0-9a-fA-F]{4}-"
-    r"[0-9a-fA-F]{4}-"
-    r"[0-9a-fA-F]{4}-"
-    r"[0-9a-fA-F]{12}"
-)
+UUID_RE = re.compile(r"[0-9a-fA-F]{8}-" r"[0-9a-fA-F]{4}-" r"[0-9a-fA-F]{4}-" r"[0-9a-fA-F]{4}-" r"[0-9a-fA-F]{12}")
 
 
 def quote_unquoted_uuid_in_id_filter(query: str) -> str:
     """Normalize Id eq/in filters so UUIDs without quotes parse as strings."""
+
     def _normalize_token(token: str) -> str:
         # Keep already-quoted tokens; only quote bare UUIDs.
         token = token.strip()

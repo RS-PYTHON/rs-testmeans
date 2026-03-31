@@ -230,6 +230,23 @@ jobs:
             --cov-report=term \
             --cov-report=xml:./cov-report.xml \
             --junit-xml=./junit-xml-report.xml
+
+          # There seems to be a bug in pytest cov with multiple --cov folders.
+          # The last tested project is malformed in the report file.
+          # Use this workaround to run pytest on a dummy empty dir. This reformats the report file.
+          dummy="/tmp/empty-pytest"
+          mkdir -p $dummy
+          poetry run pytest $dummy \
+            --disable-pytest-warnings \
+            --cov=$dummy \
+            --cov-report=term \
+            --cov-report=xml:./cov-report.xml \
+            --cov-append \
+          || true # ignore the error message that says no tests exist
+
+          # Remove the line with the dummy empty dir
+          sed -i  "/empty-pytest/d" ./cov-report.xml
+
         shell: bash
 
       - name: Display code coverage summary in this console
