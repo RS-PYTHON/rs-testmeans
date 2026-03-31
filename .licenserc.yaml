@@ -1,4 +1,3 @@
-#!/bin/bash
 # Copyright 2023-2026 Airbus, CS Group
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,26 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apt-get autoclean --yes
-apt-get autoremove --yes
+header:
+  license:
+    spdx-id: Apache-2.0
+    copyright-owner: Airbus, CS Group
+    copyright-year: '2023-2026'
 
-rm -rf /var/lib/apt/lists/*
-rm -rf /usr/local/src/*
+  paths-ignore:
+    - '**/*.csv'
+    - '**/*.env'
+    - '**/*.json'
+    - '**/*.lock'
+    - '**/*.md'
+    - '**/*.raw'
+    - '**/Dockerfile*'
+    - '**/.gitignore'
+    - '.gitmodules'
+    - '.safety-project.ini'
+    - '.trivyignore'
+    - 'LICENSE'
+    - 'NOTICE'
+    - 'src/ADGS/common'
+    - 'src/CADIP/common'
+    - 'src/PRIP/common'
 
-rm -rf /var/cache/apt/*
-rm -rf /root/.cache/*
-# including /root/.cache/pip
-rm -rf /home/*/.cache/*
-rm -rf /usr/local/share/.cache/*
-# including /usr/local/share/.cache/yarn
-
-rm -rf /tmp/* /var/tmp/*
-rm -rf /opt/conda/pkgs/cache
-
-rm -rf /tmp/whl
-
-# WARNING: this removes the apt repository list. To restore it and be able to run 'apt update',
-# you need to run ./restore-apt.sh
-rm -rf /etc/apt/sources.list /etc/apt/sources.list.d/*
-
-exit 0
+  comment: on-failure

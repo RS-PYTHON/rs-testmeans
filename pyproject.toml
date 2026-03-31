@@ -86,6 +86,32 @@ line-length = 120 # is it useful if not using ruff formatter ?
 select = ["F", "E", "I", "N", "D", "PL"]
 ignore = ["D203", "D213"]
 
+[tool.mypy]
+warn_redundant_casts = true
+# Force analyze of partially annotate function signatures
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = [
+    "E203" # whitespace before ':'
+]
+
+[tool.pylint]
+max-line-length = 120
+disable = [
+    "logging-fstring-interpolation",  # Logging f-string interpolation
+    "R0917",  # Too many positional arguments
+    "E0401", # import-error
+    "R0902", # too-many-instance-attributes
+    "R0913",  # too-many-arguments
+    "too-many-locals",
+    "not-context-manager",
+    "too-many-lines",
+    "too-many-public-methods",
+]
+
 
 [build-system]
 requires = ["poetry-core"]
