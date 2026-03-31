@@ -18,8 +18,8 @@ boto3 = "^1.28.81"
 requests = "^2.31.0"
 pyyaml = "^6.0.1"
 crcmod = "^1.7"
-fastapi = "^0.109.2"
-uvicorn = "^0.27.1"
+fastapi = "==0.135.1"
+uvicorn = ">=0.35.0"
 source = "^1.2.0"
 
 [build-system]
