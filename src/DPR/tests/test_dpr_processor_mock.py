@@ -184,7 +184,7 @@ def test_s1_l2_ocn_process(product_type, s3_outputpath):
         path: DCS_04_S1A_20231121072204051312_ch1_DSDB_00023.raw
         store_type: zarr
       output_products:
-      - id: outputs
+      - id: {product_type}
         path: s3://test-data/ # output folder or S3 bucket
     workflow:
     - step: 1
@@ -249,7 +249,7 @@ def test_s1_l2_ocn_reprocessing(product_type, bucket):
         path: DCS_04_S1A_20231121072204051312_ch1_DSDB_00023.raw
         store_type: zarr
       output_products:
-      - id: outputs
+      - id: {product_type}
         path: s3://{bucket} # output folder or S3 bucket
     workflow:
     - step: 1
