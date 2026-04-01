@@ -10,6 +10,7 @@ name = "dpr-processor-mockup"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4"
@@ -21,6 +22,15 @@ crcmod = "^1.7"
 fastapi = "^0.109.2"
 uvicorn = "^0.27.1"
 source = "^1.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+pytest-mock = "^3.15.1"
+moto = { version = "^5.0.1", extras = ["server"] }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
 
 [build-system]
 requires = ["poetry-core"]

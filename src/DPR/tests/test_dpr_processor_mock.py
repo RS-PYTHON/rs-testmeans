@@ -8,7 +8,7 @@ import pytest
 import yaml
 from moto.server import ThreadedMotoServer
 import asyncio
-from src.DPR.DPR_processor_mock import DPRProcessor
+from DPR_processor_mock import DPRProcessor
 
 from .conftest import export_aws_credentials
 from fastapi import HTTPException
@@ -87,12 +87,12 @@ def test_list_of_downloadableable_products():
     "input_data_path, expected_new_product_name",
     [
         (
-                "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
-                "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr",
+                "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
+                "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr",
         ),
         (
-                "tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr.zip",
-                "tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr.zip",
+                "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr.zip",
+                "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr.zip",
         ),
     ],
 )
@@ -126,7 +126,7 @@ def test_dpr_product_rename(mocker, input_data_path, expected_new_product_name):
     "input_data_path, expected_processing_stamp",
     [
         (
-                "data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
+                "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
                 "RSPY_DprMockupProcessor",
         ),
     ],
@@ -148,7 +148,7 @@ def test_dpr_attrs_update(mocker, input_data_path, expected_processing_stamp):
         - S1SEWRAW
     """
     initial_data = json.load(open(pathlib.Path(input_data_path) / ".zattrs"))
-    mocker.patch("src.DPR.DPR_processor_mock.DPRProcessor.update_product_name", return_value=None, autospec=True)
+    mocker.patch("DPR_processor_mock.DPRProcessor.update_product_name", return_value=None, autospec=True)
 
     dpr = DPRProcessor(yaml.dump(yaml.safe_load(yamlstr)))
     dpr.update_product(pathlib.Path(input_data_path), "EW_RAW__0S")
