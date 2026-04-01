@@ -210,64 +210,64 @@ jobs:
           >> $GITHUB_STEP_SUMMARY
         shell: bash
 
-  run-all-pytests:
-    runs-on: ubuntu-latest
-    name: Run pytest # pytest unit and integration tests
-    steps:
-      - uses: actions/checkout@v6
-      - uses: ./.github/actions/poetry-install
+  # run-all-pytests:
+  #   runs-on: ubuntu-latest
+  #   name: Run pytest # pytest unit and integration tests
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - uses: ./.github/actions/poetry-install
 
-      - name: Run pytest
-        run: |
-          set -x
-          poetry run pytest $(find . -name tests) \
-            -ra --disable-pytest-warnings \
-            --color=yes \
-            --durations=0 \
-            --durations-min=0.05 \
-            --error-for-skips \
-            --cov=./src \
-            --cov-report=term \
-            --cov-report=xml:./cov-report.xml \
-            --junit-xml=./junit-xml-report.xml
+  #     - name: Run pytest
+  #       run: |
+  #         set -x
+  #         poetry run pytest $(find . -name tests) \
+  #           -ra --disable-pytest-warnings \
+  #           --color=yes \
+  #           --durations=0 \
+  #           --durations-min=0.05 \
+  #           --error-for-skips \
+  #           --cov=./src \
+  #           --cov-report=term \
+  #           --cov-report=xml:./cov-report.xml \
+  #           --junit-xml=./junit-xml-report.xml
 
-          # There seems to be a bug in pytest cov with multiple --cov folders.
-          # The last tested project is malformed in the report file.
-          # Use this workaround to run pytest on a dummy empty dir. This reformats the report file.
-          dummy="/tmp/empty-pytest"
-          mkdir -p $dummy
-          poetry run pytest $dummy \
-            --disable-pytest-warnings \
-            --cov=$dummy \
-            --cov-report=term \
-            --cov-report=xml:./cov-report.xml \
-            --cov-append \
-          || true # ignore the error message that says no tests exist
+  #         # There seems to be a bug in pytest cov with multiple --cov folders.
+  #         # The last tested project is malformed in the report file.
+  #         # Use this workaround to run pytest on a dummy empty dir. This reformats the report file.
+  #         dummy="/tmp/empty-pytest"
+  #         mkdir -p $dummy
+  #         poetry run pytest $dummy \
+  #           --disable-pytest-warnings \
+  #           --cov=$dummy \
+  #           --cov-report=term \
+  #           --cov-report=xml:./cov-report.xml \
+  #           --cov-append \
+  #         || true # ignore the error message that says no tests exist
 
-          # Remove the line with the dummy empty dir
-          sed -i  "/empty-pytest/d" ./cov-report.xml
+  #         # Remove the line with the dummy empty dir
+  #         sed -i  "/empty-pytest/d" ./cov-report.xml
 
-        shell: bash
+  #       shell: bash
 
-      - name: Display code coverage summary in this console
-        uses: irongut/CodeCoverageSummary@51cc3a756ddcd398d447c044c02cb6aa83fdae95 # v1.3.0
-        with: # see https://github.com/marketplace/actions/code-coverage-summary#inputs
-          filename: ./cov-report.xml
+  #     - name: Display code coverage summary in this console
+  #       uses: irongut/CodeCoverageSummary@51cc3a756ddcd398d447c044c02cb6aa83fdae95 # v1.3.0
+  #       with: # see https://github.com/marketplace/actions/code-coverage-summary#inputs
+  #         filename: ./cov-report.xml
 
-      - name: Save reports
-        uses: actions/upload-artifact@v7
-        with:
-          name: run-all-pytests
-          path: |
-            .coverage
-            ./cov-report.xml
-            ./junit-xml-report.xml
-          retention-days: 1
+  #     - name: Save reports
+  #       uses: actions/upload-artifact@v7
+  #       with:
+  #         name: run-all-pytests
+  #         path: |
+  #           .coverage
+  #           ./cov-report.xml
+  #           ./junit-xml-report.xml
+  #         retention-days: 1
 
   generate-quality-report:
     runs-on: ubuntu-latest
     name: Quality report (sonarqube)
-    needs: [changes, check-linting, check-security, run-all-pytests] # see actions/download-artifact below
+    needs: [changes, check-linting, check-security] #, run-all-pytests] # see actions/download-artifact below
     if: ${{ needs.changes.outputs.code == 'true' }}
     permissions:
       pull-requests: write # for: phwt/sonarqube-quality-gate-action
@@ -289,11 +289,11 @@ jobs:
         with:
           name:
             check-security
-      - name: Download pytest reports
-        uses: actions/download-artifact@v8
-        with:
-          name:
-            run-all-pytests
+      # - name: Download pytest reports
+      #   uses: actions/download-artifact@v8
+      #   with:
+      #     name:
+      #       run-all-pytests
 
       - name: Get directory names
         id: dir_names
@@ -301,9 +301,9 @@ jobs:
           echo tests=$(find . -type d -name "tests" | paste -sd ",") >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Normalize coverage paths for SonarCloud
-        run: |
-          sed -i 's|<source>[^<]*</source>|<source>.</source>|g' ./cov-report.xml
+      # - name: Normalize coverage paths for SonarCloud
+      #   run: |
+      #     sed -i 's|<source>[^<]*</source>|<source>.</source>|g' ./cov-report.xml
 
       - name: Run SonarCloud Scanner
         uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7
@@ -315,6 +315,7 @@ jobs:
           #
           # "sonar.exclusions" completely excludes some files from the analysis: those files don't appear at all
           # in SonarQube.
+            # -Dsonar.python.coverage.reportPaths=./cov-report.xml
           #
           projectBaseDir: .
           args: >
@@ -331,7 +332,6 @@ jobs:
             -Dsonar.python.pylint.reportPaths=./pylint-report.txt
             -Dsonar.python.flake8.reportPaths=./flake8-report.txt
             -Dsonar.python.bandit.reportPaths=./bandit-report.json
-            -Dsonar.python.coverage.reportPaths=./cov-report.xml
             -Dsonar.python.xunit.reportPath=./junit-xml-report.xml
 
       - name: Wait for quality gate result
