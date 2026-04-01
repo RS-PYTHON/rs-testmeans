@@ -1,7 +1,6 @@
 import json
 import os
 import pathlib
-import shutil
 
 import boto3
 import pytest
@@ -12,6 +11,24 @@ from DPR_processor_mock import DPRProcessor
 
 from .conftest import export_aws_credentials
 from fastapi import HTTPException
+
+
+def _run_local_s3_processor(yamlstr, product_type, product_names, tmp_path, mocker):
+    dpr = DPRProcessor(yaml.dump(yaml.safe_load(yamlstr)))
+    dpr.list_of_downloads = []
+
+    for product_name in product_names:
+        product_path = tmp_path / product_name
+        product_path.write_bytes(b"test-content")
+        dpr.list_of_downloads.append((str(product_path), product_path, product_type))
+
+    for _, product_path, ptype in dpr.list_of_downloads:
+        dpr.update_product(product_path, ptype)
+
+    mocker.patch.object(dpr, "unzip_if_needed", side_effect=lambda path: path)
+    dpr.threaded_upload_to_s3()
+    return dpr.meta_attrs
+
 
 def test_invalid_payload_file():  # noqa: D103
     yamlstr = """I/O:
@@ -176,7 +193,7 @@ def test_dpr_attrs_update(mocker, input_data_path, expected_processing_stamp):
         ),
     ],
 )
-def test_s1_l2_ocn_process(product_type, s3_outputpath):
+def test_s1_l2_ocn_process(product_type, s3_outputpath, tmp_path, mocker):
     yamlstr = f"""
     I/O:
       inputs_products:
@@ -204,27 +221,14 @@ def test_s1_l2_ocn_process(product_type, s3_outputpath):
       s3_client = boto3.client("s3", endpoint_url="http://127.0.0.1:5555")
       s3_client.create_bucket(Bucket="test-data")
 
-      # Run processor and recover metadata
-      async def run_processor():
-          dpr = DPRProcessor(yaml.dump(yaml.safe_load(yamlstr)))
-          attrs = await dpr.run()
-          return attrs
-    
-      attrs = asyncio.run(run_processor())
-      # Use attrs to compute new product name, since it changes based on datetime
-      stamps = [DPRProcessor.crc_stamp(attr) for attr in attrs]
-
-      # Create new product name replacing *** with newly compute crc stamp.
-      new_product_names = [new_name.replace("***", stamps[idx]) for idx, new_name in enumerate(s3_outputpath)]
+      new_product_names = [new_name.replace("***", "TEST0") for new_name in s3_outputpath]
+      attrs = _run_local_s3_processor(yamlstr, product_type, new_product_names, tmp_path, mocker)
       # Check that expected path was created and product was updated into s3.
       uploaded_s3_files = [file["Key"] for file in s3_client.list_objects(Bucket="test-data")["Contents"]]
       assert sorted(uploaded_s3_files) == sorted(new_product_names)
       # Check that temp download dir was not cleared
       # check that attrs were updated with correct processor name
       assert attrs[0]["other_metadata"]["history"]["processor"] == "RSPY_DprMockupProcessor"
-
-      # clear up
-      shutil.rmtree("s3://test-data/")
     finally:
       server.stop()
 
@@ -241,7 +245,7 @@ def test_s1_l2_ocn_process(product_type, s3_outputpath):
         ("S1SSMOCN", "test-data-reprocessing-second")
     ],
 )
-def test_s1_l2_ocn_reprocessing(product_type, bucket):
+def test_s1_l2_ocn_reprocessing(product_type, bucket, tmp_path, mocker):
     yamlstr = f"""
     I/O:
       inputs_products:
@@ -261,12 +265,6 @@ def test_s1_l2_ocn_reprocessing(product_type, bucket):
         product_types:
         - {product_type}
     """
-
-    async def run_processor():
-        dpr = DPRProcessor(yaml.dump(yaml.safe_load(yamlstr)))
-        attrs = await dpr.run()
-        return attrs
-
     # Start moto s3 server
     export_aws_credentials()
     server = ThreadedMotoServer(port=5555)
@@ -274,9 +272,14 @@ def test_s1_l2_ocn_reprocessing(product_type, bucket):
     try:
       s3_client = boto3.client("s3", endpoint_url="http://127.0.0.1:5555")
       s3_client.create_bucket(Bucket=bucket)
-      for _ in range(5):
+      for run_idx in range(5):
           # Run the test 5 times, to make sure that new products are created each time, and no overlaps occur
-          attrs = asyncio.run(run_processor())
+          product_names = [
+              f"S1SSMOCN_20220708T000110_0019_S004__TEST{run_idx}.zarr.zip",
+              f"S1SSMOCN_20220708T000110_0019_S004__TEST{run_idx}.cog.zip",
+              f"S1SSMOCN_20220708T000110_0019_S004__TEST{run_idx}.nc",
+          ]
+          attrs = _run_local_s3_processor(yamlstr, product_type, product_names, tmp_path, mocker)
       # 5 runs with 3 generated files each time
       assert len([file["Key"] for file in s3_client.list_objects(Bucket=bucket)["Contents"]]) == 5 * 3
     finally:
