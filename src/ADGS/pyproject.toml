@@ -20,12 +20,22 @@ name = "adgs-server-mockup"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4"
 flask-bcrypt = "^1.0.1"
 flask-httpauth = "^4.8.0"
 dotenv = "^0.9.9"
+boto3 = "^1.42.54"
+botocore = "^1.42.54"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
 
 [build-system]
 requires = ["poetry-core"]

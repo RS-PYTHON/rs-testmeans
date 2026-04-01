@@ -182,7 +182,7 @@ def test_complex_query(adgs_client_with_auth, query, is_valid):
     [
         (
             # to be changed after deploy / pipeline
-            ("data/", "S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000.TGZ"),
+            ("../config/Storage/", "S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000.TGZ"),
             ("S3MockTest/", "S2__OPER_AUX_ECMWFD_PDMC_20190216T120000_V20190217T090000_20190217T210000_test.TGZ"),
         ),
     ],
