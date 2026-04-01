@@ -1,4 +1,3 @@
-import base64
 import json
 
 import pytest
@@ -13,21 +12,16 @@ HTTP_NOT_FOUND = 404
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize(
-    "correct_login, incorrect_login",
-    [
-        ("test:test", "notTest:notTest"),
-    ],
-)
-def test_basic_auth(lta_client, correct_login: str, incorrect_login: str):
-    """Test basic authentication"""
-    # test credentials on get methods with auth required.
-    correct_login = base64.b64encode(str.encode(correct_login)).decode("utf-8")
-    incorrect_login = base64.b64encode(str.encode(incorrect_login)).decode("utf-8")
-    assert lta_client.get("/", headers={"Authorization": "Basic {}".format(correct_login)}).status_code == HTTP_OK
+def test_basic_auth(lta_client, external_auth_config, app_header):
+    """Test token authentication."""
+    token_response = lta_client.post("/oauth2/token", data=external_auth_config, headers=app_header)
+    assert token_response.status_code == HTTP_OK
+    token_info = json.loads(token_response.text)
+    assert token_info["access_token"]
+
+    assert lta_client.get("/", headers={"Authorization": f"Token {token_info['access_token']}"}).status_code == HTTP_OK
     assert (
-            lta_client.get("/", headers={
-                "Authorization": "Basic {}".format(incorrect_login)}).status_code == HTTP_UNAUTHORIZED
+        lta_client.get("/", headers={"Authorization": "Token WrongAccessToken"}).status_code == HTTP_FORBIDDEN
     )
     # test a broken endpoint route
     assert lta_client.get("incorrectRoute/").status_code == HTTP_NOT_FOUND
