@@ -67,16 +67,19 @@ def test_list_of_downloadableable_products():
         path: src/DPR/data/ # output folder or S3 bucket
     workflow:
     - step: 1
+      inputs:
+      - in1: CADU1
+      outputs:
+      - out0: S1SEWRAW
       parameters:
         product_types:
         - S1SEWRAW
         - S1SIWRAW
     """
     data = yaml.safe_load(yamlstr)
-    with pytest.raises(AttributeError):
-      dpr_processor = DPRProcessor(yaml.dump(data))
-      dpr_processor.payload_to_url()
-    assert dpr_processor.list_of_downloads is not None
+    dpr_processor = DPRProcessor(yaml.dump(data))
+    dpr_processor.payload_to_url()
+    assert dpr_processor.list_of_downloads
 
 
 @pytest.mark.unit
@@ -185,6 +188,10 @@ def test_s1_l2_ocn_process(product_type, s3_outputpath):
         path: s3://test-data/ # output folder or S3 bucket
     workflow:
     - step: 1
+      inputs:
+      - in1: CADU1
+      outputs:
+      - out0: S1SSMOCN
       parameters:
         product_types:
         - {product_type}
@@ -246,6 +253,10 @@ def test_s1_l2_ocn_reprocessing(product_type, bucket):
         path: s3://{bucket} # output folder or S3 bucket
     workflow:
     - step: 1
+      inputs:
+      - in1: CADU1
+      outputs:
+      - out0: S1SSMOCN
       parameters:
         product_types:
         - {product_type}
