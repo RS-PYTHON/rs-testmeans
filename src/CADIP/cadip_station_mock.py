@@ -17,11 +17,11 @@ import multiprocessing
 import random
 import string
 from http import HTTPStatus
-from common.common_routes import (
+from src.common.common_routes import (
     token_required,
     register_token_route, 
 )
-from common.s3_handler import S3StorageHandler, GetKeysFromS3Config
+from src.common.s3_handler import S3StorageHandler, GetKeysFromS3Config
 import dotenv
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 

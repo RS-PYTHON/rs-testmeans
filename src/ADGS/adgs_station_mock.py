@@ -14,12 +14,12 @@ from flask import Flask, Response, request, send_file, after_this_request
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from http import HTTPStatus
-from common.common_routes import (
+from src.common.common_routes import (
     token_required,
     register_token_route, 
 )
 import dotenv
-from common.s3_handler import S3StorageHandler, GetKeysFromS3Config
+from src.common.s3_handler import S3StorageHandler, GetKeysFromS3Config
 import os
 
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"

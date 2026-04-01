@@ -16,7 +16,7 @@ import crcmod
 import requests
 import yaml
 from fastapi import HTTPException
-from common.s3_handler import PutFilesToS3Config, S3StorageHandler
+from src.common.s3_handler import PutFilesToS3Config, S3StorageHandler
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 from pathlib import Path
 

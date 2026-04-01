@@ -237,8 +237,13 @@ def test_download_file(cadip_client_with_auth, local_path, download_path):
         os.makedirs(download_path, exist_ok=True)
 
     # fail if there is not original file to compare with, tbd
-    if not os.path.exists(os.path.join(original_path, original_file)):
-        assert False
+    new_path = os.path.join(original_path, original_file)
+    if new_path.startswith("tests" + os.sep):
+        new_path = new_path[len("tests" + os.sep):]
+
+    if not os.path.exists(new_path):
+        pytest.fail(f"Missing reference file {new_path}")
+
     # Test download for an inexistent file (404 expected)
     api_route = "Files(some_inexistent_ID)/$value"
     assert cadip_client_with_auth.get(api_route).status_code == HTTPStatus.NOT_FOUND
@@ -250,10 +255,10 @@ def test_download_file(cadip_client_with_auth, local_path, download_path):
     with open(os.path.join(download_path, download_file), "wb+") as df:
         df.write(response.get_data())
     # test file content
-    assert filecmp.cmp(
-        os.path.join(original_path, original_file),
-        os.path.join(download_path, download_file),
-    )
+    orig = os.path.join(original_path, original_file).replace("tests/", "")
+    down = os.path.join(download_path, download_file)
+    assert filecmp.cmp(orig, down), f"Files differ: {orig} vs {down}"
+
     # clean downloaded file
     os.remove(os.path.join(download_path, download_file))
     os.removedirs(download_path)
