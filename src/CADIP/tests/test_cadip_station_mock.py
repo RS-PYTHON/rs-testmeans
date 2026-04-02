@@ -3,6 +3,7 @@ import filecmp
 import json
 import os
 from http import HTTPStatus
+from pathlib import Path
 
 import pytest
 
@@ -228,6 +229,7 @@ def test_query_quality_info():
 )
 def test_download_file(cadip_client_with_auth, local_path, download_path):
     """Docstring to be added."""
+    test_root = Path(__file__).resolve().parents[1]
     # Remove artifacts if any
     original_path, original_file = local_path
     download_path, download_file = download_path
@@ -237,9 +239,7 @@ def test_download_file(cadip_client_with_auth, local_path, download_path):
         os.makedirs(download_path, exist_ok=True)
 
     # fail if there is not original file to compare with, tbd
-    new_path = os.path.join(original_path, original_file)
-    if new_path.startswith("tests" + os.sep):
-        new_path = new_path[len("tests" + os.sep):]
+    new_path = str(test_root / original_path / original_file)
 
     if not os.path.exists(new_path):
         pytest.fail(f"Missing reference file {new_path}")
@@ -255,7 +255,7 @@ def test_download_file(cadip_client_with_auth, local_path, download_path):
     with open(os.path.join(download_path, download_file), "wb+") as df:
         df.write(response.get_data())
     # test file content
-    orig = os.path.join(original_path, original_file).replace("tests/", "")
+    orig = str(test_root / original_path / original_file)
     down = os.path.join(download_path, download_file)
     assert filecmp.cmp(orig, down), f"Files differ: {orig} vs {down}"
 
