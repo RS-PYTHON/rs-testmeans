@@ -1,11 +1,28 @@
-import pytest
-from prip_station_mock import create_prip_app
+# Copyright 2023-2026 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 import pathlib
 
+import pytest
+from prip_station_mock import create_prip_app
+
+
 @pytest.fixture(name="app_header")
 def get_station_request_headers():
-    return{"Content-Type": "application/x-www-form-urlencoded"}
+    return {"Content-Type": "application/x-www-form-urlencoded"}
+
 
 @pytest.fixture(name="external_auth_config")
 def get_external_auth_config():
@@ -16,6 +33,7 @@ def get_external_auth_config():
         "username": "test",
         "password": "test",
     }
+
 
 @pytest.fixture
 def prip_client():
@@ -34,7 +52,7 @@ def prip_client_with_auth(prip_client, external_auth_config, app_header):
     # Get new credentials by providing valid authentication configuration
     # and then use these credentials for the following data requests
     data_to_send = external_auth_config
-    token_response = client.post("/oauth2/token", data=data_to_send, headers = app_header)
+    token_response = client.post("/oauth2/token", data=data_to_send, headers=app_header)
     token_info = json.loads(token_response.text)
     client.environ_base["HTTP_AUTHORIZATION"] = f"Token {token_info['access_token']}"
 
@@ -44,7 +62,7 @@ def prip_client_with_auth(prip_client, external_auth_config, app_header):
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.parent.resolve() / "config"
 
 with open(PATH_TO_CONFIG / "Catalog" / "GETFileResponse.json") as bdata:
-    data = json.loads(bdata.read())['Data']
+    data = json.loads(bdata.read())["Data"]
 
 PRIP_PRODUCTS = data
 PRIP_PRODUCT = data[0]

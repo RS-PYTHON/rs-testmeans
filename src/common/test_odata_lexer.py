@@ -1,5 +1,20 @@
+# Copyright 2023-2026 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import pytest
 from odata_lexer import parse_odata_filter
+
 
 @pytest.mark.parametrize(
     "input_str, expected_output",
@@ -7,45 +22,38 @@ from odata_lexer import parse_odata_filter
         (
             "contains(Name, 'S1A_IW_RAW')",
             {
-                "Name":
-                    {"op": "contains", "value": "S1A_IW_RAW"},
+                "Name": {"op": "contains", "value": "S1A_IW_RAW"},
             },
         ),
         (
             "startswith(Name, 'S1')",
             {
-                "Name":
-                    {"op": "startswith", "value": "S1"},
+                "Name": {"op": "startswith", "value": "S1"},
             },
         ),
         (
             "endswith(Name, '.ZIP')",
             {
-                "Name":
-                    {"op": "endswith", "value": ".ZIP"},
+                "Name": {"op": "endswith", "value": ".ZIP"},
             },
         ),
         (
             "PublicationDate eq 2019-01-01T00:00:00.000Z",
             {
-                "PublicationDate":
-                    {"op": "Eq", "value": "2019-01-01T00:00:00.000Z"},
+                "PublicationDate": {"op": "Eq", "value": "2019-01-01T00:00:00.000Z"},
             },
         ),
         (
             "Id eq 06c91249-b275-4811-9a55-a8d11b534945",
             {
-                "Id":
-                    {"op": "Eq", "value": "06c91249-b275-4811-9a55-a8d11b534945"},
+                "Id": {"op": "Eq", "value": "06c91249-b275-4811-9a55-a8d11b534945"},
             },
         ),
         (
             "contains(Name, 'S1A_IW_RAW') and PublicationDate eq 2019-01-01T00:00:00.000Z",
             {
-                "Name":
-                    {"op": "contains", "value": "S1A_IW_RAW"},
-                "PublicationDate":
-                    {"op": "Eq", "value": "2019-01-01T00:00:00.000Z"},
+                "Name": {"op": "contains", "value": "S1A_IW_RAW"},
+                "PublicationDate": {"op": "Eq", "value": "2019-01-01T00:00:00.000Z"},
             },
         ),
         (
@@ -53,8 +61,7 @@ from odata_lexer import parse_odata_filter
             " PublicationDate gt 2018-01-01T00:00:00.000Z and"
             " PublicationDate lt 2023-01-01T00:00:00.000Z",
             {
-                "Name":
-                    {"op": "contains", "value": "S1A_IW_RAW"},
+                "Name": {"op": "contains", "value": "S1A_IW_RAW"},
                 "PublicationDate": [
                     {"op": "Gt", "value": "2018-01-01T00:00:00.000Z"},
                     {"op": "Lt", "value": "2023-01-01T00:00:00.000Z"},
@@ -68,8 +75,7 @@ from odata_lexer import parse_odata_filter
             " ContentDate/Start gt 2018-01-01T00:00:00.000Z and"
             " ContentDate/Start lt 2023-01-01T00:00:00.000Z",
             {
-                "Name":
-                    {"op": "endswith", "value": ".TGZ"},
+                "Name": {"op": "endswith", "value": ".TGZ"},
                 "PublicationDate": [
                     {"op": "Gt", "value": "2018-01-01T00:00:00.000Z"},
                     {"op": "Lt", "value": "2023-01-01T00:00:00.000Z"},
@@ -99,24 +105,16 @@ from odata_lexer import parse_odata_filter
         (
             "Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'IW_RAW__0N') and"
             " Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'sliceProductFlag' and att/OData.CSC.StringAttribute/Value eq 'False')",
-            {
-                "productType":
-                    {"op": "Eq", "value": "IW_RAW__0N"},
-                "sliceProductFlag":
-                    {"op": "Eq", "value": "False"}
-            },
+            {"productType": {"op": "Eq", "value": "IW_RAW__0N"}, "sliceProductFlag": {"op": "Eq", "value": "False"}},
         ),
         (
             "ContentDate/Start gt 2019-01-01T00:00:00.000Z and"
             " Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'IW_RAW__0N') and"
             " Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'sliceProductFlag' and att/OData.CSC.StringAttribute/Value eq 'False')",
             {
-                "ContentDate/Start":
-                    {"op": "Gt", "value": "2019-01-01T00:00:00.000Z"},
-                "productType":
-                    {"op": "Eq", "value": "IW_RAW__0N"},
-                "sliceProductFlag":
-                    {"op": "Eq", "value": "False"}
+                "ContentDate/Start": {"op": "Gt", "value": "2019-01-01T00:00:00.000Z"},
+                "productType": {"op": "Eq", "value": "IW_RAW__0N"},
+                "sliceProductFlag": {"op": "Eq", "value": "False"},
             },
         ),
         (
@@ -126,16 +124,13 @@ from odata_lexer import parse_odata_filter
             " Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'IW_RAW__0N') and"
             " Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'sliceProductFlag' and att/OData.CSC.StringAttribute/Value eq 'False')",
             {
-                "Name":
-                    {"op": "startswith", "value": "S1"},
+                "Name": {"op": "startswith", "value": "S1"},
                 "ContentDate/Start": [
                     {"op": "Gt", "value": "2019-01-01T00:00:00.000Z"},
                     {"op": "Lt", "value": "2025-01-01T00:00:00.000Z"},
                 ],
-                "productType":
-                    {"op": "Eq", "value": "IW_RAW__0N"},
-                "sliceProductFlag":
-                    {"op": "Eq", "value": "False"}
+                "productType": {"op": "Eq", "value": "IW_RAW__0N"},
+                "sliceProductFlag": {"op": "Eq", "value": "False"},
             },
         ),
         (
@@ -147,8 +142,7 @@ from odata_lexer import parse_odata_filter
             " Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'IW_RAW__0N') and"
             " Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'sliceProductFlag' and att/OData.CSC.StringAttribute/Value eq 'False')",
             {
-                "Name":
-                    {"op": "startswith", "value": "S1"},
+                "Name": {"op": "startswith", "value": "S1"},
                 "ContentDate/Start": [
                     {"op": "Gt", "value": "2019-01-01T00:00:00.000Z"},
                     {"op": "Lt", "value": "2025-01-01T00:00:00.000Z"},
@@ -157,10 +151,8 @@ from odata_lexer import parse_odata_filter
                     {"op": "Gt", "value": "2018-01-01T00:00:00.000Z"},
                     {"op": "Lt", "value": "2023-01-01T00:00:00.000Z"},
                 ],
-                "productType":
-                    {"op": "Eq", "value": "IW_RAW__0N"},
-                "sliceProductFlag":
-                    {"op": "Eq", "value": "False"}
+                "productType": {"op": "Eq", "value": "IW_RAW__0N"},
+                "sliceProductFlag": {"op": "Eq", "value": "False"},
             },
         ),
         (
@@ -174,8 +166,7 @@ from odata_lexer import parse_odata_filter
             " Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'polarisationChannels' and att/OData.CSC.StringAttribute/Value eq 'HH') and"
             " Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productConsolidation' and att/OData.CSC.StringAttribute/Value eq 'FULL')",
             {
-                "Name":
-                    {"op": "startswith", "value": "S1"},
+                "Name": {"op": "startswith", "value": "S1"},
                 "ContentDate/Start": [
                     {"op": "Gt", "value": "2019-01-01T00:00:00.000Z"},
                     {"op": "Lt", "value": "2025-01-01T00:00:00.000Z"},
@@ -184,17 +175,13 @@ from odata_lexer import parse_odata_filter
                     {"op": "Gt", "value": "2018-01-01T00:00:00.000Z"},
                     {"op": "Lt", "value": "2023-01-01T00:00:00.000Z"},
                 ],
-                "productType":
-                    {"op": "Eq", "value": "IW_RAW__0N"},
-                "sliceProductFlag":
-                    {"op": "Eq", "value": "False"},
-                "polarisationChannels":
-                    {"op": "Eq", "value": "HH"},
-                "productConsolidation":
-                    {"op": "Eq", "value": "FULL"},
+                "productType": {"op": "Eq", "value": "IW_RAW__0N"},
+                "sliceProductFlag": {"op": "Eq", "value": "False"},
+                "polarisationChannels": {"op": "Eq", "value": "HH"},
+                "productConsolidation": {"op": "Eq", "value": "FULL"},
             },
-        )
-    ]
+        ),
+    ],
 )
 def test_parse_odata_filter(input_str, expected_output):
     result = parse_odata_filter(input_str)

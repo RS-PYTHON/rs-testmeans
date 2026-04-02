@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2024 CS Group
+# Copyright 2023-2026 CS Group
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,16 +21,16 @@
 
 if [[ "$ID" == "debian" ]]; then
     cat > /etc/apt/sources.list <<EOF
-deb http://deb.debian.org/debian $VERSION_CODENAME main
-deb http://security.debian.org/debian-security $VERSION_CODENAME-security main
-deb http://deb.debian.org/debian $VERSION_CODENAME-updates main
-deb http://deb.debian.org/debian $VERSION_CODENAME-backports main
+deb https://deb.debian.org/debian $VERSION_CODENAME main
+deb https://security.debian.org/debian-security $VERSION_CODENAME-security main
+deb https://deb.debian.org/debian $VERSION_CODENAME-updates main
+deb https://deb.debian.org/debian $VERSION_CODENAME-backports main
 EOF
 elif [[ "$ID" == "ubuntu" ]]; then
     rm -f /etc/apt/sources.list
     for a in "" "-security" "-updates" "-backports"; do
         for b in main multiverse restricted universe; do
-            echo "deb http://archive.ubuntu.com/ubuntu ${VERSION_CODENAME}${a} ${b}" >> /etc/apt/sources.list
+            echo "deb https://archive.ubuntu.com/ubuntu ${VERSION_CODENAME}${a} ${b}" >> /etc/apt/sources.list
         done
     done
 else

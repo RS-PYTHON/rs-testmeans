@@ -1,26 +1,41 @@
+# Copyright 2023-2026 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Docstring to be added."""
+
 import argparse
 import datetime
 import json
 import logging
+import os
 import pathlib
 import re
 import sys
 from functools import wraps
+from http import HTTPStatus
 from typing import Any
-import random
-import string
-from flask import Flask, Response, request, send_file, after_this_request
+
+import dotenv
+from flask import Flask, Response, after_this_request, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
-from http import HTTPStatus
+
 from common.common_routes import (
+    register_token_route,
     token_required,
-    register_token_route, 
 )
-import dotenv
-from common.s3_handler import S3StorageHandler, GetKeysFromS3Config
-import os
+from common.s3_handler import GetKeysFromS3Config, S3StorageHandler
 
 PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
@@ -33,8 +48,9 @@ auth = HTTPBasicAuth()
 
 aditional_operators = [" and ", " or ", " in ", " not "]
 
-#Register route (common to CADIP AND ADGS) to register a new token
+# Register route (common to CADIP AND ADGS) to register a new token
 register_token_route(app)
+
 
 def additional_options(func):
     """Docstring to be added."""
@@ -46,6 +62,7 @@ def additional_options(func):
         accepted_display_options = ["$orderby", "$top", "$skip", "$count"]
         response = func(*args, **kwargs)
         display_headers = response.headers
+
         def parse_response_data():
             try:
                 return json.loads(response.data)
@@ -54,18 +71,24 @@ def additional_options(func):
 
         def sort_responses_by_field(json_data, field, reverse=False):
             keys = field.split("/")
-            return {"value": sorted(json_data["value"], key=lambda x: x[keys[0]][keys[1]] if len(keys) > 1 else x[field], reverse=reverse)}
+            return {
+                "value": sorted(
+                    json_data["value"],
+                    key=lambda x: x[keys[0]][keys[1]] if len(keys) > 1 else x[field],
+                    reverse=reverse,
+                ),
+            }
 
         def truncate_attrs(request, json_data):
             # Remove attribtes if not defined
             if not request.args.get("$expand", False) == "Attributes":
                 if "value" in json_data:
-                    for item in json_data['value']:
+                    for item in json_data["value"]:
                         item.pop("Attributes")
                 else:
                     json_data.pop("Attributes", None)
             return json_data
-        
+
         if data := parse_response_data():
             json_data = truncate_attrs(request, data)
         else:
@@ -84,12 +107,12 @@ def additional_options(func):
         top_value = int(display_headers.get("$top", 1000))
         if "$skip" in display_headers:
             # No slicing if there is only one result
-            json_data['value'] = json_data['value'][skip_value:]
+            json_data["value"] = json_data["value"][skip_value:]
         if "$top" in display_headers:
             # No slicing if there is only one result
-            json_data['value'] = json_data['value'][:top_value]
-                
-        return prepare_response_odata_v4(json_data['value'])
+            json_data["value"] = json_data["value"][:top_value]
+
+        return prepare_response_odata_v4(json_data["value"])
 
     return wrapper
 
@@ -105,7 +128,7 @@ def prepare_response_odata_v4(resp_body: list | map) -> Any:
     """
     unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
     try:
-        data = json.dumps(dict(value=unpacked)) # if len(unpacked) > 1 else json.dumps(unpacked[0])
+        data = json.dumps(dict(value=unpacked))  # if len(unpacked) > 1 else json.dumps(unpacked[0])
     except IndexError:
         return json.dumps({"value": []})
     return data
@@ -130,6 +153,7 @@ def process_products_request(request, headers) -> Response:
     catalog_data = json.loads(open(catalog_path).read())
     # Handle direct filtering by Id (eq/in), including GUID and list formats.
     if request.strip().startswith("Id "):
+
         def normalize_id_value(raw: str) -> str:
             value = raw.strip()
             if value.lower().startswith("guid'") and value.endswith("'"):
@@ -144,36 +168,20 @@ def process_products_request(request, headers) -> Response:
         if op == "in":
             # Accept both (a,b) and (['a','b']) shapes.
             values_raw = raw_value.strip().strip("()").strip("[]")
-            values = [
-                normalize_id_value(v)
-                for v in values_raw.split(",")
-                if v.strip()
-            ]
-            resp_body = [
-                product
-                for product in catalog_data["Data"]
-                if product["Id"] in values
-            ]
+            values = [normalize_id_value(v) for v in values_raw.split(",") if v.strip()]
+            resp_body = [product for product in catalog_data["Data"] if product["Id"] in values]
             return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
         if op == "eq":
             # Exact match for a single Id.
             value = normalize_id_value(raw_value)
-            resp_body = [
-                product
-                for product in catalog_data["Data"]
-                if product["Id"] == value
-            ]
+            resp_body = [product for product in catalog_data["Data"] if product["Id"] == value]
             return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
         return Response(status=HTTPStatus.BAD_REQUEST)
     if "Name" in request:
         if " in " in request:
             field, op, *value = request.strip().split(" ")
             values = [v.strip(" '\"") for v in " ".join(value).strip("()").split(",")]
-            resp_body = [
-                product
-                for product in catalog_data["Data"]
-                if product["Name"] in values
-            ]
+            resp_body = [product for product in catalog_data["Data"] if product["Name"] in values]
             return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
         pattern = r"(\w+)\((\w+), '?([\w.]+)'?\)"
         op = re.search(pattern, request).group(1)
@@ -218,13 +226,15 @@ def process_products_request(request, headers) -> Response:
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
-                    if date < datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                    if date < datetime.datetime.fromisoformat(product[field])
+                    or date == datetime.datetime.fromisoformat(product[field])
                 ]
             case "le":
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
-                    if date > datetime.datetime.fromisoformat(product[field]) or date == datetime.datetime.fromisoformat(product[field])
+                    if date > datetime.datetime.fromisoformat(product[field])
+                    or date == datetime.datetime.fromisoformat(product[field])
                 ]
             case _:
                 # If the operation is not recognized, return a 404 NOT FOUND response
@@ -285,13 +295,11 @@ def process_products_request(request, headers) -> Response:
                 resp_body = [
                     product
                     for product in catalog_data["Data"]
-                    if comparison_ops[op](
-                        datetime.datetime.fromisoformat(product["ContentDate"][date_field])
-                    )
+                    if comparison_ops[op](datetime.datetime.fromisoformat(product["ContentDate"][date_field]))
                 ]
             else:
                 resp_body = []
-                
+
             return (
                 Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
                 if resp_body
@@ -301,6 +309,7 @@ def process_products_request(request, headers) -> Response:
         pass  # WIP
     else:
         return Response(status=HTTPStatus.BAD_REQUEST)
+
 
 def process_query(query):
     # Step 1: Remove the part before "any("
@@ -327,7 +336,7 @@ def is_operator_next(expression: str, position: int) -> str:
     and returns it if so.
     """
     for operator in aditional_operators:
-        if position<len(expression)-len(operator) and expression[position:position+len(operator)] == operator:
+        if position < len(expression) - len(operator) and expression[position : position + len(operator)] == operator:
             return operator
     return ""
 
@@ -335,7 +344,7 @@ def is_operator_next(expression: str, position: int) -> str:
 def split_composite_filter(filter_to_split: str) -> tuple[list[str], list[str]]:
     """Function to split a filter made of two or more filters separated with an operator.
     The split is done at the first level of the filter only.
-    
+
     Examples:
       - used on "(field1 or condition1) and (field2 or condition2)" it will return
         ["field1 or condition1", "field2 or condition2"] with operators = ["and"]
@@ -344,6 +353,7 @@ def split_composite_filter(filter_to_split: str) -> tuple[list[str], list[str]]:
     Note that if the input filter is like "(field1 and condition1)" the parenthesis will be removed and
     it will be considered as "field1 and condition1", but if it's like "SomeInfo(field1 and condition1)"
     then it won't be considered as a composite filter and won't be splitted.
+
     """
     splitted_filter: list[str] = []
     current = []
@@ -352,22 +362,22 @@ def split_composite_filter(filter_to_split: str) -> tuple[list[str], list[str]]:
     i = 0
 
     # Remove parenthesis if useless (ex: "(ex1 and ex2)" but not "(ex1) and (ex2)")
-    if re.fullmatch(r'\([^()]*\)', filter_to_split.strip()):
+    if re.fullmatch(r"\([^()]*\)", filter_to_split.strip()):
         filter_to_split = filter_to_split.removeprefix("(")
         filter_to_split = filter_to_split.removesuffix(")")
 
     # Split filter at depth 0 based on operators (anything outside parenthesis basically)
     while i < len(filter_to_split):
-        if filter_to_split[i] == '(':
+        if filter_to_split[i] == "(":
             depth += 1
             current.append(filter_to_split[i])
             i += 1
-        elif filter_to_split[i] == ')':
+        elif filter_to_split[i] == ")":
             depth -= 1
             current.append(filter_to_split[i])
             i += 1
         elif depth == 0 and (operator := is_operator_next(filter_to_split, i)):
-            splitted_filter.append(''.join(current).strip())
+            splitted_filter.append("".join(current).strip())
             current = []
             operators.append(operator.strip())
             i += len(operator)
@@ -376,7 +386,7 @@ def split_composite_filter(filter_to_split: str) -> tuple[list[str], list[str]]:
             i += 1
 
     if current:
-        splitted_filter.append(''.join(current).strip())
+        splitted_filter.append("".join(current).strip())
 
     # Return subfilters and operators found
     return splitted_filter, operators
@@ -401,7 +411,7 @@ def process_filter(request, input_filter: str) -> Response:
         operators = operators[1:]
 
     # If there is only one filter, apply it and gather results
-    if len(splitted_filters)==1:
+    if len(splitted_filters) == 1:
         end_filter = splitted_filters[0]
         if "Attributes" in end_filter or "OData.CSC" in end_filter:
             return process_attributes_search(end_filter, request.args)
@@ -412,11 +422,11 @@ def process_filter(request, input_filter: str) -> Response:
     # If there is more than one filter, repeat operation on each one and combine its
     # results with the ones of the previous one using the correct operator
     else:
-        i=1
+        i = 1
         final_results = process_filter(request, splitted_filters[0])
         while i < len(splitted_filters):
             current_filter_results = process_filter(request, splitted_filters[i])
-            final_results = process_common_elements(final_results, current_filter_results, operators[i-1])
+            final_results = process_common_elements(final_results, current_filter_results, operators[i - 1])
             return final_results
 
 
@@ -432,17 +442,18 @@ def extract_values_and_operation(part1, part2):
     match2 = re.search(pattern, part2)
     if match2:
         operation = match2.group(1)  # Capture the operation (eq, gt, lt)
-        value2 = match2.group(3)      # Capture the value between single quotes
+        value2 = match2.group(3)  # Capture the value between single quotes
         return value1, operation, value2
-    
+
     match_in = re.search(in_pattern, part2)
     if match_in:
         operation = "in"
         value2 = [v.strip() for v in match_in.group(1).split("','")]
         return value1, operation, value2
-    
+
     return value1, None, None
-    
+
+
 def process_attributes_search(query, headers) -> Response:
     # Don;t touch this, it just works
     results = process_query(query)
@@ -451,16 +462,27 @@ def process_attributes_search(query, headers) -> Response:
     elif len(results) == 4:
         part1 = process_individual_query_part(process_query(query)[:2], headers)
         part2 = process_individual_query_part(process_query(query)[2:], headers)
-        return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(process_response(part1, part2)), headers=headers)
+        return Response(
+            status=HTTPStatus.OK,
+            response=prepare_response_odata_v4(process_response(part1, part2)),
+            headers=headers,
+        )
+
 
 def process_response(query_resp1, query_resp2):
-    response1 = json.loads(query_resp1.response[0].decode('utf-8')).get("value", json.loads(query_resp1.response[0].decode('utf-8')))
-    response2 = json.loads(query_resp2.response[0].decode('utf-8')).get("value", json.loads(query_resp2.response[0].decode('utf-8')))
-    ids_list1 = {item['Id'] for item in response1}
-    ids_list2 = {item['Id'] for item in response2}
+    response1 = json.loads(query_resp1.response[0].decode("utf-8")).get(
+        "value",
+        json.loads(query_resp1.response[0].decode("utf-8")),
+    )
+    response2 = json.loads(query_resp2.response[0].decode("utf-8")).get(
+        "value",
+        json.loads(query_resp2.response[0].decode("utf-8")),
+    )
+    ids_list1 = {item["Id"] for item in response1}
+    ids_list2 = {item["Id"] for item in response2}
     common_ids = ids_list1.intersection(ids_list2)
-    common_items_list1 = [item for item in response1 if item['Id'] in common_ids]
-    common_items_list2 = [item for item in response2 if item['Id'] in common_ids]
+    common_items_list1 = [item for item in response1 if item["Id"] in common_ids]
+    common_items_list2 = [item for item in response2 if item["Id"] in common_ids]
     return common_items_list1 + common_items_list2
 
 
@@ -471,38 +493,44 @@ def process_individual_query_part(query_parts, headers):
     if field in ("beginningDateTime", "endingDateTime", "processingDate"):
         date = datetime.datetime.fromisoformat(value)
         resp = []
-        for product in catalog_data['Data']:
+        for product in catalog_data["Data"]:
             for attr in product["Attributes"]:
                 try:
-                    if attr['Name'] == field:
+                    if attr["Name"] == field:
                         match op:
                             case "eq":
-                                if date == datetime.datetime.fromisoformat(attr['Value']):
+                                if date == datetime.datetime.fromisoformat(attr["Value"]):
                                     resp.append(product)
                             case "lt":
-                                if date > datetime.datetime.fromisoformat(attr['Value']):
+                                if date > datetime.datetime.fromisoformat(attr["Value"]):
                                     resp.append(product)
                             case "gt":
-                                if date > datetime.datetime.fromisoformat(attr['Value']):
+                                if date > datetime.datetime.fromisoformat(attr["Value"]):
                                     resp.append(product)
                 except KeyError:
                     continue
-    if field in ("platformShortName", "platformSerialIdentifier", "processingCenter", "productType", "processorVersion"):
+    if field in (
+        "platformShortName",
+        "platformSerialIdentifier",
+        "processingCenter",
+        "productType",
+        "processorVersion",
+    ):
         resp = []
-        for product in catalog_data['Data']:
+        for product in catalog_data["Data"]:
             for attr in product["Attributes"]:
                 try:
-                    if attr['Name'].lower() == field.lower():
-                        if attr['Value'] is not None:
+                    if attr["Name"].lower() == field.lower():
+                        if attr["Value"] is not None:
                             if op == "in" and isinstance(value, list):
-                                if attr['Value'].lower() in [v.lower() for v in value]:
+                                if attr["Value"].lower() in [v.lower() for v in value]:
                                     resp.append(product)
-                            else:
-                                if attr['Value'].lower() == value.lower():
-                                    resp.append(product)
+                            elif attr["Value"].lower() == value.lower():
+                                resp.append(product)
                 except KeyError:
                     continue
     return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp if resp else []), headers=headers)
+
 
 def process_common_elements(first_response, second_response, operator):
     try:
@@ -547,7 +575,8 @@ def process_common_elements(first_response, second_response, operator):
                 headers=request.args,
             )
 
-@app.route("/Products", methods=["GET"]) 
+
+@app.route("/Products", methods=["GET"])
 @token_required
 @additional_options
 def query_products():
@@ -555,15 +584,29 @@ def query_products():
     if "$filter" not in request.args:
         catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
         catalog_data = json.loads(open(catalog_path).read())
-        return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(catalog_data['Data']), headers=request.args)
+        return Response(
+            status=HTTPStatus.OK,
+            response=prepare_response_odata_v4(catalog_data["Data"]),
+            headers=request.args,
+        )
         # Handle parantheses
     if not re.search(r"\(([^()]*\sor\s[^()]*)\)", request.args["$filter"]):
         if not any(
-            [query_text in request.args["$filter"].split(" ")[0] for query_text in ["Name", "PublicationDate", "Attributes", "ContentDate/Start", "ContentDate/End", "Id"]],
+            [
+                query_text in request.args["$filter"].split(" ")[0]
+                for query_text in [
+                    "Name",
+                    "PublicationDate",
+                    "Attributes",
+                    "ContentDate/Start",
+                    "ContentDate/End",
+                    "Id",
+                ]
+            ],
         ):
             return Response(status=HTTPStatus.BAD_REQUEST)
 
-    return process_filter(request, request.args['$filter'])
+    return process_filter(request, request.args["$filter"])
 
 
 @app.route("/Products(<Id>)/$value", methods=["GET"])
@@ -576,7 +619,7 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
     if len(files) != 1:
         return Response(status="404 None/Multiple files found")
-    
+
     if len(files) == 1:
         file_info = files[0]
         if "S3_path" in file_info:
@@ -591,7 +634,10 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
             except KeyError:
                 # If env variables are not set, check if /.s3cfg is there, and map the values.
                 if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("/.s3cfg"))):
-                    return Response(status=HTTPStatus.BAD_REQUEST, response="You must have a s3cmd config file under '~/.s3cfg'")
+                    return Response(
+                        status=HTTPStatus.BAD_REQUEST,
+                        response="You must have a s3cmd config file under '~/.s3cfg'",
+                    )
                 handler = S3StorageHandler(
                     s3_credentials["access_key"],
                     s3_credentials["secret_key"],
@@ -601,6 +647,7 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
             parts = file_info["S3_path"].replace("s3://", "").split("/", 1)
             handler.get_keys_from_s3(GetKeysFromS3Config([parts[1]], parts[0], "/tmp/auxip"))
             file_path = f"/tmp/auxip/{file_info['Name']}"
+
             @after_this_request
             def remove_file(response):
                 try:
@@ -608,6 +655,7 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
                 except Exception as e:
                     app.logger.error(f"Failed to delete {file_path}: {e}")
                 return response
+
         # Send bytes of gzip files in order to avoid auto-decompress feature from application/gzip headers
         # Decide once where the file actually is
         if "S3_path" in file_info:
@@ -618,6 +666,7 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         # Send bytes for archives to avoid auto-decompression
         if any(ext in files[0]["Name"] for ext in [".TGZ", ".gz", ".zip", ".tar"]):
             import io
+
             with open(send_path, "rb") as f:
                 send_args = io.BytesIO(f.read())
             return send_file(
@@ -627,6 +676,7 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
             )
         else:
             return send_file(send_path)
+
 
 def create_adgs_app():
     """Docstring to be added."""
@@ -657,17 +707,17 @@ if __name__ == "__main__":
             configuration_path = default_config_path
             logger.info("Using default config")
     app.config["configuration_path"] = configuration_path
-    
+
     # Create a json file containing the authentification configuration
     # this file will be deleted at the shutdown of the application
-    auth_tmp_path =  str(app.config["configuration_path"] / "auth_tmp.json")
-    auth_path =  str(app.config["configuration_path"] / "auth.json")
+    auth_tmp_path = str(app.config["configuration_path"] / "auth_tmp.json")
+    auth_path = str(app.config["configuration_path"] / "auth.json")
 
     # Copy data from the authentification template file (auth_tmp.json) to the authentification file (auth.json)
-    with open(auth_tmp_path, "r", encoding="utf-8") as src:
+    with open(auth_tmp_path, encoding="utf-8") as src:
         auth_tmp_dict = json.load(src)
     with open(auth_path, "w", encoding="utf-8") as dest:
         json.dump(auth_tmp_dict, dest, indent=4, ensure_ascii=False)
-    
+
     app.run(debug=True, host=args.host, port=args.port)  # local
     # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
