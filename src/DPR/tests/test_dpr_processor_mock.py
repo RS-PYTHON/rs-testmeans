@@ -130,12 +130,15 @@ def test_dpr_product_rename(mocker, input_data_path, expected_new_product_name):
         - S1SEWRAW
     """
     dpr_mockup_processor = DPRProcessor(yaml.dump(yaml.safe_load(yamlstr)))
+    test_data_root = pathlib.Path(__file__).resolve().parents[3] / "tests" / "data"
+    input_data_path = test_data_root / pathlib.Path(input_data_path).name
+    expected_new_product_name = test_data_root / pathlib.Path(expected_new_product_name).name
     # Don't actually rename on disk, just mock it.
     mock_rename = mocker.patch("pathlib.Path.rename", return_value=None, autospec=True)
-    dpr_mockup_processor.update_product_name(pathlib.Path(input_data_path), "TEST_CRC")
+    dpr_mockup_processor.update_product_name(input_data_path, "TEST_CRC")
     mock_rename.assert_called_once()
     # Check that pathlib.Path.rename is called with the right parameters
-    mock_rename.assert_called_with(pathlib.PosixPath(input_data_path), expected_new_product_name)
+    mock_rename.assert_called_with(input_data_path, str(expected_new_product_name))
 
 
 @pytest.mark.unit
@@ -164,17 +167,19 @@ def test_dpr_attrs_update(mocker, input_data_path, expected_processing_stamp):
         product_types:
         - S1SEWRAW
     """
-    initial_data = json.load(open(pathlib.Path(input_data_path) / ".zattrs"))
+    test_data_root = pathlib.Path(__file__).resolve().parents[3] / "tests" / "data"
+    input_data_path = test_data_root / pathlib.Path(input_data_path).name
+    initial_data = json.load(open(input_data_path / ".zattrs"))
     mocker.patch("DPR_processor_mock.DPRProcessor.update_product_name", return_value=None, autospec=True)
 
     dpr = DPRProcessor(yaml.dump(yaml.safe_load(yamlstr)))
-    dpr.update_product(pathlib.Path(input_data_path), "EW_RAW__0S")
-    updated_data = json.load(open(pathlib.Path(input_data_path) / ".zattrs"))
+    dpr.update_product(input_data_path, "EW_RAW__0S")
+    updated_data = json.load(open(input_data_path / ".zattrs"))
     # Check that processing history timestamp was updated, and processor name is correct
     assert initial_data != updated_data
     assert expected_processing_stamp in updated_data["other_metadata"]["history"]["processor"]
     # Replace with initial data to avoid side effects
-    json.dump(initial_data, open(pathlib.Path(input_data_path) / ".zattrs", "w"), indent=4)
+    json.dump(initial_data, open(input_data_path / ".zattrs", "w"), indent=4)
 
 
 # TC-001 / 002 / 003: Call the mockup with S1 L0 EW / local directory.
