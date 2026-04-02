@@ -6868,14 +6868,14 @@
             "Id": "avzxpox-99cc-7axa-31af-grid992mseal",
             "Name": "S1A_OPER_MPL_ORBPRE_20250611T021935_20250618T021934_0001.EOF.zip",
             "ContentType": "application/octet-stream",
-            "ContentLength": "unknown",
+            "ContentLength": "3169203",
             "OriginDate": "2025-06-18T02:19:34.000Z",
             "PublicationDate": "2025-06-18T02:19:34.000Z",
             "EvictionDate": "2025-06-18T02:19:34.000Z",
             "Checksum": [
                 {
                     "Algorithm": "MD5",
-                    "Value": "your-md5-here",
+                    "Value": "cFeaFeAe20df52651743FC8CDdba02DB",
                     "ChecksumDate": "2025-06-18T00:00:00.000Z"
                 }
             ],
