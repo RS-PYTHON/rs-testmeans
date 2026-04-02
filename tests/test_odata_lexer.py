@@ -1,5 +1,5 @@
 import pytest
-from odata_lexer import parse_odata_filter
+from common.odata_lexer import parse_odata_filter
 
 @pytest.mark.parametrize(
     "input_str, expected_output",

@@ -46,6 +46,7 @@ pyyaml = "^6.0.1"
 crcmod = "^1.7"
 fastapi = "^0.109.2"
 uvicorn = "^0.27.1"
+odata-query = "*"
 
 [tool.poetry.group.dev]
 optional = true
@@ -57,6 +58,8 @@ line-length = 120
 [tool.pytest.ini_options]
 # This is mandatory for pytest-docker
 # to have a pytest.rootdir set to project.rootdir
+testpaths = ["tests"]
+pythonpath = ["src"]
 
 
 [tool.ruff]
