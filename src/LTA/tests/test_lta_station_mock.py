@@ -35,9 +35,7 @@ def test_basic_auth(lta_client, external_auth_config, app_header):
     assert token_info["access_token"]
 
     assert lta_client.get("/", headers={"Authorization": f"Token {token_info['access_token']}"}).status_code == HTTP_OK
-    assert (
-        lta_client.get("/", headers={"Authorization": "Token WrongAccessToken"}).status_code == HTTP_FORBIDDEN
-    )
+    assert lta_client.get("/", headers={"Authorization": "Token WrongAccessToken"}).status_code == HTTP_FORBIDDEN
     # test a broken endpoint route
     assert lta_client.get("incorrectRoute/").status_code == HTTP_NOT_FOUND
 

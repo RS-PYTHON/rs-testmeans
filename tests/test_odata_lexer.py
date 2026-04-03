@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import pytest
+
 from common.odata_lexer import parse_odata_filter
 
 

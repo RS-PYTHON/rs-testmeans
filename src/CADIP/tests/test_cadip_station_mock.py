@@ -239,7 +239,10 @@ def test_query_quality_info():
     "local_path, download_path",
     [
         # to be changed after deploy / pipeline
-        (("config/S3Mock/", "DCS_01_S1A_20200105072204051312_ch1_DSDB_00000.raw"), ("tests/S3MockTest/", "S1A_test.raw")),
+        (
+            ("config/S3Mock/", "DCS_01_S1A_20200105072204051312_ch1_DSDB_00000.raw"),
+            ("tests/S3MockTest/", "S1A_test.raw"),
+        ),
     ],
 )
 def test_download_file(cadip_client_with_auth, local_path, download_path):

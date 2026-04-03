@@ -121,7 +121,7 @@ def lta_client():
 
 def export_aws_credentials():
     """Export AWS credentials as environment variables for testing purposes."""
-    with open("resources/s3.yml", "r", encoding="utf-8") as f:
+    with open("resources/s3.yml", encoding="utf-8") as f:
         s3_config = yaml.safe_load(f)
         os.environ.update(s3_config["s3"])
 

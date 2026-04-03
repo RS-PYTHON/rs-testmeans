@@ -19,12 +19,11 @@ import pathlib
 import boto3
 import pytest
 import yaml
-from moto.server import ThreadedMotoServer
-import asyncio
 from DPR_processor_mock import DPRProcessor
+from fastapi import HTTPException
+from moto.server import ThreadedMotoServer
 
 from .conftest import export_aws_credentials
-from fastapi import HTTPException
 
 
 def _run_local_s3_processor(yamlstr, product_type, product_names, tmp_path, mocker):
@@ -118,12 +117,12 @@ def test_list_of_downloadableable_products():
     "input_data_path, expected_new_product_name",
     [
         (
-                "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
-                "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr",
+            "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
+            "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr",
         ),
         (
-                "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr.zip",
-                "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr.zip",
+            "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr.zip",
+            "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_TEST_CRC.zarr.zip",
         ),
     ],
 )
@@ -160,8 +159,8 @@ def test_dpr_product_rename(mocker, input_data_path, expected_new_product_name):
     "input_data_path, expected_processing_stamp",
     [
         (
-                "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
-                "RSPY_DprMockupProcessor",
+            "../../tests/data/S1SEWRAW_20230103T225516_0038_A003_T290.zarr",
+            "RSPY_DprMockupProcessor",
         ),
     ],
 )
@@ -239,19 +238,19 @@ def test_s1_l2_ocn_process(product_type, s3_outputpath, tmp_path, mocker):
     server = ThreadedMotoServer(port=5555)
     server.start()
     try:
-      s3_client = boto3.client("s3", endpoint_url="http://127.0.0.1:5555")
-      s3_client.create_bucket(Bucket="test-data")
+        s3_client = boto3.client("s3", endpoint_url="http://127.0.0.1:5555")
+        s3_client.create_bucket(Bucket="test-data")
 
-      new_product_names = [new_name.replace("***", "TEST0") for new_name in s3_outputpath]
-      attrs = _run_local_s3_processor(yamlstr, product_type, new_product_names, tmp_path, mocker)
-      # Check that expected path was created and product was updated into s3.
-      uploaded_s3_files = [file["Key"] for file in s3_client.list_objects(Bucket="test-data")["Contents"]]
-      assert sorted(uploaded_s3_files) == sorted(new_product_names)
-      # Check that temp download dir was not cleared
-      # check that attrs were updated with correct processor name
-      assert attrs[0]["other_metadata"]["history"]["processor"] == "RSPY_DprMockupProcessor"
+        new_product_names = [new_name.replace("***", "TEST0") for new_name in s3_outputpath]
+        attrs = _run_local_s3_processor(yamlstr, product_type, new_product_names, tmp_path, mocker)
+        # Check that expected path was created and product was updated into s3.
+        uploaded_s3_files = [file["Key"] for file in s3_client.list_objects(Bucket="test-data")["Contents"]]
+        assert sorted(uploaded_s3_files) == sorted(new_product_names)
+        # Check that temp download dir was not cleared
+        # check that attrs were updated with correct processor name
+        assert attrs[0]["other_metadata"]["history"]["processor"] == "RSPY_DprMockupProcessor"
     finally:
-      server.stop()
+        server.stop()
 
 
 #  TC-003: Call the mockup with same arguments as previous test. Check that the difference between the outputs of TC-002
@@ -289,17 +288,17 @@ def test_s1_l2_ocn_reprocessing(product_type, bucket, tmp_path, mocker):
     server = ThreadedMotoServer(port=5555)
     server.start()
     try:
-      s3_client = boto3.client("s3", endpoint_url="http://127.0.0.1:5555")
-      s3_client.create_bucket(Bucket=bucket)
-      for run_idx in range(5):
-          # Run the test 5 times, to make sure that new products are created each time, and no overlaps occur
-          product_names = [
-              f"S1SSMOCN_20220708T000110_0019_S004__TEST{run_idx}.zarr.zip",
-              f"S1SSMOCN_20220708T000110_0019_S004__TEST{run_idx}.cog.zip",
-              f"S1SSMOCN_20220708T000110_0019_S004__TEST{run_idx}.nc",
-          ]
-          attrs = _run_local_s3_processor(yamlstr, product_type, product_names, tmp_path, mocker)
-      # 5 runs with 3 generated files each time
-      assert len([file["Key"] for file in s3_client.list_objects(Bucket=bucket)["Contents"]]) == 5 * 3
+        s3_client = boto3.client("s3", endpoint_url="http://127.0.0.1:5555")
+        s3_client.create_bucket(Bucket=bucket)
+        for run_idx in range(5):
+            # Run the test 5 times, to make sure that new products are created each time, and no overlaps occur
+            product_names = [
+                f"S1SSMOCN_20220708T000110_0019_S004__TEST{run_idx}.zarr.zip",
+                f"S1SSMOCN_20220708T000110_0019_S004__TEST{run_idx}.cog.zip",
+                f"S1SSMOCN_20220708T000110_0019_S004__TEST{run_idx}.nc",
+            ]
+            attrs = _run_local_s3_processor(yamlstr, product_type, product_names, tmp_path, mocker)
+        # 5 runs with 3 generated files each time
+        assert len([file["Key"] for file in s3_client.list_objects(Bucket=bucket)["Contents"]]) == 5 * 3
     finally:
-      server.stop()
+        server.stop()
