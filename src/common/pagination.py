@@ -1,8 +1,25 @@
+# Copyright 2023-2026 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Docstring to be added."""
+
 import json
 from functools import wraps
 from typing import Any
+
 from flask import request
+
 
 def prepare_response_odata_v4(resp_body: list | map) -> Any:
     """Prepare an OData v4 response.
@@ -13,13 +30,13 @@ def prepare_response_odata_v4(resp_body: list | map) -> Any:
     :return: A JSON string representing the OData v4 response.
     :rtype: str
     """
-
     unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
     try:
-        data = json.dumps(dict(value=unpacked)) # if len(unpacked) > 1 else json.dumps(unpacked[0])
+        data = json.dumps(dict(value=unpacked))  # if len(unpacked) > 1 else json.dumps(unpacked[0])
     except IndexError:
         return json.dumps({"value": []})
     return data
+
 
 def additional_options(func):
     """Common function to paginate requests with top, skip, count, orderby"""
@@ -31,6 +48,7 @@ def additional_options(func):
         accepted_display_options = ["$orderby", "$top", "$skip", "$count"]
         response = func(*args, **kwargs)
         display_headers = response.headers
+
         def parse_response_data():
             try:
                 return json.loads(response.data)
@@ -39,18 +57,24 @@ def additional_options(func):
 
         def sort_responses_by_field(json_data, field, reverse=False):
             keys = field.split("/")
-            return {"value": sorted(json_data["value"], key=lambda x: x[keys[0]][keys[1]] if len(keys) > 1 else x[field], reverse=reverse)}
+            return {
+                "value": sorted(
+                    json_data["value"],
+                    key=lambda x: x[keys[0]][keys[1]] if len(keys) > 1 else x[field],
+                    reverse=reverse,
+                ),
+            }
 
         def truncate_attrs(request, json_data):
             # Remove attribtes if not defined
             if not request.args.get("$expand", False) == "Attributes":
                 if "value" in json_data:
-                    for item in json_data['value']:
+                    for item in json_data["value"]:
                         item.pop("Attributes")
                 else:
                     json_data.pop("Attributes", None)
             return json_data
-        
+
         if data := parse_response_data():
             json_data = truncate_attrs(request, data)
         else:
@@ -69,11 +93,11 @@ def additional_options(func):
         top_value = int(display_headers.get("$top", 1000))
         if "$skip" in display_headers:
             # No slicing if there is only one result
-            json_data['value'] = json_data['value'][skip_value:]
+            json_data["value"] = json_data["value"][skip_value:]
         if "$top" in display_headers:
             # No slicing if there is only one result
-            json_data['value'] = json_data['value'][:top_value]
-                
-        return prepare_response_odata_v4(json_data['value'])
+            json_data["value"] = json_data["value"][:top_value]
+
+        return prepare_response_odata_v4(json_data["value"])
 
     return wrapper

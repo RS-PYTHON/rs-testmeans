@@ -1,5 +1,19 @@
+# Copyright 2023-2026 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import asyncio
 import json
-import os
 import pathlib
 
 import boto3
@@ -191,10 +205,12 @@ def test_dpr_attrs_update(mocker, input_data_path, expected_processing_stamp):
     "product_type, s3_outputpath",
     [
         (
-                "S1SSMOCN",
-                ["S1SSMOCN_20220708T000110_0019_S004__***.zarr.zip",
-                 "S1SSMOCN_20220708T000110_0019_S004__***.cog.zip",
-                 "S1SSMOCN_20220708T000110_0019_S004__***.nc"]
+            "S1SSMOCN",
+            [
+                "S1SSMOCN_20220708T000110_0019_S004__***.zarr.zip",
+                "S1SSMOCN_20220708T000110_0019_S004__***.cog.zip",
+                "S1SSMOCN_20220708T000110_0019_S004__***.nc",
+            ],
         ),
     ],
 )
@@ -241,14 +257,12 @@ def test_s1_l2_ocn_process(product_type, s3_outputpath, tmp_path, mocker):
 #  TC-003: Call the mockup with same arguments as previous test. Check that the difference between the outputs of TC-002
 #  and TC-003 concern the datetime fields and the CRC in the product name.
 
+
 # Test overlapping products in the same s3 folder.
 @pytest.mark.unit
 @pytest.mark.parametrize(
     "product_type, bucket",
-    [
-        ("S1SSMOCN", "test-data-reprocessing-first"),
-        ("S1SSMOCN", "test-data-reprocessing-second")
-    ],
+    [("S1SSMOCN", "test-data-reprocessing-first"), ("S1SSMOCN", "test-data-reprocessing-second")],
 )
 def test_s1_l2_ocn_reprocessing(product_type, bucket, tmp_path, mocker):
     yamlstr = f"""
