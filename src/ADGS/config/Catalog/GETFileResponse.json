@@ -6900,7 +6900,7 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "productType",
                     "ValueType": "String",
-                    "Value": "MPL_ORBSCT"
+                    "Value": "MPL_ORBPRE"
                 },
                 {
                     "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
