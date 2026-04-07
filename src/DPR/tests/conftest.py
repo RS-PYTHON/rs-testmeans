@@ -1,0 +1,32 @@
+# Copyright 2023-2026 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import os
+
+
+def export_aws_credentials():
+    """Export AWS credentials as environment variables for DPR moto tests."""
+    os.environ.update(
+        {
+            "AWS_ACCESS_KEY_ID": "testing",
+            "S3_ACCESSKEY": "testing",
+            "AWS_SECRET_ACCESS_KEY": "testing",
+            "S3_SECRETKEY": "testing",
+            "AWS_SECURITY_TOKEN": "testing",
+            "S3_ENDPOINT": "http://localhost:5555",
+            "AWS_SESSION_TOKEN": "testing",
+            "S3_REGION": "testing",
+            "AWS_DEFAULT_REGION": "us-east-1",
+        },
+    )
