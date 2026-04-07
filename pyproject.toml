@@ -19,24 +19,11 @@ dynamic = ["version"]
 
 requires-python = ">=3.11,<4"
 
-dependencies = [
-    "Flask >= 2.3.0",
-    "Flask-HTTPAuth >= 4.8.0",
-    "Flask-Bcrypt >= 1.0.1",
-    "boto3 >= 1.28.85",
-    "botocore >= 1.31.85",
-    "dotenv >= 0.9.9"
-    ]
-
-[project.optional-dependencies]
-tests = [
-    "pytest >= 7.4.3"
-    ]
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
 pytest-cov = "^4.1.0"
 pytest-mock = "^3.12.0"
+moto = { version = "^5.0.1", extras = ["server"] }
 black = ">=26.3.1"
 ruff = "^0.1.3"
 mypy = "^1.6.1"
@@ -69,11 +56,16 @@ requests = "^2.31.0"
 botocore = "^1.31.83"
 boto3 = "^1.28.81"
 tqdm = "^4.66.1"
-moto = "^5.0.1"
-flask-cors = "^4.0.0"
-cffi = "^1.17.1"
+flask-cors = "6.0.0"
+cffi = "^2.0.0"
 flask = "^3.1.0"
 dotenv = "^0.9.9"
+pyyaml = "^6.0.1"
+crcmod = "^1.7"
+fastapi = "^0.121.0"
+uvicorn = "^0.27.1"
+odata-query = "*"
+cryptography = "^46.0.6"
 
 [tool.poetry.group.dev]
 optional = true
@@ -85,6 +77,8 @@ line-length = 120
 [tool.pytest.ini_options]
 # This is mandatory for pytest-docker
 # to have a pytest.rootdir set to project.rootdir
+testpaths = ["tests"]
+pythonpath = ["src"]
 
 
 [tool.ruff]
