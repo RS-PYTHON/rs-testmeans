@@ -16,10 +16,8 @@ name: Check code quality
 
 on:
   push:
-    branches:
-      - develop # pushes on the 'develop' branch
-    tags:
-      - '**' # new git tags (including hierarchical tags like v1.0/beta)
+    branches: [develop, main] # pushes on the 'develop' or 'main' branches
+    tags: ['**'] # new git tags (including hierarchical tags like v1.0/beta)
   pull_request:
     types: [opened, synchronize, reopened]
     # run this worflow only for code/test related changes (avoid it for documentation)
@@ -27,7 +25,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Check quality of this current project by calling the reusable quality check from this same project.
   call-reusable-workflow:
     name: _
     uses: RS-PYTHON/actions/.github/workflows/reusable-check-quality.yml@feat-rspy995/run-sonar-from-project-root
