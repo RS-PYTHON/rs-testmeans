@@ -663,14 +663,12 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         else:
             send_path = app.config["configuration_path"] / "Storage" / files[0]["Name"]
 
-        # Send bytes for archives to avoid auto-decompression
-        if any(ext in files[0]["Name"] for ext in [".TGZ", ".gz", ".zip", ".tar"]):
-            import io
-
-            with open(send_path, "rb") as f:
-                send_args = io.BytesIO(f.read())
+        # Send archives as attachments so Werkzeug does not add
+        # Content-Encoding for gzip-like names, while still streaming
+        # directly from disk instead of loading the full payload in RAM.
+        if files[0]["Name"].endswith((".TGZ", ".gz", ".zip", ".tar")):
             return send_file(
-                send_args,
+                send_path,
                 download_name=files[0]["Name"],
                 as_attachment=True,
             )
