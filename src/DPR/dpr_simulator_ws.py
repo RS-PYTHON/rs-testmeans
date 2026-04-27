@@ -15,7 +15,7 @@
 import uvicorn
 import yaml
 from DPR_processor_mock import DPRProcessor
-from fastapi import FastAPI, APIRouter, Request, status
+from fastapi import APIRouter, FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
