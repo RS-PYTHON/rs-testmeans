@@ -15,18 +15,19 @@
 import uvicorn
 import yaml
 from DPR_processor_mock import DPRProcessor
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, APIRouter, Request, status
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
+router = APIRouter()
 
 
-@app.route("/health", methods=["GET"])
-async def ready_live_status(request):
+@router.get("/health")
+async def ready_live_status():
     return JSONResponse(status_code=status.HTTP_200_OK, content={"Healthy": "True"})
 
 
-@app.post("/run")
+@router.post("/run")
 async def run_simulator(request: Request):
     data = await request.json()
     yaml_data = yaml.dump(data)
@@ -34,6 +35,7 @@ async def run_simulator(request: Request):
     attrs = await dpr_sim.run()
     return JSONResponse(status_code=status.HTTP_200_OK, content=attrs)
 
+app.include_router(router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
