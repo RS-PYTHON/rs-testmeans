@@ -35,6 +35,7 @@ async def run_simulator(request: Request):
     attrs = await dpr_sim.run()
     return JSONResponse(status_code=status.HTTP_200_OK, content=attrs)
 
+
 app.include_router(router)
 
 if __name__ == "__main__":
