@@ -39,7 +39,6 @@ env:
   DOCKER_REGISTRY: ghcr.io
 
 jobs:
-
   build_version_name:
     if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
@@ -84,14 +83,15 @@ jobs:
         image:
           - adgs
           - cadip
-          - dpr
-          - dpr-dask-k8s
-          - dpr-dask-local
+          - dask-mockup-k8s
+          - dask-mockup-local
+          - dpr-mockup
           - lta
           - prip
 
         # Options specific to each image, from the publish-docker action.
         include:
+          - if: success() && !cancelled() # default value
 
           - image: adgs
             if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}
@@ -107,25 +107,25 @@ jobs:
             image_basename: ${{ github.repository }} # rs-python/rs-testmeans
             image_suffix: _cadip-station-mock
 
-          - image: dpr
-            dockerfile: ./src/DPR/Dockerfile
-            build_context_path: ./src/DPR
-            image_basename: ${{ github.repository }} # rs-python/rs-testmeans
-            image_suffix: _dpr-processor-mock
-
-          - image: dpr-dask-k8s
+          - image: dask-mockup-k8s # dask image for mockup dpr processor, cluster mode
             dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
             build_context_path: ./src/DPR
             image_basename: ${{ github.repository_owner }}/dask/mockup # rs-python/dask/mockup
             image_suffix: /k8s
             build_args: "BASE_IMAGE_TARGET=k8s"
 
-          - image: dpr-dask-local
+          - image: dask-mockup-local # dask image for mockup dpr processor, local mode
             dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
             build_context_path: ./src/DPR
             image_basename: ${{ github.repository_owner }}/dask/mockup # rs-python/dask/mockup
             image_suffix: /local
             build_args: "BASE_IMAGE_TARGET=local"
+
+          - image: dpr-mockup # mockup dpr processor
+            dockerfile: ./src/DPR/Dockerfile
+            build_context_path: ./src/DPR
+            image_basename: ${{ github.repository }} # rs-python/rs-testmeans
+            image_suffix: _dpr-processor-mock
 
           - image: lta
             if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}
@@ -142,11 +142,15 @@ jobs:
             image_suffix: _prip-station-mock
 
     steps:
-      - uses: actions/checkout@v6
-      - name: Copy Dockerfile requirements
+      - if: ${{ matrix.if }}
+        uses: actions/checkout@v6
+      - if: ${{ matrix.if }}
+        name: Copy Dockerfile requirements
         run: cp -t ${{ matrix.build_context_path }} ./.github/scripts/layer-cleanup.sh ./.github/scripts/restore-apt.sh
-      - run: ls ${{ matrix.build_context_path }}
-      - id: publish-docker
+      - if: ${{ matrix.if }}
+        run: ls ${{ matrix.build_context_path }}
+      - if: ${{ matrix.if }}
+        id: publish-docker
         uses: RS-PYTHON/actions/.github/actions/publish-docker@feat-rspy964/push-latest-after-tests
         with:
           dockerfile: ${{ matrix.dockerfile }}
@@ -161,8 +165,8 @@ jobs:
           dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_args: ${{ matrix.build_args }}
-          branch_name: ${{ needs.set-env.outputs.branch_name }}
-      - uses: cloudposse/github-action-matrix-outputs-write@81ea135d4c4f90a5220bb38304380073c571dbb8
+      - if: ${{ matrix.if }}
+        uses: cloudposse/github-action-matrix-outputs-write@81ea135d4c4f90a5220bb38304380073c571dbb8
         with:
           matrix-step-name: publish-docker-images
           matrix-key: ${{ matrix.image }}
