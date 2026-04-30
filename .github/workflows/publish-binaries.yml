@@ -1,0 +1,233 @@
+# Copyright 2023-2026 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Publish Docker images
+
+# Run workflow only for ...
+on:
+  pull_request: # pull requests
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [develop, main] # pushes on the 'develop' or 'main' branches
+    tags: ['**'] # new git tags (including hierarchical tags like v1.0/beta)
+  workflow_dispatch: # manual trigger
+    inputs:
+      docker_tag:
+        description: Add this tag to the docker images as e.g. 'latest' or 'feat-rspy123'
+        required: false
+      build_only_mockup_images:
+        description: Put to true to only build the images for DPR processor mockup
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+
+jobs:
+
+  build_version_name:
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    name: Build version name
+    outputs:
+      version_name: ${{ steps.build_version_name.outputs.version_name }}
+    steps:
+      - uses: actions/checkout@v6
+        # Calculate the short git commit hash, used as a unique version name
+      - id: build_version_name
+        run: echo "version_name=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+  set-env:
+    name: Set environment
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    needs: build_version_name
+    outputs:
+      branch_name: ${{ steps.set-binary-env.outputs.branch_name }}
+      docker_tags: ${{ steps.set-binary-env.outputs.docker_tags }}
+      docker_temp_tag: ${{ steps.set-binary-env.outputs.docker_temp_tag }}
+    steps:
+      - id: set-binary-env
+        name: Call action 'set-binary-env'
+        uses: RS-PYTHON/actions/.github/actions/set-binary-env@feat-rspy964/push-latest-after-tests
+        with:
+          wheel_version_name: ${{ needs.build_version_name.outputs.version_name }}
+          manual_tag: ${{ github.event.inputs.docker_tag }}
+
+  publish-docker-images:
+    name: "Build and publish Docker images"
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    needs: set-env
+    permissions:
+      security-events: write # needed for github/codeql-action/upload-sarif
+      packages: write # needed for 'docker push'
+    outputs:
+      latest_or_branch_tag: ${{ steps.publish-docker.outputs.latest_or_branch_tag }} # same value for all images
+    strategy:
+      matrix:
+        image:
+          - adgs
+          - cadip
+          - dpr
+          - dpr-dask-k8s
+          - dpr-dask-local
+          - lta
+          - prip
+
+        # Options specific to each image, from the publish-docker action.
+        include:
+
+          - image: adgs
+            if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}
+            dockerfile: ./src/ADGS/Dockerfile
+            build_context_path: ./src
+            image_basename: ${{ github.repository }} # rs-python/rs-testmeans
+            image_suffix: _adgs-station-mock
+
+          - image: cadip
+            if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}
+            dockerfile: ./src/CADIP/Dockerfile
+            build_context_path: ./src
+            image_basename: ${{ github.repository }} # rs-python/rs-testmeans
+            image_suffix: _cadip-station-mock
+
+          - image: dpr
+            dockerfile: ./src/DPR/Dockerfile
+            build_context_path: ./src/DPR
+            image_basename: ${{ github.repository }} # rs-python/rs-testmeans
+            image_suffix: _dpr-processor-mock
+
+          - image: dpr-dask-k8s
+            dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
+            build_context_path: ./src/DPR
+            image_basename: ${{ github.repository_owner }}/dask/mockup # rs-python/dask/mockup
+            image_suffix: /k8s
+            build_args: "BASE_IMAGE_TARGET=k8s"
+
+          - image: dpr-dask-local
+            dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
+            build_context_path: ./src/DPR
+            image_basename: ${{ github.repository_owner }}/dask/mockup # rs-python/dask/mockup
+            image_suffix: /local
+            build_args: "BASE_IMAGE_TARGET=local"
+
+          - image: lta
+            if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}
+            dockerfile: ./src/LTA/Dockerfile
+            build_context_path: ./src/LTA
+            image_basename: ${{ github.repository }} # rs-python/rs-testmeans
+            image_suffix: _lta-station-mock
+
+          - image: prip
+            if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}
+            dockerfile: ./src/PRIP/Dockerfile
+            build_context_path: ./src
+            image_basename: ${{ github.repository }} # rs-python/rs-testmeans
+            image_suffix: _prip-station-mock
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Copy Dockerfile requirements
+        run: cp -t ${{ matrix.build_context_path }} ./.github/scripts/layer-cleanup.sh ./.github/scripts/restore-apt.sh
+      - run: ls ${{ matrix.build_context_path }}
+      - id: publish-docker
+        uses: RS-PYTHON/actions/.github/actions/publish-docker@feat-rspy964/push-latest-after-tests
+        with:
+          dockerfile: ${{ matrix.dockerfile }}
+          build_context_path: ${{ matrix.build_context_path }}
+          image_basename: ${{ matrix.image_basename }}
+          image_suffix: ${{ matrix.image_suffix }}
+          image_tags: ${{
+            case(needs.set-env.outputs.docker_temp_tag != '',
+            needs.set-env.outputs.docker_temp_tag,
+            needs.set-env.outputs.docker_tags) }} # pass the temp tag if defined, else the nominal tags
+          dockerhub_username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          build_args: ${{ matrix.build_args }}
+          branch_name: ${{ needs.set-env.outputs.branch_name }}
+      - uses: cloudposse/github-action-matrix-outputs-write@81ea135d4c4f90a5220bb38304380073c571dbb8
+        with:
+          matrix-step-name: publish-docker-images
+          matrix-key: ${{ matrix.image }}
+          outputs: |
+            docker_images: ${{ steps.publish-docker.outputs.docker_images }}
+
+  get-pushed-images:
+    name: Get pushed Docker image names
+    needs: [set-env, publish-docker-images]
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    outputs:
+      pushed_images: ${{ steps.read.outputs.pushed_images }}
+    steps:
+      - id: read-matrix-outputs
+        if: ${{ needs.set-env.outputs.docker_temp_tag != '' }} # only if a temp Docker tag has been set
+        uses: cloudposse/github-action-matrix-outputs-read@ddb62566e896c85614f5eeec2daa43d6d1dc6cb0
+        with:
+            matrix-step-name: publish-docker-images
+      - id: read
+        if: ${{ needs.set-env.outputs.docker_temp_tag != '' }}
+        run: |
+          set -x
+          # Docker images that have been pushed
+          # e.g. {"docker_images": {"adgs": "<adgs_image>", "cadip": "<cadip_image>" }}
+          json_images='${{ steps.read-matrix-outputs.outputs.result }}' # use simple quotes, not double quotes !
+          pushed_images=$(echo "$json_images" | jq -r .docker_images[] | paste -sd,) # separate values with ','
+
+          echo pushed_images="$pushed_images" >> "$GITHUB_OUTPUT"
+
+  # Test rs-demo with the new Docker images
+  test-demo:
+    name: Test rs-demo
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    needs: [set-env, publish-docker-images, get-pushed-images]
+    permissions:
+     packages: write # needed for 'docker push'
+    steps:
+      - name: Log into Docker registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Test rs-demo
+        env:
+          BRANCH_NAME: ${{ needs.set-env.outputs.branch_name }}
+          DOCKER_TAG: ${{ needs.publish-docker-images.outputs.latest_or_branch_tag }}
+        run: |
+          set -x
+
+          # Clone the rs-demo repository
+          git clone https://github.com/RS-PYTHON/rs-demo.git
+          cd rs-demo
+
+          # Run the rs-demo local mode using the newly created docker images
+          ./test-rs-demo.sh
+
+      # If we used a temp docker tag, and only if the tests succeeded, then
+      # we tag the images with the real tags and push them.
+      - name: Tag and push Docker images
+        if: ${{ needs.set-env.outputs.docker_temp_tag != '' }}
+        uses: RS-PYTHON/actions/.github/actions/tag-push-docker@feat-rspy964/push-latest-after-tests
+        with:
+          old_docker_images: ${{ needs.get-pushed-images.outputs.pushed_images }}
+          new_tags: ${{ needs.set-env.outputs.docker_tags }}
