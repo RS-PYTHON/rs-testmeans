@@ -25,9 +25,6 @@ ARG MOCKUP_TAG=latest
 ARG PYTHON_VERSION_DPR=3.11.7
 ARG DASK_TAG=2024.5.2
 
-# Get the contents from the rs-testmeans_dpr-processor-mock image
-FROM ghcr.io/rs-python/rs-testmeans_dpr-processor-mock:${MOCKUP_TAG} AS dpr_mock
-
 FROM ghcr.io/rs-python/dask/dask-gateway:${BASE_IMAGE_TARGET}-py${PYTHON_VERSION_DPR}-${DASK_TAG}
 
 # Default user from parent image
@@ -42,9 +39,9 @@ RUN chmod 755 /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
 # Install the DPR mockup (=fake processor) #
 ############################################
 
-# Copy the src folder from the dpr_mock image
-COPY --from=dpr_mock /src /src
 WORKDIR /src/DPR
+COPY ./. /src/DPR/
+COPY ./common /src/common
 
 # Give USERNAME rights to write in /src
 RUN chown -R $USER_NAME /src
