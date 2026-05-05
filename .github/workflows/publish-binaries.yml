@@ -149,7 +149,7 @@ jobs:
         run: ls ${{ matrix.build_context_path }}
       - if: ${{ matrix.if }}
         id: publish-docker
-        uses: RS-PYTHON/actions/.github/actions/publish-docker@develop
+        uses: RS-PYTHON/actions/.github/actions/publish-docker@feat-rspy964/push-latest-after-tests
         with:
           dockerfile: ${{ matrix.dockerfile }}
           build_context_path: ${{ matrix.build_context_path }}
