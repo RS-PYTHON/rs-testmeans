@@ -60,7 +60,7 @@ def products(*idx):
         ),
         (
             "/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'IW_RAW__0N')&$expand=Attributes",
-            products(0),
+            products(0, 6),
         ),
         (
             "/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'cycleNumber' and att/OData.CSC.StringAttribute/Value eq '265')&$expand=Attributes",
@@ -221,7 +221,7 @@ def products(*idx):
         ),
         (
             "/Products?$filter=cycleNumber eq 265 and productType eq 'IW_RAW__0N' and orbitDirection eq 'ASCENDING'&$expand=Attributes",
-            products(0),
+            products(0, 6),
         ),
         (
             "/Products?$filter=instrumentShortName eq 'SAR' and platformShortName eq 'SENTINEL-1' and platformSerialIdentifier eq 'A'&$expand=Attributes",
@@ -229,7 +229,7 @@ def products(*idx):
         ),
         (
             "/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productClass' and att/OData.CSC.StringAttribute/Value eq 'N') and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'IW_RAW__0N')&$expand=Attributes",
-            products(0),
+            products(0, 6),
         ),
         (
             "/Products?$filter=Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'platformShortName' and att/OData.CSC.StringAttribute/Value eq 'INVALID')&$expand=Attributes",
