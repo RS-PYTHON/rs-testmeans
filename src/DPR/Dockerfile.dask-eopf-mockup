@@ -23,7 +23,7 @@ ARG BASE_IMAGE_TARGET=xxx
 ARG MOCKUP_TAG=latest
 
 ARG PYTHON_VERSION_DPR=3.11.7
-ARG DASK_TAG=2024.5.2
+ARG DASK_TAG=2026.1.2
 
 FROM ghcr.io/rs-python/dask/dask-gateway:${BASE_IMAGE_TARGET}-py${PYTHON_VERSION_DPR}-${DASK_TAG}
 
@@ -53,6 +53,7 @@ RUN \
     poetry self add poetry-plugin-export && \
     poetry export --without-hashes --format=requirements.txt > requirements.txt && \
     pip-autoremove -y poetry && \
+    pip uninstall -y poetry-plugin-export && \
     pip install -r requirements.txt && \
     rm -f requirements.txt && \
     layer-cleanup.sh
@@ -64,14 +65,19 @@ RUN \
 # Install complete dask subsets
 RUN pip install dask[complete] && layer-cleanup.sh
 
+# Install eopf CPM2 runtime used by eopf_otel
+RUN pip install --prefer-binary -U "eopf>=2.8.0,<3" "boto3==1.41.5" && layer-cleanup.sh
+
 # Other installations
 RUN \
     restore-apt.sh && apt update && \
     apt install -y python3-pydot graphviz && \
     layer-cleanup.sh
 
+ENV PYTHONPATH=/src/DPR
+
 # Install and auto configure opentelemetry
-RUN pip install opentelemetry-distro opentelemetry-exporter-otlp && \
+RUN pip install --only-binary=:all: opentelemetry-distro opentelemetry-exporter-otlp "opentelemetry-instrumentation-eopf>=0.2.7" && \
     opentelemetry-bootstrap -a install && \
     layer-cleanup.sh
 
