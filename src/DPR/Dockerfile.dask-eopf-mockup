@@ -81,6 +81,12 @@ RUN pip install --only-binary=:all: opentelemetry-distro opentelemetry-exporter-
     opentelemetry-bootstrap -a install && \
     layer-cleanup.sh
 
+# Keep the eopf_otel wrapper available, but disable OTLP export for the mockup image.
+# No OpenTelemetry collector is expected for this fake processor, so exporting to localhost:4317 only adds noise.
+ENV OTEL_TRACES_EXPORTER=none \
+    OTEL_METRICS_EXPORTER=none \
+    OTEL_LOGS_EXPORTER=none
+
 # Remove custom scripts
 RUN rm -f /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
 
