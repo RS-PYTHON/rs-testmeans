@@ -6933,6 +6933,146 @@
                     "Value": "2025-06-18T00:00:00.000Z"
                 }
             ]
+        },
+        {
+            "Id": "b5c0a6e1-8437-4e5b-9f21-2dd39adf3011",
+            "Name": "S3B_AX___OSF_AX_20180425T191855_99991231T235959_20251010T143722___________________EUM_O_AL_001.SEN3.zip",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "658",
+            "OriginDate": "2018-04-25T19:18:55.000Z",
+            "PublicationDate": "2018-04-25T19:18:55.000Z",
+            "EvictionDate": "2018-04-25T19:18:55.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "1CD74DAF6CE32A06377E629117350FBD",
+                    "ChecksumDate": "2018-04-25T19:18:55.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2018-04-25T19:18:55.000Z",
+                "End": "9999-12-31T23:59:59.000Z"
+            },
+            "Attributes": [
+                {
+                    "@odata.type": "#OData.CSC.StringAttribute",
+                    "Name": "platformShortName",
+                    "ValueType": "String",
+                    "Value": "SENTINEL-3"
+                },
+                {
+                    "@odata.type": "#OData.CSC.StringAttribute",
+                    "Name": "platformSerialIdentifier",
+                    "ValueType": "String",
+                    "Value": "B"
+                },
+                {
+                    "@odata.type": "#OData.CSC.StringAttribute",
+                    "Name": "productType",
+                    "ValueType": "String",
+                    "Value": "AX___OSF_AX"
+                },
+                {
+                    "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
+                    "Name": "beginningDateTime",
+                    "ValueType": "DateTimeOffset",
+                    "Value": "2018-04-25T19:18:55.000Z"
+                },
+                {
+                    "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
+                    "Name": "endingDateTime",
+                    "ValueType": "DateTimeOffset",
+                    "Value": "9999-12-31T23:59:59.000Z"
+                },
+                {
+                    "@odata.type": "#OData.CSC.StringAttribute",
+                    "Name": "processingCenter",
+                    "ValueType": "String",
+                    "Value": "EUM"
+                },
+                {
+                    "@odata.type": "#OData.CSC.StringAttribute",
+                    "Name": "processorVersion",
+                    "ValueType": "String",
+                    "Value": "3.0"
+                },
+                {
+                    "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
+                    "Name": "processingDate",
+                    "ValueType": "DateTimeOffset",
+                    "Value": "2018-04-25T19:18:55.000Z"
+                }
+            ]
+        },
+        {
+            "Id": "d9e7f6b2-531c-4890-a8d4-781cb77f4022",
+            "Name": "S3B_AX___FRO_AX_20251005T000000_20251015T000000_20251010T143722___________________EUM_O_AL_001.SEN3.zip",
+            "ContentType": "application/octet-stream",
+            "ContentLength": "653",
+            "OriginDate": "2025-10-05T00:00:00.000Z",
+            "PublicationDate": "2025-10-05T00:00:00.000Z",
+            "EvictionDate": "2025-10-05T00:00:00.000Z",
+            "Checksum": [
+                {
+                    "Algorithm": "MD5",
+                    "Value": "ACB071FD13A12CE511FE03D353FC8ED3",
+                    "ChecksumDate": "2025-10-05T00:00:00.000Z"
+                }
+            ],
+            "ContentDate": {
+                "Start": "2025-10-05T00:00:00.000Z",
+                "End": "2025-10-15T00:00:00.000Z"
+            },
+            "Attributes": [
+                {
+                    "@odata.type": "#OData.CSC.StringAttribute",
+                    "Name": "platformShortName",
+                    "ValueType": "String",
+                    "Value": "SENTINEL-3"
+                },
+                {
+                    "@odata.type": "#OData.CSC.StringAttribute",
+                    "Name": "platformSerialIdentifier",
+                    "ValueType": "String",
+                    "Value": "B"
+                },
+                {
+                    "@odata.type": "#OData.CSC.StringAttribute",
+                    "Name": "productType",
+                    "ValueType": "String",
+                    "Value": "AX___FRO_AX"
+                },
+                {
+                    "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
+                    "Name": "beginningDateTime",
+                    "ValueType": "DateTimeOffset",
+                    "Value": "2025-10-05T00:00:00.000Z"
+                },
+                {
+                    "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
+                    "Name": "endingDateTime",
+                    "ValueType": "DateTimeOffset",
+                    "Value": "2025-10-15T00:00:00.000Z"
+                },
+                {
+                    "@odata.type": "#OData.CSC.StringAttribute",
+                    "Name": "processingCenter",
+                    "ValueType": "String",
+                    "Value": "EUM"
+                },
+                {
+                    "@odata.type": "#OData.CSC.StringAttribute",
+                    "Name": "processorVersion",
+                    "ValueType": "String",
+                    "Value": "3.0"
+                },
+                {
+                    "@odata.type": "#OData.CSC.DateTimeOffsetAttribute",
+                    "Name": "processingDate",
+                    "ValueType": "DateTimeOffset",
+                    "Value": "2025-10-05T00:00:00.000Z"
+                }
+            ]
         }
     ]
 }
