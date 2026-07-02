@@ -245,7 +245,7 @@ def process_products_request(request, headers) -> Response:
             else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         )
     elif "ContentDate" in request:
-        
+
         field, op, value = request.split(" ")
         value = value.strip("()")
         date = datetime.datetime.fromisoformat(value)
@@ -256,8 +256,6 @@ def process_products_request(request, headers) -> Response:
             "eq": lambda d: d == date,
             "lt": lambda d: d < date,
             "gt": lambda d: d > date,
-            "le": lambda d: d <= date,
-            "ge": lambda d: d >= date,
         }
 
         # Parse and filter in one comprehension
