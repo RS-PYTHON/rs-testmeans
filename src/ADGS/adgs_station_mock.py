@@ -271,6 +271,24 @@ def process_products_request(request, headers) -> Response:
             if resp_body
             else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         )
+    elif "OriginDate" in request:
+        field, op, value = request.split(" ")
+        value = value.strip("()")
+        date = datetime.datetime.fromisoformat(value)
+
+        # Parse and filter in one comprehension
+        if op == "eq":
+            resp_body = [
+                product
+                for product in catalog_data["Data"]
+                if date == datetime.datetime.fromisoformat(product["OriginDate"])
+            ]
+
+        return (
+            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            if resp_body
+            else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+        )
     elif "Attributes" in request.args["$filter"]:
         pass  # WIP
     else:
@@ -567,6 +585,7 @@ def query_products():
                     "ContentDate/Start",
                     "ContentDate/End",
                     "Id",
+                    "OriginDate",
                 ]
             ],
         ):
