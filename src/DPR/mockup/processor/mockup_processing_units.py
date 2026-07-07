@@ -143,6 +143,39 @@ def normalize_attrs(attrs: dict, product_name: str, product_type: str) -> dict:
     return attrs
 
 
+def force_synchronous_zarr_writes() -> None:
+    """
+    Force EOPF to write Zarr outputs immediately.
+
+    The processor itself is already running as a Dask task. With a minimal Dask
+    cluster, EOPF delayed writing may submit extra Zarr write tasks to the same
+    cluster while the only worker slot is still busy. Those write tasks cannot
+    start, so EOPF waits until timeout. Forcing delayed_writing=False and
+    delayed_consolidate=False makes EOPF write inline in the current task,
+    without creating separate Dask write tasks.
+    """
+    # Patch only when the mock processor runs.
+    from eopf.store.zarr import EOZarrStore  # pylint: disable=import-outside-toplevel
+
+    # Idempotent: both mock steps may run in the same Python process.
+    if getattr(EOZarrStore.open, "_dpr_mockup_sync_patch", False):
+        return
+
+    # Keep EOPF behavior; override only the delayed-write flags.
+    original_open = EOZarrStore.open
+
+    def open_with_synchronous_writes(self, *args, **kwargs):
+        # Avoid extra Dask futures for this lightweight mock output.
+        kwargs["delayed_writing"] = False
+        kwargs["delayed_consolidate"] = False
+        return original_open(self, *args, **kwargs)
+
+    # Install the wrapper for this process only.
+    open_with_synchronous_writes._dpr_mockup_sync_patch = True
+    EOZarrStore.open = open_with_synchronous_writes
+    logger.warning("DPR mockup monkeypatch active: EOPF Zarr delayed writing is disabled")
+
+
 class single_unit_mockup(EOProcessingUnit):  # pylint: disable=invalid-name
     """EOPF processing unit used by the DPR mockup tasktable."""
 
@@ -152,6 +185,7 @@ class single_unit_mockup(EOProcessingUnit):  # pylint: disable=invalid-name
 
     def run(self, inputs, adfs=None, mode=None, **kwargs):  # pylint: disable=unused-argument
         """Return mock EOProducts that EOPF can write to the configured outputs."""
+        force_synchronous_zarr_writes()
         # output_products comes from the tasktable payload; it is the source of
         # truth for the mock product types generated below.
         product_types = output_product_types(kwargs.get("output_products"))
