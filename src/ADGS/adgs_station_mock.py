@@ -256,6 +256,8 @@ def process_products_request(request, headers) -> Response:
             "eq": lambda d: d == date,
             "lt": lambda d: d < date,
             "gt": lambda d: d > date,
+            "le": lambda d: d <= date,
+            "ge": lambda d: d >= date,
         }
 
         # Parse and filter in one comprehension
