@@ -267,6 +267,8 @@ def process_products_request(request, headers) -> Response:
                 for product in catalog_data["Data"]
                 if comparison_ops[op](datetime.datetime.fromisoformat(product["ContentDate"][date_field]))
             ]
+        else:
+            resp_body = []
 
         return (
             Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
