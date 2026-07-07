@@ -411,6 +411,7 @@ def process_filter(request, input_filter: str) -> Response:
         while i < len(splitted_filters):
             current_filter_results = process_filter(request, splitted_filters[i])
             final_results = process_common_elements(final_results, current_filter_results, operators[i - 1])
+            i += 1
             return final_results
 
 
