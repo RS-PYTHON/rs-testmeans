@@ -260,18 +260,21 @@ def process_products_request(request, headers) -> Response:
             "ge": lambda d: d >= date,
         }
 
-        # Parse and filter in one comprehension
-        if op in comparison_ops:
-            resp_body = [
-                product
-                for product in catalog_data["Data"]
-                if comparison_ops[op](datetime.datetime.fromisoformat(product["ContentDate"][date_field]))
-            ]
-        else:
-            resp_body = []
+        if op not in comparison_ops:
+            return Response(status=HTTPStatus.NOT_FOUND)
+
+        resp_body = [
+            product
+            for product in catalog_data["Data"]
+            if comparison_ops[op](datetime.datetime.fromisoformat(product["ContentDate"][date_field]))
+        ]
 
         return (
-            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            Response(
+                status=HTTPStatus.OK,
+                response=prepare_response_odata_v4(resp_body),
+                headers=headers,
+            )
             if resp_body
             else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         )
