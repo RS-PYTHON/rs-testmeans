@@ -6748,13 +6748,13 @@
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "platformShortName",
                     "ValueType": "String",
-                    "Value": "SENTINEL-3"
+                    "Value": "SENTINEL-1"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
                     "Name": "platformSerialIdentifier",
                     "ValueType": "String",
-                    "Value": "B"
+                    "Value": "A"
                 },
                 {
                     "@odata.type": "#OData.CSC.StringAttribute",
