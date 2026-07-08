@@ -389,6 +389,18 @@ def process_filter(request, input_filter: str) -> Response:
     """
     # Split the filter
     splitted_filters, operators = split_composite_filter(input_filter)
+    
+    if len(splitted_filters) > 1 and all(op == "and" for op in operators):
+        responses = [
+            process_filter(request, f)
+            for f in splitted_filters
+        ]
+
+        result = responses[0]
+        for response in responses[1:]:
+            result = process_common_elements(result, response, "and")
+
+        return result
 
     # Rebuild "<field> in (...)" for fields handled by process_products_request.
     if (
