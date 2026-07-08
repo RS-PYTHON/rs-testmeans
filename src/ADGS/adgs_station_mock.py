@@ -246,38 +246,69 @@ def process_products_request(request, headers) -> Response:
         )
     elif "ContentDate" in request:
 
-        field, op, value = request.split(" ")
-        value = value.strip("()")
-        date = datetime.datetime.fromisoformat(value)
-        date_field = "Start" if "Start" in field else "End"
-
-        # Define a comparison map to avoid repetitive code
-        comparison_ops = {
-            "eq": lambda d: d == date,
-            "lt": lambda d: d < date,
-            "gt": lambda d: d > date,
-            "le": lambda d: d <= date,
-            "ge": lambda d: d >= date,
-        }
-
-        if op not in comparison_ops:
-            return Response(status=HTTPStatus.NOT_FOUND)
-
-        resp_body = [
-            product
-            for product in catalog_data["Data"]
-            if comparison_ops[op](datetime.datetime.fromisoformat(product["ContentDate"][date_field]))
-        ]
-
-        return (
-            Response(
-                status=HTTPStatus.OK,
-                response=prepare_response_odata_v4(resp_body),
-                headers=headers,
+        pattern = r"Start (\S+) (\S+) and ContentDate/End (\S+) (\S+)"
+        if regex_match := re.search(pattern, request):
+            start_oper = regex_match.group(1)
+            start_date = datetime.datetime.fromisoformat(regex_match.group(2))
+            stop_oper = regex_match.group(3)
+            stop_date = datetime.datetime.fromisoformat(regex_match.group(4))
+            match (start_oper, stop_oper):
+                case ("gt", "lt"):
+                    resp_body = [
+                        product
+                        for product in catalog_data["Data"]
+                        if (
+                            start_date < datetime.datetime.fromisoformat(product["ContentDate"]["Start"])
+                            and stop_date > datetime.datetime.fromisoformat(product["ContentDate"]["End"])
+                        )
+                    ]
+                case ("eq", "lt"):
+                    resp_body = [
+                        product
+                        for product in catalog_data["Data"]
+                        if (
+                            start_date == datetime.datetime.fromisoformat(product["ContentDate"]["Start"])
+                            and stop_date > datetime.datetime.fromisoformat(product["ContentDate"]["End"])
+                        )
+                    ]
+            return (
+                Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+                if resp_body
+                else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
             )
-            if resp_body
-            else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
-        )
+        else:
+            field, op, value = request.split(" ")
+            value = value.strip("()")
+            date = datetime.datetime.fromisoformat(value)
+            date_field = "Start" if "Start" in field else "End"
+
+            # Define a comparison map to avoid repetitive code
+            comparison_ops = {
+                "eq": lambda d: d == date,
+                "lt": lambda d: d < date,
+                "gt": lambda d: d > date,
+                "le": lambda d: d <= date,
+                "ge": lambda d: d >= date,
+            }
+
+            if op not in comparison_ops:
+                return Response(status=HTTPStatus.NOT_FOUND)
+
+            resp_body = [
+                product
+                for product in catalog_data["Data"]
+                if comparison_ops[op](datetime.datetime.fromisoformat(product["ContentDate"][date_field]))
+            ]
+
+            return (
+                Response(
+                    status=HTTPStatus.OK,
+                    response=prepare_response_odata_v4(resp_body),
+                    headers=headers,
+                )
+                if resp_body
+                else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+            )
     elif "OriginDate" in request:
         field, op, value = request.split(" ")
         value = value.strip("()")
