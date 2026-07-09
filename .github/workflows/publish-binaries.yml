@@ -83,7 +83,6 @@ jobs:
           - cadip
           - dask-mockup-k8s
           - dask-mockup-local
-          - dpr-mockup
           - lta
           - prip
 
@@ -118,12 +117,6 @@ jobs:
             image_basename: ${{ github.repository_owner }}/dask/mockup # rs-python/dask/mockup
             image_suffix: /local
             build_args: "BASE_IMAGE_TARGET=local"
-
-          - image: dpr-mockup # mockup dpr processor
-            dockerfile: ./src/DPR/Dockerfile
-            build_context_path: ./src/DPR
-            image_basename: ${{ github.repository }} # rs-python/rs-testmeans
-            image_suffix: _dpr-processor-mock
 
           - image: lta
             if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}

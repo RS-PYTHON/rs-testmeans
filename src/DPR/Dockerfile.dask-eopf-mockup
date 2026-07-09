@@ -23,7 +23,7 @@ ARG BASE_IMAGE_TARGET=xxx
 ARG MOCKUP_TAG=latest
 
 ARG PYTHON_VERSION_DPR=3.11.7
-ARG DASK_TAG=2024.5.2
+ARG DASK_TAG=2026.1.2
 
 FROM ghcr.io/rs-python/dask/dask-gateway:${BASE_IMAGE_TARGET}-py${PYTHON_VERSION_DPR}-${DASK_TAG}
 
@@ -41,7 +41,6 @@ RUN chmod 755 /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
 
 WORKDIR /src/DPR
 COPY ./. /src/DPR/
-COPY ./common /src/common
 
 # Give USERNAME rights to write in /src
 RUN chown -R $USER_NAME /src
@@ -53,6 +52,7 @@ RUN \
     poetry self add poetry-plugin-export && \
     poetry export --without-hashes --format=requirements.txt > requirements.txt && \
     pip-autoremove -y poetry && \
+    pip uninstall -y poetry-plugin-export && \
     pip install -r requirements.txt && \
     rm -f requirements.txt && \
     layer-cleanup.sh
@@ -64,16 +64,28 @@ RUN \
 # Install complete dask subsets
 RUN pip install dask[complete] && layer-cleanup.sh
 
+# Install eopf CPM2 runtime used by eopf_otel
+RUN pip install --prefer-binary -U "eopf>=2.8.0,<3" "boto3==1.41.5" && layer-cleanup.sh
+
 # Other installations
 RUN \
     restore-apt.sh && apt update && \
     apt install -y python3-pydot graphviz && \
     layer-cleanup.sh
 
+# Make the copied mockup processor importable without relying on PYTHONPATH, which may be overridden at runtime.
+RUN python -c "import site, pathlib; pathlib.Path(site.getsitepackages()[0], 'dpr_mockup.pth').write_text('/src/DPR\n')"
+
 # Install and auto configure opentelemetry
-RUN pip install opentelemetry-distro opentelemetry-exporter-otlp && \
+RUN pip install --only-binary=:all: opentelemetry-distro opentelemetry-exporter-otlp "opentelemetry-instrumentation-eopf>=0.2.7" && \
     opentelemetry-bootstrap -a install && \
     layer-cleanup.sh
+
+# Keep the eopf_otel wrapper available, but disable OTLP export for the mockup image.
+# No OpenTelemetry collector is expected for this fake processor, so exporting to localhost:4317 only adds noise.
+ENV OTEL_TRACES_EXPORTER=none \
+    OTEL_METRICS_EXPORTER=none \
+    OTEL_LOGS_EXPORTER=none
 
 # Remove custom scripts
 RUN rm -f /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
