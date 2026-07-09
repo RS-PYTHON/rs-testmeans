@@ -12,6 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-def test_dpr_processor_mock_removed():
-    assert True
+"""Sentinel-3 mockup processing package."""
