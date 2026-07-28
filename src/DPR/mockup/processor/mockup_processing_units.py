@@ -207,3 +207,27 @@ class single_unit_mockup(EOProcessingUnit):  # pylint: disable=invalid-name
         # EOPF handles storage/upload after this method returns.
         logger.info(f"Mockup processing unit returned {len(products)} product(s)")
         return products
+
+
+_DYNAMIC_STEP_PREFIX = "single_unit_mockup_step_"
+
+
+def __getattr__(name: str) -> type[single_unit_mockup]:
+    """Create mock processing-unit classes requested by a tasktable step."""
+    suffix = name.removeprefix(_DYNAMIC_STEP_PREFIX)
+    if not name.startswith(_DYNAMIC_STEP_PREFIX) or not suffix or not name.isidentifier():
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+    dynamic_class = type(
+        name,
+        (single_unit_mockup,),
+        {
+            "__module__": __name__,
+            "__doc__": f"Dynamic DPR mockup processing unit for tasktable step {suffix}.",
+        },
+    )
+    # Cache the class so subsequent imports and pickle lookups resolve to the
+    # same module-level object in this Python process.
+    globals()[name] = dynamic_class
+    logger.info(f"Created dynamic DPR mockup processing unit class {name}")
+    return dynamic_class
