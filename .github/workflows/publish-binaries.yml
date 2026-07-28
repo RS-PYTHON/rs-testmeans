@@ -23,17 +23,15 @@ on:
     tags: ['**'] # new git tags (including hierarchical tags like v1.0/beta)
   workflow_dispatch: # manual trigger
     inputs:
+      called_by:
+        type: choice
+        options:
+          - rs-testmeans
+          - rebuild-base-dask # called by rs-workflow-env after rebuilding the base dask images
+        default: rs-testmeans
       docker_tag:
         description: Add this tag to the docker images as e.g. 'latest' or 'feat-rspy123'
         required: false
-      build_only_mockup_images:
-        description: Put to true to only build the images for DPR processor mockup
-        required: false
-        default: 'false'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
 
 env:
   DOCKER_REGISTRY: ghcr.io
@@ -88,23 +86,23 @@ jobs:
 
         # Options specific to each image, from the publish-docker action.
         include:
-          - if: success() && !cancelled() # default value
-
           - image: adgs
-            if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}
+            if: ${{ contains('rs-testmeans', inputs.called_by) }} # If called by rs-testmeans
             dockerfile: ./src/ADGS/Dockerfile
             build_context_path: ./src
             image_basename: ${{ github.repository }} # rs-python/rs-testmeans
             image_suffix: _adgs-station-mock
 
           - image: cadip
-            if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}
+            if: ${{ contains('rs-testmeans', inputs.called_by) }} # If called by rs-testmeans
             dockerfile: ./src/CADIP/Dockerfile
             build_context_path: ./src
             image_basename: ${{ github.repository }} # rs-python/rs-testmeans
             image_suffix: _cadip-station-mock
 
           - image: dask-mockup-k8s # dask image for mockup dpr processor, cluster mode
+            # If called by rs-testmeans or after rebuilding the base dask images
+            if: ${{ contains('rs-testmeans,rebuild-base-dask', inputs.called_by) }}
             dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
             build_context_path: ./src/DPR
             image_basename: ${{ github.repository_owner }}/dask/mockup # rs-python/dask/mockup
@@ -112,6 +110,8 @@ jobs:
             build_args: "BASE_IMAGE_TARGET=k8s"
 
           - image: dask-mockup-local # dask image for mockup dpr processor, local mode
+            # If called by rs-testmeans or after rebuilding the base dask images
+            if: ${{ contains('rs-testmeans,rebuild-base-dask', inputs.called_by) }}
             dockerfile: ./src/DPR/Dockerfile.dask-eopf-mockup
             build_context_path: ./src/DPR
             image_basename: ${{ github.repository_owner }}/dask/mockup # rs-python/dask/mockup
@@ -119,14 +119,14 @@ jobs:
             build_args: "BASE_IMAGE_TARGET=local"
 
           - image: lta
-            if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}
+            if: ${{ contains('rs-testmeans', inputs.called_by) }} # If called by rs-testmeans
             dockerfile: ./src/LTA/Dockerfile
             build_context_path: ./src/LTA
             image_basename: ${{ github.repository }} # rs-python/rs-testmeans
             image_suffix: _lta-station-mock
 
           - image: prip
-            if: ${{ github.event.inputs.build_only_mockup_images != 'true' }}
+            if: ${{ contains('rs-testmeans', inputs.called_by) }} # If called by rs-testmeans
             dockerfile: ./src/PRIP/Dockerfile
             build_context_path: ./src
             image_basename: ${{ github.repository }} # rs-python/rs-testmeans
@@ -222,7 +222,8 @@ jobs:
       # we tag the images with the real tags and push them.
       - name: Tag and push Docker images
         if: ${{ needs.set-env.outputs.docker_final_tags != '' }}
-        uses: RS-PYTHON/actions/.github/actions/tag-push-docker@develop
+        uses: RS-PYTHON/actions/.github/actions/tag-push-docker@feat-rspy1108/jupyter-cicd
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           old_docker_images: ${{ needs.get-pushed-images.outputs.pushed_images }}
           new_tags: ${{ needs.set-env.outputs.docker_final_tags }}
