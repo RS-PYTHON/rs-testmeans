@@ -200,11 +200,7 @@ def process_products_request(request, headers) -> Response:
                             return True
             return False
 
-        resp_body = [
-            product
-            for product in catalog_data["Data"]
-            if matches_filter(product)
-        ]
+        resp_body = [product for product in catalog_data["Data"] if matches_filter(product)]
         return Response(
             status=HTTPStatus.OK,
             response=prepare_response_odata_v4(resp_body),
