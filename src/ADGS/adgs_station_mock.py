@@ -183,21 +183,28 @@ def process_products_request(request, headers) -> Response:
             values = [v.strip(" '\"") for v in " ".join(value).strip("()").split(",")]
             resp_body = [product for product in catalog_data["Data"] if product["Name"] in values]
             return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
-        pattern = r"(\w+)\((\w+), '?([\w.]+)'?\)"
-        op = re.search(pattern, request).group(1)
-        filter_by = re.search(pattern, request).group(2)
-        filter_value = re.search(pattern, request).group(3)
-        match op:
-            case "contains":
-                resp_body = [product for product in catalog_data["Data"] if filter_value in product[filter_by]]
-            case "startswith":
-                resp_body = [product for product in catalog_data["Data"] if product[filter_by].startswith(filter_value)]
-            case "endswith":
-                resp_body = [product for product in catalog_data["Data"] if product[filter_by].endswith(filter_value)]
-        return (
-            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
-            if resp_body
-            else Response(status=HTTPStatus.NOT_FOUND)
+        pattern = r"(\w+)\(\s*(\w+)\s*,\s*'?([^']+)'?\s*\)"
+        matches = re.findall(pattern, request)
+
+        def matches_filter(product):
+            for op, field, value in matches:
+                match op:
+                    case "contains":
+                        if value in product[field]:
+                            return True
+                    case "startswith":
+                        if product[field].startswith(value):
+                            return True
+                    case "endswith":
+                        if product[field].endswith(value):
+                            return True
+            return False
+
+        resp_body = [product for product in catalog_data["Data"] if matches_filter(product)]
+        return Response(
+            status=HTTPStatus.OK,
+            response=prepare_response_odata_v4(resp_body),
+            headers=headers,
         )
     elif "PublicationDate" in request:
         field, op, value = request.split(" ")
