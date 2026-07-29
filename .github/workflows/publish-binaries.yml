@@ -32,6 +32,12 @@ on:
       add_docker_tags:
         description: Add these tags to the docker images as e.g. 'custom-tag1,custom-tag-2'
         required: false
+      force_docker_tags:
+        description: If set, force these docker tags (used when called from other repository)
+        required: false
+      force_docker_final_tags:
+        description: If set, force these final docker tags (used when called from other repository)
+        required: false
 
 env:
   DOCKER_REGISTRY: ghcr.io
@@ -65,6 +71,8 @@ jobs:
         with:
           wheel_version_name: ${{ needs.build_version_name.outputs.version_name }}
           add_docker_tags: ${{ inputs.add_docker_tags }}
+          force_docker_tags: ${{ inputs.force_docker_tags }}
+          force_docker_final_tags: ${{ inputs.force_docker_final_tags }}
 
   publish-docker-images:
     name: "Build and publish Docker images"
