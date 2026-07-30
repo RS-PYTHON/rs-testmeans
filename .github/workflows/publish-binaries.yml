@@ -67,7 +67,7 @@ jobs:
     steps:
       - id: set-binary-env
         name: Call action 'set-binary-env'
-        uses: RS-PYTHON/actions/.github/actions/set-binary-env@feat-rspy1108/jupyter-cicd
+        uses: RS-PYTHON/actions/.github/actions/set-binary-env@develop
         with:
           wheel_version_name: ${{ needs.build_version_name.outputs.version_name }}
           add_docker_tags: ${{ inputs.add_docker_tags }}
@@ -230,7 +230,7 @@ jobs:
       # we tag the images with the real tags and push them.
       - name: Tag and push Docker images
         if: ${{ needs.set-binary-env.outputs.docker_final_tags != '' }}
-        uses: RS-PYTHON/actions/.github/actions/tag-push-docker@feat-rspy1108/jupyter-cicd
+        uses: RS-PYTHON/actions/.github/actions/tag-push-docker@develop
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           old_docker_images: ${{ needs.get-pushed-images.outputs.pushed_images }}
