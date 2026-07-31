@@ -29,6 +29,15 @@ on:
           - rs-testmeans
           - rebuild-base-dask # called by rs-workflow-env after rebuilding the base dask images
         default: rs-testmeans
+      caller_name:
+        description: Caller name, to be displayed in the info job name
+        required: false
+      caller_url:
+        description: Caller url, to be displayed in the info job details
+        required: false
+      caller_reason:
+        description: Why this run was called, to be displayed in the info job details
+        required: false
       add_docker_tags:
         description: Add these tags to the docker images as e.g. 'custom-tag1,custom-tag-2'
         required: false
@@ -43,6 +52,21 @@ env:
   DOCKER_REGISTRY: ghcr.io
 
 jobs:
+  info:
+    runs-on: ubuntu-latest
+    name: "Triggered by: ${{ inputs.caller_name }}"
+    env:
+      CALLER_URL: ${{ inputs.caller_url }}
+      CALLER_REASON: ${{ inputs.caller_reason }}
+    steps:
+    - if: ${{ inputs.caller_name != '' }}
+      run: >
+        echo
+        ":information_source: <br>
+        This run has been triggered by: ${CALLER_URL}<br>
+        Reason: ${CALLER_REASON}"
+        >> $GITHUB_STEP_SUMMARY
+
   build_version_name:
     if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
