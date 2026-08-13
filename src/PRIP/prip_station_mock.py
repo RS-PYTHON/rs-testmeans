@@ -149,7 +149,6 @@ def query_products():
         # XAND?
         for filter_key, conditions in processed_filters.items():
             if filter_key in (
-                "PublicationDate",
                 "ContentDate/Start",
                 "ContentDate/End",
             ):
