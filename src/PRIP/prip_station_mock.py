@@ -93,6 +93,7 @@ def query_products():
         content_end_filters = processed_filters.get("ContentDate/End")
 
         if content_start_filters or content_end_filters:
+
             def as_list(value):
                 return value if isinstance(value, list) else [value]
 
