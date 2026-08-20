@@ -100,7 +100,11 @@ def additional_options(func):
                 field, ordering_type = display_headers["$orderby"].split(" ")
             else:
                 field, ordering_type = display_headers["$orderby"], "desc"
-            json_data = sort_responses_by_field(json_data, field, reverse=(ordering_type == "desc"))
+            json_data = sort_responses_by_field(
+                json_data,
+                field,
+                reverse=(ordering_type == "desc"),
+            )
         # ICD extract:
         # $top and $skip are often applied together; in this case $skip is always applied first regardless of the order in which they appear in the query.
         skip_value = int(display_headers.get("$skip", 0))
@@ -128,7 +132,9 @@ def prepare_response_odata_v4(resp_body: list | map) -> Any:
     """
     unpacked = list(resp_body) if not isinstance(resp_body, list) else resp_body
     try:
-        data = json.dumps(dict(value=unpacked))  # if len(unpacked) > 1 else json.dumps(unpacked[0])
+        data = json.dumps(
+            dict(value=unpacked),
+        )  # if len(unpacked) > 1 else json.dumps(unpacked[0])
     except IndexError:
         return json.dumps({"value": []})
     return data
@@ -169,20 +175,38 @@ def process_products_request(request, headers) -> Response:
             # Accept both (a,b) and (['a','b']) shapes.
             values_raw = raw_value.strip().strip("()").strip("[]")
             values = [normalize_id_value(v) for v in values_raw.split(",") if v.strip()]
-            resp_body = [product for product in catalog_data["Data"] if product["Id"] in values]
-            return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            resp_body = [
+                product for product in catalog_data["Data"] if product["Id"] in values
+            ]
+            return Response(
+                status=HTTPStatus.OK,
+                response=prepare_response_odata_v4(resp_body),
+                headers=headers,
+            )
         if op == "eq":
             # Exact match for a single Id.
             value = normalize_id_value(raw_value)
-            resp_body = [product for product in catalog_data["Data"] if product["Id"] == value]
-            return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            resp_body = [
+                product for product in catalog_data["Data"] if product["Id"] == value
+            ]
+            return Response(
+                status=HTTPStatus.OK,
+                response=prepare_response_odata_v4(resp_body),
+                headers=headers,
+            )
         return Response(status=HTTPStatus.BAD_REQUEST)
     if "Name" in request:
         if " in " in request:
             field, op, *value = request.strip().split(" ")
             values = [v.strip(" '\"") for v in " ".join(value).strip("()").split(",")]
-            resp_body = [product for product in catalog_data["Data"] if product["Name"] in values]
-            return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            resp_body = [
+                product for product in catalog_data["Data"] if product["Name"] in values
+            ]
+            return Response(
+                status=HTTPStatus.OK,
+                response=prepare_response_odata_v4(resp_body),
+                headers=headers,
+            )
         pattern = r"(\w+)\(\s*(\w+)\s*,\s*'?([^']+)'?\s*\)"
         matches = re.findall(pattern, request)
 
@@ -200,7 +224,9 @@ def process_products_request(request, headers) -> Response:
                             return True
             return False
 
-        resp_body = [product for product in catalog_data["Data"] if matches_filter(product)]
+        resp_body = [
+            product for product in catalog_data["Data"] if matches_filter(product)
+        ]
         return Response(
             status=HTTPStatus.OK,
             response=prepare_response_odata_v4(resp_body),
@@ -247,7 +273,11 @@ def process_products_request(request, headers) -> Response:
                 # If the operation is not recognized, return a 404 NOT FOUND response
                 return Response(status=HTTPStatus.NOT_FOUND)
         return (
-            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            Response(
+                status=HTTPStatus.OK,
+                response=prepare_response_odata_v4(resp_body),
+                headers=headers,
+            )
             if resp_body
             else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         )
@@ -273,7 +303,9 @@ def process_products_request(request, headers) -> Response:
         resp_body = [
             product
             for product in catalog_data["Data"]
-            if comparison_ops[op](datetime.datetime.fromisoformat(product["ContentDate"][date_field]))
+            if comparison_ops[op](
+                datetime.datetime.fromisoformat(product["ContentDate"][date_field]),
+            )
         ]
 
         return (
@@ -299,7 +331,11 @@ def process_products_request(request, headers) -> Response:
             ]
 
         return (
-            Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp_body), headers=headers)
+            Response(
+                status=HTTPStatus.OK,
+                response=prepare_response_odata_v4(resp_body),
+                headers=headers,
+            )
             if resp_body
             else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         )
@@ -334,7 +370,10 @@ def is_operator_next(expression: str, position: int) -> str:
     and returns it if so.
     """
     for operator in aditional_operators:
-        if position < len(expression) - len(operator) and expression[position : position + len(operator)] == operator:
+        if (
+            position < len(expression) - len(operator)
+            and expression[position : position + len(operator)] == operator
+        ):
             return operator
     return ""
 
@@ -423,7 +462,11 @@ def process_filter(request, input_filter: str) -> Response:
         final_results = process_filter(request, splitted_filters[0])
         while i < len(splitted_filters):
             current_filter_results = process_filter(request, splitted_filters[i])
-            final_results = process_common_elements(final_results, current_filter_results, operators[i - 1])
+            final_results = process_common_elements(
+                final_results,
+                current_filter_results,
+                operators[i - 1],
+            )
             i += 1
 
     return final_results
@@ -435,7 +478,9 @@ def extract_values_and_operation(part1, part2):
     in_pattern = r"in\s*\(\s*'([^']*(?:'\s*,\s*'[^']*)*)"
 
     # Search for the operation and value in part1
-    value1 = re.search(r"'(.*?)'", part1).group(1) if re.search(r"'(.*?)'", part1) else None
+    value1 = (
+        re.search(r"'(.*?)'", part1).group(1) if re.search(r"'(.*?)'", part1) else None
+    )
 
     # Search for the operation and value in part2
     match2 = re.search(pattern, part2)
@@ -498,13 +543,19 @@ def process_individual_query_part(query_parts, headers):
                     if attr["Name"] == field:
                         match op:
                             case "eq":
-                                if date == datetime.datetime.fromisoformat(attr["Value"]):
+                                if date == datetime.datetime.fromisoformat(
+                                    attr["Value"],
+                                ):
                                     resp.append(product)
                             case "lt":
-                                if date > datetime.datetime.fromisoformat(attr["Value"]):
+                                if date > datetime.datetime.fromisoformat(
+                                    attr["Value"],
+                                ):
                                     resp.append(product)
                             case "gt":
-                                if date > datetime.datetime.fromisoformat(attr["Value"]):
+                                if date > datetime.datetime.fromisoformat(
+                                    attr["Value"],
+                                ):
                                     resp.append(product)
                 except KeyError:
                     continue
@@ -528,7 +579,11 @@ def process_individual_query_part(query_parts, headers):
                                 resp.append(product)
                 except KeyError:
                     continue
-    return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(resp if resp else []), headers=headers)
+    return Response(
+        status=HTTPStatus.OK,
+        response=prepare_response_odata_v4(resp if resp else []),
+        headers=headers,
+    )
 
 
 def process_common_elements(first_response, second_response, operator):
@@ -536,7 +591,10 @@ def process_common_elements(first_response, second_response, operator):
         # Decode
         first_response_data = json.loads(first_response.data)
         # Get responses if any, else default json
-        first_response = first_response_data.get("value", json.loads(first_response.data))
+        first_response = first_response_data.get(
+            "value",
+            json.loads(first_response.data),
+        )
     except (json.decoder.JSONDecodeError, AttributeError):
         # Empty dict if error while unwrapping
         first_response = {"value": []}
@@ -544,20 +602,29 @@ def process_common_elements(first_response, second_response, operator):
         # Decode
         second_response_data = json.loads(second_response.data)
         # Get responses if any, else default json
-        second_response = second_response_data.get("value", json.loads(second_response.data))
+        second_response = second_response_data.get(
+            "value",
+            json.loads(second_response.data),
+        )
     except (json.decoder.JSONDecodeError, AttributeError):
         # Empty dict if error while unwrapping
         second_response = {"value": []}
     # Normalize responses, must be a list, even with one element, for iterator
-    first_response = first_response if isinstance(first_response, list) else [first_response]
-    second_response = second_response if isinstance(second_response, list) else [second_response]
+    first_response = (
+        first_response if isinstance(first_response, list) else [first_response]
+    )
+    second_response = (
+        second_response if isinstance(second_response, list) else [second_response]
+    )
     # Convert to a set, elements unique by ID
     fresp_set = {d.get("Id") for d in first_response}
     sresp_set = {d.get("Id") for d in second_response}
     match operator:
         case "and":  # intersection
             common_response = fresp_set.intersection(sresp_set)
-            common_elements = [d for d in first_response if d.get("Id") in common_response]
+            common_elements = [
+                d for d in first_response if d.get("Id") in common_response
+            ]
             if common_elements:
                 return Response(
                     status=HTTPStatus.OK,
@@ -567,7 +634,9 @@ def process_common_elements(first_response, second_response, operator):
             return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
         case "or":  # union
             union_set = fresp_set.union(sresp_set)
-            union_elements = [d for d in first_response + second_response if d.get("Id") in union_set]
+            union_elements = [
+                d for d in first_response + second_response if d.get("Id") in union_set
+            ]
             return Response(
                 status=HTTPStatus.OK,
                 response=prepare_response_odata_v4(union_elements),
@@ -616,7 +685,11 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
 
-    files = [product for product in catalog_data["Data"] if Id.replace("'", "") == product["Id"]]
+    files = [
+        product
+        for product in catalog_data["Data"]
+        if Id.replace("'", "") == product["Id"]
+    ]
     if len(files) != 1:
         return Response(status="404 None/Multiple files found")
 
@@ -633,7 +706,11 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
                 )
             except KeyError:
                 # If env variables are not set, check if /.s3cfg is there, and map the values.
-                if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("/.s3cfg"))):
+                if not (
+                    s3_credentials := dotenv.dotenv_values(
+                        os.path.expanduser("/.s3cfg"),
+                    )
+                ):
                     return Response(
                         status=HTTPStatus.BAD_REQUEST,
                         response="You must have a s3cmd config file under '~/.s3cfg'",
@@ -645,7 +722,9 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
                     s3_credentials["bucket_location"],  # "sbg",
                 )
             parts = file_info["S3_path"].replace("s3://", "").split("/", 1)
-            handler.get_keys_from_s3(GetKeysFromS3Config([parts[1]], parts[0], "/tmp/auxip"))
+            handler.get_keys_from_s3(
+                GetKeysFromS3Config([parts[1]], parts[0], "/tmp/auxip"),
+            )
             file_path = f"/tmp/auxip/{file_info['Name']}"
 
             @after_this_request
@@ -679,28 +758,57 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
 def create_adgs_app():
     """Docstring to be added."""
     # Used to pass instance to conftest
-    app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
+    app.config["configuration_path"] = (
+        pathlib.Path(__file__).parent.resolve() / "config"
+    )
     return app
 
 
-if __name__ == "__main__":
+gunicorn: bool = os.getenv("GUNICORN") == "1"
+
+if (__name__ == "__main__") or gunicorn:
     """Docstring to be added."""
     parser = argparse.ArgumentParser(
         description="Starts the ADGS server mockup ",
     )
 
     default_config_path = pathlib.Path(__file__).parent.resolve() / "config"
-    parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
-    parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
-    parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        required=False,
+        default=5000,
+        help="Port to use",
+    )
+    parser.add_argument(
+        "-H",
+        "--host",
+        type=str,
+        required=False,
+        default="127.0.0.1",
+        help="Host to use",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        required=False,
+        default=default_config_path,
+    )
 
-    args = parser.parse_args()
-    configuration_path = pathlib.Path(args.config)
+    if gunicorn:
+        configuration_path = pathlib.Path(default_config_path)
+    else:
+        args = parser.parse_args()
+        configuration_path = pathlib.Path(args.config)
 
     if default_config_path is not configuration_path:
         # define config folder mandatory structure
         config_signature = ["auth.json", "Catalogue/GETFileResponse.json"]
-        if not all((configuration_path / file_name).exists() for file_name in config_signature):
+        if not all(
+            (configuration_path / file_name).exists() for file_name in config_signature
+        ):
             # use default config if given structure doesn't match
             configuration_path = default_config_path
             logger.info("Using default config")
@@ -717,5 +825,6 @@ if __name__ == "__main__":
     with open(auth_path, "w", encoding="utf-8") as dest:
         json.dump(auth_tmp_dict, dest, indent=4, ensure_ascii=False)
 
-    app.run(debug=True, host=args.host, port=args.port)  # local
-    # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
+    if not gunicorn:
+        app.run(debug=True, host=args.host, port=args.port)  # local
+        # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN

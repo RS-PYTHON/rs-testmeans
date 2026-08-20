@@ -70,7 +70,11 @@ def ready_live_status():
 @additional_options
 def query_products():
     if "$filter" not in request.args:
-        return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(data), headers=request.args)
+        return Response(
+            status=HTTPStatus.OK,
+            response=prepare_response_odata_v4(data),
+            headers=request.args,
+        )
     odata_filter = request.args["$filter"]
     geo_products = []
     all_id_sets = []
@@ -101,7 +105,11 @@ def query_products():
 
                 for v in values:
                     actual_value = getattr(v, "val", v)
-                    result = process_products("PublicationDate", cond["op"], actual_value)
+                    result = process_products(
+                        "PublicationDate",
+                        cond["op"],
+                        actual_value,
+                    )
 
                     if not result:
                         continue
@@ -122,7 +130,10 @@ def query_products():
 
             # If all searches doesn't return products, then the whole search result is empty
             if not left or not right:
-                return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+                return Response(
+                    status=HTTPStatus.OK,
+                    response=json.dumps({"value": []}),
+                )
 
             # Store the common values
             group_ids = left.intersection(right)
@@ -145,7 +156,10 @@ def query_products():
                         products.extend(result)
                 if not products:
                     # If a search doesn't return products, then the whole search result is empty
-                    return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+                    return Response(
+                        status=HTTPStatus.OK,
+                        response=json.dumps({"value": []}),
+                    )
             # store only id of the result
             ids = {p["Id"] for p in products}
             all_id_sets.append(ids)
@@ -158,7 +172,9 @@ def query_products():
     return (
         Response(
             status=HTTPStatus.OK,
-            response=json.dumps({"value": [item for item in data if item["Id"] in common_ids]}),
+            response=json.dumps(
+                {"value": [item for item in data if item["Id"] in common_ids]},
+            ),
             headers=request.args,
         )
         if common_ids
@@ -193,16 +209,28 @@ def process_products(field, op, value) -> Response:
                 case "contains":
                     results = [product for product in data if value in product[field]]
                 case "startswith":
-                    results = [product for product in data if product[field].startswith(value)]
+                    results = [
+                        product for product in data if product[field].startswith(value)
+                    ]
                 case "endswith":
-                    results = [product for product in data if product[field].endswith(value)]
+                    results = [
+                        product for product in data if product[field].endswith(value)
+                    ]
                 case "eq":
-                    results = [product for product in data if str(product[field]).lower() == str(value).lower()]
+                    results = [
+                        product
+                        for product in data
+                        if str(product[field]).lower() == str(value).lower()
+                    ]
                 case "in":
                     t_values = value if isinstance(value, list) else [value]
                     values = [str(v).lower() for v in t_values]
 
-                    results = [product for product in data if str(product[field]).lower() in values]
+                    results = [
+                        product
+                        for product in data
+                        if str(product[field]).lower() in values
+                    ]
                 case _:
                     return []
             return results
@@ -217,13 +245,19 @@ def process_products(field, op, value) -> Response:
             # Special case of ContentDate/Start
             if "/" in field:
                 top_key, sub_key = field.split("/")
-                get_field = lambda product: datetime.datetime.fromisoformat(product[top_key][sub_key])
+                get_field = lambda product: datetime.datetime.fromisoformat(
+                    product[top_key][sub_key],
+                )
             else:
-                get_field = lambda product: datetime.datetime.fromisoformat(product[field])
+                get_field = lambda product: datetime.datetime.fromisoformat(
+                    product[field],
+                )
             date = datetime.datetime.fromisoformat(value)
             match op.lower():
                 case "eq":
-                    results = [product for product in data if date == get_field(product)]
+                    results = [
+                        product for product in data if date == get_field(product)
+                    ]
                 case "gt":
                     results = [product for product in data if date < get_field(product)]
                 case "lt":
@@ -236,7 +270,8 @@ def process_products(field, op, value) -> Response:
                 for item in data
                 if op == "Eq"
                 and any(
-                    attr.get("Name") == field and str(attr.get("Value")) == value for attr in item.get("Attributes", [])
+                    attr.get("Name") == field and str(attr.get("Value")) == value
+                    for attr in item.get("Attributes", [])
                 )
             ]
         case _:
@@ -246,7 +281,9 @@ def process_products(field, op, value) -> Response:
 
 def create_prip_app():
     """Used to pass instance to conftest."""
-    app.config["configuration_path"] = pathlib.Path(__file__).parent.resolve() / "config"
+    app.config["configuration_path"] = (
+        pathlib.Path(__file__).parent.resolve() / "config"
+    )
     return app
 
 
@@ -270,7 +307,9 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
             )
         except KeyError:
             # If env variables are not set, check if /.s3cfg is there, and map the values.
-            if not (s3_credentials := dotenv.dotenv_values(os.path.expanduser("/.s3cfg"))):
+            if not (
+                s3_credentials := dotenv.dotenv_values(os.path.expanduser("/.s3cfg"))
+            ):
                 return Response(
                     status=HTTPStatus.BAD_REQUEST,
                     response="You must have a s3cmd config file under '~/.s3cfg'",
@@ -296,7 +335,10 @@ def download_file(Id) -> Response:  # noqa: N803 # Must match endpoint arg
         return send_file(file_path)
 
     # Send bytes of gzip files in order to avoid auto-decompress feature from application/gzip headers
-    if any(gzip_extension in files[0]["Name"] for gzip_extension in [".TGZ", ".gz", ".zip", ".tar"]):
+    if any(
+        gzip_extension in files[0]["Name"]
+        for gzip_extension in [".TGZ", ".gz", ".zip", ".tar"]
+    ):
         import io
 
         fpath = app.config["configuration_path"] / "Storage" / files[0]["Name"]
@@ -321,7 +363,12 @@ def extract_polygon_from_odata_filter(odata_filter: str) -> Polygon:
 def filter_items_by_polygon(data: list[dict], odata_filter: str) -> list[dict]:
     request_polygon = extract_polygon_from_odata_filter(odata_filter)
 
-    return [item for item in data if "GeoFootprint" in item and request_polygon.intersects(shape(item["GeoFootprint"]))]
+    return [
+        item
+        for item in data
+        if "GeoFootprint" in item
+        and request_polygon.intersects(shape(item["GeoFootprint"]))
+    ]
 
 
 def remove_intersects(filter_str: str) -> str:
@@ -330,24 +377,51 @@ def remove_intersects(filter_str: str) -> str:
     return result.strip()
 
 
-if __name__ == "__main__":
+gunicorn: bool = os.getenv("GUNICORN") == "1"
+
+if (__name__ == "__main__") or gunicorn:
     """Docstring to be added."""
     parser = argparse.ArgumentParser(
         description="Starts the ADGS server mockup ",
     )
 
     default_config_path = pathlib.Path(__file__).parent.resolve() / "config"
-    parser.add_argument("-p", "--port", type=int, required=False, default=5000, help="Port to use")
-    parser.add_argument("-H", "--host", type=str, required=False, default="127.0.0.1", help="Host to use")
-    parser.add_argument("-c", "--config", type=str, required=False, default=default_config_path)
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        required=False,
+        default=5000,
+        help="Port to use",
+    )
+    parser.add_argument(
+        "-H",
+        "--host",
+        type=str,
+        required=False,
+        default="127.0.0.1",
+        help="Host to use",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        required=False,
+        default=default_config_path,
+    )
 
-    args = parser.parse_args()
-    configuration_path = pathlib.Path(args.config)
+    if gunicorn:
+        configuration_path = pathlib.Path(default_config_path)
+    else:
+        args = parser.parse_args()
+        configuration_path = pathlib.Path(args.config)
 
     if default_config_path is not configuration_path:
         # define config folder mandatory structure
         config_signature = ["auth.json", "Catalogue/GETFileResponse.json"]
-        if not all((configuration_path / file_name).exists() for file_name in config_signature):
+        if not all(
+            (configuration_path / file_name).exists() for file_name in config_signature
+        ):
             # use default config if given structure doesn't match
             configuration_path = default_config_path
             logger.info("Using default config")
@@ -364,5 +438,6 @@ if __name__ == "__main__":
     with open(auth_path, "w", encoding="utf-8") as dest:
         json.dump(auth_tmp_dict, dest, indent=4, ensure_ascii=False)
 
-    app.run(debug=True, host=args.host, port=args.port)  # local
+    if not gunicorn:
+        app.run(debug=True, host=args.host, port=args.port)  # local
     # app.run(debug=True, host="0.0.0.0", port=8443) # loopback for LAN
