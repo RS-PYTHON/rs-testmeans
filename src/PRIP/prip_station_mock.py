@@ -84,52 +84,75 @@ def query_products():
         # use lexer to parse request, split it into field: {op, value}
         processed_filters = parse_odata_filter(odata_filter)
 
-        # A simple time range is converted into mutiple conditions
-        # ex. (PublicationDate gt date1 or PublicationDate eq date1) and (PublicationDate lt date2 or PublicationDate eq date2)
-        if "PublicationDate" in processed_filters:
-            conds = processed_filters["PublicationDate"]
-            conds = conds if isinstance(conds, list) else [conds]
+        # Handle ContentDate range:
+        #
+        # (ContentDate/Start gt start or ContentDate/Start eq start)
+        # and
+        # (ContentDate/End lt end or ContentDate/End eq end)
+        content_start_filters = processed_filters.get("ContentDate/Start")
+        content_end_filters = processed_filters.get("ContentDate/End")
 
-            lower_ids = set()  # IDs matching lower bound (gt, ge)
-            upper_ids = set()  # IDs matching upper bound (lt, le)
-            eq_ids = set()
+        if content_start_filters or content_end_filters:
 
-            for cond in conds:
-                values = cond["value"]
-                if not isinstance(values, list):
-                    values = [values]
+            def as_list(value):
+                return value if isinstance(value, list) else [value]
 
-                for v in values:
-                    actual_value = getattr(v, "val", v)
-                    result = process_products("PublicationDate", cond["op"], actual_value)
+            start_ids = set()
+            end_ids = set()
 
-                    if not result:
-                        continue
+            # ---- ContentDate/Start ----
+            if content_start_filters:
+                for cond in as_list(content_start_filters):
+                    for v in as_list(cond["value"]):
+                        actual_value = getattr(v, "val", v)
 
-                    ids = {p["Id"] for p in result}
-                    op = cond["op"].lower()
+                        result = process_products(
+                            "ContentDate/Start",
+                            cond["op"],
+                            actual_value,
+                        )
 
-                    if op in ("gt", "ge"):
-                        lower_ids.update(ids)
-                    elif op in ("lt", "le"):
-                        upper_ids.update(ids)
-                    elif op == "eq":
-                        eq_ids.update(ids)
+                        if result:
+                            start_ids.update(p["Id"] for p in result)
 
-            # Make an union with eq values, if any
-            left = lower_ids.union(eq_ids) if (lower_ids or eq_ids) else set()
-            right = upper_ids.union(eq_ids) if (upper_ids or eq_ids) else set()
+            # ---- ContentDate/End ----
+            if content_end_filters:
+                for cond in as_list(content_end_filters):
+                    for v in as_list(cond["value"]):
+                        actual_value = getattr(v, "val", v)
 
-            # If all searches doesn't return products, then the whole search result is empty
-            if not left or not right:
-                return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+                        result = process_products(
+                            "ContentDate/End",
+                            cond["op"],
+                            actual_value,
+                        )
 
-            # Store the common values
-            group_ids = left.intersection(right)
+                        if result:
+                            end_ids.update(p["Id"] for p in result)
+
+            # Both sides of the ContentDate range must match.
+            if content_start_filters and content_end_filters:
+                group_ids = start_ids.intersection(end_ids)
+
+            elif content_start_filters:
+                group_ids = start_ids
+
+            else:
+                group_ids = end_ids
+
+            if not group_ids:
+                return Response(
+                    status=HTTPStatus.OK,
+                    response=json.dumps({"value": []}),
+                )
+
             all_id_sets.append(group_ids)
         # XAND?
         for filter_key, conditions in processed_filters.items():
-            if filter_key == "PublicationDate":
+            if filter_key in (
+                "ContentDate/Start",
+                "ContentDate/End",
+            ):
                 continue
             for cond in (conditions if isinstance(conditions, list) else [conditions]):
                 values = cond["value"]
