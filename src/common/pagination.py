@@ -56,14 +56,40 @@ def additional_options(func):
                 return None
 
         def sort_responses_by_field(json_data, field, reverse=False):
-            keys = field.split("/")
-            return {
-                "value": sorted(
-                    json_data["value"],
-                    key=lambda x: x[keys[0]][keys[1]] if len(keys) > 1 else x[field],
-                    reverse=reverse,
-                ),
-            }
+
+            def get_field_value(item, field):
+                keys = field.split("/")
+
+                # First try normal/nested object fields
+                value = item
+
+                try:
+                    for key in keys:
+                        if not isinstance(value, dict):
+                            raise KeyError
+                        value = value[key]
+
+                    return value
+
+                except KeyError:
+                    pass
+
+                # Then try Attributes
+                # e.g. processingDate
+                if len(keys) == 1:
+                    for attribute in item.get("Attributes", []):
+                        if attribute.get("Name") == field:
+                            return attribute.get("Value")
+
+                return None
+
+            values = json_data["value"]
+
+            values.sort(
+                key=lambda item: (get_field_value(item, field) is None, get_field_value(item, field)), reverse=reverse,
+            )
+
+            return {"value": values}
 
         def truncate_attrs(request, json_data):
             # Remove attribtes if not defined
