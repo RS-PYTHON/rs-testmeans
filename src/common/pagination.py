@@ -86,7 +86,8 @@ def additional_options(func):
             values = json_data["value"]
 
             values.sort(
-                key=lambda item: (get_field_value(item, field) is None, get_field_value(item, field)), reverse=reverse,
+                key=lambda item: (get_field_value(item, field) is None, get_field_value(item, field)),
+                reverse=reverse,
             )
 
             return {"value": values}
