@@ -304,6 +304,8 @@ def products(*idx):
             " /Products?$filter=(PublicationDate eq 2025-08-01T07:45:53.563Z) and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq 'OPER_MSI_L0')&$top=1&$skip=0&$expand=Attributes",
             products(2),
         ),
+        ("/Products?$orderby=processingDate asc&$top=1&$skip=0&$expand=Attributes", products(0)),
+        ("/Products?$orderby=ContentDate/Start asc&$top=1&$skip=0&$expand=Attributes", products(0)),
     ],
 )
 def test_query_products(prip_client_with_auth, url, response):
