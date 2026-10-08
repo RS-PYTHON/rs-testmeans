@@ -22,8 +22,8 @@
 ARG BASE_IMAGE_TARGET=xxx
 ARG MOCKUP_TAG=latest
 
-ARG PYTHON_VERSION_DPR=3.11.7
-ARG DASK_TAG=2026.1.2
+ARG PYTHON_VERSION_DPR=3.13.12
+ARG DASK_TAG=2026.3.0
 
 FROM ghcr.io/rs-python/dask/dask-gateway:${BASE_IMAGE_TARGET}-py${PYTHON_VERSION_DPR}-${DASK_TAG}
 
@@ -48,11 +48,11 @@ RUN chown -R $USER_NAME /src
 # Export the poetry dependencies into a requirements.txt file then install it with pip
 RUN \
     pip install -U pip && \
-    pip install --no-cache-dir poetry pip-autoremove && \
+    pip install --no-cache-dir poetry pip-autoremove "setuptools<81" && \
     poetry self add poetry-plugin-export && \
     poetry export --without-hashes --format=requirements.txt > requirements.txt && \
     pip-autoremove -y poetry && \
-    pip uninstall -y poetry-plugin-export && \
+    pip uninstall -y poetry-plugin-export setuptools && \
     pip install -r requirements.txt && \
     rm -f requirements.txt && \
     layer-cleanup.sh
@@ -64,8 +64,8 @@ RUN \
 # Install complete dask subsets
 RUN pip install dask[complete] && layer-cleanup.sh
 
-# Install eopf CPM2 runtime used by eopf_otel
-RUN pip install --prefer-binary -U "eopf>=2.8.0,<3" "boto3==1.41.5" && layer-cleanup.sh
+# Install eopf-cpm
+RUN pip install --prefer-binary -U "eopf>=3" "boto3==1.41.5" && layer-cleanup.sh
 
 # Other installations
 RUN \
@@ -81,7 +81,7 @@ RUN pip install --only-binary=:all: opentelemetry-distro opentelemetry-exporter-
     opentelemetry-bootstrap -a install && \
     layer-cleanup.sh
 
-# Keep the eopf_otel wrapper available, but disable OTLP export for the mockup image.
+# Keep the opentelemetry-instrumentation-eopf wrapper available, but disable OTLP export for the mockup image.
 # No OpenTelemetry collector is expected for this fake processor, so exporting to localhost:4317 only adds noise.
 ENV OTEL_TRACES_EXPORTER=none \
     OTEL_METRICS_EXPORTER=none \
