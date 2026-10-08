@@ -139,7 +139,7 @@
       "PublicationDate": "2025-10-10T18:37:22.000Z",
       "Satellite": "S3B",
       "StationUnitId": "06",
-      "StationId": "MSP_KSE",
+      "StationId": "_KSE",
       "DownlinkOrbit": 98214,
       "AcquisitionId": "98214_A1",
       "AntennaId": "MSP21",
