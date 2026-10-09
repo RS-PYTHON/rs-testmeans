@@ -13,57 +13,48 @@
 # limitations under the License.
 
 general_configuration:
-  logging:
-    level: DEBUG
+  logging__level: DEBUG
   triggering__validate_run: true
   triggering__use_default_filename: true
   triggering__use_basic_logging: true
   triggering__load_default_logging: false
-breakpoints:
 workflow:
-- step: 1
+- name: single_unit_mockup.1
   active: true
-  module: rs.dpr.mockup # string corresponding to the python path of the module
-  processing_unit: DprMockupProcessor # EOProcessingUnit class name
-  name: DprMockupProcessor # identifier for the processing unit
+  module: mockup.processor.mockup_processing_units # python path of the module
+  processing_unit: single_unit_mockup # EOProcessingUnit class name
   inputs:
     in1: CADU1
     in2: CADU2 # One CADU{N} entry by CADU chunk we want to pass as input. In this example we consider 2 chunks
-    in3: AUX1
-    in4: AUX2 # One AUX{N} entry by ADGS file we want to pass as input. In this example we consider 2 aux files
+  adfs:
+    adf1: AUX1
+    adf2: AUX2 # One AUX{N} entry by ADGS file we want to pass as input. In this example we consider 2 aux files
   outputs:
-    - out1: S03OLCL0_
-      out2: S03MWRL0_
-I/O:
-  inputs_products:
+    mock_output_[135]: S03OLCL0_
+    mock_output_[24]: S03MWRL0_
+  parameters:
+    output_products: [S03OLCL0_, S03MWRL0_]
+io:
+  input_products:
   - id: CADU1
     path: chunk/S1/S1A_20231121072204051312/DCS_04_S1A_20231121072204051312_ch1_DSDB_00023.raw
-    store_type: zarr
-    store_params: {}
+    engine: cpm_zarr
   - id: CADU2
     path: chunk/S1/S1A_20231121072204051312/DCS_04_S1A_20231121072204051312_ch1_DSDB_00022.raw
-    store_type: zarr
-    store_params: {}
+    engine: cpm_zarr
+  adfs:
   - id: AUX1
     path: AUX/S1/S1A_OPER_AMV_ERRMAT_MPC__20201124T040009_V20000101T000000_20201123T131345.EOF.zip
-    store_type: zarr
-    store_params: {}
   - id: AUX2
     path: AUX/S1/S1A_AUX_PP2_V20190228T092500_G20220228T120000.SAFE.zip
-    store_type: zarr
-    store_params: {}
   output_products:
   - id: S03OLCL0_
     path: s3://test-data/mDPR # output folder or S3 bucket
     type: folder
-    store_type: zarr
-    store_params: {} #Credentials will be here
+    engine: cpm_zarr
+    writer_params: {} # Credentials will be here
   - id: S03MWRL0_
     path: s3://test-data/mDPR # output folder or S3 bucket
     type: folder
-    store_type: zarr
-    store_params: { } #Credentials will be here
-
-dask_context: {}
-logging: {}
-config: {}
+    engine: cpm_zarr
+    writer_params: {} # Credentials will be here

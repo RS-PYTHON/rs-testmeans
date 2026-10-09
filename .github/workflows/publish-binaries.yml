@@ -113,6 +113,7 @@ jobs:
           - cadip
           - dask-mockup-k8s
           - dask-mockup-local
+          - dask-mockup-localcluster
           - lta
           - prip
 
@@ -149,6 +150,14 @@ jobs:
             image_basename: ${{ github.repository_owner }}/dask/mockup # rs-python/dask/mockup
             image_suffix: /local
             build_args: "BASE_IMAGE_TARGET=local"
+
+          - image: dask-mockup-localcluster # dask image for mockup dpr processor, localcluster mode
+            # If called by rs-testmeans or after rebuilding the base dask images
+            if: ${{ contains('rs-testmeans,rebuild-base-dask', inputs.called_by) }}
+            dockerfile: ./src/DPR/Dockerfile.dask-eopf-localcluster-mockup
+            build_context_path: ./src/DPR
+            image_basename: ${{ github.repository_owner }}/dask/mockup # rs-python/dask/mockup
+            image_suffix: /localcluster
 
           - image: lta
             if: ${{ contains('rs-testmeans', inputs.called_by) }} # If called by rs-testmeans
