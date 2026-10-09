@@ -62,7 +62,7 @@ RUN \
 RUN pip install dask[complete] && layer-cleanup.sh
 
 # Install eopf-cpm
-RUN pip install --prefer-binary -U "eopf>=3rc0" "boto3==1.41.5" && layer-cleanup.sh
+RUN pip install --prefer-binary -U "eopf>=3.1.0rc1" "boto3==1.41.5" && layer-cleanup.sh
 
 # Other installations
 RUN \
