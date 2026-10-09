@@ -64,7 +64,7 @@ RUN \
 RUN pip install dask[complete] && layer-cleanup.sh
 
 # Install eopf-cpm
-RUN pip install --prefer-binary -U "eopf>=3" "boto3==1.41.5" && layer-cleanup.sh
+RUN pip install --prefer-binary -U "eopf>=3rc0" "boto3==1.41.5" && layer-cleanup.sh
 
 # Other installations
 RUN \
@@ -93,4 +93,4 @@ USER $USER
 
 # Set labels based on the Open Containers Initiative (OCI):
 LABEL org.opencontainers.image.source="https://github.com/RS-PYTHON/rs-demo"
-LABEL dockerfile.url="https://github.com/RS-PYTHON/rs-testmeans/blob/develop/rs-testmeans/src/DPR/Dockerfile.dask-eopf-mockup"
+LABEL dockerfile.url="https://github.com/RS-PYTHON/rs-testmeans/blob/develop/src/DPR/Dockerfile.dask-eopf-mockup"
