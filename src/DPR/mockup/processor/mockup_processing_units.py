@@ -21,19 +21,20 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
+import xarray as xr
 from eopf.computing import EOProcessingUnit
-from eopf.logging import EOLogging
-from eopf.product import EOProduct
 
 # Module-level logger; it has no processor-instance state.
-logger = EOLogging().get_logger(__name__, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def output_product_types(output_products: Any | None = None) -> list[str]:
     """Extract the output product type names supplied by the tasktable payload."""
     if not output_products:
         logger.error("Missing output_products in the mockup tasktable payload")
-        raise ValueError("The mockup processor requires output_products from the tasktable payload")
+        raise ValueError(
+            "The mockup processor requires output_products from the tasktable payload",
+        )
 
     product_types = []
     output_specs = output_products
@@ -50,19 +51,23 @@ def output_product_types(output_products: Any | None = None) -> list[str]:
             # The mock tasktable passes the compact form: ["S03..._", ...].
             product_types.append(product)
         elif isinstance(product, dict):
-            product_type = product.get("name") or product.get("id") or product.get("product_type")
+            product_type = (
+                product.get("name") or product.get("id") or product.get("product_type")
+            )
             if product_type:
                 product_types.append(product_type)
 
     if not product_types:
-        logger.error(f"No valid output product type found in output_products={output_products!r}")
+        logger.error(
+            f"No valid output product type found in output_products={output_products!r}",
+        )
         raise ValueError("The mockup processor received no valid output product type")
 
     return product_types
 
 
 def product_name(product_type: str, index: int) -> str:
-    """Build a deterministic EOProduct id for the selected output type."""
+    """Build a deterministic product id for the selected output type."""
     # Trim the tasktable suffix only for readability in the generated id.
     normalized_type = product_type.rstrip("_") or "MOCKUP"
     return f"{normalized_type}_MOCKUP_{index:03d}_20260101T000000"
@@ -74,7 +79,9 @@ def fixture_paths() -> tuple[Path, ...]:
     # Keep fixture selection data-driven and stable across runs.
     paths = tuple(sorted(data_dir.glob("*.zarr.zip")))
     if not paths:
-        logger.warning(f"No zipped Zarr fixture found in {data_dir}; default metadata will be used")
+        logger.warning(
+            f"No zipped Zarr fixture found in {data_dir}; default metadata will be used",
+        )
     # Path() deliberately triggers the default metadata fallback.
     return paths or (Path(),)
 
@@ -85,7 +92,9 @@ def load_attrs(fixture_path: Path, product_name: str, product_type: str) -> dict
         attrs = read_attrs(fixture_path)
     except Exception as exc:  # pylint: disable=broad-exception-caught
         # Fixture data is optional for the mock; default STAC metadata keeps the flow runnable.
-        logger.warning(f"Failed to read fixture metadata from {fixture_path}; using default metadata: {exc}")
+        logger.warning(
+            f"Failed to read fixture metadata from {fixture_path}; using default metadata: {exc}",
+        )
         attrs = load_default_attrs()
 
     return normalize_attrs(attrs, product_name, product_type)
@@ -112,7 +121,7 @@ def load_default_attrs() -> dict:
 
 
 def normalize_attrs(attrs: dict, product_name: str, product_type: str) -> dict:
-    """Adapt fixture metadata to the mock EOProduct generated for this run."""
+    """Adapt fixture metadata to the mock product generated for this run."""
     # Fixtures are reusable templates. Copy before injecting the per-product
     # STAC id, product type and deterministic timestamps.
     attrs = copy.deepcopy(attrs)
@@ -121,7 +130,9 @@ def normalize_attrs(attrs: dict, product_name: str, product_type: str) -> dict:
     stac_discovery.setdefault("type", "Feature")
     stac_discovery.setdefault("stac_version", "1.1.0")
     if not isinstance(stac_discovery.get("geometry"), dict):
-        logger.warning(f"Fixture metadata has no STAC geometry object; using default geometry for {product_name}")
+        logger.warning(
+            f"Fixture metadata has no STAC geometry object; using default geometry for {product_name}",
+        )
         # Some fixture .zattrs expose geometry in a non-STAC shape. Use the
         # corrected default STAC geometry/bbox instead of computing it here.
         default_stac = load_default_attrs()["stac_discovery"]
@@ -143,55 +154,29 @@ def normalize_attrs(attrs: dict, product_name: str, product_type: str) -> dict:
     return attrs
 
 
-def force_synchronous_zarr_writes() -> None:
-    """
-    Force EOPF to write Zarr outputs immediately.
-
-    The processor itself is already running as a Dask task. With a minimal Dask
-    cluster, EOPF delayed writing may submit extra Zarr write tasks to the same
-    cluster while the only worker slot is still busy. Those write tasks cannot
-    start, so EOPF waits until timeout. Forcing delayed_writing=False and
-    delayed_consolidate=False makes EOPF write inline in the current task,
-    without creating separate Dask write tasks.
-    """
-    # Patch only when the mock processor runs.
-    from eopf.store.zarr import EOZarrStore  # pylint: disable=import-outside-toplevel
-
-    # Idempotent: both mock steps may run in the same Python process.
-    if getattr(EOZarrStore.open, "_dpr_mockup_sync_patch", False):
-        return
-
-    # Keep EOPF behavior; override only the delayed-write flags.
-    original_open = EOZarrStore.open
-
-    def open_with_synchronous_writes(self, *args, **kwargs):
-        # Avoid extra Dask futures for this lightweight mock output.
-        kwargs["delayed_writing"] = False
-        kwargs["delayed_consolidate"] = False
-        return original_open(self, *args, **kwargs)
-
-    # Install the wrapper for this process only.
-    open_with_synchronous_writes._dpr_mockup_sync_patch = True
-    EOZarrStore.open = open_with_synchronous_writes
-    logger.warning("DPR mockup monkeypatch active: EOPF Zarr delayed writing is disabled")
-
-
 class single_unit_mockup(EOProcessingUnit):  # pylint: disable=invalid-name
     """EOPF processing unit used by the DPR mockup tasktable."""
 
     # EOPF instantiates this class from the workflow module/processing_unit
     # entries, so the mock follows the same orchestration path as real processors.
-    PROCESSOR_MODEL = False
+    PROCESSOR_CONTRACT = False
 
-    def run(self, inputs, adfs=None, mode=None, **kwargs):  # pylint: disable=unused-argument
-        """Return mock EOProducts that EOPF can write to the configured outputs."""
-        force_synchronous_zarr_writes()
+    def run(
+        self,
+        inputs,
+        adfs=None,
+        mode=None,
+        **kwargs,
+    ):  # pylint: disable=unused-argument
+        """Return mock DataTree products that EOPF can write to the configured outputs."""
         # output_products comes from the tasktable payload; it is the source of
         # truth for the mock product types generated below.
         product_types = output_product_types(kwargs.get("output_products"))
         paths = fixture_paths()
         logger.info(f"Running DPR EOPF mockup processing unit step={self.identifier}")
-        logger.info(f"Generating mock products for output types {product_types} from {len(paths)} fixture(s)")
+        logger.info(
+            f"Generating mock products for output types {product_types} from {len(paths)} fixture(s)",
+        )
         products = {}
 
         # Return stable generic keys; the tasktable routes each key to the
@@ -201,8 +186,10 @@ class single_unit_mockup(EOProcessingUnit):  # pylint: disable=invalid-name
             name = product_name(product_type, index)
             attrs = load_attrs(fixture_path, name, product_type)
             output_key = f"mock_output_{index}"
-            logger.info(f"Created {output_key} as {product_type} using fixture {fixture_path}")
-            products[output_key] = EOProduct(name, attrs=attrs, product_type=product_type)
+            logger.info(
+                f"Created {output_key} as {product_type} using fixture {fixture_path}",
+            )
+            products[output_key] = xr.DataTree(xr.Dataset(attrs=attrs), name=name)
 
         # EOPF handles storage/upload after this method returns.
         logger.info(f"Mockup processing unit returned {len(products)} product(s)")
@@ -215,7 +202,11 @@ _DYNAMIC_STEP_PREFIX = "single_unit_mockup_step_"
 def __getattr__(name: str) -> type[single_unit_mockup]:
     """Create mock processing-unit classes requested by a tasktable step."""
     suffix = name.removeprefix(_DYNAMIC_STEP_PREFIX)
-    if not name.startswith(_DYNAMIC_STEP_PREFIX) or not suffix or not name.isidentifier():
+    if (
+        not name.startswith(_DYNAMIC_STEP_PREFIX)
+        or not suffix
+        or not name.isidentifier()
+    ):
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
     dynamic_class = type(
