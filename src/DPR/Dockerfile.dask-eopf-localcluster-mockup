@@ -20,7 +20,7 @@
 #
 
 ARG PYTHON_VERSION=3.13.16
-ARG DASK_TAG=2026.3.0
+ARG DASK_TAG=2026.7.1
 
 FROM ghcr.io/rs-python/rs-dpr-service_py${PYTHON_VERSION}-${DASK_TAG}:latest
 
