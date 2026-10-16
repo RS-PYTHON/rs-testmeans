@@ -1,4 +1,4 @@
-# Add data on mockups
+# Add data to the mockups
 
 ## Add data into RS testmeans CADIP simulator
 
@@ -12,7 +12,7 @@ The required files for the CADIP simulator should be structured as follows:
 
 The actual files should be placed into **config/S3Mock/** directory.
 
-### Example 1: Add a complete session by overwritting an existing one
+### Example 1: Add a complete session by overwriting an existing one
 
 1. Modify the **SPJ.json** file by adding your session metadata as shown below:
 
@@ -43,10 +43,10 @@ The actual files should be placed into **config/S3Mock/** directory.
 2. Add the actual files into **config/S3Mock/** directory.
 
    ```shell
-   ovidiu@MBP2023 rs-testmeans % ll src/CADIP/config/S3Mock
+   $ ls -l src/CADIP/config/S3Mock
    total 1688
-   -rw-r--r--  1 ovidiu  staff    85B Apr 19 11:33 DCS_01_S1A_20200105072204051312_ch1_DSDB_00000.raw
-   -rw-r--r--  1 ovidiu  staff   219B Apr 19 11:33 DCS_01_S1A_20200105072204051312_ch1_DSDB_00001.raw
+   -rw-r--r--  1 user  staff    85B Apr 19 11:33 DCS_01_S1A_20200105072204051312_ch1_DSDB_00000.raw
+   -rw-r--r--  1 user  staff   219B Apr 19 11:33 DCS_01_S1A_20200105072204051312_ch1_DSDB_00001.raw
    ```
 
 3. For each file, add the metadata response to **Catalogue/FileResponse.json**:
@@ -134,10 +134,10 @@ Files should be placed in **Storage** directory.
 2. Add the actual files into **config/Storage/** directory.
 
    ```shell
-   ovidiu@MBP2023 rs-testmeans % ll src/ADGS/config/Storage
+   $ ls -l src/ADGS/config/Storage
    total 744
-   -rw-r--r--  1 ovidiu  staff   542B Apr 19 11:33 S1A_AUX_PP2_V20200106T080000_G20200106T080000.SAFE
-   -rw-r--r--  1 ovidiu  staff   833B Apr 19 11:33 S1A_AUX_PP2_V20200121T080000_G20200121T080000.SAFE
+   -rw-r--r--  1 user  staff   542B Apr 19 11:33 S1A_AUX_PP2_V20200106T080000_G20200106T080000.SAFE
+   -rw-r--r--  1 user  staff   833B Apr 19 11:33 S1A_AUX_PP2_V20200121T080000_G20200121T080000.SAFE
    ```
 
 ### Example 2: Add data using "-c" flag
@@ -158,9 +158,9 @@ A volume is mounted in **/opt/cadip/config/S3Mock/** directory inside the CADIP 
 
 The folder **/opt/cadip/config/S3Mock/** is created empty the first time.
 
-#### Dummy files (Optionnal)
+#### Dummy files (Optional)
 
-If one still wants to use the dummy files provided in the source code of the mockup, he should copy them manually.
+To use the dummy files provided in the source code of the mockup, copy them manually.
 
 Perform a git pull of the rs-testmeans project on the local pc and access the simulated data from the **rs-testmeans/src/CADIP/config/S3Mock** directory.
 
@@ -209,7 +209,7 @@ There are 4 configuration files managed as ConfigMap :
 
 Refer to [Add data into RS testmeans CADIP simulator](#add-data-into-rs-testmeans-cadip-simulator)
 
-To add a session or to add more files, one should :
+To add a session or more files:
 
 1. Copy the files to **/opt/cadip/config/S3Mock/** (Done in previous steps)
 
@@ -229,9 +229,9 @@ A volume is mounted in **/opt/adgs/config/Storage/** directory inside the ADGS m
 
 The folder **/opt/adgs/config/Storage/** is created empty the first time.
 
-#### Dummy files (Optionnal)
+#### Dummy files (Optional)
 
-If one still wants to use the dummy files provided in the source code of the mockup, he should copy them manually.
+To use the dummy files provided in the source code of the mockup, copy them manually.
 
 Perform a git pull of the rs-testmeans project on the local pc and access the simulated data from the **rs-testmeans/src/adgs/config/Storage** directory.
 
@@ -278,7 +278,7 @@ There are 2 configuration files managed as ConfigMap :
 
 Refer to [Add data into RS testmeans ADGS simulator](#add-data-into-rs-testmeans-adgs-simulator)
 
-To add a session or to add more files, one should :
+To add a session or more files:
 
 1. Copy the files to **/opt/adgs/config/Storage/** (Done in previous steps)
 
