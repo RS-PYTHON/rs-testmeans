@@ -51,9 +51,7 @@ def output_product_types(output_products: Any | None = None) -> list[str]:
             # The mock tasktable passes the compact form: ["S03..._", ...].
             product_types.append(product)
         elif isinstance(product, dict):
-            product_type = (
-                product.get("name") or product.get("id") or product.get("product_type")
-            )
+            product_type = product.get("name") or product.get("id") or product.get("product_type")
             if product_type:
                 product_types.append(product_type)
 
@@ -202,11 +200,7 @@ _DYNAMIC_STEP_PREFIX = "single_unit_mockup_step_"
 def __getattr__(name: str) -> type[single_unit_mockup]:
     """Create mock processing-unit classes requested by a tasktable step."""
     suffix = name.removeprefix(_DYNAMIC_STEP_PREFIX)
-    if (
-        not name.startswith(_DYNAMIC_STEP_PREFIX)
-        or not suffix
-        or not name.isidentifier()
-    ):
+    if not name.startswith(_DYNAMIC_STEP_PREFIX) or not suffix or not name.isidentifier():
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
     dynamic_class = type(
