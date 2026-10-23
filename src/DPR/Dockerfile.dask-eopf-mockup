@@ -20,12 +20,11 @@
 
 # Base image type: can be "k8s" for cluster usage or "local" for local usage.
 ARG BASE_IMAGE_TARGET=xxx
-ARG MOCKUP_TAG=latest
 
-ARG PYTHON_VERSION_DPR=3.11.7
-ARG DASK_TAG=2026.1.2
+ARG PYTHON_VERSION=3.13.16
+ARG DASK_TAG=2026.7.1
 
-FROM ghcr.io/rs-python/dask/dask-gateway:${BASE_IMAGE_TARGET}-py${PYTHON_VERSION_DPR}-${DASK_TAG}
+FROM ghcr.io/rs-python/dask/dask-gateway:${BASE_IMAGE_TARGET}-py${PYTHON_VERSION}-${DASK_TAG}
 
 # Default user from parent image
 ARG USER=dask:dask
@@ -48,11 +47,11 @@ RUN chown -R $USER_NAME /src
 # Export the poetry dependencies into a requirements.txt file then install it with pip
 RUN \
     pip install -U pip && \
-    pip install --no-cache-dir poetry pip-autoremove && \
+    pip install --no-cache-dir poetry pip-autoremove "setuptools<81" && \
     poetry self add poetry-plugin-export && \
     poetry export --without-hashes --format=requirements.txt > requirements.txt && \
     pip-autoremove -y poetry && \
-    pip uninstall -y poetry-plugin-export && \
+    pip uninstall -y poetry-plugin-export setuptools && \
     pip install -r requirements.txt && \
     rm -f requirements.txt && \
     layer-cleanup.sh
@@ -64,8 +63,8 @@ RUN \
 # Install complete dask subsets
 RUN pip install dask[complete] && layer-cleanup.sh
 
-# Install eopf CPM2 runtime used by eopf_otel
-RUN pip install --prefer-binary -U "eopf>=2.8.0,<3" "boto3==1.41.5" && layer-cleanup.sh
+# Install eopf-cpm
+RUN pip install --prefer-binary -U "eopf>=3.1.0rc1" "boto3==1.41.5" && layer-cleanup.sh
 
 # Other installations
 RUN \
@@ -81,7 +80,7 @@ RUN pip install --only-binary=:all: opentelemetry-distro opentelemetry-exporter-
     opentelemetry-bootstrap -a install && \
     layer-cleanup.sh
 
-# Keep the eopf_otel wrapper available, but disable OTLP export for the mockup image.
+# Keep the opentelemetry-instrumentation-eopf wrapper available, but disable OTLP export for the mockup image.
 # No OpenTelemetry collector is expected for this fake processor, so exporting to localhost:4317 only adds noise.
 ENV OTEL_TRACES_EXPORTER=none \
     OTEL_METRICS_EXPORTER=none \
@@ -94,4 +93,4 @@ USER $USER
 
 # Set labels based on the Open Containers Initiative (OCI):
 LABEL org.opencontainers.image.source="https://github.com/RS-PYTHON/rs-demo"
-LABEL dockerfile.url="https://github.com/RS-PYTHON/rs-demo/blob/develop/local-mode/docker/eopf/Dockerfile.dask-eopf-mockup-local"
+LABEL dockerfile.url="https://github.com/RS-PYTHON/rs-testmeans/blob/develop/src/DPR/Dockerfile.dask-eopf-mockup"

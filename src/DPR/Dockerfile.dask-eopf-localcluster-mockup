@@ -1,0 +1,94 @@
+# Copyright 2023-2026 CS Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#
+# This Dockerfiles installs a DPR processor in the rs-dpr-service image,
+# to be able to run the processor with the Dask LocalCluster mode in local mode.
+# Target Docker image name:
+# ghcr.io/rs-python/dask/mockup/localcluster
+#
+
+ARG PYTHON_VERSION=3.13.16
+ARG DASK_TAG=2026.7.1
+
+FROM ghcr.io/rs-python/rs-dpr-service_py${PYTHON_VERSION}-${DASK_TAG}:latest
+
+# Default user from parent image
+ARG USER=user
+ARG USER_NAME=user
+
+USER root
+COPY ./layer-cleanup.sh ./restore-apt.sh /usr/local/bin/
+RUN chmod 755 /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
+
+############################################
+# Install the DPR mockup (=fake processor) #
+############################################
+
+WORKDIR /src/DPR
+COPY ./. /src/DPR/
+
+# Give USERNAME rights to write in /src
+RUN chown -R $USER_NAME /src
+
+# Export the poetry dependencies into a requirements.txt file then install it with pip
+RUN \
+    pip install -U pip && \
+    pip install --no-cache-dir poetry pip-autoremove "setuptools<81" && \
+    poetry self add poetry-plugin-export && \
+    poetry export --without-hashes --format=requirements.txt > requirements.txt && \
+    pip-autoremove -y poetry && \
+    pip uninstall -y poetry-plugin-export setuptools && \
+    pip install -r requirements.txt && \
+    rm -f requirements.txt && \
+    layer-cleanup.sh
+
+##################
+# End DPR mockup #
+##################
+
+# Install complete dask subsets
+RUN pip install dask[complete] && layer-cleanup.sh
+
+# Install eopf-cpm
+RUN pip install --prefer-binary -U "eopf>=3.1.0rc1" "boto3==1.41.5" && layer-cleanup.sh
+
+# Other installations
+RUN \
+    restore-apt.sh && apt update && \
+    apt install -y python3-pydot graphviz && \
+    layer-cleanup.sh
+
+# Make the copied mockup processor importable without relying on PYTHONPATH, which may be overridden at runtime.
+RUN python -c "import site, pathlib; pathlib.Path(site.getsitepackages()[0], 'dpr_mockup.pth').write_text('/src/DPR\n')"
+
+# Install and auto configure opentelemetry
+RUN pip install --only-binary=:all: opentelemetry-distro opentelemetry-exporter-otlp "opentelemetry-instrumentation-eopf>=0.2.7" && \
+    opentelemetry-bootstrap -a install && \
+    layer-cleanup.sh
+
+# Keep the opentelemetry-instrumentation-eopf wrapper available, but disable OTLP export for the mockup image.
+# No OpenTelemetry collector is expected for this fake processor, so exporting to localhost:4317 only adds noise.
+ENV OTEL_TRACES_EXPORTER=none \
+    OTEL_METRICS_EXPORTER=none \
+    OTEL_LOGS_EXPORTER=none
+
+# Remove custom scripts
+RUN rm -f /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
+
+USER $USER
+
+# Set labels based on the Open Containers Initiative (OCI):
+LABEL org.opencontainers.image.source="https://github.com/RS-PYTHON/rs-demo"
+LABEL dockerfile.url="https://github.com/RS-PYTHON/rs-testmeans/blob/develop/src/DPR/Dockerfile.dask-eopf-localcluster-mockup"
