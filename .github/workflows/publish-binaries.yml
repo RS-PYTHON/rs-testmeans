@@ -88,6 +88,7 @@ jobs:
       branch_name: ${{ steps.set-binary-env.outputs.branch_name }}
       docker_tags: ${{ steps.set-binary-env.outputs.docker_tags }}
       docker_final_tags: ${{ steps.set-binary-env.outputs.docker_final_tags }}
+      dpr_service_tag: ${{ steps.dpr-service-tag.outputs.tag }}
     steps:
       - id: set-binary-env
         name: Call action 'set-binary-env'
@@ -97,6 +98,27 @@ jobs:
           add_docker_tags: ${{ inputs.add_docker_tags }}
           force_docker_tags: ${{ inputs.force_docker_tags }}
           force_docker_final_tags: ${{ inputs.force_docker_final_tags }}
+
+      # The dask-mockup-localcluster image is built from the rs-dpr-service image
+      - if: ${{ contains('rs-testmeans,rebuild-base-dask', inputs.called_by) }}
+        uses: actions/checkout@v6
+      - id: dpr-service-image
+        if: ${{ contains('rs-testmeans,rebuild-base-dask', inputs.called_by) }}
+        name: Get the rs-dpr-service image name
+        run: |
+          set -x
+          dockerfile=./src/DPR/Dockerfile.dask-eopf-localcluster-mockup
+          python_version=$(sed -n "s/^ARG PYTHON_VERSION=//p" "$dockerfile")
+          dask_tag=$(sed -n "s/^ARG DASK_TAG=//p" "$dockerfile")
+          echo "image=ghcr.io/rs-python/rs-dpr-service_py${python_version}-${dask_tag}" >> "$GITHUB_OUTPUT"
+      - id: dpr-service-tag
+        if: ${{ contains('rs-testmeans,rebuild-base-dask', inputs.called_by) }}
+        name: Resolve the rs-dpr-service image tag
+        uses: RS-PYTHON/actions/.github/actions/get-image-tag@develop
+        with:
+          image: ${{ steps.dpr-service-image.outputs.image }}
+          # Test image tags with the same name as current branch, else latest
+          tags: ${{ steps.set-binary-env.outputs.docker_tags }},latest
 
   publish-docker-images:
     name: "Build and publish Docker images"
@@ -158,6 +180,7 @@ jobs:
             build_context_path: ./src/DPR
             image_basename: ${{ github.repository_owner }}/dask/mockup # rs-python/dask/mockup
             image_suffix: /localcluster
+            build_args: "DPR_SERVICE_TAG=${{ needs.set-binary-env.outputs.dpr_service_tag }}"
 
           - image: lta
             if: ${{ contains('rs-testmeans', inputs.called_by) }} # If called by rs-testmeans
