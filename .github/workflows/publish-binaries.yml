@@ -257,6 +257,7 @@ jobs:
     needs: [set-binary-env, publish-docker-images, get-pushed-images]
     permissions:
      packages: write # needed for 'docker push'
+     pull-requests: write # to report the notebooks in the pull request
     steps:
       - name: Log into Docker registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
@@ -266,6 +267,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Test rs-demo
+        id: test-demo
         env:
           BRANCH_NAME: ${{ needs.set-binary-env.outputs.branch_name }}
           DOCKER_TAGS: ${{ needs.set-binary-env.outputs.docker_tags }}
@@ -281,6 +283,24 @@ jobs:
 
           # Run the rs-demo local mode using the newly created docker images
           ./test-rs-demo.sh
+
+      - name: Upload executed notebooks
+        id: upload-notebooks
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: notebook-outputs
+          path: rs-demo/local-mode/notebook-outputs/
+          if-no-files-found: ignore
+
+      - name: Report the notebooks in the pull request
+        if: ${{ !cancelled() }}
+        continue-on-error: true # the report must never fail the job
+        uses: RS-PYTHON/actions/.github/actions/report-notebooks@develop
+        with:
+          notebooks-dir: rs-demo/local-mode/notebook-outputs
+          outcome: ${{ steps.test-demo.outcome }}
+          artifact-url: ${{ steps.upload-notebooks.outputs.artifact-url }}
 
       # If we used a temp docker tag, and only if the tests succeeded, then
       # we tag the images with the real tags and push them.
