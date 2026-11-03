@@ -42,7 +42,8 @@ PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
 with open(PATH_TO_CONFIG / "Catalog" / "GETFileResponse.json") as bdata:
     data = json.loads(bdata.read())["Data"]
-    ATTRS = [attr["Name"] for attr in data[0]["Attributes"]]
+    # Recognize attributes across the catalog even when individual products omit them.
+    ATTRS = sorted({attr["Name"] for item in data for attr in item.get("Attributes", [])})
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -186,6 +187,11 @@ def process_products(field, op, value) -> Response:
                 case _:
                     return []
             return results
+        case "ProductionType":
+            # STAC processing:lineage maps to ProductionType; the evaluator passes each IN value separately.
+            if op.lower() not in ("eq", "in"):
+                return []
+            return [product for product in data if str(product.get(field)).lower() == str(value).lower()]
         case (
             "PublicationDate"
             | "EvictionDate"
@@ -202,7 +208,8 @@ def process_products(field, op, value) -> Response:
                 get_field = lambda product: datetime.datetime.fromisoformat(product[field])
             date = datetime.datetime.fromisoformat(value)
             match op.lower():
-                case "eq":
+                case "eq" | "in":
+                    # The evaluator unions the exact matches for individual IN values.
                     results = [product for product in data if date == get_field(product)]
                 case "gt":
                     results = [product for product in data if date < get_field(product)]
@@ -211,6 +218,17 @@ def process_products(field, op, value) -> Response:
                 case _:
                     return []
         case _ if field in ATTRS:
+            if field == "processingDate" and op.lower() in ("eq", "in"):
+                # Compare instants rather than ISO text, preserving fractional seconds and timezone equivalence.
+                date = datetime.datetime.fromisoformat(str(value))
+                return [
+                    item
+                    for item in data
+                    if any(
+                        attr.get("Name") == field and datetime.datetime.fromisoformat(str(attr["Value"])) == date
+                        for attr in item.get("Attributes", [])
+                    )
+                ]
             results = [
                 item
                 for item in data

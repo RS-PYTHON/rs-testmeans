@@ -254,14 +254,16 @@ def query_session() -> Response | list[Any]:
 
 
 def manage_int_querry(op, value, catalog_data, field, headers):
-    """Docstring to be added."""
+    """Filter integer fields by comparison or membership in an IN list."""
     try:
-        value = int(value)
+        value = [int(v) for v in value.strip("()").split(",")] if op == "in" else int(value)
     except ValueError:
         return Response(status=HTTPStatus.BAD_REQUEST)
     match op:
         case "eq":
             query_result = [product for product in catalog_data["Data"] if value == int(product[field])]
+        case "in":
+            query_result = [product for product in catalog_data["Data"] if int(product[field]) in value]
         case "lt":
             query_result = [product for product in catalog_data["Data"] if value > int(product[field])]
         case "gt":
@@ -274,8 +276,9 @@ def manage_int_querry(op, value, catalog_data, field, headers):
 
 
 def manage_bool_querry(op, value, catalog_data, field, headers):
-    """Docstring to be added."""
-    query_result = [product for product in catalog_data["Data"] if value.lower() == str(product[field]).lower()]
+    """Match a Boolean literal or IN list using case-insensitive Boolean text."""
+    values = [v.strip() for v in value.lower().strip("()").split(",")] if op == "in" else [value.lower()]
+    query_result = [product for product in catalog_data["Data"] if str(product[field]).lower() in values]
     return (
         Response(status=HTTPStatus.OK, response=batch_response_odata_v4(query_result), headers=headers)
         if query_result
@@ -304,9 +307,8 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
 
 
 def manage_str_querry(op, value, catalog_data, field, headers):
-    """Docstring to be added."""
+    """Match string fields with eq or IN after removing literal delimiters."""
 
-    # Normalize string values and support "in" lists for Id-like fields.
     def normalize_value(raw: str) -> str:
         return raw.strip().strip("'\"[]()")
 
@@ -325,7 +327,11 @@ def manage_str_querry(op, value, catalog_data, field, headers):
 
 
 def manage_datetime_querry(op, value, catalog_data, field, headers):
-    """Docstring to be added."""
+    """Compare parsed datetime instants for eq, gt, lt and IN predicates."""
+    if op == "in":
+        dates = {datetime.fromisoformat(v.strip().strip("'\"")) for v in value.strip("()").split(",")}
+        selected = [p for p in catalog_data["Data"] if datetime.fromisoformat(p[field]) in dates]
+        return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(selected), headers=headers)
     date = datetime.fromisoformat(value)
     match op:
         case "eq":
@@ -363,6 +369,7 @@ SPJ_LUT = {
     "NumChannels": manage_int_querry,
     "PublicationDate": manage_datetime_querry,
     "Satellite": manage_satellite_sid_query,
+    "StationId": manage_str_querry,  # STAC sat:acquisition_station
     "StationUnitId": manage_str_querry,
     "DownlinkOrbit": manage_int_querry,
     "AcquisitionId": manage_str_querry,
