@@ -21,6 +21,7 @@ import pytest
 
 
 def attribute(name, value):
+    """Build an attribute comparison using the syntax sent by rs-server."""
     return (
         f"Attributes/OData.CSC.StringAttribute/any(att:att/Name eq '{name}' "
         f"and att/OData.CSC.StringAttribute/Value eq '{value}')"
@@ -28,6 +29,7 @@ def attribute(name, value):
 
 
 def mission(constellation, serial):
+    """Keep each constellation and serial identifier in the same alternative."""
     return f"({attribute('platformShortName', constellation)} and {attribute('platformSerialIdentifier', serial)})"
 
 
@@ -39,13 +41,17 @@ GEO_FILTER = "OData.CSC.Intersects(area=geography'SRID=4326;POLYGON((0 0,2 0,2 2
 @pytest.fixture
 def mission_catalogue(monkeypatch):
     """Include crossed satellite combinations and products outside the requested geometry."""
+    # Each decoy uses known components in a pair that was not requested.
     decoys = [("SENTINEL-1", "A"), ("SENTINEL-1", "B"), ("SENTINEL-2", "A"), ("SENTINEL-3", "B")]
     products = []
+    # p3 and p4 are SAFE products; the manual NOT filter must exclude only the one containing WV_RAW.
+    names = {0: "Rock 'n' roll and orbit", 3: "S1A_GOOD.SAFE.zip", 4: "S1A_WV_RAW_BAD.SAFE.zip"}
     for index, (constellation, serial) in enumerate(PAIRS + decoys):
         products.append(
             {
                 "Id": f"p{index}",
-                "Name": "Rock 'n' roll and orbit" if index == 0 else f"p{index}",
+                "Name": names.get(index, f"p{index}"),
+                "ContentLength": index + 1,
                 "PublicationDate": f"2026-01-{index + 1:02d}T00:00:00Z",
                 "ContentDate": {"Start": f"2026-01-{index + 1:02d}T00:00:00Z"},
                 "GeoFootprint": {"type": "Point", "coordinates": [10, 10] if index == 2 else [1, 1]},
@@ -60,6 +66,7 @@ def mission_catalogue(monkeypatch):
     monkeypatch.setattr(station, "ATTRS", ["platformShortName", "platformSerialIdentifier", "productType"])
 
 
+@pytest.mark.usefixtures("mission_catalogue")
 @pytest.mark.parametrize(
     "odata_filter,expected,options",
     [
@@ -68,6 +75,7 @@ def mission_catalogue(monkeypatch):
         ("((" + MISSION_FILTER + "))", ["p0", "p1", "p2"], {}),
         (attribute("productType", "TYPE_X") + " and " + MISSION_FILTER, ["p0", "p2"], {}),
         (mission("SENTINEL-1", "D"), [], {}),
+        # Pagination must consider the third alternative, not just products from the first two branches.
         (MISSION_FILTER, ["p2"], {"$orderby": "PublicationDate desc", "$top": "1"}),
         # An empty first alternative must not hide a later matching collection.
         (f"({attribute('productType', 'MISSING')}) or ({attribute('productType', 'TYPE_Y')})", ["p1", "p4"], {}),
@@ -86,6 +94,7 @@ def mission_catalogue(monkeypatch):
             {},
         ),
         (f"{GEO_FILTER} and {MISSION_FILTER}", ["p0", "p1"], {}),
+        # Combining gt and eq with OR includes the boundary before intersecting the upper date bound.
         (
             "(ContentDate/Start gt 2026-01-02T00:00:00Z or ContentDate/Start eq 2026-01-02T00:00:00Z) "
             "and ContentDate/Start lt 2026-01-04T00:00:00Z",
@@ -94,6 +103,31 @@ def mission_catalogue(monkeypatch):
         ),
         ("Name eq 'Rock ''n'' roll and orbit'", ["p0"], {}),
         ("Id in ('p0','p2')", ["p0", "p2"], {}),
+        # Negate the whole operand before combining it with the surrounding AND/OR filters.
+        ("not (Id eq 'p0' or Id eq 'p1')", ["p2", "p3", "p4", "p5", "p6"], {}),
+        ("not (Id eq 'p0' and Id eq 'p1')", [f"p{i}" for i in range(7)], {}),
+        ("not contains(Name,'p') and endswith(Name,'orbit')", ["p0"], {}),
+        # The manual station request must exclude WV_RAW before selecting the smallest SAFE product.
+        (
+            "not (contains(Name,'WV_RAW')) and endswith(Name,'SAFE.zip')",
+            ["p3"],
+            {"$orderby": "ContentLength asc", "$top": "1"},
+        ),
+        ("not (Id eq 'p0') and Id eq 'p1' or Id eq 'p2'", ["p1", "p2"], {}),
+        ("not not (Id eq 'p0')", ["p0"], {}),
+        ("not true or (not false and Id eq 'p0')", ["p0"], {}),
+        # Unknown predicates remain unsupported, including under NOT.
+        ("Id eq 'p0' and not (1 eq 1)", ["p0"], {}),
+        # A malformed operand rejects the whole filter, even when another OR alternative matches.
+        ("Id eq 'p0' or not (Id eq)", [], {}),
+        ("Id eq 'p0' and Id eq", [], {}),
+        ("Id eq 'p0' or Id eq", [], {}),
+        ("Id eq and Id eq 'p0'", [], {}),
+        ("(Id eq 'p0' and Id eq) or Id eq 'p1'", [], {}),
+        ("Id eq 'p0' or Id eq '", [], {}),
+        # A true operand must leave the other AND restriction unchanged.
+        ("Id eq 'p0' and true", ["p0"], {}),
+        # Repeated alternatives must not duplicate products or consume the result page.
         (
             "(" + " or ".join(["(Id in ('p0','p1'))"] * 10) + ")",
             ["p0", "p1"],
@@ -101,7 +135,8 @@ def mission_catalogue(monkeypatch):
         ),
     ],
 )
-def test_grouped_filters(mission_catalogue, odata_filter, expected, options):
+def test_grouped_filters(odata_filter, expected, options):
+    """Preserve filter grouping and reject malformed operands before pagination."""
     params = {"$filter": odata_filter, "$expand": "Attributes", **options}
     with station.app.test_request_context("/Products", query_string=params):
         # Keep pagination active while bypassing only authentication.

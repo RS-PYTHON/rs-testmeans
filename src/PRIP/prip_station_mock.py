@@ -28,6 +28,7 @@ import dotenv
 from flask import Flask, Response, after_this_request, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
+from odata_query.exceptions import ODataSyntaxError
 from shapely.geometry import Polygon, shape
 
 from common.common_routes import (
@@ -71,7 +72,12 @@ def ready_live_status():
 def query_products():
     if "$filter" not in request.args:
         return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(data), headers=request.args)
-    matching_ids = evaluate_filter(request.args["$filter"]) or set()
+    try:
+        matching_ids = evaluate_filter(request.args["$filter"]) or set()
+    except ODataSyntaxError:
+        # A malformed operand invalidates the entire filter, including any matching OR alternatives.
+        matching_ids = set()
+    # Preserve catalogue order; the pagination wrapper sorts and slices the filtered products afterwards.
     return Response(
         status=HTTPStatus.OK,
         response=prepare_response_odata_v4([item for item in data if item["Id"] in matching_ids]),
@@ -79,14 +85,14 @@ def query_products():
     )
 
 
-def split_filter_group(expression: str) -> tuple[str, list[str]]:
-    """Split outer boolean operators, leaving quoted literals and any() expressions intact."""
-    expression = expression.strip()
+def _scan_filter_group(expression: str) -> tuple[int | None, dict[str, list[int]]]:
+    """Locate outer operators and the first closing group without interpreting quoted literals."""
     depth = 0
     quoted = False
     closing_outer = None
     operators: dict[str, list[int]] = {"or": [], "and": []}
     for position, char in enumerate(expression):
+        # Quoted AND/OR text and parentheses belong to the literal, not the surrounding filter.
         if char == "'":
             quoted = not quoted
         elif not quoted:
@@ -97,9 +103,16 @@ def split_filter_group(expression: str) -> tuple[str, list[str]]:
                 if depth == 0 and closing_outer is None:
                     closing_outer = position
             elif depth == 0:
-                for operator in operators:
+                for operator, positions in operators.items():
                     if expression[position : position + len(operator) + 2].lower() == f" {operator} ":
-                        operators[operator].append(position)
+                        positions.append(position)
+    return closing_outer, operators
+
+
+def split_filter_group(expression: str) -> tuple[str, list[str]]:
+    """Split outer boolean operators, leaving quoted literals and any() expressions intact."""
+    expression = expression.strip()
+    closing_outer, operators = _scan_filter_group(expression)
 
     # Strip only parentheses enclosing the whole group, not the first of several sibling groups.
     if expression.startswith("(") and closing_outer == len(expression) - 1:
@@ -118,25 +131,37 @@ def split_filter_group(expression: str) -> tuple[str, list[str]]:
 
 
 def evaluate_filter(expression: str) -> set[str] | None:
-    """Combine matching product IDs recursively, preserving AND/OR grouping before pagination."""
+    """Combine matching product IDs recursively, preserving NOT/AND/OR grouping before pagination."""
     operator, parts = split_filter_group(expression)
     if operator:
+        # None means no supported condition was extracted; an empty set means a supported condition matched nothing.
+        # Syntax errors propagate; only predicates without supported conditions may be skipped.
         matches = [result for part in parts if (result := evaluate_filter(part)) is not None]
         if not matches:
             return None
         return set.union(*matches) if operator == "or" else set.intersection(*matches)
 
     predicate = parts[0]
+    if negation := re.fullmatch(r"not\b\s*(.*)", predicate, flags=re.IGNORECASE):
+        # Negate the complete operand against the catalogue, including nested AND/OR groups.
+        matching_ids = evaluate_filter(negation.group(1))
+        # An unsupported operand is unknown; do not turn it into a match for every product.
+        return None if matching_ids is None else {item["Id"] for item in data} - matching_ids
+    if predicate in ("true", "false"):
+        return {item["Id"] for item in data} if predicate == "true" else set()
     if predicate.startswith("OData.CSC.Intersects"):
+        # Evaluate geometry within this branch so sibling OR alternatives retain their own restrictions.
         return {item["Id"] for item in filter_items_by_polygon(data, predicate)}
 
     # Reuse the existing field handlers only for an atomic predicate; flattening a whole group loses OR.
     matches = []
-    for field, conditions in parse_odata_filter(predicate).items():
+    # Let syntax errors reach the request handler; they must not be ignored as unsupported predicates.
+    for field, conditions in parse_odata_filter(predicate, raise_errors=True).items():
         for condition in conditions if isinstance(conditions, list) else [conditions]:
             values = condition["value"]
             values = values if isinstance(values, list) else [values]
             identifiers = set()
+            # Values within one condition are alternatives, e.g. Id in ('p0','p1').
             for value in values:
                 products = process_products(field, condition["op"], getattr(value, "val", value))
                 identifiers.update(item["Id"] for item in products)

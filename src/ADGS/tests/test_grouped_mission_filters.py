@@ -42,6 +42,7 @@ MISSION_FILTER = "(" + " or ".join(mission(*pair) for pair in REQUESTED_PAIRS) +
 def mission_catalogue(tmp_path, monkeypatch):
     """Supply three requested satellites and four decoys without changing the station's catalogue."""
     (tmp_path / "Catalog").mkdir()
+    # These satellites reuse requested constellations and serials, but never as a requested pair.
     decoys = [("SENTINEL-1", "A"), ("SENTINEL-1", "B"), ("SENTINEL-2", "A"), ("SENTINEL-3", "B")]
     products = [
         {
@@ -60,6 +61,7 @@ def mission_catalogue(tmp_path, monkeypatch):
     monkeypatch.setitem(app.config, "configuration_path", tmp_path)
 
 
+@pytest.mark.usefixtures("mission_catalogue")
 @pytest.mark.parametrize(
     "odata_filter,expected,options",
     [
@@ -68,7 +70,9 @@ def mission_catalogue(tmp_path, monkeypatch):
         ("((" + MISSION_FILTER + "))", ["p0", "p1", "p2"], {}),
         (attribute("productType", "TYPE_X") + " and " + MISSION_FILTER, ["p0", "p2"], {}),
         ("(" + mission("SENTINEL-1", "D") + ")", [], {}),
+        # The newest matching product belongs to the third OR branch and must remain eligible for the first page.
         (MISSION_FILTER, ["p2"], {"$orderby": "PublicationDate desc", "$top": "1"}),
+        # Legacy independent lists intentionally allow every constellation/serial combination.
         (
             attribute("platformShortName", "('SENTINEL-1','SENTINEL-2')", "in")
             + " and "
@@ -79,7 +83,7 @@ def mission_catalogue(tmp_path, monkeypatch):
     ],
     ids=["three-pairs", "single-pair", "nested-groups", "product-type", "empty", "third-pair-pagination", "legacy-in"],
 )
-def test_grouped_mission_filters(mission_catalogue, odata_filter, expected, options):
+def test_grouped_mission_filters(odata_filter, expected, options):
     """Apply mission restrictions before pagination and exclude satellites outside the requested pairs."""
     params = {"$filter": odata_filter, "$expand": "Attributes", **options}
     with app.test_request_context("/Products", query_string=params):
@@ -98,8 +102,9 @@ def test_separate_groups_are_not_stripped_together():
     assert operators == ["and"]
 
 
+@pytest.mark.usefixtures("mission_catalogue")
 @pytest.mark.parametrize("options", [{}, {"$orderby": "PublicationDate desc", "$top": "2"}])
-def test_repeated_alternatives_do_not_consume_page(mission_catalogue, options):
+def test_repeated_alternatives_do_not_consume_page(options):
     """Repeated collection branches must not fill a page with copies of the same product."""
     predicate = "(" + " or ".join(["(Id in ('p0','p1'))"] * 10) + ")"
     with app.test_request_context("/Products", query_string={"$filter": predicate, "$expand": "Attributes", **options}):

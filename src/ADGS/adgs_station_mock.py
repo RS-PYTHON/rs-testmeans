@@ -339,6 +339,33 @@ def is_operator_next(expression: str, position: int) -> str:
     return ""
 
 
+def _strip_enclosing_parentheses(filter_to_split: str) -> str:
+    """Remove only parentheses enclosing the whole expression, preserving nested and quoted groups."""
+    # Remove enclosing parentheses even when the expression contains nested groups or any(...).
+    # Keep separate groups intact: (a) and (b) is not enclosed by one matching pair.
+    filter_to_split = filter_to_split.strip()
+    while filter_to_split.startswith("(") and filter_to_split.endswith(")"):
+        nesting = 0
+        quoted = False
+        position = 0
+        for position, char in enumerate(filter_to_split):
+            # Parentheses inside an OData string literal do not delimit filter groups.
+            if char == "'":
+                quoted = not quoted
+            elif not quoted:
+                if char == "(":
+                    nesting += 1
+                elif char == ")":
+                    nesting -= 1
+                if nesting == 0:
+                    break
+        if position != len(filter_to_split) - 1:
+            # The first group ends before the expression, so its parentheses must stay.
+            break
+        filter_to_split = filter_to_split[1:-1].strip()
+    return filter_to_split
+
+
 def split_composite_filter(filter_to_split: str) -> tuple[list[str], list[str]]:
     """Function to split a filter made of two or more filters separated with an operator.
     The split is done at the first level of the filter only.
@@ -359,25 +386,7 @@ def split_composite_filter(filter_to_split: str) -> tuple[list[str], list[str]]:
     depth = 0
     i = 0
 
-    # Remove enclosing parentheses even when the expression contains nested groups or any(...).
-    # Keep separate groups intact: (a) and (b) is not enclosed by one matching pair.
-    filter_to_split = filter_to_split.strip()
-    while filter_to_split.startswith("(") and filter_to_split.endswith(")"):
-        nesting = 0
-        quoted = False
-        for position, char in enumerate(filter_to_split):
-            if char == "'":
-                quoted = not quoted
-            elif not quoted:
-                if char == "(":
-                    nesting += 1
-                elif char == ")":
-                    nesting -= 1
-                if nesting == 0:
-                    break
-        if position != len(filter_to_split) - 1:
-            break
-        filter_to_split = filter_to_split[1:-1].strip()
+    filter_to_split = _strip_enclosing_parentheses(filter_to_split)
 
     # Split filter at depth 0 based on operators (anything outside parenthesis basically)
     while i < len(filter_to_split):
