@@ -43,7 +43,7 @@ PATH_TO_CONFIG = pathlib.Path(__file__).parent.resolve() / "config"
 
 with open(PATH_TO_CONFIG / "Catalog" / "GETFileResponse.json") as bdata:
     data = json.loads(bdata.read())["Data"]
-    # Recognize attributes across the catalog even when individual products omit them.
+    # A field is searchable when any catalog product defines it; attributes vary by product.
     ATTRS = sorted({attr["Name"] for item in data for attr in item.get("Attributes", [])})
 
 logger = logging.getLogger(__name__)
@@ -213,7 +213,8 @@ def process_products(field, op, value) -> Response:
                     return []
             return results
         case "ProductionType":
-            # STAC processing:lineage maps to ProductionType; the evaluator passes each IN value separately.
+            # processing:lineage maps to ProductionType. Evaluate one candidate at a time;
+            # the filter evaluator unions the products matched by the IN candidates.
             if op.lower() not in ("eq", "in"):
                 return []
             return [product for product in data if str(product.get(field)).lower() == str(value).lower()]
@@ -234,7 +235,7 @@ def process_products(field, op, value) -> Response:
             date = datetime.datetime.fromisoformat(value)
             match op.lower():
                 case "eq" | "in":
-                    # The evaluator unions the exact matches for individual IN values.
+                    # IN reaches this handler one literal at a time, so each candidate uses exact equality.
                     results = [product for product in data if date == get_field(product)]
                 case "gt":
                     results = [product for product in data if date < get_field(product)]
@@ -244,7 +245,8 @@ def process_products(field, op, value) -> Response:
                     return []
         case _ if field in ATTRS:
             if field == "processingDate" and op.lower() in ("eq", "in"):
-                # Compare instants rather than ISO text, preserving fractional seconds and timezone equivalence.
+                # processingDate is stored as attribute text but represents a datetime:
+                # compare parsed instants so equivalent ISO representations match.
                 date = datetime.datetime.fromisoformat(str(value))
                 return [
                     item

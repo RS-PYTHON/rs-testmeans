@@ -148,7 +148,7 @@ def hello():
 
 
 def process_products_request(request, headers) -> Response:
-    """Filter products by OData predicates, including exact-date lists on product and ContentDate fields."""
+    """Evaluate product-field predicates against the mock catalog, including datetime IN lists."""
     parts = request.strip().split(maxsplit=2)
     if (
         len(parts) == 3
@@ -161,6 +161,7 @@ def process_products_request(request, headers) -> Response:
             "ContentDate/End",
         )
     ):
+        # Date membership compares parsed instants so equivalent timezone offsets match.
         field, _, raw_values = parts
         dates = {datetime.datetime.fromisoformat(v.strip().strip("'\"")) for v in raw_values.strip("()").split(",")}
         catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
@@ -168,6 +169,7 @@ def process_products_request(request, headers) -> Response:
             products = json.load(stream)["Data"]
 
         def matches(product):
+            """Resolve nested paths such as ContentDate/Start before comparing instants."""
             value = product
             for key in field.split("/"):
                 value = value[key]
@@ -449,14 +451,20 @@ def process_filter(request, input_filter: str) -> Response:
     """
     # Split the filter
     splitted_filters, operators = split_composite_filter(input_filter)
-    # Keep each IN predicate intact so its value list is evaluated together within composite filters.
+    # The splitter separates IN from its operands; rejoin every product-field predicate
+    # so AND/OR combines its matching products rather than the individual list values.
     index = 0
     while index < len(operators):
         if operators[index] == "in" and splitted_filters[index].strip() in (
-            "Name", "Id", "PublicationDate", "OriginDate", "ContentDate/Start", "ContentDate/End",
+            "Name",
+            "Id",
+            "PublicationDate",
+            "OriginDate",
+            "ContentDate/Start",
+            "ContentDate/End",
         ):
             combined_filter = f"{splitted_filters[index].strip()} in {splitted_filters[index + 1]}"
-            splitted_filters[index:index + 2] = [combined_filter]
+            splitted_filters[index : index + 2] = [combined_filter]
             operators.pop(index)
         else:
             index += 1
@@ -544,7 +552,7 @@ def process_individual_query_part(query_parts, headers):
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
     if field in ("beginningDateTime", "endingDateTime", "processingDate"):
-        # Compare parsed instants so equivalent ISO representations match in eq and IN predicates.
+        # Compare date attributes as instants, not strings, for both equality and list membership.
         dates = {datetime.datetime.fromisoformat(v) for v in (value if isinstance(value, list) else [value])}
         date = next(iter(dates))
         resp = []

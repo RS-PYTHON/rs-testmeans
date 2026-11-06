@@ -254,7 +254,7 @@ def query_session() -> Response | list[Any]:
 
 
 def manage_int_querry(op, value, catalog_data, field, headers):
-    """Filter integer fields by comparison or membership in an IN list."""
+    """Compare integer catalog values with one literal or any value in an IN list."""
     try:
         value = [int(v) for v in value.strip("()").split(",")] if op == "in" else int(value)
     except ValueError:
@@ -276,7 +276,7 @@ def manage_int_querry(op, value, catalog_data, field, headers):
 
 
 def manage_bool_querry(op, value, catalog_data, field, headers):
-    """Match a Boolean literal or IN list using case-insensitive Boolean text."""
+    """Match Boolean equality or IN values without depending on literal capitalization."""
     values = [v.strip() for v in value.lower().strip("()").split(",")] if op == "in" else [value.lower()]
     query_result = [product for product in catalog_data["Data"] if str(product[field]).lower() in values]
     return (
@@ -307,7 +307,7 @@ def manage_satellite_sid_query(op, value, catalog_data, field, headers):
 
 
 def manage_str_querry(op, value, catalog_data, field, headers):
-    """Match string fields with eq or IN after removing literal delimiters."""
+    """Match complete string values for eq and IN after stripping quotes and list delimiters."""
 
     def normalize_value(raw: str) -> str:
         return raw.strip().strip("'\"[]()")
@@ -327,8 +327,9 @@ def manage_str_querry(op, value, catalog_data, field, headers):
 
 
 def manage_datetime_querry(op, value, catalog_data, field, headers):
-    """Compare parsed datetime instants for eq, gt, lt and IN predicates."""
+    """Compare datetime instants for equality, ranges or exact membership in an IN list."""
     if op == "in":
+        # Parse both sides so timezone offsets and fractional-second formatting do not affect equality.
         dates = {datetime.fromisoformat(v.strip().strip("'\"")) for v in value.strip("()").split(",")}
         selected = [p for p in catalog_data["Data"] if datetime.fromisoformat(p[field]) in dates]
         return Response(status=HTTPStatus.OK, response=batch_response_odata_v4(selected), headers=headers)
@@ -353,9 +354,9 @@ def manage_datetime_querry(op, value, catalog_data, field, headers):
                 if date > datetime.fromisoformat(product[field]) or date == datetime.fromisoformat(product[field])
             ]
         case _:
-            # If the operation is not recognized, return a 404 NOT FOUND response
+            # Return an empty result for unsupported datetime operators.
             return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
-    # Return the response with the processed results or a 404 NOT FOUND if no results are found
+    # An empty selection is still a successful search (HTTP 200).
     return (
         Response(status=HTTPStatus.OK, response=batch_response_odata_v4(resp_body), headers=headers)
         if resp_body
@@ -369,7 +370,7 @@ SPJ_LUT = {
     "NumChannels": manage_int_querry,
     "PublicationDate": manage_datetime_querry,
     "Satellite": manage_satellite_sid_query,
-    "StationId": manage_str_querry,  # STAC sat:acquisition_station
+    "StationId": manage_str_querry,  # sat:acquisition_station filters the station's string identifier.
     "StationUnitId": manage_str_querry,
     "DownlinkOrbit": manage_int_querry,
     "AcquisitionId": manage_str_querry,
