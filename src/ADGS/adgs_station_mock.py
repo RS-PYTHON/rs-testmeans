@@ -148,7 +148,38 @@ def hello():
 
 
 def process_products_request(request, headers) -> Response:
-    """Docstring to be added."""
+    """Evaluate product-field predicates against the mock catalog, including datetime IN lists."""
+    parts = request.strip().split(maxsplit=2)
+    if (
+        len(parts) == 3
+        and parts[1] == "in"
+        and parts[0]
+        in (
+            "PublicationDate",
+            "OriginDate",
+            "ContentDate/Start",
+            "ContentDate/End",
+        )
+    ):
+        # Date membership compares parsed instants so equivalent timezone offsets match.
+        field, _, raw_values = parts
+        dates = {datetime.datetime.fromisoformat(v.strip().strip("'\"")) for v in raw_values.strip("()").split(",")}
+        catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
+        with open(catalog_path) as stream:
+            products = json.load(stream)["Data"]
+
+        def matches(product):
+            """Resolve nested paths such as ContentDate/Start before comparing instants."""
+            value = product
+            for key in field.split("/"):
+                value = value[key]
+            return datetime.datetime.fromisoformat(value) in dates
+
+        return Response(
+            status=HTTPStatus.OK,
+            response=prepare_response_odata_v4([product for product in products if matches(product)]),
+            headers=headers,
+        )
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
     # Handle direct filtering by Id (eq/in), including GUID and list formats.
@@ -420,16 +451,23 @@ def process_filter(request, input_filter: str) -> Response:
     """
     # Split the filter
     splitted_filters, operators = split_composite_filter(input_filter)
-    # Rebuild "<field> in (...)" for fields handled by process_products_request.
-    if (
-        operators
-        and operators[0] == "in"
-        and len(splitted_filters) > 1
-        and splitted_filters[0].strip() in ("Name", "Id")
-    ):
-        combined_filter = f"{splitted_filters[0].strip()} in {splitted_filters[1]}"
-        splitted_filters = [combined_filter] + splitted_filters[2:]
-        operators = operators[1:]
+    # The splitter separates IN from its operands; rejoin every product-field predicate
+    # so AND/OR combines its matching products rather than the individual list values.
+    index = 0
+    while index < len(operators):
+        if operators[index] == "in" and splitted_filters[index].strip() in (
+            "Name",
+            "Id",
+            "PublicationDate",
+            "OriginDate",
+            "ContentDate/Start",
+            "ContentDate/End",
+        ):
+            combined_filter = f"{splitted_filters[index].strip()} in {splitted_filters[index + 1]}"
+            splitted_filters[index : index + 2] = [combined_filter]
+            operators.pop(index)
+        else:
+            index += 1
 
     # If there is only one filter, apply it and gather results
     if len(splitted_filters) == 1:
@@ -514,15 +552,17 @@ def process_individual_query_part(query_parts, headers):
     catalog_path = app.config["configuration_path"] / "Catalog/GETFileResponse.json"
     catalog_data = json.loads(open(catalog_path).read())
     if field in ("beginningDateTime", "endingDateTime", "processingDate"):
-        date = datetime.datetime.fromisoformat(value)
+        # Compare date attributes as instants, not strings, for both equality and list membership.
+        dates = {datetime.datetime.fromisoformat(v) for v in (value if isinstance(value, list) else [value])}
+        date = next(iter(dates))
         resp = []
         for product in catalog_data["Data"]:
             for attr in product["Attributes"]:
                 try:
                     if attr["Name"] == field:
                         match op:
-                            case "eq":
-                                if date == datetime.datetime.fromisoformat(attr["Value"]):
+                            case "eq" | "in":
+                                if datetime.datetime.fromisoformat(attr["Value"]) in dates:
                                     resp.append(product)
                             case "lt":
                                 if date > datetime.datetime.fromisoformat(attr["Value"]):
