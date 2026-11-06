@@ -177,11 +177,12 @@ class FilterExtractor(NodeVisitor):
             self.visit(node.lambda_.expression)
 
 
-def parse_odata_filter(query: str):
+def parse_odata_filter(query: str, *, raise_errors: bool = False):
     """Parses an OData $filter query string and extracts filters into a dictionary.
 
     Args:
         query (str): The OData $filter query string, optionally starting with "$filter=".
+        raise_errors (bool): Propagate parsing errors so callers can reject the complete filter.
 
     Returns:
         dict: Dictionary of extracted filters keyed by attribute paths.
@@ -204,7 +205,13 @@ def parse_odata_filter(query: str):
         # Extract filters from the AST using FilterExtractor visitor
         extractor = FilterExtractor()
         extractor.visit(ast)
-    except (UnknownFunctionException, ParsingException):
+    except UnknownFunctionException:
+        return {}
+    except ParsingException:
+        # Recursive evaluators must distinguish malformed syntax from valid predicates with no extracted conditions.
+        if raise_errors:
+            raise
+        # Other callers retain the existing empty-result behavior for parsing errors.
         return {}
 
     return extractor.result
