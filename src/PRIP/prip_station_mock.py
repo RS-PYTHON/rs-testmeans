@@ -28,6 +28,7 @@ import dotenv
 from flask import Flask, Response, after_this_request, request, send_file
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
+from odata_query.exceptions import ODataSyntaxError
 from shapely.geometry import Polygon, shape
 
 from common.common_routes import (
@@ -71,122 +72,103 @@ def ready_live_status():
 def query_products():
     if "$filter" not in request.args:
         return Response(status=HTTPStatus.OK, response=prepare_response_odata_v4(data), headers=request.args)
-    odata_filter = request.args["$filter"]
-    geo_products = []
-    all_id_sets = []
-    if "OData.CSC.Intersects" in request.args["$filter"]:
-        geo_products = filter_items_by_polygon(data, odata_filter)
-        # Remove odata.csc.intersects after processed, and then continue with normal queries
-        odata_filter = remove_intersects(request.args["$filter"])
-        ids = {p["Id"] for p in geo_products}
-        all_id_sets.append(ids)
-    if odata_filter:
-        # use lexer to parse request, split it into field: {op, value}
-        processed_filters = parse_odata_filter(odata_filter)
-
-        # Handle ContentDate range:
-        #
-        # (ContentDate/Start gt start or ContentDate/Start eq start)
-        # and
-        # (ContentDate/End lt end or ContentDate/End eq end)
-        content_start_filters = processed_filters.get("ContentDate/Start")
-        content_end_filters = processed_filters.get("ContentDate/End")
-
-        if content_start_filters or content_end_filters:
-
-            def as_list(value):
-                return value if isinstance(value, list) else [value]
-
-            start_ids = set()
-            end_ids = set()
-
-            # ---- ContentDate/Start ----
-            if content_start_filters:
-                for cond in as_list(content_start_filters):
-                    for v in as_list(cond["value"]):
-                        actual_value = getattr(v, "val", v)
-
-                        result = process_products(
-                            "ContentDate/Start",
-                            cond["op"],
-                            actual_value,
-                        )
-
-                        if result:
-                            start_ids.update(p["Id"] for p in result)
-
-            # ---- ContentDate/End ----
-            if content_end_filters:
-                for cond in as_list(content_end_filters):
-                    for v in as_list(cond["value"]):
-                        actual_value = getattr(v, "val", v)
-
-                        result = process_products(
-                            "ContentDate/End",
-                            cond["op"],
-                            actual_value,
-                        )
-
-                        if result:
-                            end_ids.update(p["Id"] for p in result)
-
-            # Both sides of the ContentDate range must match.
-            if content_start_filters and content_end_filters:
-                group_ids = start_ids.intersection(end_ids)
-
-            elif content_start_filters:
-                group_ids = start_ids
-
-            else:
-                group_ids = end_ids
-
-            if not group_ids:
-                return Response(
-                    status=HTTPStatus.OK,
-                    response=json.dumps({"value": []}),
-                )
-
-            all_id_sets.append(group_ids)
-        # XAND?
-        for filter_key, conditions in processed_filters.items():
-            if filter_key in (
-                "ContentDate/Start",
-                "ContentDate/End",
-            ):
-                continue
-            for cond in (conditions if isinstance(conditions, list) else [conditions]):
-                values = cond["value"]
-                if not isinstance(values, list):
-                    values = [values]
-
-                products = []
-                for v in values:
-                    # extract .val if it's a String object
-                    actual_value = getattr(v, "val", v)
-                    result = process_products(filter_key, cond["op"], actual_value)
-                    if result:
-                        products.extend(result)
-                if not products:
-                    # If a search doesn't return products, then the whole search result is empty
-                    return Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
-            # store only id of the result
-            ids = {p["Id"] for p in products}
-            all_id_sets.append(ids)
-    # create set intersection, XAND, exclusive and beetween requests
-    if not all_id_sets:
-        common_ids = set()
-    else:
-        common_ids = set.intersection(*all_id_sets) if all_id_sets else set()
-    # filter data and return all items that match ids from common_ids
-    return (
-        Response(
-            status=HTTPStatus.OK,
-            response=json.dumps({"value": [item for item in data if item["Id"] in common_ids]}),
-            headers=request.args,
-        )
-        if common_ids
-        else Response(status=HTTPStatus.OK, response=json.dumps({"value": []}))
+    try:
+        matching_ids = evaluate_filter(request.args["$filter"]) or set()
+    except ODataSyntaxError:
+        # A malformed operand invalidates the entire filter, including any matching OR alternatives.
+        matching_ids = set()
+    # Preserve catalogue order; the pagination wrapper sorts and slices the filtered products afterwards.
+    return Response(
+        status=HTTPStatus.OK,
+        response=prepare_response_odata_v4([item for item in data if item["Id"] in matching_ids]),
+        headers=request.args,
     )
+
+
+def _scan_filter_group(expression: str) -> tuple[int | None, dict[str, list[int]]]:
+    """Locate outer operators and the first closing group without interpreting quoted literals."""
+    depth = 0
+    quoted = False
+    closing_outer = None
+    operators: dict[str, list[int]] = {"or": [], "and": []}
+    for position, char in enumerate(expression):
+        # Quoted AND/OR text and parentheses belong to the literal, not the surrounding filter.
+        if char == "'":
+            quoted = not quoted
+        elif not quoted:
+            if char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+                if depth == 0 and closing_outer is None:
+                    closing_outer = position
+            elif depth == 0:
+                for operator, positions in operators.items():
+                    if expression[position : position + len(operator) + 2].lower() == f" {operator} ":
+                        positions.append(position)
+    return closing_outer, operators
+
+
+def split_filter_group(expression: str) -> tuple[str, list[str]]:
+    """Split outer boolean operators, leaving quoted literals and any() expressions intact."""
+    expression = expression.strip()
+    closing_outer, operators = _scan_filter_group(expression)
+
+    # Strip only parentheses enclosing the whole group, not the first of several sibling groups.
+    if expression.startswith("(") and closing_outer == len(expression) - 1:
+        return split_filter_group(expression[1:-1])
+    # OR has lower precedence: each of its operands can contain a complete AND group.
+    for operator, positions in operators.items():
+        if positions:
+            parts = []
+            start = 0
+            for position in positions:
+                parts.append(expression[start:position])
+                start = position + len(operator) + 2
+            parts.append(expression[start:])
+            return operator, parts
+    return "", [expression]
+
+
+def evaluate_filter(expression: str) -> set[str] | None:
+    """Combine matching product IDs recursively, preserving NOT/AND/OR grouping before pagination."""
+    operator, parts = split_filter_group(expression)
+    if operator:
+        # None means no supported condition was extracted; an empty set means a supported condition matched nothing.
+        # Syntax errors propagate; only predicates without supported conditions may be skipped.
+        matches = [result for part in parts if (result := evaluate_filter(part)) is not None]
+        if not matches:
+            return None
+        return set.union(*matches) if operator == "or" else set.intersection(*matches)
+
+    predicate = parts[0]
+    if negation := re.fullmatch(r"not\b\s*(.*)", predicate, flags=re.IGNORECASE):
+        # Negate the complete operand against the catalogue, including nested AND/OR groups.
+        matching_ids = evaluate_filter(negation.group(1))
+        # An unsupported operand is unknown; do not turn it into a match for every product.
+        return None if matching_ids is None else {item["Id"] for item in data} - matching_ids
+    if predicate in ("true", "false"):
+        return {item["Id"] for item in data} if predicate == "true" else set()
+    if predicate.startswith("OData.CSC.Intersects"):
+        # Evaluate geometry within this branch so sibling OR alternatives retain their own restrictions.
+        return {item["Id"] for item in filter_items_by_polygon(data, predicate)}
+
+    # Reuse the existing field handlers only for an atomic predicate; flattening a whole group loses OR.
+    matches = []
+    # Let syntax errors reach the request handler; they must not be ignored as unsupported predicates.
+    for field, conditions in parse_odata_filter(predicate, raise_errors=True).items():
+        for condition in conditions if isinstance(conditions, list) else [conditions]:
+            values = condition["value"]
+            values = values if isinstance(values, list) else [values]
+            identifiers = set()
+            # Values within one condition are alternatives, e.g. Id in ('p0','p1').
+            for value in values:
+                products = process_products(field, condition["op"], getattr(value, "val", value))
+                identifiers.update(item["Id"] for item in products)
+            matches.append(identifiers)
+    # Preserve the existing lexer behavior: unsupported predicates do not add a restriction.
+    # An understood predicate with no matches still contributes an empty set.
+    return set.intersection(*matches) if matches else None
 
 
 def process_products(field, op, value) -> Response:
