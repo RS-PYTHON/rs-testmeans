@@ -312,3 +312,35 @@ def test_query_products(prip_client_with_auth, url, response):
     assert prip_client_with_auth.get(url).status_code == HTTPStatus.OK  # Should return all products
     expected = response if isinstance(response, list) else ([response] if response else [])
     assert json.loads(prip_client_with_auth.get(url).data)["value"] == expected
+
+
+@pytest.mark.parametrize(
+    "field,expression,values",
+    [
+        (
+            "ProductionType",
+            "ProductionType eq OData.CSC.ProductionType'systematic_production'",
+            ["systematic_production"],
+        ),
+        (
+            "ProductionType",
+            "ProductionType in (OData.CSC.ProductionType'systematic_production',"
+            "OData.CSC.ProductionType'on-demand default')",
+            ["systematic_production", "on-demand default"],
+        ),
+        ("ContentType", "ContentType eq 'application/octet-stream'", ["application/octet-stream"]),
+        (
+            "ContentType",
+            "ContentType in ('application/octet-stream','application/zip')",
+            ["application/octet-stream", "application/zip"],
+        ),
+        ("ContentType", "ContentType in ('foo','bar')", []),
+    ],
+)
+def test_qualified_enums_and_content_type(prip_client_with_auth, field, expression, values):
+    """Accept the documented OData enum/MIME filters and return only matching catalog products."""
+    response = prip_client_with_auth.get("/Products", query_string={"$filter": expression, "$expand": "Attributes"})
+    assert response.status_code == HTTPStatus.OK
+    actual = {product["Id"] for product in json.loads(response.data)["value"]}
+    expected = {product["Id"] for product in PRIP_PRODUCTS if product.get(field) in values}
+    assert actual == expected

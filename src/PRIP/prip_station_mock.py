@@ -172,7 +172,7 @@ def evaluate_filter(expression: str) -> set[str] | None:
     return set.intersection(*matches) if matches else None
 
 
-def process_products(field, op, value) -> Response:
+def process_products(field, op, value) -> list[dict]:
     # handle special case:
     match field:
         case "Id":
@@ -212,6 +212,12 @@ def process_products(field, op, value) -> Response:
                 case _:
                     return []
             return results
+        case "ContentType":
+            # The evaluator unions the exact MIME-type matches for individual IN candidates.
+            if op.lower() not in ("eq", "in"):
+                return []
+            values = value if isinstance(value, list) else [value]
+            return [product for product in data if product.get(field) in values]
         case "ProductionType":
             # processing:lineage maps to ProductionType. Evaluate one candidate at a time;
             # the filter evaluator unions the products matched by the IN candidates.
