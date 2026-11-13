@@ -177,6 +177,17 @@ class FilterExtractor(NodeVisitor):
             self.visit(node.lambda_.expression)
 
 
+# Match complete strings first so enum-like text inside a filename stays unchanged.
+PRODUCTION_TYPE_LITERAL = re.compile(
+    r"'(?:''|[^'])*'|(?<![\w.])OData\.CSC\.ProductionType(?P<member>'(?:''|[^'])*')",
+)
+
+
+def normalize_production_type_literals(query: str) -> str:
+    """Adapt qualified ProductionType literals to the string AST supported by odata-query."""
+    return PRODUCTION_TYPE_LITERAL.sub(lambda match: match.group("member") or match.group(0), query)
+
+
 def parse_odata_filter(query: str, *, raise_errors: bool = False):
     """Parses an OData $filter query string and extracts filters into a dictionary.
 
@@ -191,6 +202,8 @@ def parse_odata_filter(query: str, *, raise_errors: bool = False):
     # Strip leading "$filter=" if present
     if query.startswith("$filter="):
         query = query[len("$filter=") :]
+    # Preserve enum member values while adapting the type syntax unsupported by the parser.
+    query = normalize_production_type_literals(query)
     # Normalize unquoted UUIDs for Id eq/in so the parser can handle them.
     query = quote_unquoted_uuid_in_id_filter(query)
     try:

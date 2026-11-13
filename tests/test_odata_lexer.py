@@ -14,7 +14,7 @@
 
 import pytest
 
-from common.odata_lexer import parse_odata_filter
+from common.odata_lexer import normalize_production_type_literals, parse_odata_filter
 
 
 @pytest.mark.parametrize(
@@ -187,3 +187,10 @@ from common.odata_lexer import parse_odata_filter
 def test_parse_odata_filter(input_str, expected_output):
     result = parse_odata_filter(input_str)
     assert result == expected_output
+
+
+def test_production_type_normalization_preserves_quoted_strings():
+    """Enum-like filename text must remain unchanged when adapting qualified enum literals."""
+    quoted = "Name eq 'OData.CSC.ProductionType''systematic_production'''"
+    expression = quoted + " and ProductionType eq OData.CSC.ProductionType'on-demand default'"
+    assert normalize_production_type_literals(expression) == quoted + " and ProductionType eq 'on-demand default'"
