@@ -13,66 +13,57 @@
 # limitations under the License.
 
 [project]
-name = "rs-python"
-authors = []
-dynamic = ["version"]
-
+name = "rs-testmeans"
+version = "0.1.0"
+description = "Test means (mockups) of the RS-Server external services."
 requires-python = ">=3.11,<4"
+dependencies = [
+    "flask-bcrypt>=1.0.1,<2",
+    "flask-httpauth>=4.8.0,<5",
+    "requests>=2.34.2,<3",
+    "botocore>=1.43.108,<2",
+    "boto3>=1.43.108,<2",
+    "tqdm>=4.66.1,<5",
+    "flask-cors==6.0.0",
+    "cffi>=2.0.0,<3",
+    "flask>=3.1.0,<4",
+    "dotenv>=0.9.9,<0.10",
+    "pyyaml>=6.0.1,<7",
+    "crcmod>=1.7,<2",
+    "fastapi>=0.135.1,<0.136",
+    "uvicorn>=0.27.1,<0.28",
+    "odata-query",
+    "starlette>=1.0.1,<2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3,<10",
+    "pytest-asyncio>=1.2.0,<2",
+    "pytest-cov>=7.0.0,<8",
+    "pytest-docker>=3.2.3,<4",
+    "pytest-error-for-skips>=2.0.2,<3",
+    "pytest-httpx>=0.36.2,<0.37",
+    "pytest-mock>=3.15.1,<4",
+    "moto[server]>=5.0.1,<6",
+    "black>=26.3.1",
+    "ruff>=0.1.3,<0.2",
+    "mypy>=1.6.1,<2",
+    "pre-commit>=3.5.0,<4",
+    "bandit>=1.8.3,<2",
+    "pylint>=4.0.9,<5",
+    "flake8>=7.1.1,<8",
+]
+
+[tool.uv]
+package = false # not a python package, only an application
+# Packages without binary wheels, built from their source distribution. All the other packages must be installed
+# from wheels (e.g. with 'uv sync --no-build') so that no setup script is executed.
+no-binary-package = ["crcmod", "sly"]
 
 [tool.ruff.lint.extend-per-file-ignores]
 # init should be empty, doesn't need any docstrings
 "__init__.py" = ["D104"]
-
-[tool.poetry]
-name = "rs-testmeans"
-version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
-readme = "README.md"
-packages = [
-    { include = "src" },
-    { include = "tests", format = "sdist" },
-]
-
-[tool.poetry.dependencies]
-python = ">=3.11,<4"
-flask-bcrypt = "^1.0.1"
-flask-httpauth = "^4.8.0"
-requests = "^2.34.2"
-botocore = "^1.43.108"
-boto3 = "^1.43.108"
-tqdm = "^4.66.1"
-flask-cors = "6.0.0"
-cffi = "^2.0.0"
-flask = "^3.1.0"
-dotenv = "^0.9.9"
-pyyaml = "^6.0.1"
-crcmod = "^1.7"
-fastapi = ">=0.135.1,<0.136"
-uvicorn = "^0.27.1"
-odata-query = "*"
-starlette = ">=1.0.1,<2"
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^9.0.3"
-pytest-asyncio = "^1.2.0"
-pytest-cov = "^7.0.0"
-pytest-docker = "^3.2.3"
-pytest-error-for-skips = "^2.0.2"
-pytest-httpx = ">=0.36.2,<0.37"
-pytest-mock = "^3.15.1"
-moto = { version = "^5.0.1", extras = ["server"] }
-black = ">=26.3.1"
-ruff = "^0.1.3"
-mypy = "^1.6.1"
-pre-commit = "^3.5.0"
-bandit = "^1.8.3"
-pylint = "^4.0.9"
-flake8 = "^7.1.1"
-
 
 [tool.black]
 line-length = 120
@@ -82,7 +73,6 @@ line-length = 120
 # to have a pytest.rootdir set to project.rootdir
 testpaths = ["tests"]
 pythonpath = ["src"]
-
 
 [tool.ruff]
 line-length = 120 # is it useful if not using ruff formatter ?
@@ -122,8 +112,3 @@ disable = [
     "too-many-lines",
     "too-many-public-methods",
 ]
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
