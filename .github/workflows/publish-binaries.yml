@@ -74,7 +74,7 @@ jobs:
     outputs:
       version_name: ${{ steps.build_version_name.outputs.version_name }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         # Calculate the short git commit hash, used as a unique version name
       - id: build_version_name
         run: echo "version_name=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
@@ -101,7 +101,7 @@ jobs:
 
       # The dask-mockup-localcluster image is built from the rs-dpr-service image
       - if: ${{ contains('rs-testmeans,rebuild-base-dask', inputs.called_by) }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - id: dpr-service-image
         if: ${{ contains('rs-testmeans,rebuild-base-dask', inputs.called_by) }}
         name: Get the rs-dpr-service image name
@@ -198,7 +198,7 @@ jobs:
 
     steps:
       - if: ${{ matrix.if }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - if: ${{ matrix.if }}
         name: Copy Dockerfile requirements
         run: cp -t ${{ matrix.build_context_path }} ./.github/scripts/layer-cleanup.sh ./.github/scripts/restore-apt.sh
