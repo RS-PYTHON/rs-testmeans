@@ -15,20 +15,19 @@ RUN chmod 755 /usr/local/bin/layer-cleanup.sh
 WORKDIR /opt/adgs
 COPY ./ADGS/adgs_station_mock.py /opt/adgs
 COPY ./ADGS/pyproject.toml /opt/adgs
+COPY ./ADGS/uv.lock /opt/adgs
 COPY ./ADGS/config /opt/adgs/config
 # Copy common folder and associated symbolic link
 COPY ./common /opt/common
 COPY ./ADGS/common /opt/adgs/common
 
-# Change poetry virtual env dir or it will be removed by layer-cleanup
-# See: https://python-poetry.org/docs/configuration/#cache-directory
-ENV POETRY_CACHE_DIR=/root/pypoetry
+# Install uv, see: https://docs.astral.sh/uv/guides/integration/docker/
+COPY --from=ghcr.io/astral-sh/uv:0.13.9 /uv /usr/local/bin/
 
-# Install poetry
-RUN python3 -m pip install --no-cache-dir poetry && layer-cleanup.sh
-
-SHELL ["/bin/bash", "-c"]
-RUN poetry install --no-root && layer-cleanup.sh
+# Install the locked dependencies (without the dev dependencies) in /opt/adgs/.venv, with the system python
+ENV UV_PYTHON_DOWNLOADS=never UV_LINK_MODE=copy UV_NO_CACHE=1
+RUN uv sync --frozen --no-dev --no-build && rm /usr/local/bin/uv && layer-cleanup.sh
+ENV PATH="/opt/adgs/.venv/bin:$PATH"
 
 # Remove custom scripts
 RUN rm -f /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
@@ -39,4 +38,4 @@ RUN rm -f /usr/local/bin/layer-cleanup.sh /usr/local/bin/restore-apt.sh
 LABEL org.opencontainers.image.source="https://github.com/RS-PYTHON/rs-testmeans"
 LABEL dockerfile.url="https://github.com/RS-PYTHON/rs-testmeans/blob/develop/src/ADGS/Dockerfile"
 
-ENTRYPOINT [ "poetry", "run", "python3", "/opt/adgs/adgs_station_mock.py", "-H", "0.0.0.0" ]
+ENTRYPOINT [ "python3", "/opt/adgs/adgs_station_mock.py", "-H", "0.0.0.0" ]
