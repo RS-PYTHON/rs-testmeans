@@ -67,8 +67,23 @@ jobs:
         Reason: ${CALLER_REASON}"
         >> $GITHUB_STEP_SUMMARY
 
+  # The integration tests are skipped only for the Dependabot pull requests that update GitHub Actions or
+  # development dependencies. The other updates can break them with side effects that pytest does not see.
+  need-integration-tests:
+    name: Check if the integration tests are needed
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read # to read the Dependabot metadata
+    outputs:
+      needed: ${{ steps.check.outputs.needed }}
+    steps:
+      - id: check
+        uses: RS-PYTHON/actions/.github/actions/need-integration-tests@develop
+
   build_version_name:
-    if: github.actor != 'dependabot[bot]'
+    needs: need-integration-tests
+    if: needs.need-integration-tests.outputs.needed == 'true'
     runs-on: ubuntu-latest
     name: Build version name
     outputs:
@@ -81,7 +96,6 @@ jobs:
 
   set-binary-env:
     name: Set Docker environment
-    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     needs: build_version_name
     outputs:
@@ -123,7 +137,6 @@ jobs:
   publish-docker-images:
     name: "Build and publish Docker images"
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
     needs: set-binary-env
     permissions:
       security-events: write # needed for github/codeql-action/upload-sarif
@@ -228,7 +241,6 @@ jobs:
   get-pushed-images:
     name: Get pushed Docker image names
     needs: [set-binary-env, publish-docker-images]
-    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     outputs:
       pushed_images: ${{ steps.read.outputs.pushed_images }}
@@ -252,7 +264,6 @@ jobs:
   # Test rs-demo with the new Docker images
   test-demo:
     name: Test rs-demo
-    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     needs: [set-binary-env, publish-docker-images, get-pushed-images]
     permissions:
