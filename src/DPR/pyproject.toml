@@ -16,16 +16,19 @@
 name = "dpr-processor-mockup"
 version = "0.1.0"
 description = "DPR processor mockup."
-requires-python = ">=3.11,<4"
+requires-python = ">=3.13,<3.15" # same as eopf
 dependencies = [
     "botocore>=1.31.83,<2",
     "boto3>=1.28.81,<2",
     "requests>=2.31.0,<3",
     "pyyaml>=6.0.1,<7",
     "crcmod>=1.7,<2",
-    "fastapi==0.135.1",
+    "fastapi==0.165.0",
     "uvicorn>=0.35.0",
     "source>=1.2.0,<2",
+    # Same CPM version as the processor images of rs-workflow-env. CPM 3.1.0rc4 is not published as a package
+    # (and its tag still declares version 3.1.0rc3): install it from its git tag.
+    "eopf @ git+https://gitlab.eopf.copernicus.eu/cpm/eopf-cpm.git@3.1.0rc4",
 ]
 
 [dependency-groups]
@@ -44,7 +47,7 @@ dev = [
 package = false # not a python package, only an application
 # Packages without binary wheels, built from their source distribution. All the other packages must be installed
 # from wheels (e.g. with 'uv sync --no-build') so that no setup script is executed.
-no-binary-package = ["crcmod", "source"]
+no-binary-package = ["crcmod", "source", "eopf"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
