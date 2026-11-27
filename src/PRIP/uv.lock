@@ -624,15 +624,15 @@ wheels = [
 
 [[package]]
 name = "odata-query"
-version = "0.10.0"
+version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "python-dateutil" },
     { name = "sly" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ae/58/b87a8f36b372af232a21b0bde5737506c84544365ad81d4998e1e23b2f3c/odata_query-0.10.0.tar.gz", hash = "sha256:230d847d334fc36dc072164886711ad794bedec6d864c2600de614c596fc1c4f", size = 28019, upload-time = "2024-06-28T15:04:30.436Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/dd/e3/3bb4975302ffa2ae3733e3b632ca472b9eb7ddda33783e1b0787cf2b9000/odata_query-1.0.1.tar.gz", hash = "sha256:3adb7caec13fab1216f73af1a738b1db2f2efffa3e72100d42324c61cd230938", size = 32863, upload-time = "2026-11-22T07:21:44.12Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/01/f6/91d52932a61a8605b3569788c494c1aaeb8f3423084659ca76041bcd3fe0/odata_query-0.10.0-py3-none-any.whl", hash = "sha256:eeb9061e87fb047c40bc3e59c5f1fbf5dbf4ea0f7ff2fd510d365d6c33fe7fcb", size = 34900, upload-time = "2024-06-28T15:04:28.88Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/fe/7b907f839fc587102a4d64703c0fe2452fa09dbb8f46f1d75a1c3b3ffb5d/odata_query-1.0.1-py3-none-any.whl", hash = "sha256:0f5c37f9d09b38e2e9a369c7ec39dca7ff03e591ac411a6d13c3660bd47e42fc", size = 41035, upload-time = "2026-11-22T07:21:41.559Z" },
 ]
 
 [[package]]
@@ -687,7 +687,7 @@ requires-dist = [
     { name = "flask", specifier = ">=2.3.0" },
     { name = "flask-bcrypt", specifier = ">=1.0.1" },
     { name = "flask-httpauth", specifier = ">=4.8.0" },
-    { name = "odata-query", specifier = ">=0.10.0,<0.11.0" },
+    { name = "odata-query", specifier = ">=0.10.0,<1.1.0" },
     { name = "shapely", specifier = ">=2.1.1,<3.0.0" },
 ]
 
